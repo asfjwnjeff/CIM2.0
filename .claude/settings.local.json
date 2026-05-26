@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "WebFetch(domain:www.salesforce.com)",
+      "WebFetch(domain:www.lightningdesignsystem.com)",
+      "WebFetch(domain:www.hubspot.com)",
+      "WebFetch(domain:www.fxiaoke.com)",
+      "WebFetch(domain:www.xiaoshouyi.com)",
+      "WebFetch(domain:www.yonyou.com)",
+      "WebFetch(domain:github.com)",
+      "Bash(claude mcp *)",
+      "Bash(claude.cmd mcp *)",
+      "Bash(npx claude *)",
+      "Read(//c/Users/Administrator/.claude/**)",
+      "WebFetch(domain:docs.anthropic.com)",
+      "Read(//c/Users/Administrator/**)",
+      "Bash(where claude *)",
+      "Bash(node)",
+      "Bash(pip install *)",
+      "Bash(pip list *)"
+    ]
+  }
+}
