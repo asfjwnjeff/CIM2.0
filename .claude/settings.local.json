@@ -17,6 +17,8 @@
       "Read(//c/Users/Administrator/**)",
       "Bash(where claude *)",
       "Bash(node)",
+      "Bash(pnpm *)",
+      "Bash(npx *)",
       "Bash(pip install *)",
       "Bash(pip list *)"
     ]
