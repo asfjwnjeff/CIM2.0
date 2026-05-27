@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- 字体 -->
+  <link href="https://lf-code-agent.coze.cn/obj/x-ai-cn/fonts/google/google-all-fonts.css" rel="stylesheet"/>
+
+  <script src="https://lf-code-agent.coze.cn/obj/x-ai-cn/cdn/jquery/jquery-3.7.1.min.js"></script>
+  <script src="https://lf-code-agent.coze.cn/obj/x-ai-cn/cdn/lucide/lucide-1.11.0.min.js"></script>
+  <script src="https://lf-code-agent.coze.cn/obj/x-ai-cn/cdn/tailwindcss/tailwindcss-browser-4.2.4.min.js"></script>
+
+  <style type="text/tailwindcss">
+    @theme {
+      /* === 品牌色 - 商务稳重风格 === */
+      --color-primary:              #1E40AF;
+      --color-primary-container:    #DBEAFE;
+      --color-on-primary:           #ffffff;
+      /* === 背景 / 表面 === */
+      --color-background:                 #F8F9FC;
+      --color-surface-container-lowest:   #FFFFFF;
+      --color-surface:                    #FFFFFF;
+      --color-surface-container:          #F3F4F6;
+      --color-surface-container-high:     #E5E7EB;
+      --color-surface-container-highest:  #D1D5DB;
+      /* === 文字 === */
+      --color-on-surface:           #1A1A1A;
+      --color-on-surface-variant:   #6B7597;
+      /* === 功能色 === */
+      --color-success:  #00B87C;
+      --color-error:    #FF4D4F;
+      --color-warning:  #FF8A00;
+      /* === 边框 === */
+      --color-outline:          #E8ECF5;
+      --color-outline-variant:  #D1D5DB;
+      /* === 圆角 === */
+      --radius-sm:   0.375rem;
+      --radius-md:   0.5rem;
+      --radius-lg:   0.75rem;
+      --radius-xl:   1rem;
+      --radius-2xl:  1.5rem;
+      --radius-full: 9999px;
+      /* === 阴影 === */
+      --shadow-card:   0 2px 8px rgba(0,0,0,0.08);
+      --shadow-float:  0 10px 25px rgba(0,0,0,0.12);
+      --shadow-dialog: 0 25px 50px rgba(0,0,0,0.15);
+      /* === 字体 === */
+      --font-sans: "Inter", "Noto Sans SC", system-ui, sans-serif;
+    }
+  </style>
+
+  <!-- 图片兜底 -->
+  <script>
+    document.addEventListener('error', function (e) {
+      const img = e.target;
+      if (img.tagName !== 'IMG' || img.dataset.fallback) return;
+      img.dataset.fallback = '1';
+      const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      const cat = img.getAttribute('data-category') || '其他';
+      const alt = img.getAttribute('alt') || '';
+      const label = esc(alt.length > 8 ? alt.slice(0, 8) + '…' : alt);
+      const icons = { '人物': '👤', '自然风景': '🏞', '动物': '🐾', '建筑城市': '🏙', '运动体育': '⚽', '交通工具': '🚗', '食物': '🍽', '服饰时尚': '👗', '商业科技': '💼', '游戏娱乐': '🎮', '艺术': '🎨', '其他': '🖼' };
+      const icon = icons[cat] || '🖼';
+      const w = img.width || 400, h = img.height || 300;
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}"><rect width="100%" height="100%" fill="%23f3f4f6"/><text x="50%" y="45%" text-anchor="middle" font-size="${Math.min(w, h) * 0.18}" dominant-baseline="central">${icon}</text><text x="50%" y="68%" text-anchor="middle" font-size="${Math.min(w, h) * 0.07}" fill="%239ca3af" font-family="system-ui,sans-serif" dominant-baseline="central">${label}</text></svg>`;
+      img.src = 'data:image/svg+xml,' + svg;
+    }, true);
+  </script>
+</head>
+
+<body class="bg-background text-on-surface font-sans">
+
+  <!-- @nav:start 导航组件，不需要的页面则不要复制此段 -->
+  <header class="bg-surface sticky top-0 z-40 h-16 flex items-center justify-between px-6 border-b border-outline">
+    <div class="flex items-center gap-2">
+      <i data-lucide="briefcase" class="text-primary w-6 h-6"></i>
+      <span class="font-bold text-xl text-on-surface">CIM 客户信息管理</span>
+    </div>
+    <div class="flex items-center gap-4">
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center text-sm font-medium">初</div>
+        <span class="text-sm text-on-surface">小初</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="flex" style="height: calc(100vh - 4rem)">
+    <aside class="w-60 shrink-0 bg-surface border-r border-outline overflow-y-auto">
+      <div class="p-3 space-y-0.5">
+        <a href="home.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors">
+          <i data-lucide="gauge" class="w-4 h-4"></i>首页
+        </a>
+        <a href="customers.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors">
+          <i data-lucide="users" class="w-4 h-4"></i>客户管理
+        </a>
+        <a href="opportunities.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors">
+          <i data-lucide="trending-up" class="w-4 h-4"></i>商机管理
+        </a>
+        <a href="quotes.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md bg-primary/10 text-primary font-medium text-sm" aria-current="page">
+          <i data-lucide="file-text" class="w-4 h-4"></i>售前报价
+        </a>
+        <a href="approvals.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors">
+          <i data-lucide="shield-alert" class="w-4 h-4"></i>客户风险控制
+        </a>
+        <a href="entities.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors">
+          <i data-lucide="building" class="w-4 h-4"></i>主体管理
+        </a>
+        <a href="contracts.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors">
+          <i data-lucide="file-signature" class="w-4 h-4"></i>合同签署
+        </a>
+        <a href="followup.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors">
+          <i data-lucide="message-square" class="w-4 h-4"></i>客户跟进
+        </a>
+        <a href="rules.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors">
+          <i data-lucide="settings" class="w-4 h-4"></i>规则管理
+        </a>
+      </div>
+    </aside>
+
+    <!-- @main-content:start -->
+    <main class="flex-1 min-w-0 overflow-y-auto bg-background p-6">
+      <!-- 页面头部 -->
+      <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center gap-3">
+          <button id="btn-back" class="p-2 rounded-md hover:bg-surface-container transition-colors">
+            <i data-lucide="arrow-left" class="w-5 h-5 text-on-surface-variant"></i>
+          </button>
+          <div>
+            <h1 class="text-2xl font-bold text-on-surface">新增报价单</h1>
+            <p class="text-sm text-on-surface-variant mt-1">创建新的售前报价单，填写基本信息和服务项目</p>
+          </div>
+        </div>
+      </div>
+
+      <form id="quote-form" class="space-y-6">
+        <!-- 基本信息卡片 -->
+        <div class="bg-surface rounded-lg shadow-card p-5">
+          <h2 class="text-base font-semibold text-on-surface mb-4">基本信息</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- 客户 -->
+            <div class="space-y-1.5">
+              <label for="customer" class="text-sm font-medium text-on-surface">客户 <span class="text-error">*</span></label>
+              <select id="customer" class="w-full bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors">
+                <option value="">请选择客户</option>
+                <option value="1">北京科技有限公司</option>
+                <option value="2">上海创新集团</option>
+                <option value="3">广州贸易公司</option>
+                <option value="4">深圳智能制造有限公司</option>
+              </select>
+            </div>
+            <!-- 标题 -->
+            <div class="space-y-1.5">
+              <label for="title" class="text-sm font-medium text-on-surface">报价单标题 <span class="text-error">*</span></label>
+              <input type="text" id="title" placeholder="请输入报价单标题" class="w-full bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors"/>
+            </div>
+            <!-- 有效期 -->
+            <div class="space-y-1.5">
+              <label for="valid-until" class="text-sm font-medium text-on-surface">有效期至 <span class="text-error">*</span></label>
+              <input type="date" id="valid-until" class="w-full bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors"/>
+            </div>
+            <!-- 负责人 -->
+            <div class="space-y-1.5">
+              <label for="owner" class="text-sm font-medium text-on-surface">负责人</label>
+              <select id="owner" class="w-full bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors">
+                <option value="1">小初</option>
+                <option value="2">张三</option>
+                <option value="3">李四</option>
+                <option value="4">王五</option>
+              </select>
+            </div>
+            <!-- 备注 -->
+            <div class="space-y-1.5 md:col-span-2">
+              <label for="remark" class="text-sm font-medium text-on-surface">备注</label>
+              <textarea id="remark" rows="3" placeholder="请输入备注信息" class="w-full bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors resize-none"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- 服务项目卡片 -->
+        <div class="bg-surface rounded-lg shadow-card p-5">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-base font-semibold text-on-surface">服务项目</h2>
+            <button type="button" id="btn-add-item" class="bg-primary text-on-primary px-4 py-2 rounded-md text-sm font-medium hover:opacity-90 active:scale-[0.98] transition-all inline-flex items-center gap-2">
+              <i data-lucide="plus" class="w-3.5 h-3.5"></i>添加服务项目
+            </button>
+          </div>
+
+          <!-- 服务项目表格 -->
+          <div class="overflow-hidden border border-outline-variant/20 rounded-md">
+            <div class="grid grid-cols-12 px-4 py-3 bg-surface-container text-xs font-semibold text-on-surface-variant uppercase tracking-wide">
+              <span class="col-span-3">项目名称</span>
+              <span class="col-span-2">描述</span>
+              <span class="col-span-1 text-center">数量</span>
+              <span class="col-span-1 text-center">单位</span>
+              <span class="col-span-2 text-right">单价</span>
+              <span class="col-span-1 text-center">折扣</span>
+              <span class="col-span-1 text-right">小计</span>
+              <span class="col-span-1 text-center">操作</span>
+            </div>
+            <div id="service-items" class="divide-y divide-outline-variant/50">
+              <!-- 服务项目1 -->
+              <div class="grid grid-cols-12 px-4 py-3 items-center hover:bg-surface-container/50 transition-colors">
+                <div class="col-span-3">
+                  <input type="text" value="咨询服务" class="w-full bg-transparent border-none text-sm text-on-surface focus:outline-none"/>
+                </div>
+                <div class="col-span-2">
+                  <input type="text" value="专业咨询" class="w-full bg-transparent border-none text-sm text-on-surface-variant focus:outline-none"/>
+                </div>
+                <div class="col-span-1">
+                  <input type="number" value="10" class="w-full bg-surface-container border-none rounded-md px-2 py-1 text-sm text-center text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors"/>
+                </div>
+                <div class="col-span-1">
+                  <select class="w-full bg-surface-container border-none rounded-md px-2 py-1 text-sm text-center text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors">
+                    <option>小时</option>
+                    <option>天</option>
+                    <option>次</option>
+                    <option>项</option>
+                  </select>
+                </div>
+                <div class="col-span-2">
+                  <input type="number" value="500" class="w-full bg-surface-container border-none rounded-md px-2 py-1 text-sm text-right text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors"/>
+                </div>
+                <div class="col-span-1">
+                  <input type="number" value="0" class="w-full bg-surface-container border-none rounded-md px-2 py-1 text-sm text-center text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors"/>
+                </div>
+                <div class="col-span-1 text-sm font-semibold text-on-surface text-right">¥5,000</div>
+                <div class="col-span-1 flex justify-center">
+                  <button type="button" class="btn-delete-item p-1 text-on-surface-variant hover:text-error transition-colors">
+                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                  </button>
+                </div>
+              </div>
+              <!-- 服务项目2 -->
+              <div class="grid grid-cols-12 px-4 py-3 items-center hover:bg-surface-container/50 transition-colors">
+                <div class="col-span-3">
+                  <input type="text" value="实施服务" class="w-full bg-transparent border-none text-sm text-on-surface focus:outline-none"/>
+                </div>
+                <div class="col-span-2">
+                  <input type="text" value="系统部署" class="w-full bg-transparent border-none text-sm text-on-surface-variant focus:outline-none"/>
+                </div>
+                <div class="col-span-1">
+                  <input type="number" value="20" class="w-full bg-surface-container border-none rounded-md px-2 py-1 text-sm text-center text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors"/>
+                </div>
+                <div class="col-span-1">
+                  <select class="w-full bg-surface-container border-none rounded-md px-2 py-1 text-sm text-center text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors">
+                    <option>小时</option>
+                    <option selected>天</option>
+                    <option>次</option>
+                    <option>项</option>
+                  </select>
+                </div>
+                <div class="col-span-2">
+                  <input type="number" value="800" class="w-full bg-surface-container border-none rounded-md px-2 py-1 text-sm text-right text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors"/>
+                </div>
+                <div class="col-span-1">
+                  <input type="number" value="5" class="w-full bg-surface-container border-none rounded-md px-2 py-1 text-sm text-center text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors"/>
+                </div>
+                <div class="col-span-1 text-sm font-semibold text-on-surface text-right">¥15,200</div>
+                <div class="col-span-1 flex justify-center">
+                  <button type="button" class="btn-delete-item p-1 text-on-surface-variant hover:text-error transition-colors">
+                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                  </button>
+                </div>
+              </div>
+              <!-- 服务项目3 -->
+              <div class="grid grid-cols-12 px-4 py-3 items-center hover:bg-surface-container/50 transition-colors">
+                <div class="col-span-3">
+                  <input type="text" value="培训服务" class="w-full bg-transparent border-none text-sm text-on-surface focus:outline-none"/>
+                </div>
+                <div class="col-span-2">
+                  <input type="text" value="用户培训" class="w-full bg-transparent border-none text-sm text-on-surface-variant focus:outline-none"/>
+                </div>
+                <div class="col-span-1">
+                  <input type="number" value="5" class="w-full bg-surface-container border-none rounded-md px-2 py-1 text-sm text-center text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors"/>
+                </div>
+                <div class="col-span-1">
+                  <select class="w-full bg-surface-container border-none rounded-md px-2 py-1 text-sm text-center text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors">
+                    <option>小时</option>
+                    <option>天</option>
+                    <option selected>次</option>
+                    <option>项</option>
+                  </select>
+                </div>
+                <div class="col-span-2">
+                  <input type="number" value="2000" class="w-full bg-surface-container border-none rounded-md px-2 py-1 text-sm text-right text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors"/>
+                </div>
+                <div class="col-span-1">
+                  <input type="number" value="0" class="w-full bg-surface-container border-none rounded-md px-2 py-1 text-sm text-center text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors"/>
+                </div>
+                <div class="col-span-1 text-sm font-semibold text-on-surface text-right">¥10,000</div>
+                <div class="col-span-1 flex justify-center">
+                  <button type="button" class="btn-delete-item p-1 text-on-surface-variant hover:text-error transition-colors">
+                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 总计 -->
+          <div class="flex justify-end mt-4 pt-4 border-t border-outline-variant/20">
+            <div class="text-right">
+              <span class="text-sm text-on-surface-variant">总计：</span>
+              <span class="text-2xl font-bold text-primary ml-2">¥30,200</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 底部操作栏 -->
+        <div class="flex items-center justify-end gap-3 pt-4 border-t border-outline-variant/20">
+          <button type="button" id="btn-cancel" class="bg-surface-container text-on-surface border-none px-4 py-2 rounded-md text-sm font-medium hover:bg-surface-container-high active:scale-[0.98] transition-all">取消</button>
+          <button type="button" id="btn-save-draft" class="bg-surface-container text-primary border-none px-4 py-2 rounded-md text-sm font-medium hover:bg-surface-container-high active:scale-[0.98] transition-all">保存草稿</button>
+          <button type="button" id="btn-submit-approval" class="bg-primary text-on-primary px-4 py-2 rounded-md text-sm font-medium hover:opacity-90 active:scale-[0.98] transition-all inline-flex items-center gap-2">
+            <i data-lucide="send" class="w-3.5 h-3.5"></i>提交审批
+          </button>
+        </div>
+      </form>
+
+      <!-- 确认离开弹窗 -->
+      <div id="modal-discard" class="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-surface rounded-xl shadow-dialog max-w-md w-full p-6">
+          <h3 class="text-lg font-semibold text-on-surface mb-2">确认离开</h3>
+          <p class="text-sm text-on-surface-variant mb-6">您有未保存的改动，确定要离开吗？</p>
+          <div class="flex justify-end gap-3">
+            <button id="btn-discard-cancel" class="bg-surface-container text-on-surface border-none px-4 py-2 rounded-md text-sm font-medium hover:bg-surface-container-high active:scale-[0.98] transition-all">取消</button>
+            <button id="btn-discard-confirm" class="bg-error text-on-primary px-4 py-2 rounded-md text-sm font-medium hover:opacity-90 active:scale-[0.98] transition-all">确定离开</button>
+          </div>
+        </div>
+      </div>
+    </main>
+    <!-- @main-content:end -->
+  </div>
+  <!-- @nav:end 导航组件 -->
+
+  <script>
+    $(function() {
+      // 返回按钮 - 点击后检查是否有未保存改动，有则显示确认弹窗，无则直接跳转
+      $('#btn-back, #btn-cancel').on('click', function() {
+        const hasChanges = true; // 简单起见，默认有未保存改动
+        if (hasChanges) {
+          $('#modal-discard').removeClass('hidden');
+        } else {
+          window.location.href = 'quotes.html';
+        }
+      });
+
+      // 确认离开弹窗 - 取消按钮
+      $('#btn-discard-cancel').on('click', function() {
+        $('#modal-discard').addClass('hidden');
+      });
+
+      // 确认离开弹窗 - 确定离开按钮
+      $('#btn-discard-confirm').on('click', function() {
+        window.location.href = 'quotes.html';
+      });
+
+      // 保存草稿按钮 - 点击后显示保存成功提示，然后跳转列表页
+      $('#btn-save-draft').on('click', function() {
+        console.log('保存草稿功能：');
+        // 1. 收集表单数据
+        // 2. 验证必填项
+        // 3. 调用保存接口
+        // 4. 显示保存成功提示
+        // 5. 跳转到列表页
+        alert('草稿保存成功！');
+        window.location.href = 'quotes.html';
+      });
+
+      // 提交审批按钮 - 点击后验证表单，然后提交审批并跳转详情页
+      $('#btn-submit-approval').on('click', function() {
+        console.log('提交审批功能：');
+        // 1. 收集表单数据
+        // 2. 验证必填项和数据格式
+        // 3. 调用提交审批接口
+        // 4. 显示提交成功提示
+        // 5. 跳转到详情页
+        alert('提交审批成功！');
+        window.location.href = 'quotes-detail.html?id=1';
+      });
+
+      // 添加服务项目按钮 - 点击后添加新的服务项目行
+      $('#btn-add-item').on('click', function() {
+        console.log('添加服务项目功能：');
+        // 1. 在服务项目列表末尾添加新的行
+        // 2. 新行包含所有必要的输入字段
+        // 3. 自动聚焦到项目名称输入框
+        const newItem = `
+          <div class="grid grid-cols-12 px-4 py-3 items-center hover:bg-surface-container/50 transition-colors">
+            <div class="col-span-3">
+              <input type="text" value="" placeholder="请输入项目名称" class="w-full bg-transparent border-none text-sm text-on-surface focus:outline-none"/>
+            </div>
+            <div class="col-span-2">
+              <input type="text" value="" placeholder="描述" class="w-full bg-transparent border-none text-sm text-on-surface-variant focus:outline-none"/>
+            </div>
+            <div class="col-span-1">
+              <input type="number" value="1" class="w-full bg-surface-container border-none rounded-md px-2 py-1 text-sm text-center text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors"/>
+            </div>
+            <div class="col-span-1">
+              <select class="w-full bg-surface-container border-none rounded-md px-2 py-1 text-sm text-center text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors">
+                <option>小时</option>
+                <option>天</option>
+                <option>次</option>
+                <option>项</option>
+              </select>
+            </div>
+            <div class="col-span-2">
+              <input type="number" value="0" class="w-full bg-surface-container border-none rounded-md px-2 py-1 text-sm text-right text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors"/>
+            </div>
+            <div class="col-span-1">
+              <input type="number" value="0" class="w-full bg-surface-container border-none rounded-md px-2 py-1 text-sm text-center text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors"/>
+            </div>
+            <div class="col-span-1 text-sm font-semibold text-on-surface text-right">¥0</div>
+            <div class="col-span-1 flex justify-center">
+              <button type="button" class="btn-delete-item p-1 text-on-surface-variant hover:text-error transition-colors">
+                <i data-lucide="trash-2" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+        `;
+        $('#service-items').append(newItem);
+        lucide.createIcons();
+      });
+
+      // 删除服务项目按钮 - 点击后删除对应的服务项目行
+      $('#service-items').on('click', '.btn-delete-item', function() {
+        console.log('删除服务项目功能：');
+        // 1. 确认删除
+        // 2. 删除对应的行
+        // 3. 重新计算总计
+        $(this).closest('.grid').remove();
+      });
+    });
+
+    lucide.createIcons();
+  </script>
+</body>
+
+</html>

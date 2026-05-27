@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- 字体 -->
+  <link href="https://fonts.googleapis.cn/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+
+  <script src="https://lf-code-agent.coze.cn/obj/x-ai-cn/cdn/jquery/jquery-3.7.1.min.js"></script>
+  <script src="https://lf-code-agent.coze.cn/obj/x-ai-cn/cdn/lucide/lucide-1.11.0.min.js"></script>
+  <script src="https://lf-code-agent.coze.cn/obj/x-ai-cn/cdn/tailwindcss/tailwindcss-browser-4.2.4.min.js"></script>
+
+  <style type="text/tailwindcss">
+    @theme {
+      /* === 品牌色 - 商务稳重蓝色系 === */
+      --color-primary:              #1E40AF;
+      --color-primary-container:    #DBEAFE;
+      --color-on-primary:           #ffffff;
+      /* === 背景 / 表面 - 纯白背景 === */
+      --color-background:                 #FFFFFF;
+      --color-surface-container-lowest:   #FAFAFA;
+      --color-surface:                    #FFFFFF;
+      --color-surface-container:          #F3F4F6;
+      --color-surface-container-high:     #E5E7EB;
+      --color-surface-container-highest:  #D1D5DB;
+      /* === 文字 === */
+      --color-on-surface:           #111827;
+      --color-on-surface-variant:   #6B7280;
+      /* === 功能色 === */
+      --color-success:  #22c55e;
+      --color-error:    #ef4444;
+      --color-warning:  #f59e0b;
+      /* === 边框 === */
+      --color-outline:          #9CA3AF;
+      --color-outline-variant:  #D1D5DB;
+      /* === 圆角 - 8px === */
+      --radius-sm:   0.375rem;
+      --radius-md:   0.5rem;
+      --radius-lg:   0.625rem;
+      --radius-xl:   0.75rem;
+      --radius-2xl:  1rem;
+      --radius-full: 9999px;
+      /* === 阴影 === */
+      --shadow-card:   0 2px 8px rgba(0,0,0,0.10);
+      --shadow-float:  0 10px 25px rgba(0,0,0,0.12);
+      --shadow-dialog: 0 25px 50px rgba(0,0,0,0.15);
+      /* === 字体 === */
+      --font-sans: "Inter", "Noto Sans SC", system-ui, sans-serif;
+    }
+  </style>
+
+  <!-- 图片兜底 -->
+  <script>
+    document.addEventListener('error', function (e) {
+      const img = e.target;
+      if (img.tagName !== 'IMG' || img.dataset.fallback) return;
+      img.dataset.fallback = '1';
+      const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      const cat = img.getAttribute('data-category') || '其他';
+      const alt = img.getAttribute('alt') || '';
+      const label = esc(alt.length > 8 ? alt.slice(0, 8) + '…' : alt);
+      const icons = { '人物': '👤', '自然风景': '🏞', '动物': '🐾', '建筑城市': '🏙', '运动体育': '⚽', '交通工具': '🚗', '食物': '🍽', '服饰时尚': '👗', '商业科技': '💼', '游戏娱乐': '🎮', '艺术': '🎨', '其他': '🖼' };
+      const icon = icons[cat] || '🖼';
+      const w = img.width || 400, h = img.height || 300;
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}"><rect width="100%" height="100%" fill="%23f3f4f6"/><text x="50%" y="45%" text-anchor="middle" font-size="${Math.min(w, h) * 0.18}" dominant-baseline="central">${icon}</text><text x="50%" y="68%" text-anchor="middle" font-size="${Math.min(w, h) * 0.07}" fill="%239ca3af" font-family="system-ui,sans-serif" dominant-baseline="central">${label}</text></svg>`;
+      img.src = 'data:image/svg+xml,' + svg;
+    }, true);
+  </script>
+</head>
+
+<body class="bg-background text-on-surface font-sans">
+
+  <!-- @nav:start 导航组件 -->
+  <header class="bg-surface sticky top-0 z-40 h-16 flex items-center justify-between px-6 border-b border-outline-variant/20">
+    <div class="flex items-center gap-3">
+      <a href="approvals.html" class="flex items-center gap-2">
+        <i data-lucide="shield-check" class="text-primary w-6 h-6"></i>
+        <span class="font-bold text-lg">CIM 风控审批</span>
+      </a>
+    </div>
+    <nav class="flex items-center gap-1">
+      <a href="approvals.html" class="px-3 py-1.5 text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded-md transition-colors">风控审批</a>
+      <a href="approval-workflows.html" class="px-3 py-1.5 text-sm font-medium text-primary bg-primary/10 rounded-md" aria-current="page">流程配置</a>
+      <a href="approval-auto-rules.html" class="px-3 py-1.5 text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded-md transition-colors">自动规则</a>
+      <a href="followup-new-ai.html" class="px-3 py-1.5 text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded-md transition-colors">AI跟进</a>
+    </nav>
+    <div class="flex items-center gap-3">
+      <button class="bg-surface-container text-on-surface px-4 py-2 rounded-md text-sm font-medium hover:bg-surface-container-high transition-colors">
+        <i data-lucide="bell" class="w-4 h-4 inline mr-2"></i>
+        通知
+      </button>
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 rounded-full bg-primary/20 text-primary flex items-center justify-center text-sm font-semibold">初</div>
+        <span class="text-sm font-medium">小初</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="flex" style="height: calc(100vh - 4rem)">
+    <!-- 左侧人员导航栏 -->
+    <aside class="w-48 shrink-0 bg-surface-container-lowest border-r border-outline-variant/20 overflow-y-auto">
+      <div class="p-3 space-y-0.5">
+        <div class="px-3 py-2 text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-2">审批人</div>
+        
+        <!-- 发起人 -->
+        <button id="nav-initiator" class="nav-person-btn flex items-center gap-3 px-3 py-2.5 rounded-md bg-primary/10 text-primary font-medium text-sm transition-colors w-full text-left" data-role="initiator">
+          <i data-lucide="user-circle" class="w-4 h-4 shrink-0"></i>
+          <span>张君</span>
+          <i data-lucide="check-circle" class="w-4 h-4 ml-auto text-success"></i>
+        </button>
+        
+        <!-- 审批人 - 部门经理 -->
+        <button id="nav-manager" class="nav-person-btn flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors w-full text-left" data-role="manager">
+          <i data-lucide="user-check" class="w-4 h-4 shrink-0"></i>
+          <span>华彬杰</span>
+          <i data-lucide="check-circle" class="w-4 h-4 ml-auto text-success"></i>
+        </button>
+        
+        <!-- 职能审批人 -->
+        <button id="nav-functional" class="nav-person-btn flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors w-full text-left" data-role="functional">
+          <i data-lucide="briefcase" class="w-4 h-4 shrink-0"></i>
+          <span>白沥</span>
+          <i data-lucide="check-circle" class="w-4 h-4 ml-auto text-success"></i>
+        </button>
+        
+        <!-- 审核人 - 财务 -->
+        <button id="nav-finance" class="nav-person-btn flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors w-full text-left" data-role="finance">
+          <i data-lucide="calculator" class="w-4 h-4 shrink-0"></i>
+          <span>吴佳敏</span>
+          <i data-lucide="check-circle" class="w-4 h-4 ml-auto text-success"></i>
+        </button>
+        
+        <!-- 审核人 - 总经理 -->
+        <button id="nav-gm" class="nav-person-btn flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors w-full text-left" data-role="gm">
+          <i data-lucide="crown" class="w-4 h-4 shrink-0"></i>
+          <span>陆静娥</span>
+          <i data-lucide="check-circle" class="w-4 h-4 ml-auto text-success"></i>
+        </button>
+        
+        <!-- 审核人 - 另一总经理 -->
+        <button id="nav-gm2" class="nav-person-btn flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors w-full text-left" data-role="gm2">
+          <i data-lucide="crown" class="w-4 h-4 shrink-0"></i>
+          <span>杨子江</span>
+          <i data-lucide="plus-circle" class="w-4 h-4 ml-auto text-primary"></i>
+        </button>
+        
+        <!-- IT运维 -->
+        <button id="nav-it" class="nav-person-btn flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors w-full text-left" data-role="it">
+          <i data-lucide="server" class="w-4 h-4 shrink-0"></i>
+          <span>陈刚</span>
+          <i data-lucide="clock" class="w-4 h-4 ml-auto text-warning"></i>
+        </button>
+      </div>
+      
+      <!-- 快速链接 -->
+      <div class="mt-4 border-t border-outline-variant/30 pt-3 px-3 space-y-0.5">
+        <div class="px-3 py-2 text-xs font-semibold text-on-surface-variant uppercase tracking-wider">快速链接</div>
+        <a href="opportunities.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors">
+          <i data-lucide="trending-up" class="w-4 h-4"></i>商机管理
+        </a>
+        <a href="customers.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors">
+          <i data-lucide="users" class="w-4 h-4"></i>客户管理
+        </a>
+      </div>
+    </aside>
+
+    <!-- @main-content:start -->
+    <main class="flex-1 min-w-0 overflow-y-auto bg-background">
+      <div class="max-w-4xl mx-auto p-6">
+        
+        <!-- 顶部标签页导航 -->
+        <div class="border-b border-outline-variant/50 mb-6">
+          <nav class="flex gap-8">
+            <button id="tab-basic" class="tab-btn pb-3 text-sm font-medium text-on-surface-variant hover:text-on-surface border-b-2 border-transparent transition-colors" data-tab="basic">基本信息</button>
+            <button id="tab-flow" class="tab-btn pb-3 text-sm font-medium text-primary border-b-2 border-primary transition-colors" data-tab="flow">流程</button>
+            <button id="tab-review" class="tab-btn pb-3 text-sm font-medium text-on-surface-variant hover:text-on-surface border-b-2 border-transparent transition-colors" data-tab="review">评价</button>
+            <button id="tab-contract" class="tab-btn pb-3 text-sm font-medium text-on-surface-variant hover:text-on-surface border-b-2 border-transparent transition-colors" data-tab="contract">合同</button>
+            <button id="tab-settings" class="tab-btn pb-3 text-sm font-medium text-on-surface-variant hover:text-on-surface border-b-2 border-transparent transition-colors" data-tab="settings">设置</button>
+          </nav>
+        </div>
+
+        <!-- 流程标签页内容 -->
+        <div id="content-flow" class="tab-content">
+          
+          <!-- 审批流程时间线 -->
+          <div class="relative pl-12">
+            
+            <!-- 垂直连接线 -->
+            <div class="absolute left-[19px] top-0 bottom-0 w-0.5 bg-primary/30"></div>
+            
+            <!-- 节点1: 发起人 -->
+            <div class="flow-node relative pb-10" data-node-id="initiator">
+              <div class="absolute left-[-44px] top-0 w-9 h-9 rounded-full bg-primary/15 border-2 border-primary flex items-center justify-center overflow-hidden">
+                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=ZhangJun" alt="张君" class="w-full h-full object-cover" data-category="人物"/>
+              </div>
+              
+              <div class="bg-surface rounded-lg shadow-card p-4">
+                <div class="flex items-start justify-between">
+                  <div class="flex-1">
+                    <div class="flex items-center gap-3 mb-2">
+                      <h3 class="text-base font-semibold text-on-surface">发起人</h3>
+                      <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-primary/15 text-primary">已提交</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-sm text-on-surface-variant">
+                      <span class="font-medium text-on-surface">张君</span>
+                      <span>(已同意)</span>
+                    </div>
+                  </div>
+                  <time class="text-xs text-on-surface-variant whitespace-nowrap ml-4">2026-04-08 14:11:26</time>
+                </div>
+                
+                <!-- 审批意见 -->
+                <div class="mt-3 pt-3 border-t border-outline-variant/20">
+                  <div class="bg-surface-container-lowest rounded-md px-3 py-2 text-sm text-on-surface-variant">
+                    已提交审批申请
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- 节点2: 审批人 - 部门经理 -->
+            <div class="flow-node relative pb-10" data-node-id="manager">
+              <div class="absolute left-[-44px] top-0 w-9 h-9 rounded-full bg-warning/15 border-2 border-warning flex items-center justify-center overflow-hidden">
+                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=HuaBinJie" alt="华彬杰" class="w-full h-full object-cover" data-category="人物"/>
+              </div>
+              
+              <div class="bg-surface rounded-lg shadow-card p-4">
+                <div class="flex items-start justify-between">
+                  <div class="flex-1">
+                    <div class="flex items-center gap-3 mb-2">
+                      <h3 class="text-base font-semibold text-on-surface">审批人</h3>
+                      <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-success/15 text-success">已通过</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-sm text-on-surface-variant">
+                      <span class="font-medium text-on-surface">华彬杰</span>
+                      <span>(已同意)</span>
+                    </div>
+                  </div>
+                  <time class="text-xs text-on-surface-variant whitespace-nowrap ml-4">2026-04-08 14:12:07</time>
+                </div>
+                
+                <!-- 审批意见 -->
+                <div class="mt-3 pt-3 border-t border-outline-variant/20">
+                  <div class="bg-surface-container-lowest rounded-md px-3 py-2 text-sm text-on-surface-variant">
+                    同意
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- 节点3: 职能审批人 - 白沥（贸易代理自动加入） -->
+            <div class="flow-node relative pb-10" data-node-id="functional">
+              <div class="absolute left-[-44px] top-0 w-9 h-9 rounded-full bg-error/15 border-2 border-error flex items-center justify-center overflow-hidden">
+                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=BaiLi" alt="白沥" class="w-full h-full object-cover" data-category="人物"/>
+              </div>
+              
+              <div class="bg-surface rounded-lg shadow-card p-4 ring-2 ring-error/20">
+                <div class="flex items-start justify-between">
+                  <div class="flex-1">
+                    <div class="flex items-center gap-3 mb-2">
+                      <h3 class="text-base font-semibold text-on-surface">职能审批人</h3>
+                      <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-success/15 text-success">已通过</span>
+                      <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-error/15 text-error">贸易代理</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-sm text-on-surface-variant">
+                      <span class="font-medium text-on-surface">白沥</span>
+                      <span>(已同意)</span>
+                    </div>
+                  </div>
+                  <time class="text-xs text-on-surface-variant whitespace-nowrap ml-4">2026-04-08 14:33:08</time>
+                </div>
+                
+                <!-- 自动添加提示 -->
+                <div class="mt-2 mb-3">
+                  <div class="inline-flex items-center gap-1.5 px-2 py-1 rounded-sm text-xs font-medium bg-error/10 text-error">
+                    <i data-lucide="sparkles" class="w-3 h-3"></i>
+                    因选择"贸易代理"，自动加入白沥作为职能审批人
+                  </div>
+                </div>
+                
+                <!-- 审批意见 -->
+                <div class="pt-3 border-t border-outline-variant/20">
+                  <div class="bg-surface-container-lowest rounded-md px-3 py-2 text-sm text-on-surface-variant">
+                    同意，贸易代理业务符合公司规定
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- 节点4: 审核人 - 财务（会签） -->
+            <div class="flow-node relative pb-10" data-node-id="finance">
+              <div class="absolute left-[-44px] top-0 w-9 h-9 rounded-full bg-success/15 border-2 border-success flex items-center justify-center overflow-hidden">
+                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=WuJiaMin" alt="吴佳敏" class="w-full h-full object-cover" data-category="人物"/>
+              </div>
+              
+              <div class="bg-surface rounded-lg shadow-card p-4">
+                <div class="flex items-start justify-between">
+                  <div class="flex-1">
+                    <div class="flex items-center gap-3 mb-2">
+                      <h3 class="text-base font-semibold text-on-surface">审核人</h3>
+                      <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-success/15 text-success">已通过</span>
+                      <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-primary/15 text-primary">财务会签</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-sm text-on-surface-variant">
+                      <span class="font-medium text-on-surface">吴佳敏</span>
+                      <span>(已同意)</span>
+                    </div>
+                  </div>
+                  <time class="text-xs text-on-surface-variant whitespace-nowrap ml-4">2026-04-08 17:26:32</time>
+                </div>
+                
+                <!-- 审批意见 -->
+                <div class="mt-3 pt-3 border-t border-outline-variant/20">
+                  <div class="bg-surface-container-lowest rounded-md px-3 py-2 text-sm text-on-surface-variant">
+                    同意
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- 节点5: 审核人 - 总经理1（会签） -->
+            <div class="flow-node relative pb-10" data-node-id="gm">
+              <div class="absolute left-[-44px] top-0 w-9 h-9 rounded-full bg-purple-100 border-2 border-purple-400 flex items-center justify-center overflow-hidden">
+                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=LuJingE" alt="陆静娥" class="w-full h-full object-cover" data-category="人物"/>
+              </div>
+              
+              <div class="bg-surface rounded-lg shadow-card p-4">
+                <div class="flex items-start justify-between">
+                  <div class="flex-1">
+                    <div class="flex items-center gap-3 mb-2">
+                      <h3 class="text-base font-semibold text-on-surface">审核人</h3>
+                      <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-success/15 text-success">已通过</span>
+                      <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-purple-100 text-purple-600">总经理会签</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-sm text-on-surface-variant">
+                      <span class="font-medium text-on-surface">陆静娥</span>
+                      <span>(已同意)</span>
+                    </div>
+                  </div>
+                  <time class="text-xs text-on-surface-variant whitespace-nowrap ml-4">2026-04-10 22:10:55</time>
+                </div>
+                
+                <!-- 审批意见 -->
+                <div class="mt-3 pt-3 border-t border-outline-variant/20">
+                  <div class="bg-surface-container-lowest rounded-md px-3 py-2 text-sm text-on-surface-variant">
+                    同意
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- 节点6: 审核人 - 总经理2（会签） -->
+            <div class="flow-node relative pb-10" data-node-id="gm2">
+              <div class="absolute left-[-44px] top-0 w-9 h-9 rounded-full bg-indigo-100 border-2 border-indigo-300 flex items-center justify-center overflow-hidden">
+                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=YangZiJiang" alt="杨子江" class="w-full h-full object-cover" data-category="人物"/>
+              </div>
+              
+              <div class="bg-surface rounded-lg shadow-card p-4">
+                <div class="flex items-start justify-between">
+                  <div class="flex-1">
+                    <div class="flex items-center gap-3 mb-2">
+                      <h3 class="text-base font-semibold text-on-surface">审核人</h3>
+                      <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-success/15 text-success">已通过</span>
+                      <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-indigo-100 text-indigo-600">总经理会签</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-sm text-on-surface-variant">
+                      <span class="font-medium text-on-surface">杨子江</span>
+                      <span>(已同意)</span>
+                    </div>
+                  </div>
+                  <time class="text-xs text-on-surface-variant whitespace-nowrap ml-4">2026-04-13 17:09:15</time>
+                </div>
+                
+                <!-- 审批意见 -->
+                <div class="mt-3 pt-3 border-t border-outline-variant/20">
+                  <div class="bg-surface-container-lowest rounded-md px-3 py-2 text-sm text-on-surface-variant">
+                    已添加
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- 节点7: IT运维确认 -->
+            <div class="flow-node relative" data-node-id="it">
+              <div class="absolute left-[-44px] top-0 w-9 h-9 rounded-full bg-cyan-100 border-2 border-cyan-300 flex items-center justify-center overflow-hidden">
+                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=ChenGang" alt="陈刚" class="w-full h-full object-cover" data-category="人物"/>
+              </div>
+              
+              <div class="bg-surface rounded-lg shadow-card p-4 border-2 border-dashed border-warning/50">
+                <div class="flex items-start justify-between">
+                  <div class="flex-1">
+                    <div class="flex items-center gap-3 mb-2">
+                      <h3 class="text-base font-semibold text-on-surface">IT运维确认</h3>
+                      <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-warning/15 text-warning">待处理</span>
+                      <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-cyan-100 text-cyan-600">系统代码分配</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-sm text-on-surface-variant">
+                      <span class="font-medium text-on-surface">陈刚</span>
+                      <span>(待处理)</span>
+                    </div>
+                  </div>
+                  <time class="text-xs text-on-surface-variant whitespace-nowrap ml-4">—</time>
+                </div>
+                
+                <!-- 提示信息 -->
+                <div class="mt-3 pt-3 border-t border-outline-variant/20">
+                  <div class="bg-warning/10 rounded-md px-3 py-2 text-sm text-warning flex items-center gap-2">
+                    <i data-lucide="info" class="w-4 h-4 shrink-0"></i>
+                    等待IT运维确认并分配客户系统代码
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+          </div>
+          
+          <!-- 底部操作按钮 -->
+          <div class="mt-8 pt-6 border-t border-outline-variant/30">
+            <div class="flex items-center justify-center gap-4">
+              <button id="btn-edit" class="flex flex-col items-center gap-1.5 px-4 py-2 rounded-md hover:bg-surface-container transition-colors group">
+                <i data-lucide="edit-2" class="w-5 h-5 text-on-surface-variant group-hover:text-primary transition-colors"></i>
+                <span class="text-xs font-medium text-on-surface-variant group-hover:text-primary transition-colors">修改</span>
+              </button>
+              <button id="btn-share" class="flex flex-col items-center gap-1.5 px-4 py-2 rounded-md hover:bg-surface-container transition-colors group">
+                <i data-lucide="share-2" class="w-5 h-5 text-on-surface-variant group-hover:text-primary transition-colors"></i>
+                <span class="text-xs font-medium text-on-surface-variant group-hover:text-primary transition-colors">分享</span>
+              </button>
+              <button id="btn-delete" class="flex flex-col items-center gap-1.5 px-4 py-2 rounded-md hover:bg-surface-container transition-colors group">
+                <i data-lucide="trash-2" class="w-5 h-5 text-on-surface-variant group-hover:text-error transition-colors"></i>
+                <span class="text-xs font-medium text-on-surface-variant group-hover:text-error transition-colors">删除</span>
+              </button>
+              <button id="btn-comment" class="flex flex-col items-center gap-1.5 px-4 py-2 rounded-md hover:bg-surface-container transition-colors group">
+                <i data-lucide="message-square" class="w-5 h-5 text-on-surface-variant group-hover:text-primary transition-colors"></i>
+                <span class="text-xs font-medium text-on-surface-variant group-hover:text-primary transition-colors">评论</span>
+              </button>
+              <button id="btn-resubmit" class="flex flex-col items-center gap-1.5 px-4 py-2 rounded-md hover:bg-surface-container transition-colors group">
+                <i data-lucide="send" class="w-5 h-5 text-on-surface-variant group-hover:text-primary transition-colors"></i>
+                <span class="text-xs font-medium text-on-surface-variant group-hover:text-primary transition-colors">再次提交</span>
+              </button>
+            </div>
+          </div>
+          
+        </div>
+        
+        <!-- 基本信息标签页内容（默认隐藏） -->
+        <div id="content-basic" class="tab-content hidden">
+          <div class="bg-surface rounded-lg shadow-card p-6">
+            <h2 class="text-lg font-semibold text-on-surface mb-6">基本信息</h2>
+            <div class="grid grid-cols-2 gap-6">
+              <div>
+                <label class="text-xs font-medium text-on-surface-variant uppercase tracking-wide">服务产品名称</label>
+                <p class="text-sm font-medium text-on-surface mt-1">货代 + 贸易代理</p>
+              </div>
+              <div>
+                <label class="text-xs font-medium text-on-surface-variant uppercase tracking-wide">是否贸易代理</label>
+                <p class="text-sm mt-1"><span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-error/15 text-error">是</span></p>
+              </div>
+              <div>
+                <label class="text-xs font-medium text-on-surface-variant uppercase tracking-wide">状态</label>
+                <p class="text-sm mt-1"><span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-success/15 text-success">审批中</span></p>
+              </div>
+              <div>
+                <label class="text-xs font-medium text-on-surface-variant uppercase tracking-wide">创建时间</label>
+                <p class="text-sm text-on-surface-variant mt-1">2026-04-08 14:11:26</p>
+              </div>
+              <div>
+                <label class="text-xs font-medium text-on-surface-variant uppercase tracking-wide">关联客户</label>
+                <p class="text-sm font-medium text-on-surface mt-1">应用材料（中国）有限公司</p>
+              </div>
+              <div>
+                <label class="text-xs font-medium text-on-surface-variant uppercase tracking-wide">关联商机</label>
+                <p class="text-sm font-medium text-on-surface mt-1">Q-20260401-001</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 其他标签页占位 -->
+        <div id="content-review" class="tab-content hidden">
+          <div class="bg-surface rounded-lg shadow-card p-6 text-center text-on-surface-variant">
+            <i data-lucide="star" class="w-12 h-12 mx-auto mb-3 opacity-30"></i>
+            <p>评价功能开发中...</p>
+          </div>
+        </div>
+        
+        <div id="content-contract" class="tab-content hidden">
+          <div class="bg-surface rounded-lg shadow-card p-6 text-center text-on-surface-variant">
+            <i data-lucide="file-text" class="w-12 h-12 mx-auto mb-3 opacity-30"></i>
+            <p>合同功能开发中...</p>
+          </div>
+        </div>
+        
+        <div id="content-settings" class="tab-content hidden">
+          <div class="bg-surface rounded-lg shadow-card p-6 text-center text-on-surface-variant">
+            <i data-lucide="settings" class="w-12 h-12 mx-auto mb-3 opacity-30"></i>
+            <p>设置功能开发中...</p>
+          </div>
+        </div>
+        
+      </div>
+    </main>
+    <!-- @main-content:end -->
+  </div>
+  <!-- @nav:end 导航组件 -->
+
+  <script>
+    $(function() {
+      // 标签页切换
+      $('.tab-btn').on('click', function() {
+        const tabId = $(this).data('tab');
+        
+        // 更新标签样式
+        $('.tab-btn').removeClass('text-primary border-primary').addClass('text-on-surface-variant border-transparent');
+        $(this).removeClass('text-on-surface-variant border-transparent').addClass('text-primary border-primary');
+        
+        // 切换内容
+        $('.tab-content').addClass('hidden');
+        $(`#content-${tabId}`).removeClass('hidden');
+      });
+      
+      // 左侧人员导航点击
+      $('.nav-person-btn').on('click', function() {
+        const role = $(this).data('role');
+        
+        // 高亮当前选中项
+        $('.nav-person-btn').removeClass('bg-primary/10 text-primary').addClass('text-on-surface-variant hover:bg-surface-container hover:text-on-surface');
+        $(this).removeClass('text-on-surface-variant hover:bg-surface-container hover:text-on-surface').addClass('bg-primary/10 text-primary');
+        
+        // 滚动到对应节点
+        const targetNode = `.flow-node[data-node-id="${role}"]`;
+        if ($(targetNode).length) {
+          $(targetNode)[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+          
+          // 高亮目标节点
+          $(targetNode).find('.bg-surface').first().addClass('ring-2 ring-primary/30');
+          setTimeout(() => {
+            $(targetNode).find('.bg-surface').first().removeClass('ring-2 ring-primary/30');
+          }, 2000);
+        }
+      });
+      
+      // 底部操作按钮
+      $('#btn-edit').on('click', function() {
+        console.log('修改审批记录: 应跳转到编辑页面或弹窗编辑');
+      });
+      
+      $('#btn-share').on('click', function() {
+        console.log('分享审批记录: 应弹出分享选项或复制链接');
+      });
+      
+      $('#btn-delete').on('click', function() {
+        console.log('删除审批记录: 应二次确认后删除');
+      });
+      
+      $('#btn-comment').on('click', function() {
+        console.log('评论功能: 应打开评论输入框或跳转评论页面');
+      });
+      
+      $('#btn-resubmit').on('click', function() {
+        console.log('再次提交: 应重新触发审批流程');
+      });
+    });
+  </script>
+
+  <script>lucide.createIcons();</script>
+</body>
+
+</html>

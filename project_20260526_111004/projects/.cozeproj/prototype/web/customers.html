@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <script src="https://lf-code-agent.coze.cn/obj/x-ai-cn/cdn/jquery/jquery-3.7.1.min.js"></script>
+  <script src="https://lf-code-agent.coze.cn/obj/x-ai-cn/cdn/lucide/lucide-1.11.0.min.js"></script>
+  <script src="https://lf-code-agent.coze.cn/obj/x-ai-cn/cdn/tailwindcss/tailwindcss-browser-4.2.4.min.js"></script>
+
+  <style type="text/tailwindcss">
+    @theme {
+      /* === 品牌色 === */
+      --color-primary:              #1E40AF;
+      --color-primary-container:    #DBEAFE;
+      --color-on-primary:           #ffffff;
+      /* === 背景 / 表面 === */
+      --color-background:                 #FFFFFF;
+      --color-surface-container-lowest:   #F9FAFB;
+      --color-surface:                    #FFFFFF;
+      --color-surface-container:          #F3F4F6;
+      --color-surface-container-high:     #E5E7EB;
+      --color-surface-container-highest:  #D1D5DB;
+      /* === 文字 === */
+      --color-on-surface:           #111827;
+      --color-on-surface-variant:   #6B7280;
+      /* === 功能色 === */
+      --color-success:  #22c55e;
+      --color-error:    #ef4444;
+      --color-warning:  #f59e0b;
+      /* === 边框 === */
+      --color-outline:          #D1D5DB;
+      --color-outline-variant:  #E5E7EB;
+      /* === 圆角 === */
+      --radius-sm:   0.375rem;
+      --radius-md:   0.5rem;
+      --radius-lg:   0.75rem;
+      --radius-xl:   1rem;
+      --radius-2xl:  1.5rem;
+      --radius-full: 9999px;
+      /* === 阴影 === */
+      --shadow-card:   0 2px 8px rgba(0,0,0,0.10);
+      --shadow-float:  0 10px 25px rgba(0,0,0,0.15);
+      --shadow-dialog: 0 25px 50px rgba(0,0,0,0.20);
+      /* === 字体 === */
+      --font-sans: "Inter", "Noto Sans SC", system-ui, sans-serif;
+    }
+  </style>
+
+  <!-- 图片兜底 -->
+  <script>
+    document.addEventListener('error', function (e) {
+      const img = e.target;
+      if (img.tagName !== 'IMG' || img.dataset.fallback) return;
+      img.dataset.fallback = '1';
+      const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      const cat = img.getAttribute('data-category') || '其他';
+      const alt = img.getAttribute('alt') || '';
+      const label = esc(alt.length > 8 ? alt.slice(0, 8) + '…' : alt);
+      const icons = { '人物': '👤', '自然风景': '🏞', '动物': '🐾', '建筑城市': '🏙', '运动体育': '⚽', '交通工具': '🚗', '食物': '🍽', '服饰时尚': '👗', '商业科技': '💼', '游戏娱乐': '🎮', '艺术': '🎨', '其他': '🖼' };
+      const icon = icons[cat] || '🖼';
+      const w = img.width || 400, h = img.height || 300;
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}"><rect width="100%" height="100%" fill="%23f3f4f6"/><text x="50%" y="45%" text-anchor="middle" font-size="${Math.min(w, h) * 0.18}" dominant-baseline="central">${icon}</text><text x="50%" y="68%" text-anchor="middle" font-size="${Math.min(w, h) * 0.07}" fill="%239ca3af" font-family="system-ui,sans-serif" dominant-baseline="central">${label}</text></svg>`;
+      img.src = 'data:image/svg+xml,' + svg;
+    }, true);
+  </script>
+</head>
+
+<body class="bg-background text-on-surface font-sans min-h-screen">
+
+  <!-- @nav:start 导航组件，不需要的页面则不要复制此段（从 @nav:start 到 @nav:end） -->
+  <div class="flex" style="height: 100vh;">
+    <aside class="w-64 shrink-0 bg-surface-container-lowest border-r border-outline-variant/20 overflow-y-auto">
+      <div class="p-4 border-b border-outline-variant/20">
+        <div class="flex items-center gap-2">
+          <i data-lucide="building" class="text-primary w-6 h-6"></i>
+          <span class="font-bold text-lg">CIM V2.0</span>
+        </div>
+      </div>
+      <div class="p-3 space-y-1">
+        <a href="customers.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md bg-primary/10 text-primary font-medium text-sm transition-colors" aria-current="page">
+          <i data-lucide="users" class="w-4 h-4"></i>客户管理
+        </a>
+        <a href="opportunities.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors">
+          <i data-lucide="target" class="w-4 h-4"></i>商机管理
+        </a>
+        <a href="followup.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors">
+          <i data-lucide="message-square" class="w-4 h-4"></i>客户跟进
+        </a>
+        <a href="quotes.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors">
+          <i data-lucide="file-text" class="w-4 h-4"></i>售前报价
+        </a>
+        <a href="approvals.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors">
+          <i data-lucide="shield-check" class="w-4 h-4"></i>风控审批
+        </a>
+        <div class="pt-2 mt-2 border-t border-outline-variant/20">
+          <a href="rules.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors">
+            <i data-lucide="settings" class="w-4 h-4"></i>规则配置
+          </a>
+        </div>
+      </div>
+    </aside>
+
+    <div class="flex-1 flex flex-col min-w-0">
+      <header class="bg-surface border-b border-outline-variant/20 h-16 flex items-center justify-between px-6">
+        <div class="flex items-center gap-4">
+          <button id="btn-back" class="flex items-center gap-2 text-on-surface-variant hover:text-on-surface transition-colors">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i>
+            <span class="text-sm font-medium">返回</span>
+          </button>
+          <div class="w-px h-6 bg-outline-variant/30"></div>
+          <h1 class="text-xl font-semibold" id="page-title">上海芯科电子科技有限公司</h1>
+        </div>
+        <div class="flex items-center gap-4">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center text-sm font-medium">初</div>
+            <span class="text-sm text-on-surface">小初</span>
+          </div>
+        </div>
+      </header>
+  <!-- @nav:end 导航组件，不需要的页面则不要复制此段 -->
+
+      <!-- @main-content:start -->
+      <main class="flex-1 min-w-0 overflow-y-auto bg-background">
+        <!-- 标签页导航 -->
+        <div class="bg-surface border-b border-outline-variant/20 sticky top-0 z-10">
+          <div class="px-6">
+            <div class="flex gap-1 overflow-x-auto py-3" id="tab-nav">
+              <button data-tab="basic-info" class="tab-btn flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium bg-primary/10 text-primary whitespace-nowrap">
+                企业基本信息
+              </button>
+              <button data-tab="business-info" class="tab-btn flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium text-on-surface-variant hover:bg-surface-container hover:text-on-surface whitespace-nowrap transition-colors">
+                工商资质全景
+              </button>
+              <button data-tab="industry-position" class="tab-btn flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium text-on-surface-variant hover:bg-surface-container hover:text-on-surface whitespace-nowrap transition-colors">
+                半导体产业链定位
+              </button>
+              <button data-tab="relations" class="tab-btn flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium text-on-surface-variant hover:bg-surface-container hover:text-on-surface whitespace-nowrap transition-colors">
+                上下游关联关系
+              </button>
+              <button data-tab="products" class="tab-btn flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium text-on-surface-variant hover:bg-surface-container hover:text-on-surface whitespace-nowrap transition-colors">
+                经营商品档案
+              </button>
+              <button data-tab="billing-config" class="tab-btn flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium text-on-surface-variant hover:bg-surface-container hover:text-on-surface whitespace-nowrap transition-colors">
+                客户信息配置
+              </button>
+              <button data-tab="billing-entities" class="tab-btn flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium text-on-surface-variant hover:bg-surface-container hover:text-on-surface whitespace-nowrap transition-colors">
+                账单主体配置
+              </button>
+              <button data-tab="follow-up" class="tab-btn flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium text-on-surface-variant hover:bg-surface-container hover:text-on-surface whitespace-nowrap transition-colors">
+                <span class="flex items-center gap-1">
+                  跟进记录
+                  <span class="inline-flex items-center justify-center w-5 h-5 text-[10px] font-bold bg-primary text-on-primary rounded-full">新</span>
+                </span>
+              </button>
+              <button data-tab="opportunities" class="tab-btn flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium text-on-surface-variant hover:bg-surface-container hover:text-on-surface whitespace-nowrap transition-colors">
+                <span class="flex items-center gap-1">
+                  商机
+                  <span class="inline-flex items-center justify-center w-5 h-5 text-[10px] font-bold bg-primary text-on-primary rounded-full">新</span>
+                </span>
+              </button>
+              <button data-tab="contracts" class="tab-btn flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium text-on-surface-variant hover:bg-surface-container hover:text-on-surface whitespace-nowrap transition-colors">
+                <span class="flex items-center gap-1">
+                  合同
+                  <span class="inline-flex items-center justify-center w-5 h-5 text-[10px] font-bold bg-primary text-on-primary rounded-full">新</span>
+                </span>
+              </button>
+              <button data-tab="risk-approvals" class="tab-btn flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium text-on-surface-variant hover:bg-surface-container hover:text-on-surface whitespace-nowrap transition-colors">
+                <span class="flex items-center gap-1">
+                  风控审批记录
+                  <span class="inline-flex items-center justify-center w-5 h-5 text-[10px] font-bold bg-primary text-on-primary rounded-full">新</span>
+                </span>
+              </button>
+              <button data-tab="activity-log" class="tab-btn flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium text-on-surface-variant hover:bg-surface-container hover:text-on-surface whitespace-nowrap transition-colors">
+                操作日志
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-6">
+          <!-- 企业基本信息标签页 -->
+          <div id="tab-basic-info" class="tab-content">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <!-- 基本信息卡片 -->
+              <div class="bg-surface rounded-lg shadow-card p-5">
+                <h2 class="text-base font-semibold text-on-surface mb-4">基本信息</h2>
+                <div class="grid grid-cols-2 gap-4">
+                  <div>
+                    <p class="text-xs text-on-surface-variant mb-1">企业名称</p>
+                    <p class="text-sm font-medium text-on-surface">上海芯科电子科技有限公司</p>
+                  </div>
+                  <div>
+                    <p class="text-xs text-on-surface-variant mb-1">统一社会信用代码</p>
+                    <p class="text-sm font-medium text-on-surface">91310000MA1FL3KX12</p>
+                  </div>
+                  <div>
+                    <p class="text-xs text-on-surface-variant mb-1">成立日期</p>
+                    <p class="text-sm font-medium text-on-surface">2018-06-15</p>
+                  </div>
+                  <div>
+                    <p class="text-xs text-on-surface-variant mb-1">注册资本</p>
+                    <p class="text-sm font-medium text-on-surface">5000万人民币</p>
+                  </div>
+                  <div>
+                    <p class="text-xs text-on-surface-variant mb-1">法定代表人</p>
+                    <p class="text-sm font-medium text-on-surface">张明华</p>
+                  </div>
+                  <div>
+                    <p class="text-xs text-on-surface-variant mb-1">企业类型</p>
+                    <p class="text-sm font-medium text-on-surface">有限责任公司</p>
+                  </div>
+                  <div class="col-span-2">
+                    <p class="text-xs text-on-surface-variant mb-1">注册地址</p>
+                    <p class="text-sm font-medium text-on-surface">上海市浦东新区张江高科技园区科苑路88号</p>
+                  </div>
+                  <div class="col-span-2">
+                    <p class="text-xs text-on-surface-variant mb-1">经营范围</p>
+                    <p class="text-sm font-medium text-on-surface">电子科技、半导体技术领域内的技术开发、技术咨询、技术服务、技术转让，电子产品、半导体器件、集成电路的销售，从事货物及技术的进出口业务。</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 联系信息卡片 -->
+              <div class="bg-surface rounded-lg shadow-card p-5">
+                <h2 class="text-base font-semibold text-on-surface mb-4">联系信息</h2>
+                <div class="grid grid-cols-2 gap-4">
+                  <div>
+                    <p class="text-xs text-on-surface-variant mb-1">联系人</p>
+                    <p class="text-sm font-medium text-on-surface">李经理</p>
+                  </div>
+                  <div>
+                    <p class="text-xs text-on-surface-variant mb-1">联系电话</p>
+                    <p class="text-sm font-medium text-on-surface">138-1234-5678</p>
+                  </div>
+                  <div>
+                    <p class="text-xs text-on-surface-variant mb-1">电子邮箱</p>
+                    <p class="text-sm font-medium text-on-surface">li@shxinke.com</p>
+                  </div>
+                  <div>
+                    <p class="text-xs text-on-surface-variant mb-1">公司网址</p>
+                    <p class="text-sm font-medium text-on-surface">www.shxinke.com</p>
+                  </div>
+                  <div class="col-span-2">
+                    <p class="text-xs text-on-surface-variant mb-1">办公地址</p>
+                    <p class="text-sm font-medium text-on-surface">上海市浦东新区张江高科技园区博云路2号</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 跟进记录标签页 -->
+          <div id="tab-follow-up" class="tab-content hidden">
+            <div class="flex justify-between items-center mb-6">
+              <h2 class="text-lg font-semibold text-on-surface">跟进记录</h2>
+              <button id="btn-add-followup" class="bg-primary text-on-primary px-4 py-2 rounded-md text-sm font-medium hover:opacity-90 active:scale-[0.98] transition-all inline-flex items-center gap-2">
+                <i data-lucide="plus" class="w-3.5 h-3.5"></i>新增跟进
+              </button>
+            </div>
+            
+            <!-- 跟进记录表格 -->
+            <div class="bg-surface rounded-lg shadow-card overflow-hidden">
+              <div class="grid grid-cols-8 px-4 py-3 bg-surface-container text-xs font-semibold text-on-surface-variant uppercase tracking-wide">
+                <span>客户名称</span>
+                <span>跟进类型</span>
+                <span>跟进方式</span>
+                <span>跟进时间</span>
+                <span>跟进状态</span>
+                <span>负责人</span>
+                <span>下次跟进</span>
+                <span>操作</span>
+              </div>
+              <div class="divide-y divide-outline-variant/50">
+                <!-- 列表-跟进记录1 -->
+                <div class="grid grid-cols-8 px-4 py-3 hover:bg-surface-container/50 transition-colors items-center">
+                  <span class="text-sm font-medium text-on-surface">上海芯科电子</span>
+                  <span class="text-sm text-on-surface-variant">电话</span>
+                  <span class="text-sm text-on-surface-variant">电话</span>
+                  <span class="text-sm text-on-surface-variant">2024-01-15 14:30</span>
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs bg-success/15 text-success w-fit">沟通中</span>
+                  <span class="text-sm text-on-surface-variant">小初</span>
+                  <span class="text-sm text-on-surface-variant">2024-01-20</span>
+                  <div class="flex gap-2">
+                    <button class="text-primary text-sm font-medium hover:underline w-fit btn-edit-followup" data-id="1">编辑</button>
+                    <button class="text-error text-sm font-medium hover:underline w-fit btn-delete-followup" data-id="1">删除</button>
+                  </div>
+                </div>
+                <!-- 列表-跟进记录2 -->
+                <div class="grid grid-cols-8 px-4 py-3 hover:bg-surface-container/50 transition-colors items-center">
+                  <span class="text-sm font-medium text-on-surface">上海芯科电子</span>
+                  <span class="text-sm text-on-surface-variant">会议</span>
+                  <span class="text-sm text-on-surface-variant">现场</span>
+                  <span class="text-sm text-on-surface-variant">2024-01-10 10:00</span>
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs bg-primary/15 text-primary w-fit">有新需求</span>
+                  <span class="text-sm text-on-surface-variant">小初</span>
+                  <span class="text-sm text-on-surface-variant">2024-01-18</span>
+                  <div class="flex gap-2">
+                    <button class="text-primary text-sm font-medium hover:underline w-fit btn-edit-followup" data-id="2">编辑</button>
+                    <button class="text-error text-sm font-medium hover:underline w-fit btn-delete-followup" data-id="2">删除</button>
+                  </div>
+                </div>
+                <!-- 列表-跟进记录3 -->
+                <div class="grid grid-cols-8 px-4 py-3 hover:bg-surface-container/50 transition-colors items-center">
+                  <span class="text-sm font-medium text-on-surface">上海芯科电子</span>
+                  <span class="text-sm text-on-surface-variant">邮件</span>
+                  <span class="text-sm text-on-surface-variant">邮件</span>
+                  <span class="text-sm text-on-surface-variant">2024-01-05 16:45</span>
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs bg-warning/15 text-warning w-fit">推进中</span>
+                  <span class="text-sm text-on-surface-variant">小初</span>
+                  <span class="text-sm text-on-surface-variant">2024-01-12</span>
+                  <div class="flex gap-2">
+                    <button class="text-primary text-sm font-medium hover:underline w-fit btn-edit-followup" data-id="3">编辑</button>
+                    <button class="text-error text-sm font-medium hover:underline w-fit btn-delete-followup" data-id="3">删除</button>
+                  </div>
+                </div>
+                <!-- 列表-跟进记录4 -->
+                <div class="grid grid-cols-8 px-4 py-3 hover:bg-surface-container/50 transition-colors items-center">
+                  <span class="text-sm font-medium text-on-surface">上海芯科电子</span>
+                  <span class="text-sm text-on-surface-variant">其他</span>
+                  <span class="text-sm text-on-surface-variant">视频</span>
+                  <span class="text-sm text-on-surface-variant">2023-12-28 09:30</span>
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs bg-success/15 text-success w-fit">成功</span>
+                  <span class="text-sm text-on-surface-variant">小初</span>
+                  <span class="text-sm text-on-surface-variant">-</span>
+                  <div class="flex gap-2">
+                    <button class="text-primary text-sm font-medium hover:underline w-fit btn-edit-followup" data-id="4">编辑</button>
+                    <button class="text-error text-sm font-medium hover:underline w-fit btn-delete-followup" data-id="4">删除</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 商机标签页 -->
+          <div id="tab-opportunities" class="tab-content hidden">
+            <div class="flex justify-between items-center mb-6">
+              <h2 class="text-lg font-semibold text-on-surface">商机</h2>
+              <button id="btn-add-opportunity" class="bg-primary text-on-primary px-4 py-2 rounded-md text-sm font-medium hover:opacity-90 active:scale-[0.98] transition-all inline-flex items-center gap-2">
+                <i data-lucide="plus" class="w-3.5 h-3.5"></i>新增商机
+              </button>
+            </div>
+            
+            <!-- 商机表格 -->
+            <div class="bg-surface rounded-lg shadow-card overflow-hidden">
+              <div class="grid grid-cols-9 px-4 py-3 bg-surface-container text-xs font-semibold text-on-surface-variant uppercase tracking-wide">
+                <span>商机编号</span>
+                <span>商机名称</span>
+                <span>服务产品</span>
+                <span>预估月度金额</span>
+                <span>商机金额</span>
+                <span>销售阶段</span>
+                <span>创建人</span>
+                <span>创建时间</span>
+                <span>操作</span>
+              </div>
+              <div class="divide-y divide-outline-variant/50">
+                <!-- 列表-商机1 -->
+                <div class="grid grid-cols-9 px-4 py-3 hover:bg-surface-container/50 transition-colors items-center">
+                  <span class="text-sm font-medium text-on-surface">OPP-2024-0001</span>
+                  <span class="text-sm font-medium text-on-surface">集成电路仓储项目</span>
+                  <span class="text-sm text-on-surface-variant">仓储</span>
+                  <span class="text-sm font-semibold text-primary">¥50,000</span>
+                  <span class="text-sm font-semibold text-primary">¥300,000</span>
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs bg-primary/15 text-primary w-fit">方案报价</span>
+                  <span class="text-sm text-on-surface-variant">小初</span>
+                  <span class="text-sm text-on-surface-variant">2024-01-10</span>
+                  <div class="flex gap-2">
+                    <button class="text-primary text-sm font-medium hover:underline w-fit btn-edit-opportunity" data-id="1">编辑</button>
+                    <button class="text-error text-sm font-medium hover:underline w-fit btn-delete-opportunity" data-id="1">删除</button>
+                  </div>
+                </div>
+                <!-- 列表-商机2 -->
+                <div class="grid grid-cols-9 px-4 py-3 hover:bg-surface-container/50 transition-colors items-center">
+                  <span class="text-sm font-medium text-on-surface">OPP-2024-0002</span>
+                  <span class="text-sm font-medium text-on-surface">半导体设备运输项目</span>
+                  <span class="text-sm text-on-surface-variant">运输</span>
+                  <span class="text-sm font-semibold text-primary">¥80,000</span>
+                  <span class="text-sm font-semibold text-primary">¥480,000</span>
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs bg-warning/15 text-warning w-fit">商务谈判</span>
+                  <span class="text-sm text-on-surface-variant">小初</span>
+                  <span class="text-sm text-on-surface-variant">2024-01-08</span>
+                  <div class="flex gap-2">
+                    <button class="text-primary text-sm font-medium hover:underline w-fit btn-edit-opportunity" data-id="2">编辑</button>
+                    <button class="text-error text-sm font-medium hover:underline w-fit btn-delete-opportunity" data-id="2">删除</button>
+                  </div>
+                </div>
+                <!-- 列表-商机3 -->
+                <div class="grid grid-cols-9 px-4 py-3 hover:bg-surface-container/50 transition-colors items-center">
+                  <span class="text-sm font-medium text-on-surface">OPP-2023-0015</span>
+                  <span class="text-sm font-medium text-on-surface">芯片进出口代理项目</span>
+                  <span class="text-sm text-on-surface-variant">进出口</span>
+                  <span class="text-sm font-semibold text-primary">¥120,000</span>
+                  <span class="text-sm font-semibold text-primary">¥720,000</span>
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs bg-success/15 text-success w-fit">赢单</span>
+                  <span class="text-sm text-on-surface-variant">小初</span>
+                  <span class="text-sm text-on-surface-variant">2023-12-15</span>
+                  <div class="flex gap-2">
+                    <button class="text-primary text-sm font-medium hover:underline w-fit btn-edit-opportunity" data-id="3">编辑</button>
+                    <button class="text-error text-sm font-medium hover:underline w-fit btn-delete-opportunity" data-id="3">删除</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 合同标签页 -->
+          <div id="tab-contracts" class="tab-content hidden">
+            <div class="flex justify-between items-center mb-6">
+              <h2 class="text-lg font-semibold text-on-surface">合同</h2>
+              <button id="btn-add-contract" class="bg-primary text-on-primary px-4 py-2 rounded-md text-sm font-medium hover:opacity-90 active:scale-[0.98] transition-all inline-flex items-center gap-2">
+                <i data-lucide="plus" class="w-3.5 h-3.5"></i>新增合同
+              </button>
+            </div>
+            
+            <!-- 合同表格 -->
+            <div class="bg-surface rounded-lg shadow-card overflow-hidden">
+              <div class="grid grid-cols-8 px-4 py-3 bg-surface-container text-xs font-semibold text-on-surface-variant uppercase tracking-wide">
+                <span>合同编号</span>
+                <span>合同名称</span>
+                <span>合同类型</span>
+                <span>合同金额</span>
+                <span>开始日期</span>
+                <span>结束日期</span>
+                <span>状态</span>
+                <span>操作</span>
+              </div>
+              <div class="divide-y divide-outline-variant/50">
+                <!-- 列表-合同1 -->
+                <div class="grid grid-cols-8 px-4 py-3 hover:bg-surface-container/50 transition-colors items-center">
+                  <span class="text-sm font-medium text-on-surface">CON-2024-0001</span>
+                  <span class="text-sm font-medium text-on-surface">仓储服务协议</span>
+                  <span class="text-sm text-on-surface-variant">仓储合同</span>
+                  <span class="text-sm font-semibold text-primary">¥300,000</span>
+                  <span class="text-sm text-on-surface-variant">2024-02-01</span>
+                  <span class="text-sm text-on-surface-variant">2025-01-31</span>
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs bg-success/15 text-success w-fit">执行中</span>
+                  <div class="flex gap-2">
+                    <button class="text-primary text-sm font-medium hover:underline w-fit btn-view-contract" data-id="1">查看</button>
+                    <button class="text-primary text-sm font-medium hover:underline w-fit btn-edit-contract" data-id="1">编辑</button>
+                  </div>
+                </div>
+                <!-- 列表-合同2 -->
+                <div class="grid grid-cols-8 px-4 py-3 hover:bg-surface-container/50 transition-colors items-center">
+                  <span class="text-sm font-medium text-on-surface">CON-2023-0045</span>
+                  <span class="text-sm font-medium text-on-surface">运输服务协议</span>
+                  <span class="text-sm text-on-surface-variant">运输合同</span>
+                  <span class="text-sm font-semibold text-primary">¥480,000</span>
+                  <span class="text-sm text-on-surface-variant">2023-06-01</span>
+                  <span class="text-sm text-on-surface-variant">2024-05-31</span>
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs bg-warning/15 text-warning w-fit">即将到期</span>
+                  <div class="flex gap-2">
+                    <button class="text-primary text-sm font-medium hover:underline w-fit btn-view-contract" data-id="2">查看</button>
+                    <button class="text-primary text-sm font-medium hover:underline w-fit btn-edit-contract" data-id="2">编辑</button>
+                  </div>
+                </div>
+                <!-- 列表-合同3 -->
+                <div class="grid grid-cols-8 px-4 py-3 hover:bg-surface-container/50 transition-colors items-center">
+                  <span class="text-sm font-medium text-on-surface">CON-2023-0028</span>
+                  <span class="text-sm font-medium text-on-surface">进出口代理协议</span>
+                  <span class="text-sm text-on-surface-variant">代理合同</span>
+                  <span class="text-sm font-semibold text-primary">¥720,000</span>
+                  <span class="text-sm text-on-surface-variant">2023-01-01</span>
+                  <span class="text-sm text-on-surface-variant">2023-12-31</span>
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs bg-on-surface-variant/15 text-on-surface-variant w-fit">已结束</span>
+                  <div class="flex gap-2">
+                    <button class="text-primary text-sm font-medium hover:underline w-fit btn-view-contract" data-id="3">查看</button>
+                    <button class="text-primary text-sm font-medium hover:underline w-fit btn-renew-contract" data-id="3">续签</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 风控审批记录标签页 -->
+          <div id="tab-risk-approvals" class="tab-content hidden">
+            <div class="flex justify-between items-center mb-6">
+              <h2 class="text-lg font-semibold text-on-surface">风控审批记录</h2>
+              <button id="btn-add-approval" class="bg-primary text-on-primary px-4 py-2 rounded-md text-sm font-medium hover:opacity-90 active:scale-[0.98] transition-all inline-flex items-center gap-2">
+                <i data-lucide="plus" class="w-3.5 h-3.5"></i>新建审批
+              </button>
+            </div>
+            
+            <!-- 风控审批表格 -->
+            <div class="bg-surface rounded-lg shadow-card overflow-hidden">
+              <div class="grid grid-cols-9 px-4 py-3 bg-surface-container text-xs font-semibold text-on-surface-variant uppercase tracking-wide">
+                <span>审批单号</span>
+                <span>服务产品</span>
+                <span>业务类型</span>
+                <span>风控目的</span>
+                <span>状态</span>
+                <span>提交人</span>
+                <span>提交时间</span>
+                <span>审批人</span>
+                <span>操作</span>
+              </div>
+              <div class="divide-y divide-outline-variant/50">
+                <!-- 列表-审批1 -->
+                <div class="grid grid-cols-9 px-4 py-3 hover:bg-surface-container/50 transition-colors items-center">
+                  <span class="text-sm font-medium text-on-surface">APP-2024-0001</span>
+                  <span class="text-sm text-on-surface-variant">仓储</span>
+                  <span class="text-sm text-on-surface-variant">仓储服务</span>
+                  <span class="text-sm text-on-surface-variant">新客户准入</span>
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs bg-success/15 text-success w-fit">已通过</span>
+                  <span class="text-sm text-on-surface-variant">小初</span>
+                  <span class="text-sm text-on-surface-variant">2024-01-05 10:30</span>
+                  <span class="text-sm text-on-surface-variant">吴总</span>
+                  <div class="flex gap-2">
+                    <button class="text-primary text-sm font-medium hover:underline w-fit btn-view-approval" data-id="1">查看</button>
+                  </div>
+                </div>
+                <!-- 列表-审批2 -->
+                <div class="grid grid-cols-9 px-4 py-3 hover:bg-surface-container/50 transition-colors items-center">
+                  <span class="text-sm font-medium text-on-surface">APP-2024-0002</span>
+                  <span class="text-sm text-on-surface-variant">运输</span>
+                  <span class="text-sm text-on-surface-variant">设备运输</span>
+                  <span class="text-sm text-on-surface-variant">额度调整</span>
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs bg-warning/15 text-warning w-fit">审批中</span>
+                  <span class="text-sm text-on-surface-variant">小初</span>
+                  <span class="text-sm text-on-surface-variant">2024-01-12 14:20</span>
+                  <span class="text-sm text-on-surface-variant">朱弢</span>
+                  <div class="flex gap-2">
+                    <button class="text-primary text-sm font-medium hover:underline w-fit btn-view-approval" data-id="2">查看</button>
+                    <button class="text-primary text-sm font-medium hover:underline w-fit btn-edit-approval" data-id="2">撤回</button>
+                  </div>
+                </div>
+                <!-- 列表-审批3 -->
+                <div class="grid grid-cols-9 px-4 py-3 hover:bg-surface-container/50 transition-colors items-center">
+                  <span class="text-sm font-medium text-on-surface">APP-2023-0089</span>
+                  <span class="text-sm text-on-surface-variant">进出口</span>
+                  <span class="text-sm text-on-surface-variant">芯片代理</span>
+                  <span class="text-sm text-on-surface-variant">年度复审</span>
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs bg-success/15 text-success w-fit">已通过</span>
+                  <span class="text-sm text-on-surface-variant">小初</span>
+                  <span class="text-sm text-on-surface-variant">2023-11-20 09:15</span>
+                  <span class="text-sm text-on-surface-variant">张洁</span>
+                  <div class="flex gap-2">
+                    <button class="text-primary text-sm font-medium hover:underline w-fit btn-view-approval" data-id="3">查看</button>
+                  </div>
+                </div>
+                <!-- 列表-审批4 -->
+                <div class="grid grid-cols-9 px-4 py-3 hover:bg-surface-container/50 transition-colors items-center">
+                  <span class="text-sm font-medium text-on-surface">APP-2023-0056</span>
+                  <span class="text-sm text-on-surface-variant">关务</span>
+                  <span class="text-sm text-on-surface-variant">报关服务</span>
+                  <span class="text-sm text-on-surface-variant">新业务开通</span>
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs bg-error/15 text-error w-fit">已拒绝</span>
+                  <span class="text-sm text-on-surface-variant">小初</span>
+                  <span class="text-sm text-on-surface-variant">2023-08-15 16:45</span>
+                  <span class="text-sm text-on-surface-variant">蒋总</span>
+                  <div class="flex gap-2">
+                    <button class="text-primary text-sm font-medium hover:underline w-fit btn-view-approval" data-id="4">查看</button>
+                    <button class="text-primary text-sm font-medium hover:underline w-fit btn-edit-approval" data-id="4">重新申请</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 其他标签页的占位内容 -->
+          <div id="tab-business-info" class="tab-content hidden">
+            <div class="bg-surface rounded-lg shadow-card p-8 text-center">
+              <i data-lucide="building-2" class="w-12 h-12 text-on-surface-variant/30 mx-auto mb-4"></i>
+              <h3 class="text-base font-medium text-on-surface mb-2">工商资质全景</h3>
+              <p class="text-sm text-on-surface-variant">该标签页展示企业工商资质信息</p>
+            </div>
+          </div>
+
+          <div id="tab-industry-position" class="tab-content hidden">
+            <div class="bg-surface rounded-lg shadow-card p-8 text-center">
+              <i data-lucide="git-branch" class="w-12 h-12 text-on-surface-variant/30 mx-auto mb-4"></i>
+              <h3 class="text-base font-medium text-on-surface mb-2">半导体产业链定位</h3>
+              <p class="text-sm text-on-surface-variant">该标签页展示企业在半导体产业链中的定位</p>
+            </div>
+          </div>
+
+          <div id="tab-relations" class="tab-content hidden">
+            <div class="bg-surface rounded-lg shadow-card p-8 text-center">
+              <i data-lucide="network" class="w-12 h-12 text-on-surface-variant/30 mx-auto mb-4"></i>
+              <h3 class="text-base font-medium text-on-surface mb-2">上下游关联关系</h3>
+              <p class="text-sm text-on-surface-variant">该标签页展示企业上下游关联关系</p>
+            </div>
+          </div>
+
+          <div id="tab-products" class="tab-content hidden">
+            <div class="bg-surface rounded-lg shadow-card p-8 text-center">
+              <i data-lucide="package" class="w-12 h-12 text-on-surface-variant/30 mx-auto mb-4"></i>
+              <h3 class="text-base font-medium text-on-surface mb-2">经营商品档案</h3>
+              <p class="text-sm text-on-surface-variant">该标签页展示企业经营商品档案</p>
+            </div>
+          </div>
+
+          <div id="tab-billing-config" class="tab-content hidden">
+            <div class="bg-surface rounded-lg shadow-card p-8 text-center">
+              <i data-lucide="settings" class="w-12 h-12 text-on-surface-variant/30 mx-auto mb-4"></i>
+              <h3 class="text-base font-medium text-on-surface mb-2">客户信息配置</h3>
+              <p class="text-sm text-on-surface-variant">该标签页展示客户信息配置</p>
+            </div>
+          </div>
+
+          <div id="tab-billing-entities" class="tab-content hidden">
+            <div class="bg-surface rounded-lg shadow-card p-8 text-center">
+              <i data-lucide="file-text" class="w-12 h-12 text-on-surface-variant/30 mx-auto mb-4"></i>
+              <h3 class="text-base font-medium text-on-surface mb-2">账单主体配置</h3>
+              <p class="text-sm text-on-surface-variant">该标签页展示账单主体配置</p>
+            </div>
+          </div>
+
+          <div id="tab-activity-log" class="tab-content hidden">
+            <div class="bg-surface rounded-lg shadow-card p-8 text-center">
+              <i data-lucide="clock" class="w-12 h-12 text-on-surface-variant/30 mx-auto mb-4"></i>
+              <h3 class="text-base font-medium text-on-surface mb-2">操作日志</h3>
+              <p class="text-sm text-on-surface-variant">该标签页展示客户操作日志</p>
+            </div>
+          </div>
+        </div>
+      </main>
+      <!-- @main-content:end -->
+    </div>
+  </div>
+
+  <script>
+    $(function() {
+      // 标签页切换
+      $('#tab-nav').on('click', '.tab-btn', function() {
+        const targetTab = $(this).data('tab');
+        
+        // 更新标签页按钮样式
+        $('.tab-btn').removeClass('bg-primary/10 text-primary').addClass('text-on-surface-variant hover:bg-surface-container hover:text-on-surface');
+        $(this).addClass('bg-primary/10 text-primary').removeClass('text-on-surface-variant hover:bg-surface-container hover:text-on-surface');
+        
+        // 显示对应内容
+        $('.tab-content').addClass('hidden');
+        $('#tab-' + targetTab).removeClass('hidden');
+      });
+
+      // 返回按钮 - 点击后返回客户列表页
+      $('#btn-back').on('click', function() {
+        console.log('返回客户列表页');
+        // 实际项目中应该跳转到客户列表页
+        // window.location.href = 'customers-list.html';
+      });
+
+      // 新增跟进按钮 - 点击跳转到新增跟进页
+      $('#btn-add-followup').on('click', function() {
+        window.location.href = 'followup-new.html?customer_id=1';
+      });
+
+      // 编辑跟进按钮 - 点击跳转到编辑跟进页
+      $(document).on('click', '.btn-edit-followup', function() {
+        const followupId = $(this).data('id');
+        window.location.href = `followup-edit.html?id=${followupId}`;
+      });
+
+      // 删除跟进按钮 - 点击删除跟进记录
+      $(document).on('click', '.btn-delete-followup', function() {
+        const followupId = $(this).data('id');
+        // 实际项目中应该显示确认弹窗
+        console.log('删除跟进记录:', followupId);
+        // 删除对应的列表行
+        $(this).closest('.grid').remove();
+      });
+
+      // 新增商机按钮 - 点击跳转到新增商机页
+      $('#btn-add-opportunity').on('click', function() {
+        window.location.href = 'opportunities-new.html?customer_id=1';
+      });
+
+      // 编辑商机按钮 - 点击跳转到编辑商机页
+      $(document).on('click', '.btn-edit-opportunity', function() {
+        const opportunityId = $(this).data('id');
+        window.location.href = `opportunities-edit.html?id=${opportunityId}`;
+      });
+
+      // 删除商机按钮 - 点击删除商机记录
+      $(document).on('click', '.btn-delete-opportunity', function() {
+        const opportunityId = $(this).data('id');
+        console.log('删除商机记录:', opportunityId);
+        $(this).closest('.grid').remove();
+      });
+
+      // 新增合同按钮 - 点击后应该弹出新增合同弹窗或跳转页面
+      $('#btn-add-contract').on('click', function() {
+        console.log('新增合同功能');
+        // 实际项目中应该跳转到新增合同页或显示弹窗
+      });
+
+      // 查看合同按钮 - 点击查看合同详情
+      $(document).on('click', '.btn-view-contract', function() {
+        const contractId = $(this).data('id');
+        console.log('查看合同详情:', contractId);
+      });
+
+      // 编辑合同按钮 - 点击编辑合同
+      $(document).on('click', '.btn-edit-contract', function() {
+        const contractId = $(this).data('id');
+        console.log('编辑合同:', contractId);
+      });
+
+      // 续签合同按钮 - 点击续签合同
+      $(document).on('click', '.btn-renew-contract', function() {
+        const contractId = $(this).data('id');
+        console.log('续签合同:', contractId);
+      });
+
+      // 新建审批按钮 - 点击跳转到新建审批页
+      $('#btn-add-approval').on('click', function() {
+        window.location.href = 'approval-new.html?customer_id=1';
+      });
+
+      // 查看审批按钮 - 点击查看审批详情
+      $(document).on('click', '.btn-view-approval', function() {
+        const approvalId = $(this).data('id');
+        console.log('查看审批详情:', approvalId);
+      });
+
+      // 编辑审批按钮 - 点击撤回或重新申请审批
+      $(document).on('click', '.btn-edit-approval', function() {
+        const approvalId = $(this).data('id');
+        console.log('审批操作:', approvalId);
+      });
+    });
+  </script>
+  <script>lucide.createIcons();</script>
+</body>
+
+</html>

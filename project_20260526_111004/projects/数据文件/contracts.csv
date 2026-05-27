@@ -1,0 +1,5 @@
+id,contractNumber,name,customerId,customerName,amount,signer,status,createdAt
+cont-001,HT20240001,应用材料采购框架合同,cust-001,应用材料（中国）有限公司,5000000,张三,draft,2024-01-20
+cont-002,HT20240002,荏原年度服务协议,cust-003,荏原制作所,2000000,李四,pending,2024-01-19
+cont-003,HT20240003,飞雅贸易设备采购合同,cust-002,飞雅贸易（上海）有限公司,3500000,王五,signing,2024-01-18
+cont-004,HT20230015,昇先创框架合同,cust-006,昇先创（上海）科技有限公司,10000000,赵六,active,2023-12-15

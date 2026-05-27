@@ -1,0 +1,582 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import AppLayout from "@/components/layout/AppLayout";
+import { SearchableSelect } from '@/components/ui/searchable-select';
+import { FIELD_STYLES } from '@/lib/ui-constants';
+
+// 选项配置
+const SERVICE_PRODUCTS = ["货代", "关务", "仓储", "运输", "进出口", "维修", "合同物流", "一体化供应链", "其他"];
+const BUSINESS_TYPES = ["保税", "口岸完税", "免税", "试单", "其他"];
+const MONTHLY_VOLUMES = ["0-50", "51-100", "101-500", "500以上"];
+const CUSTOM_SERVICE_OPTIONS = ["信息系统", "运输", "仓储", "财务", "仅涉及标准服务内容"];
+const RISK_PURPOSES = ["业务可行性评审", "仅增加结算单位", "仅增加境外收发货人"];
+const HMG_RELATIONS = ["客户", "供应商", "最终用户", "结算单位", "内部用户"];
+
+// 服务产品→审批人映射
+const SERVICE_APPROVERS: Record<string, { approvers: string[]; isCountersign: boolean; isPickOne: boolean }> = {
+  "货代": { approvers: ["张洁"], isCountersign: false, isPickOne: false },
+  "关务": { approvers: ["蒋总"], isCountersign: false, isPickOne: false },
+  "仓储": { approvers: ["吴总"], isCountersign: false, isPickOne: false },
+  "运输": { approvers: ["朱弢"], isCountersign: false, isPickOne: false },
+  "进出口": { approvers: ["张洁"], isCountersign: false, isPickOne: false },
+  "维修": { approvers: ["蒋总"], isCountersign: false, isPickOne: false },
+  "合同物流": { approvers: ["张洁", "蒋总", "吴总", "朱弢"], isCountersign: false, isPickOne: true },
+};
+
+// 模拟数据
+const mockBusinessCustomers = [
+  { id: "1", name: "武汉光库科技有限公司" },
+  { id: "2", name: "江苏鑫华半导体科技股份有限公司" },
+  { id: "3", name: "上海裘瑞经贸有限公司" },
+  { id: "4", name: "精诚（中国）企业管理有限公司" },
+  { id: "5", name: "卡尔蔡司（上海）管理有限公司" },
+];
+
+const mockOpportunities = [
+  { id: "1", title: "武汉光库+武汉+归类服务", customer: "武汉光库", serviceProduct: "关务" },
+  { id: "2", title: "江苏鑫华+临港常温仓储业务", customer: "江苏鑫华", serviceProduct: "仓储" },
+  { id: "3", title: "上海裘瑞+贸易代理", customer: "上海裘瑞", serviceProduct: "进出口" },
+  { id: "4", title: "应用材料+货代+半导体设备物流", customer: "应用材料", serviceProduct: "货代" },
+  { id: "5", title: "飞雅贸易+仓储+电子产品进口", customer: "飞雅贸易", serviceProduct: "仓储" },
+];
+
+const mockInvoiceInfos = [
+  { id: "1", title: "武汉光库科技有限公司", taxNumber: "914201007713589677" },
+  { id: "2", title: "江苏鑫华半导体科技股份有限公司", taxNumber: "91320301MA1MCPLL8F" },
+  { id: "3", title: "上海裘瑞经贸有限公司", taxNumber: "91310118738523211W" },
+];
+
+// 审批流节点类型
+interface ApprovalStep {
+  id: string;
+  name: string;
+  role: string;
+  status: string;
+  approver: string;
+  approvers?: string[];
+  isCountersign?: boolean;
+  isAutoAdded?: boolean;
+  autoAddReason?: string;
+}
+
+const defaultApprovalSteps: ApprovalStep[] = [
+  { id: "1", name: "提交申请", role: "申请人", status: "pending", approver: "" },
+  { id: "2", name: "业务部门审批", role: "业务部门经理", status: "pending", approver: "" },
+  { id: "3", name: "职能审批", role: "职能审批人", status: "pending", approver: "", approvers: [], isCountersign: false },
+  { id: "4", name: "风控部门审批", role: "风控部门经理", status: "pending", approver: "" },
+  { id: "5", name: "财务部门审批", role: "财务部门经理", status: "pending", approver: "" },
+  { id: "6", name: "审批完成", role: "", status: "pending", approver: "" },
+];
+
+export default function NewRiskControlPage() {
+  const router = useRouter();
+  const [formData, setFormData] = useState({
+    isTradeAgent: "",
+    serviceProduct: "",
+    businessType: "",
+    goodsType: "",
+    monthlyBusinessVolume: "",
+    monthlyInvoiceAmount: "",
+    customsKpiRequirement: "",
+    transportKpiRequirement: "",
+    warehouseLeaseRequirement: "",
+    customServiceRequirement: "",
+    customRequirementDescription: "",
+    companyName: "",
+    englishName: "",
+    parentCompany: "",
+    subsidiaryCompany: "",
+    riskControlPurpose: "",
+    relationshipWithHMG: "",
+    businessCustomerIds: [] as string[],
+    suggestedSystemCode: "",
+    opportunityId: "",
+    invoiceInfoIds: [] as string[],
+    settlementPeriod: "",
+    contactName: "",
+  });
+
+  const [approvalSteps, setApprovalSteps] = useState(defaultApprovalSteps);
+  const [selectorOpen, setSelectorOpen] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [pickedApprover, setPickedApprover] = useState("");
+  const [opportunitySearch, setOpportunitySearch] = useState("");
+  const [showOpportunityDropdown, setShowOpportunityDropdown] = useState(false);
+
+  // 更新职能审批节点
+  const updateFunctionalApproval = (serviceProduct: string, isTradeAgent: string) => {
+    setApprovalSteps((prev) => {
+      let newSteps = prev.map((s) => ({ ...s }));
+
+      // 处理贸易代理 - 白沥节点
+      const bailiIndex = newSteps.findIndex((s) => s.name.includes("白沥"));
+      if (isTradeAgent === "是") {
+        if (bailiIndex === -1) {
+          const funcIndex = newSteps.findIndex((s) => s.name === "职能审批");
+          const insertAfter = funcIndex >= 0 ? funcIndex + 1 : 2;
+          newSteps.splice(insertAfter, 0, {
+            id: "baili",
+            name: "白沥审批",
+            role: "贸易代理专员",
+            status: "pending",
+            approver: "白沥",
+            isAutoAdded: true,
+            autoAddReason: "贸易代理自动添加",
+          });
+        }
+      } else if (bailiIndex >= 0) {
+        newSteps = newSteps.filter((s) => !s.name.includes("白沥"));
+      }
+
+      // 处理职能审批节点
+      const funcStep = newSteps.find((s) => s.name === "职能审批");
+      if (funcStep) {
+        const approverConfig = SERVICE_APPROVERS[serviceProduct];
+        if (approverConfig) {
+          if (approverConfig.isPickOne) {
+            funcStep.approvers = approverConfig.approvers;
+            funcStep.isCountersign = false;
+            funcStep.approver = "";
+            funcStep.role = `${serviceProduct}职能审批人（四选一）`;
+          } else if (approverConfig.approvers.length > 1) {
+            funcStep.approvers = approverConfig.approvers;
+            funcStep.isCountersign = true;
+            funcStep.approver = approverConfig.approvers.join("、");
+            funcStep.role = `${serviceProduct}职能审批人`;
+          } else {
+            funcStep.approvers = approverConfig.approvers;
+            funcStep.isCountersign = false;
+            funcStep.approver = approverConfig.approvers[0];
+            funcStep.role = `${serviceProduct}职能审批人`;
+          }
+        } else {
+          funcStep.approvers = [];
+          funcStep.isCountersign = false;
+          funcStep.approver = "";
+          funcStep.role = "职能审批人";
+        }
+      }
+
+      return newSteps;
+    });
+  };
+
+  const handleChange = (name: string, value: string) => {
+    setFormData((prev) => {
+      const newData = { ...prev, [name]: value };
+      if (name === "serviceProduct" || name === "isTradeAgent") {
+        setTimeout(() => {
+          updateFunctionalApproval(
+            name === "serviceProduct" ? value : prev.serviceProduct,
+            name === "isTradeAgent" ? value : prev.isTradeAgent
+          );
+        }, 0);
+        if (name === "serviceProduct") {
+          setPickedApprover("");
+        }
+      }
+      return newData;
+    });
+  };
+
+  // 合同物流四选一
+  const handlePickApprover = (approver: string) => {
+    setPickedApprover(approver);
+    setApprovalSteps((prev) =>
+      prev.map((s) => {
+        if (s.name === "职能审批") {
+          return { ...s, approver, role: "合同物流职能审批人" };
+        }
+        return s;
+      })
+    );
+  };
+
+  const toggleMultiSelect = (name: "businessCustomerIds" | "invoiceInfoIds", id: string) => {
+    setFormData((prev) => {
+      const current = prev[name];
+      const next = current.includes(id) ? current.filter((i: string) => i !== id) : [...current, id];
+      return { ...prev, [name]: next };
+    });
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    alert("提交成功！");
+    router.push("/approvals");
+  };
+
+  const handleSaveDraft = () => {
+    alert("暂存成功！");
+  };
+
+  const handleCancel = () => {
+    router.push("/approvals");
+  };
+
+  const getSelectedNames = (name: "businessCustomerIds" | "invoiceInfoIds", list: { id: string; name?: string; title?: string }[]) => {
+    return formData[name].map((id: string) => list.find((item) => item.id === id)?.name || list.find((item) => item.id === id)?.title || id);
+  };
+
+  const currentApproverConfig = formData.serviceProduct ? SERVICE_APPROVERS[formData.serviceProduct] : null;
+
+  return (
+    <AppLayout>
+      <div className="p-6">
+        {/* 顶部导航 */}
+        <div className="flex items-center gap-3 mb-2">
+          <button onClick={handleCancel} className="p-2 rounded-lg hover:bg-gray-100 transition-colors">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          </button>
+          <div>
+            <h1 className="text-2xl font-bold text-[#0A0A0A]">新建风控审批</h1>
+            <p className="text-[#5A5A5A] mt-1">创建新的客户风险控制审批申请，填写业务和风控信息</p>
+          </div>
+          <div className="flex-1" />
+          <button onClick={handleSaveDraft} className="px-4 py-2 border border-[#EBEBEB] rounded-lg text-[#666] hover:bg-gray-50">暂存</button>
+          <button onClick={handleSubmit} className="px-6 py-2 bg-[#2D3BFF] text-white rounded-lg hover:shadow-lg hover:shadow-[#2D3BFF]/20 transition-all">提交</button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="mt-6">
+          <div className="grid grid-cols-12 gap-6">
+            {/* 左侧主区域 */}
+            <div className="col-span-7 space-y-6">
+              {/* 公司信息 */}
+              <div className="bg-white rounded-2xl shadow-sm p-6">
+                <h3 className="text-sm font-semibold text-[#0A0A0A] mb-4 pb-3 border-b border-[#EBEBEB]">公司信息</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">公司全称 <span className="text-red-500">*</span></label>
+                    <input type="text" value={formData.companyName} onChange={(e) => handleChange("companyName", e.target.value)} placeholder="签约名称" className="w-full bg-[#F5F5F5] border-none rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">英文名称</label>
+                    <input type="text" value={formData.englishName} onChange={(e) => handleChange("englishName", e.target.value)} placeholder="境外客户必填" className="w-full bg-[#F5F5F5] border-none rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">集团（母）公司名称</label>
+                    <input type="text" value={formData.parentCompany} onChange={(e) => handleChange("parentCompany", e.target.value)} placeholder="请输入集团（母）公司名称" className="w-full bg-[#F5F5F5] border-none rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">分（子）公司名称</label>
+                    <input type="text" value={formData.subsidiaryCompany} onChange={(e) => handleChange("subsidiaryCompany", e.target.value)} placeholder="请输入分（子）公司名称" className="w-full bg-[#F5F5F5] border-none rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30" />
+                  </div>
+                </div>
+              </div>
+
+              {/* 风控信息 */}
+              <div className="bg-white rounded-2xl shadow-sm p-6">
+                <h3 className="text-sm font-semibold text-[#0A0A0A] mb-4 pb-3 border-b border-[#EBEBEB]">风控信息</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">风险控制目的 <span className="text-red-500">*</span></label>
+                    <SearchableSelect
+                      value={formData.riskControlPurpose}
+                      onChange={(value) => handleChange("riskControlPurpose", value)}
+                      options={RISK_PURPOSES.map((p) => ({ value: p, label: p }))}
+                      placeholder="请选择风险控制目的"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">此公司与HMG的关系 <span className="text-red-500">*</span></label>
+                    <SearchableSelect
+                      value={formData.relationshipWithHMG}
+                      onChange={(value) => handleChange("relationshipWithHMG", value)}
+                      options={HMG_RELATIONS.map((r) => ({ value: r, label: r }))}
+                      placeholder="请选择关系"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* 关联信息 */}
+              <div className="bg-white rounded-2xl shadow-sm p-6">
+                <h3 className="text-sm font-semibold text-[#0A0A0A] mb-4 pb-3 border-b border-[#EBEBEB]">关联信息</h3>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">业务主客户 <span className="text-red-500">*</span></label>
+                    <div className="space-y-2">
+                      <div className="flex flex-wrap gap-2">
+                        {getSelectedNames("businessCustomerIds", mockBusinessCustomers.map((c) => ({ id: c.id, name: c.name }))).map((name, i) => (
+                          <span key={i} className="inline-flex items-center gap-1 px-3 py-1 bg-[#E8F4FF] text-[#2D3BFF] rounded-full text-xs">
+                            {name}
+                            <button type="button" onClick={() => toggleMultiSelect("businessCustomerIds", formData.businessCustomerIds[i])} className="hover:text-red-500">×</button>
+                          </span>
+                        ))}
+                      </div>
+                      <button type="button" onClick={() => { setSearchTerm(""); setSelectorOpen("businessCustomer"); }} className="w-full bg-[#F5F5F5] border border-dashed border-[#D0D5DD] rounded-xl px-4 py-3 text-sm text-[#999] hover:bg-[#EEF0F4] transition-colors">+ 选择业务主客户</button>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">建议系统代码 <span className="text-red-500">*</span></label>
+                    <input type="text" value={formData.suggestedSystemCode} onChange={(e) => handleChange("suggestedSystemCode", e.target.value)} placeholder="请输入建议系统代码" className="w-full bg-[#F5F5F5] border-none rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">商机 <span className="text-red-500">*</span></label>
+                    <div className="relative">
+                      <input type="text" value={opportunitySearch} onChange={(e) => { setOpportunitySearch(e.target.value); setShowOpportunityDropdown(true); }} onFocus={() => setShowOpportunityDropdown(true)} placeholder="搜索并选择商机" className="w-full bg-[#F5F5F5] border-none rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30" />
+                      {formData.opportunityId && (
+                        <div className="absolute right-10 top-1/2 -translate-y-1/2">
+                          <span className="text-xs text-[#2D3BFF] bg-[#E8F4FF] px-2 py-0.5 rounded-full">
+                            {mockOpportunities.find((o) => o.id === formData.opportunityId)?.title}
+                          </span>
+                        </div>
+                      )}
+                      <button type="button" onClick={() => setShowOpportunityDropdown(!showOpportunityDropdown)} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#999999]">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 12 15 18 9"/></svg>
+                      </button>
+                      {showOpportunityDropdown && (
+                        <div className="absolute z-50 top-full left-0 right-0 mt-1 bg-white rounded-xl shadow-lg border border-gray-100 max-h-60 overflow-auto">
+                          {mockOpportunities.filter((o) => o.title.toLowerCase().includes(opportunitySearch.toLowerCase()) || o.customer.toLowerCase().includes(opportunitySearch.toLowerCase())).length === 0 ? (
+                            <div className="px-4 py-3 text-sm text-[#999999]">无匹配结果</div>
+                          ) : (
+                            mockOpportunities.filter((o) => o.title.toLowerCase().includes(opportunitySearch.toLowerCase()) || o.customer.toLowerCase().includes(opportunitySearch.toLowerCase())).map((o) => (
+                              <button key={o.id} type="button" onClick={() => { handleChange("opportunityId", o.id); setOpportunitySearch(""); setShowOpportunityDropdown(false); }} className={`w-full text-left px-4 py-2.5 text-sm hover:bg-[#F5F5F5] transition-colors ${formData.opportunityId === o.id ? "bg-[#E8F4FF] text-[#2D3BFF]" : "text-[#0A0A0A]"}`}>
+                                <div className="font-medium">{o.title}</div>
+                                <div className="text-xs text-[#999999] mt-0.5">{o.customer} · {o.serviceProduct}</div>
+                              </button>
+                            ))
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">客户开票信息 <span className="text-red-500">*</span></label>
+                    <div className="space-y-2">
+                      <div className="flex flex-wrap gap-2">
+                        {getSelectedNames("invoiceInfoIds", mockInvoiceInfos.map((inv) => ({ id: inv.id, name: inv.title }))).map((name, i) => (
+                          <span key={i} className="inline-flex items-center gap-1 px-3 py-1 bg-[#FFF7ED] text-[#EA580C] rounded-full text-xs">
+                            {name}
+                            <button type="button" onClick={() => toggleMultiSelect("invoiceInfoIds", formData.invoiceInfoIds[i])} className="hover:text-red-500">×</button>
+                          </span>
+                        ))}
+                      </div>
+                      <button type="button" onClick={() => { setSearchTerm(""); setSelectorOpen("invoiceInfo"); }} className="w-full bg-[#F5F5F5] border border-dashed border-[#D0D5DD] rounded-xl px-4 py-3 text-sm text-[#999] hover:bg-[#EEF0F4] transition-colors">+ 选择客户开票信息</button>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">结算账期 <span className="text-red-500">*</span></label>
+                    <input type="text" value={formData.settlementPeriod} onChange={(e) => handleChange("settlementPeriod", e.target.value)} placeholder="请输入结算账期" className="w-full bg-[#F5F5F5] border-none rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">联系人 <span className="text-red-500">*</span></label>
+                    <input type="text" value={formData.contactName} onChange={(e) => handleChange("contactName", e.target.value)} placeholder="请输入联系人" className="w-full bg-[#F5F5F5] border-none rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30" />
+                  </div>
+                </div>
+              </div>
+
+              {/* 业务信息 */}
+              <div className="bg-white rounded-2xl shadow-sm p-6">
+                <h3 className="text-sm font-semibold text-[#0A0A0A] mb-4 pb-3 border-b border-[#EBEBEB]">业务信息</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">是否涉及贸易代理 <span className="text-red-500">*</span></label>
+                    <SearchableSelect
+                      value={formData.isTradeAgent}
+                      onChange={(value) => handleChange("isTradeAgent", value)}
+                      options={[{ value: "是", label: "是" }, { value: "否", label: "否" }]}
+                      placeholder="请选择"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">服务产品 <span className="text-red-500">*</span></label>
+                    <SearchableSelect
+                      value={formData.serviceProduct}
+                      onChange={(value) => handleChange("serviceProduct", value)}
+                      options={SERVICE_PRODUCTS.map((p) => ({ value: p, label: p }))}
+                      placeholder="请选择服务产品"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">业务类型 <span className="text-red-500">*</span></label>
+                    <SearchableSelect
+                      value={formData.businessType}
+                      onChange={(value) => handleChange("businessType", value)}
+                      options={BUSINESS_TYPES.map((t) => ({ value: t, label: t }))}
+                      placeholder="请选择业务类型"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">货物类型 <span className="text-red-500">*</span></label>
+                    <input type="text" value={formData.goodsType} onChange={(e) => handleChange("goodsType", e.target.value)} placeholder="请输入货物类型" className="w-full bg-[#F5F5F5] border-none rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">月均业务量 <span className="text-red-500">*</span></label>
+                    <SearchableSelect
+                      value={formData.monthlyBusinessVolume}
+                      onChange={(value) => handleChange("monthlyBusinessVolume", value)}
+                      options={MONTHLY_VOLUMES.map((v) => ({ value: v, label: v }))}
+                      placeholder="请选择月均业务量"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">每月开票金额 <span className="text-red-500">*</span></label>
+                    <input type="text" value={formData.monthlyInvoiceAmount} onChange={(e) => handleChange("monthlyInvoiceAmount", e.target.value)} placeholder="请输入每月开票金额" className="w-full bg-[#F5F5F5] border-none rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30" />
+                  </div>
+                </div>
+                <div className="mt-4 space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">通关KPI要求 <span className="text-red-500">*</span></label>
+                    <textarea value={formData.customsKpiRequirement} onChange={(e) => handleChange("customsKpiRequirement", e.target.value)} placeholder="请输入通关KPI要求" rows={3} className="w-full bg-[#F5F5F5] border-none rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30 resize-none" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">运输KPI要求 <span className="text-red-500">*</span></label>
+                    <textarea value={formData.transportKpiRequirement} onChange={(e) => handleChange("transportKpiRequirement", e.target.value)} placeholder="请输入运输KPI要求" rows={3} className="w-full bg-[#F5F5F5] border-none rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30 resize-none" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">仓库租赁要求 <span className="text-red-500">*</span></label>
+                    <textarea value={formData.warehouseLeaseRequirement} onChange={(e) => handleChange("warehouseLeaseRequirement", e.target.value)} placeholder="请输入仓库租赁要求" rows={3} className="w-full bg-[#F5F5F5] border-none rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30 resize-none" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">定制化服务需求 <span className="text-red-500">*</span></label>
+                    <SearchableSelect
+                      value={formData.customServiceRequirement}
+                      onChange={(value) => handleChange("customServiceRequirement", value)}
+                      options={CUSTOM_SERVICE_OPTIONS.map((o) => ({ value: o, label: o }))}
+                      placeholder="请选择定制化服务需求"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">定制化需求描述 <span className="text-red-500">*</span></label>
+                    <textarea value={formData.customRequirementDescription} onChange={(e) => handleChange("customRequirementDescription", e.target.value)} placeholder="请输入定制化需求描述" rows={3} className="w-full bg-[#F5F5F5] border-none rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30 resize-none" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 右侧审批流 */}
+            <div className="col-span-5 space-y-6">
+              <div className="bg-white rounded-2xl shadow-sm p-6 sticky top-6">
+                <h3 className="text-sm font-semibold text-[#0A0A0A] mb-4 pb-3 border-b border-[#EBEBEB]">审批流程</h3>
+                <div className="space-y-0">
+                  {approvalSteps.map((step, index) => (
+                    <div key={step.id} className="flex items-start gap-3">
+                      <div className="flex flex-col items-center">
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium ${
+                          step.status === "completed" ? "bg-[#16A34A] text-white" :
+                          step.status === "current" ? "bg-[#2D3BFF] text-white" :
+                          "bg-[#EBEBEB] text-[#999]"
+                        }`}>
+                          {index + 1}
+                        </div>
+                        {index < approvalSteps.length - 1 && <div className="w-0.5 h-12 bg-[#EBEBEB]" />}
+                      </div>
+                      <div className="pb-8 flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-medium text-[#0A0A0A]">{step.name}</span>
+                          {step.isCountersign && step.approvers && step.approvers.length > 1 && (
+                            <span className="inline-flex items-center px-2 py-0.5 bg-[#FEFCE8] text-[#CA8A04] text-xs rounded-full font-medium">会签</span>
+                          )}
+                        </div>
+                        <div className="text-xs text-[#999] mt-0.5">{step.role}</div>
+                        {step.approver && !step.isCountersign && (
+                          <div className="mt-1.5 flex items-center gap-2">
+                            <div className="w-5 h-5 rounded-full bg-[#E8F4FF] flex items-center justify-center text-[10px] font-medium text-[#2D3BFF]">
+                              {step.approver.charAt(0)}
+                            </div>
+                            <span className="text-xs text-[#666]">{step.approver}</span>
+                          </div>
+                        )}
+                        {step.isCountersign && step.approvers && step.approvers.length > 1 && (
+                          <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                            {step.approvers.map((a) => (
+                              <div key={a} className="flex items-center gap-1 px-2 py-0.5 bg-[#E8F4FF] rounded-full">
+                                <div className="w-4 h-4 rounded-full bg-[#2D3BFF] flex items-center justify-center text-[9px] text-white">{a.charAt(0)}</div>
+                                <span className="text-xs text-[#2D3BFF]">{a}</span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        {step.isAutoAdded && step.autoAddReason && (
+                          <span className="inline-block mt-1 px-2 py-0.5 bg-[#FEFCE8] text-[#CA8A04] text-xs rounded-full">{step.autoAddReason}</span>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* 合同物流四选一 */}
+                {currentApproverConfig?.isPickOne && (
+                  <div className="mt-4 p-4 bg-[#F5F5F5] rounded-xl">
+                    <div className="text-sm font-medium text-[#0A0A0A] mb-2">选择职能审批人</div>
+                    <div className="text-xs text-[#999] mb-3">合同物流需要指定一位职能审批人，请从以下人员中选择：</div>
+                    <div className="grid grid-cols-2 gap-2">
+                      {currentApproverConfig.approvers.map((approver) => (
+                        <button
+                          key={approver}
+                          type="button"
+                          onClick={() => handlePickApprover(approver)}
+                          className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border-2 transition-all ${
+                            pickedApprover === approver
+                              ? "border-[#2D3BFF] bg-[#E8F4FF]"
+                              : "border-[#EBEBEB] bg-white hover:border-[#2D3BFF]/30"
+                          }`}
+                        >
+                          <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-medium ${
+                            pickedApprover === approver ? "bg-[#2D3BFF] text-white" : "bg-[#EBEBEB] text-[#999]"
+                          }`}>
+                            {approver.charAt(0)}
+                          </div>
+                          <span className={`text-sm font-medium ${pickedApprover === approver ? "text-[#2D3BFF]" : "text-[#0A0A0A]"}`}>{approver}</span>
+                          {pickedApprover === approver && (
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2D3BFF" strokeWidth="3" className="ml-auto"><polyline points="20 6 9 17 4 12"/></svg>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className="mt-4 p-3 bg-[#F5F5F5] rounded-xl">
+                  <p className="text-xs text-[#999]">注意: 风控审批中填写的所有字段均不受角色权限限制，所有审批人均可查看全部字段内容。</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+
+        {/* 多选弹窗 */}
+        {selectorOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setSelectorOpen("")}>
+            <div className="bg-white rounded-2xl w-[480px] max-h-[70vh] overflow-hidden" onClick={(e) => e.stopPropagation()}>
+              <div className="p-4 border-b border-[#EBEBEB]">
+                <h3 className="text-lg font-semibold text-[#0A0A0A]">
+                  {selectorOpen === "businessCustomer" ? "选择业务主客户" : "选择客户开票信息"}
+                </h3>
+                <div className="mt-3 relative">
+                  <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#999]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                  <input type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="搜索..." className="w-full bg-[#F5F5F5] border-none rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30" />
+                </div>
+              </div>
+              <div className="p-4 max-h-[400px] overflow-y-auto space-y-2">
+                {(selectorOpen === "businessCustomer" ? mockBusinessCustomers : mockInvoiceInfos)
+                  .filter((item) => ("name" in item ? item.name : "title" in item ? item.title : "").includes(searchTerm))
+                  .map((item) => {
+                    const id = item.id;
+                    const label = "name" in item ? item.name : "title" in item ? item.title : "";
+                    const selected = selectorOpen === "businessCustomer" ? formData.businessCustomerIds.includes(id) : formData.invoiceInfoIds.includes(id);
+                    const fieldName = selectorOpen === "businessCustomer" ? "businessCustomerIds" as const : "invoiceInfoIds" as const;
+                    return (
+                      <button key={id} type="button" onClick={() => toggleMultiSelect(fieldName, id)} className={`w-full text-left p-3 rounded-xl border transition-colors ${selected ? "border-[#2D3BFF] bg-[#E8F4FF]" : "border-[#EBEBEB] hover:bg-[#F5F5F5]"}`}>
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-[#0A0A0A]">{label}</span>
+                          {selected && <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2D3BFF" strokeWidth="2"><polyline points="20 6 9 17 4 12"/></svg>}
+                        </div>
+                        {"taxNumber" in item && (item as { taxNumber?: string }).taxNumber && <div className="text-xs text-[#999] mt-1">税号: {(item as { taxNumber?: string }).taxNumber}</div>}
+                      </button>
+                    );
+                  })}
+              </div>
+              <div className="p-4 border-t border-[#EBEBEB] flex justify-end">
+                <button onClick={() => setSelectorOpen("")} className="px-6 py-2 bg-[#2D3BFF] text-white rounded-lg text-sm">确认</button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </AppLayout>
+  );
+}

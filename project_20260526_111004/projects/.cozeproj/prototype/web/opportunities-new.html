@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <script src="https://lf-code-agent.coze.cn/obj/x-ai-cn/cdn/jquery/jquery-3.7.1.min.js"></script>
+  <script src="https://lf-code-agent.coze.cn/obj/x-ai-cn/cdn/lucide/lucide-1.11.0.min.js"></script>
+  <script src="https://lf-code-agent.coze.cn/obj/x-ai-cn/cdn/tailwindcss/tailwindcss-browser-4.2.4.min.js"></script>
+
+  <style type="text/tailwindcss">
+    @theme {
+      /* === 品牌色 === */
+      --color-primary:              #1E40AF;
+      --color-primary-container:    #DBEAFE;
+      --color-on-primary:           #ffffff;
+      /* === 背景 / 表面 === */
+      --color-background:                 #FFFFFF;
+      --color-surface-container-lowest:   #F9FAFB;
+      --color-surface:                    #FFFFFF;
+      --color-surface-container:          #F3F4F6;
+      --color-surface-container-high:     #E5E7EB;
+      --color-surface-container-highest:  #D1D5DB;
+      /* === 文字 === */
+      --color-on-surface:           #111827;
+      --color-on-surface-variant:   #6B7280;
+      /* === 功能色 === */
+      --color-success:  #22c55e;
+      --color-error:    #ef4444;
+      --color-warning:  #f59e0b;
+      /* === 边框 === */
+      --color-outline:          #D1D5DB;
+      --color-outline-variant:  #E5E7EB;
+      /* === 圆角 === */
+      --radius-sm:   0.375rem;
+      --radius-md:   0.5rem;
+      --radius-lg:   0.75rem;
+      --radius-xl:   1rem;
+      --radius-2xl:  1.5rem;
+      --radius-full: 9999px;
+      /* === 阴影 === */
+      --shadow-card:   0 2px 8px rgba(0,0,0,0.10);
+      --shadow-float:  0 10px 25px rgba(0,0,0,0.15);
+      --shadow-dialog: 0 25px 50px rgba(0,0,0,0.20);
+      /* === 字体 === */
+      --font-sans: "Inter", "Noto Sans SC", system-ui, sans-serif;
+    }
+  </style>
+
+  <!-- 图片兜底 -->
+  <script>
+    document.addEventListener('error', function (e) {
+      const img = e.target;
+      if (img.tagName !== 'IMG' || img.dataset.fallback) return;
+      img.dataset.fallback = '1';
+      const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      const cat = img.getAttribute('data-category') || '其他';
+      const alt = img.getAttribute('alt') || '';
+      const label = esc(alt.length > 8 ? alt.slice(0, 8) + '…' : alt);
+      const icons = { '人物': '👤', '自然风景': '🏞', '动物': '🐾', '建筑城市': '🏙', '运动体育': '⚽', '交通工具': '🚗', '食物': '🍽', '服饰时尚': '👗', '商业科技': '💼', '游戏娱乐': '🎮', '艺术': '🎨', '其他': '🖼' };
+      const icon = icons[cat] || '🖼';
+      const w = img.width || 400, h = img.height || 300;
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}"><rect width="100%" height="100%" fill="%23f3f4f6"/><text x="50%" y="45%" text-anchor="middle" font-size="${Math.min(w, h) * 0.18}" dominant-baseline="central">${icon}</text><text x="50%" y="68%" text-anchor="middle" font-size="${Math.min(w, h) * 0.07}" fill="%239ca3af" font-family="system-ui,sans-serif" dominant-baseline="central">${label}</text></svg>`;
+      img.src = 'data:image/svg+xml,' + svg;
+    }, true);
+  </script>
+</head>
+
+<body class="bg-background text-on-surface font-sans min-h-screen">
+
+  <!-- @nav:start 导航组件，不需要的页面则不要复制此段（从 @nav:start 到 @nav:end） -->
+  <div class="flex" style="height: 100vh;">
+    <aside class="w-64 shrink-0 bg-surface-container-lowest border-r border-outline-variant/20 overflow-y-auto">
+      <div class="p-4 border-b border-outline-variant/20">
+        <div class="flex items-center gap-2">
+          <i data-lucide="building" class="text-primary w-6 h-6"></i>
+          <span class="font-bold text-lg">CIM V2.0</span>
+        </div>
+      </div>
+      <div class="p-3 space-y-1">
+        <a href="customers.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors">
+          <i data-lucide="users" class="w-4 h-4"></i>客户管理
+        </a>
+        <a href="opportunities.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md bg-primary/10 text-primary font-medium text-sm" aria-current="page">
+          <i data-lucide="target" class="w-4 h-4"></i>商机管理
+        </a>
+        <a href="followup.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors">
+          <i data-lucide="message-square" class="w-4 h-4"></i>客户跟进
+        </a>
+        <a href="quotes.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors">
+          <i data-lucide="file-text" class="w-4 h-4"></i>售前报价
+        </a>
+        <a href="approvals.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors">
+          <i data-lucide="shield-check" class="w-4 h-4"></i>风控审批
+        </a>
+        <div class="pt-2 mt-2 border-t border-outline-variant/20">
+          <a href="rules.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors">
+            <i data-lucide="settings" class="w-4 h-4"></i>规则配置
+          </a>
+        </div>
+      </div>
+    </aside>
+
+    <div class="flex-1 flex flex-col min-w-0">
+      <header class="bg-surface border-b border-outline-variant/20 h-16 flex items-center justify-between px-6">
+        <div class="flex items-center gap-4">
+          <h1 class="text-xl font-semibold" id="page-title">新增商机</h1>
+        </div>
+        <div class="flex items-center gap-4">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center text-sm font-medium">初</div>
+            <span class="text-sm text-on-surface">小初</span>
+          </div>
+        </div>
+      </header>
+  <!-- @nav:end 导航组件，不需要的页面则不要复制此段 -->
+
+      <!-- @main-content:start -->
+      <main class="flex-1 min-w-0 overflow-y-auto bg-background p-6">
+        <div class="max-w-7xl mx-auto space-y-6">
+          <!-- 顶部操作栏 -->
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <button id="btn-back" class="flex items-center gap-2 text-on-surface-variant hover:text-on-surface transition-colors">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                <span class="text-sm font-medium">返回</span>
+              </button>
+            </div>
+            <div class="flex items-center gap-3">
+              <button id="btn-cancel" class="bg-surface-container text-on-surface border-none px-4 py-2 rounded-md text-sm font-medium hover:bg-surface-container-high active:scale-[0.98] transition-all">
+                取消
+              </button>
+              <button id="btn-save" class="bg-primary text-on-primary px-4 py-2 rounded-md text-sm font-medium hover:opacity-90 active:scale-[0.98] transition-all inline-flex items-center gap-2">
+                <i data-lucide="save" class="w-3.5 h-3.5"></i>
+                保存
+              </button>
+            </div>
+          </div>
+
+          <!-- 表单内容 -->
+          <div class="bg-surface rounded-lg shadow-card p-6 space-y-8">
+            <!-- 基本信息 -->
+            <div class="space-y-4">
+              <h2 class="text-base font-semibold text-on-surface">基本信息</h2>
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <!-- 商机编号 -->
+                <div class="space-y-1.5">
+                  <label for="input-opportunity-number" class="text-sm font-medium text-on-surface">商机编号</label>
+                  <input type="text" id="input-opportunity-number" class="w-full bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors" placeholder="系统自动生成" disabled>
+                </div>
+                <!-- 商机名称 -->
+                <div class="space-y-1.5">
+                  <label for="input-opportunity-name" class="text-sm font-medium text-on-surface">商机名称 <span class="text-error">*</span></label>
+                  <input type="text" id="input-opportunity-name" class="w-full bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors" placeholder="请输入商机名称">
+                </div>
+                <!-- 关联客户 -->
+                <div class="space-y-1.5">
+                  <label for="select-customer" class="text-sm font-medium text-on-surface">关联客户 <span class="text-error">*</span></label>
+                  <select id="select-customer" class="w-full bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors">
+                    <option value="">请选择客户</option>
+                    <option value="1">中芯国际集成电路制造有限公司</option>
+                    <option value="2">长江存储科技有限责任公司</option>
+                    <option value="3">长鑫存储技术有限公司</option>
+                    <option value="4">上海华虹宏力半导体制造有限公司</option>
+                    <option value="5">无锡华润微电子有限公司</option>
+                  </select>
+                </div>
+                <!-- 商机获取日期 -->
+                <div class="space-y-1.5">
+                  <label for="input-acquisition-date" class="text-sm font-medium text-on-surface">商机获取日期 <span class="text-error">*</span></label>
+                  <input type="date" id="input-acquisition-date" class="w-full bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors">
+                </div>
+                <!-- 服务产品 -->
+                <div class="space-y-1.5">
+                  <label for="select-service-product" class="text-sm font-medium text-on-surface">服务产品 <span class="text-error">*</span></label>
+                  <select id="select-service-product" class="w-full bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors">
+                    <option value="">请选择服务产品</option>
+                    <option value="forwarding">货代</option>
+                    <option value="customs">关务</option>
+                    <option value="warehousing">仓储</option>
+                    <option value="transportation">运输</option>
+                    <option value="import_export">进出口</option>
+                    <option value="repair">维修</option>
+                    <option value="contract_logistics">合同物流</option>
+                    <option value="integrated_supply_chain">一体化供应链</option>
+                    <option value="other">其他</option>
+                  </select>
+                </div>
+                <!-- 意向站点 -->
+                <div class="space-y-1.5">
+                  <label for="select-intended-sites" class="text-sm font-medium text-on-surface">意向站点</label>
+                  <select id="select-intended-sites" class="w-full bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors">
+                    <option value="">请选择意向站点</option>
+                    <option value="shanghai">上海</option>
+                    <option value="beijing">北京</option>
+                    <option value="shenzhen">深圳</option>
+                    <option value="wuxi">无锡</option>
+                    <option value="wuhan">武汉</option>
+                    <option value="chengdu">成都</option>
+                  </select>
+                </div>
+                <!-- 协同人 -->
+                <div class="space-y-1.5">
+                  <label for="input-collaborator" class="text-sm font-medium text-on-surface">协同人</label>
+                  <input type="text" id="input-collaborator" class="w-full bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors" placeholder="请输入协同人">
+                </div>
+                <!-- 结算币种 -->
+                <div class="space-y-1.5">
+                  <label for="select-currency" class="text-sm font-medium text-on-surface">结算币种 <span class="text-error">*</span></label>
+                  <select id="select-currency" class="w-full bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors">
+                    <option value="">请选择结算币种</option>
+                    <option value="CNY">人民币 (CNY)</option>
+                    <option value="USD">美元 (USD)</option>
+                    <option value="EUR">欧元 (EUR)</option>
+                    <option value="JPY">日元 (JPY)</option>
+                    <option value="HKD">港币 (HKD)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- 金额信息 -->
+            <div class="space-y-4">
+              <h2 class="text-base font-semibold text-on-surface">金额信息</h2>
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <!-- 预估月度结算金额 -->
+                <div class="space-y-1.5">
+                  <label for="input-estimated-monthly-amount" class="text-sm font-medium text-on-surface">预估月度结算金额</label>
+                  <input type="number" id="input-estimated-monthly-amount" class="w-full bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors" placeholder="请输入预估月度结算金额">
+                </div>
+                <!-- 商机金额 -->
+                <div class="space-y-1.5">
+                  <label for="input-opportunity-amount" class="text-sm font-medium text-on-surface">商机金额</label>
+                  <input type="number" id="input-opportunity-amount" class="w-full bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors" placeholder="请输入商机金额">
+                </div>
+              </div>
+            </div>
+
+            <!-- 时间信息 -->
+            <div class="space-y-4">
+              <h2 class="text-base font-semibold text-on-surface">时间信息</h2>
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <!-- 服务开始时间 -->
+                <div class="space-y-1.5">
+                  <label for="input-service-start-time" class="text-sm font-medium text-on-surface">服务开始时间</label>
+                  <input type="date" id="input-service-start-time" class="w-full bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors">
+                </div>
+                <!-- 预计结束时间 -->
+                <div class="space-y-1.5">
+                  <label for="input-estimated-end-time" class="text-sm font-medium text-on-surface">预计结束时间</label>
+                  <input type="date" id="input-estimated-end-time" class="w-full bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors">
+                </div>
+                <!-- 预计成交日期 -->
+                <div class="space-y-1.5">
+                  <label for="input-expected-closing-date" class="text-sm font-medium text-on-surface">预计成交日期</label>
+                  <input type="date" id="input-expected-closing-date" class="w-full bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors">
+                </div>
+              </div>
+            </div>
+
+            <!-- 销售信息 -->
+            <div class="space-y-4">
+              <h2 class="text-base font-semibold text-on-surface">销售信息</h2>
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <!-- 销售阶段 -->
+                <div class="space-y-1.5">
+                  <label for="select-sales-stage" class="text-sm font-medium text-on-surface">销售阶段 <span class="text-error">*</span></label>
+                  <select id="select-sales-stage" class="w-full bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors">
+                    <option value="">请选择销售阶段</option>
+                    <option value="requirement_confirmation">需求确认</option>
+                    <option value="solution_quotation">方案报价</option>
+                    <option value="business_negotiation">商务谈判</option>
+                    <option value="following">跟进中</option>
+                    <option value="won">赢单</option>
+                    <option value="lost">输单</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- 详细信息 -->
+            <div class="space-y-4">
+              <h2 class="text-base font-semibold text-on-surface">详细信息</h2>
+              <div class="grid grid-cols-1 gap-4">
+                <!-- 服务要求 -->
+                <div class="space-y-1.5">
+                  <label for="textarea-service-requirements" class="text-sm font-medium text-on-surface">服务要求</label>
+                  <textarea id="textarea-service-requirements" rows="3" class="w-full bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors resize-none" placeholder="请输入服务要求"></textarea>
+                </div>
+                <!-- 商机描述 -->
+                <div class="space-y-1.5">
+                  <label for="textarea-description" class="text-sm font-medium text-on-surface">商机描述</label>
+                  <textarea id="textarea-description" rows="3" class="w-full bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors resize-none" placeholder="请输入商机描述"></textarea>
+                </div>
+                <!-- 备注 -->
+                <div class="space-y-1.5">
+                  <label for="textarea-remark" class="text-sm font-medium text-on-surface">备注</label>
+                  <textarea id="textarea-remark" rows="3" class="w-full bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors resize-none" placeholder="请输入备注"></textarea>
+                </div>
+              </div>
+            </div>
+
+            <!-- 分析信息 -->
+            <div class="space-y-4">
+              <h2 class="text-base font-semibold text-on-surface">分析信息</h2>
+              <div class="grid grid-cols-1 gap-4">
+                <!-- 关系与忠诚度 -->
+                <div class="space-y-1.5">
+                  <label for="textarea-relationship-loyalty" class="text-sm font-medium text-on-surface">关系与忠诚度</label>
+                  <textarea id="textarea-relationship-loyalty" rows="3" class="w-full bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors resize-none" placeholder="请输入关系与忠诚度分析"></textarea>
+                </div>
+                <!-- 同行影响力 -->
+                <div class="space-y-1.5">
+                  <label for="textarea-peer-influence" class="text-sm font-medium text-on-surface">同行影响力</label>
+                  <textarea id="textarea-peer-influence" rows="3" class="w-full bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors resize-none" placeholder="请输入同行影响力分析"></textarea>
+                </div>
+                <!-- SWOT分析 -->
+                <div class="space-y-1.5">
+                  <label for="textarea-swot-analysis" class="text-sm font-medium text-on-surface">SWOT分析</label>
+                  <textarea id="textarea-swot-analysis" rows="3" class="w-full bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors resize-none" placeholder="请输入SWOT分析"></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+      <!-- @main-content:end -->
+    </div>
+  </div>
+
+  <script>
+    $(function() {
+      // 初始化商机获取日期为今天
+      const today = new Date().toISOString().split('T')[0];
+      $('#input-acquisition-date').val(today);
+
+      // 返回按钮点击事件
+      $('#btn-back').on('click', function() {
+        window.location.href = 'opportunities.html';
+      });
+
+      // 取消按钮点击事件
+      $('#btn-cancel').on('click', function() {
+        window.location.href = 'opportunities.html';
+      });
+
+      // 保存按钮点击事件
+      $('#btn-save').on('click', function() {
+        // 简单的表单验证
+        const opportunityName = $('#input-opportunity-name').val();
+        const customer = $('#select-customer').val();
+        const acquisitionDate = $('#input-acquisition-date').val();
+        const serviceProduct = $('#select-service-product').val();
+        const currency = $('#select-currency').val();
+        const salesStage = $('#select-sales-stage').val();
+
+        if (!opportunityName || !customer || !acquisitionDate || !serviceProduct || !currency || !salesStage) {
+          alert('请填写必填字段');
+          return;
+        }
+
+        // 模拟保存操作
+        console.log('保存商机信息:', {
+          opportunityName,
+          customer,
+          acquisitionDate,
+          serviceProduct,
+          currency,
+          salesStage
+        });
+
+        // 保存成功后跳转到商机列表页
+        alert('商机创建成功！');
+        window.location.href = 'opportunities.html';
+      });
+
+      // 初始化图标
+      lucide.createIcons();
+    });
+  </script>
+</body>
+
+</html>

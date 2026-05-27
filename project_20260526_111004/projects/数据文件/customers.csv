@@ -1,0 +1,7 @@
+id,name,erpCustomerId,status,unifiedSocialCreditCode,industryChainLevel,industryChainRole,industryTags,remark,createdAt,updatedAt
+cust-001,应用材料（中国）有限公司,AMAT-CN-001,active,91310000710938216N,upstream,["equipment","material"],["半导体","设备","材料"],全球领先的半导体设备制造商,2024-01-15 09:00:00,2024-01-20 14:30:00
+cust-002,飞雅贸易（上海）有限公司,FIYAR-CN-001,active,91310000MA1FL3KX57,downstream,["distributor"],["半导体","贸易","分销"],专业半导体产品分销商,2024-01-16 10:30:00,2024-01-21 09:15:00
+cust-003,荏原制作所,EBARA-JP-001,active,,upstream,["equipment","component"],["半导体","设备","日本"],日本知名半导体设备厂商,2024-01-17 08:45:00,2024-01-18 16:20:00
+cust-005,苏斯贸易（上海）有限公司,SUSS-CN-001,active,91310000607384691C,upstream,["equipment"],["半导体","设备","德国"],德国SUSS MicroTec在中国的子公司,2024-01-18 11:20:00,2024-01-19 13:40:00
+cust-006,昇先创（上海）科技有限公司,SSX-CN-001,active,91310000MA1G8Y7P2L,midstream,["design","osat"],["半导体","设计","封测"],专注于芯片设计和封测服务,2024-01-19 14:00:00,2024-01-20 10:30:00
+cust-007,上海华力微电子有限公司,HLMC-CN-001,active,913100006972078146,midstream,["idm","wafer_foundry"],["半导体","晶圆制造","国资"],中国大陆领先的晶圆代工厂,2024-01-20 09:30:00,2024-01-21 11:45:00

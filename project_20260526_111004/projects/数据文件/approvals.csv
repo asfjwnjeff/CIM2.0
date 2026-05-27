@@ -1,0 +1,4 @@
+id,customerId,customerName,riskType,riskLevel,occurrenceDate,status,owner,description,measures,createdAt
+app-001,cust-001,应用材料（中国）有限公司,信用风险,low,2024-01-10,已解决,张三,付款延迟3天,加强付款提醒,2024-01-10
+app-002,cust-002,飞雅贸易（上海）有限公司,市场风险,medium,2024-01-15,处理中,李四,市场价格波动,密切关注市场动态,2024-01-15
+app-003,cust-006,昇先创（上海）科技有限公司,运营风险,high,2024-01-20,待处理,王五,管理层变动,启动应急预案,2024-01-20

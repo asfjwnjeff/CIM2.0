@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <script src="https://lf-code-agent.coze.cn/obj/x-ai-cn/cdn/jquery/jquery-3.7.1.min.js"></script>
+  <script src="https://lf-code-agent.coze.cn/obj/x-ai-cn/cdn/lucide/lucide-1.11.0.min.js"></script>
+  <script src="https://lf-code-agent.coze.cn/obj/x-ai-cn/cdn/tailwindcss/tailwindcss-browser-4.2.4.min.js"></script>
+
+  <style type="text/tailwindcss">
+    @theme {
+      /* === 品牌色 === */
+      --color-primary:              #1E40AF;
+      --color-primary-container:    #DBEAFE;
+      --color-on-primary:           #ffffff;
+      /* === 背景 / 表面 === */
+      --color-background:                 #FFFFFF;
+      --color-surface-container-lowest:   #F9FAFB;
+      --color-surface:                    #FFFFFF;
+      --color-surface-container:          #F3F4F6;
+      --color-surface-container-high:     #E5E7EB;
+      --color-surface-container-highest:  #D1D5DB;
+      /* === 文字 === */
+      --color-on-surface:           #111827;
+      --color-on-surface-variant:   #6B7280;
+      /* === 功能色 === */
+      --color-success:  #22c55e;
+      --color-error:    #ef4444;
+      --color-warning:  #f59e0b;
+      /* === 边框 === */
+      --color-outline:          #D1D5DB;
+      --color-outline-variant:  #E5E7EB;
+      /* === 圆角 === */
+      --radius-sm:   0.375rem;
+      --radius-md:   0.5rem;
+      --radius-lg:   0.75rem;
+      --radius-xl:   1rem;
+      --radius-2xl:  1.5rem;
+      --radius-full: 9999px;
+      /* === 阴影 === */
+      --shadow-card:   0 2px 8px rgba(0,0,0,0.10);
+      --shadow-float:  0 10px 25px rgba(0,0,0,0.15);
+      --shadow-dialog: 0 25px 50px rgba(0,0,0,0.20);
+      /* === 字体 === */
+      --font-sans: "Inter", "Noto Sans SC", system-ui, sans-serif;
+    }
+  </style>
+
+  <!-- 图片兜底 -->
+  <script>
+    document.addEventListener('error', function (e) {
+      const img = e.target;
+      if (img.tagName !== 'IMG' || img.dataset.fallback) return;
+      img.dataset.fallback = '1';
+      const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      const cat = img.getAttribute('data-category') || '其他';
+      const alt = img.getAttribute('alt') || '';
+      const label = esc(alt.length > 8 ? alt.slice(0, 8) + '…' : alt);
+      const icons = { '人物': '👤', '自然风景': '🏞', '动物': '🐾', '建筑城市': '🏙', '运动体育': '⚽', '交通工具': '🚗', '食物': '🍽', '服饰时尚': '👗', '商业科技': '💼', '游戏娱乐': '🎮', '艺术': '🎨', '其他': '🖼' };
+      const icon = icons[cat] || '🖼';
+      const w = img.width || 400, h = img.height || 300;
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}"><rect width="100%" height="100%" fill="%23f3f4f6"/><text x="50%" y="45%" text-anchor="middle" font-size="${Math.min(w, h) * 0.18}" dominant-baseline="central">${icon}</text><text x="50%" y="68%" text-anchor="middle" font-size="${Math.min(w, h) * 0.07}" fill="%239ca3af" font-family="system-ui,sans-serif" dominant-baseline="central">${label}</text></svg>`;
+      img.src = 'data:image/svg+xml,' + svg;
+    }, true);
+  </script>
+</head>
+
+<body class="bg-background text-on-surface font-sans min-h-screen">
+
+  <!-- @nav:start 导航组件，不需要的页面则不要复制此段（从 @nav:start 到 @nav:end） -->
+  <div class="flex" style="height: 100vh;">
+    <aside class="w-64 shrink-0 bg-surface-container-lowest border-r border-outline-variant/20 overflow-y-auto">
+      <div class="p-4 border-b border-outline-variant/20">
+        <div class="flex items-center gap-2">
+          <i data-lucide="building" class="text-primary w-6 h-6"></i>
+          <span class="font-bold text-lg">CIM V2.0</span>
+        </div>
+      </div>
+      <div class="p-3 space-y-1">
+        <a href="customers.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors">
+          <i data-lucide="users" class="w-4 h-4"></i>客户管理
+        </a>
+        <a href="opportunities.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors">
+          <i data-lucide="target" class="w-4 h-4"></i>商机管理
+        </a>
+        <a href="followup.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors">
+          <i data-lucide="message-square" class="w-4 h-4"></i>客户跟进
+        </a>
+        <a href="quotes.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors">
+          <i data-lucide="file-text" class="w-4 h-4"></i>售前报价
+        </a>
+        <a href="approvals.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors">
+          <i data-lucide="shield-check" class="w-4 h-4"></i>风控审批
+        </a>
+        <div class="pt-2 mt-2 border-t border-outline-variant/20">
+          <a href="service-entities.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors">
+            <i data-lucide="building-2" class="w-4 h-4"></i>服务主体
+          </a>
+          <a href="signing-entities.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md bg-primary/10 text-primary font-medium text-sm transition-colors" aria-current="page">
+            <i data-lucide="file-signature" class="w-4 h-4"></i>签约主体
+          </a>
+          <a href="settlement-entities.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors">
+            <i data-lucide="receipt" class="w-4 h-4"></i>结算主体
+          </a>
+        </div>
+      </div>
+    </aside>
+
+    <div class="flex-1 flex flex-col min-w-0">
+      <header class="bg-surface border-b border-outline-variant/20 h-16 flex items-center justify-between px-6">
+        <div class="flex items-center gap-4">
+          <h1 class="text-xl font-semibold" id="page-title">签约主体管理</h1>
+        </div>
+        <div class="flex items-center gap-4">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center text-sm font-medium">初</div>
+            <span class="text-sm text-on-surface">小初</span>
+          </div>
+        </div>
+      </header>
+  <!-- @nav:end 导航组件，不需要的页面则不要复制此段 -->
+
+      <!-- @main-content:start -->
+      <main class="flex-1 min-w-0 overflow-y-auto bg-background p-6">
+        <!-- 顶部工具栏 -->
+        <div class="flex items-center justify-between mb-6">
+          <div class="flex items-center gap-3">
+            <div class="relative">
+              <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-on-surface-variant"></i>
+              <input type="text" id="search-input" placeholder="搜索主体名称、代码或统一社会信用代码" class="w-80 bg-surface-container border-none rounded-md pl-10 pr-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors"/>
+            </div>
+            <select id="status-filter" class="bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors">
+              <option value="">全部状态</option>
+              <option value="active">启用</option>
+              <option value="inactive">停用</option>
+            </select>
+          </div>
+          <button id="btn-new-entity" class="bg-primary text-on-primary px-4 py-2 rounded-md text-sm font-medium hover:opacity-90 active:scale-[0.98] transition-all inline-flex items-center gap-2">
+            <i data-lucide="plus" class="w-3.5 h-3.5"></i>新建签约主体
+          </button>
+        </div>
+
+        <!-- 表格 -->
+        <div class="bg-surface rounded-lg shadow-card overflow-hidden">
+          <div class="grid grid-cols-8 px-4 py-3 bg-surface-container text-xs font-semibold text-on-surface-variant uppercase tracking-wide">
+            <span>主体名称</span>
+            <span>主体代码</span>
+            <span>统一社会信用代码</span>
+            <span>关联客户数</span>
+            <span>状态</span>
+            <span>创建时间</span>
+            <span class="col-span-2">操作</span>
+          </div>
+          <div class="divide-y divide-outline-variant/50" id="entities-table-body">
+            <!-- 列表-签约主体1 -->
+            <div class="grid grid-cols-8 px-4 py-3 hover:bg-surface-container/50 transition-colors items-center">
+              <span class="text-sm font-medium text-on-surface">上海泓明供应链有限公司</span>
+              <span class="text-sm text-on-surface-variant">HM-SH-001</span>
+              <span class="text-sm text-on-surface-variant">91310000756998765D</span>
+              <span class="text-sm text-on-surface">156</span>
+              <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs bg-success/15 text-success w-fit">启用</span>
+              <span class="text-sm text-on-surface-variant">2024-01-15 10:30:00</span>
+              <div class="col-span-2 flex items-center gap-3">
+                <button class="text-primary text-sm font-medium hover:underline w-fit">编辑</button>
+                <button class="text-error text-sm font-medium hover:underline w-fit">停用</button>
+              </div>
+            </div>
+            <!-- 列表-签约主体2 -->
+            <div class="grid grid-cols-8 px-4 py-3 hover:bg-surface-container/50 transition-colors items-center">
+              <span class="text-sm font-medium text-on-surface">北京泓明国际物流有限公司</span>
+              <span class="text-sm text-on-surface-variant">HM-BJ-002</span>
+              <span class="text-sm text-on-surface-variant">91110000678901234X</span>
+              <span class="text-sm text-on-surface">89</span>
+              <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs bg-success/15 text-success w-fit">启用</span>
+              <span class="text-sm text-on-surface-variant">2024-02-20 14:25:00</span>
+              <div class="col-span-2 flex items-center gap-3">
+                <button class="text-primary text-sm font-medium hover:underline w-fit">编辑</button>
+                <button class="text-error text-sm font-medium hover:underline w-fit">停用</button>
+              </div>
+            </div>
+            <!-- 列表-签约主体3 -->
+            <div class="grid grid-cols-8 px-4 py-3 hover:bg-surface-container/50 transition-colors items-center">
+              <span class="text-sm font-medium text-on-surface">深圳泓明供应链管理有限公司</span>
+              <span class="text-sm text-on-surface-variant">HM-SZ-003</span>
+              <span class="text-sm text-on-surface-variant">91440300567890123K</span>
+              <span class="text-sm text-on-surface">203</span>
+              <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs bg-success/15 text-success w-fit">启用</span>
+              <span class="text-sm text-on-surface-variant">2024-03-10 09:15:00</span>
+              <div class="col-span-2 flex items-center gap-3">
+                <button class="text-primary text-sm font-medium hover:underline w-fit">编辑</button>
+                <button class="text-error text-sm font-medium hover:underline w-fit">停用</button>
+              </div>
+            </div>
+            <!-- 列表-签约主体4 -->
+            <div class="grid grid-cols-8 px-4 py-3 hover:bg-surface-container/50 transition-colors items-center">
+              <span class="text-sm font-medium text-on-surface">苏州泓明物流有限公司</span>
+              <span class="text-sm text-on-surface-variant">HM-SUZ-004</span>
+              <span class="text-sm text-on-surface-variant">91320500456789012M</span>
+              <span class="text-sm text-on-surface">67</span>
+              <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs bg-error/15 text-error w-fit">停用</span>
+              <span class="text-sm text-on-surface-variant">2024-04-05 16:40:00</span>
+              <div class="col-span-2 flex items-center gap-3">
+                <button class="text-primary text-sm font-medium hover:underline w-fit">编辑</button>
+                <button class="text-success text-sm font-medium hover:underline w-fit">启用</button>
+              </div>
+            </div>
+            <!-- 列表-签约主体5 -->
+            <div class="grid grid-cols-8 px-4 py-3 hover:bg-surface-container/50 transition-colors items-center">
+              <span class="text-sm font-medium text-on-surface">成都泓明供应链有限公司</span>
+              <span class="text-sm text-on-surface-variant">HM-CD-005</span>
+              <span class="text-sm text-on-surface-variant">91510100345678901N</span>
+              <span class="text-sm text-on-surface">112</span>
+              <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs bg-success/15 text-success w-fit">启用</span>
+              <span class="text-sm text-on-surface-variant">2024-05-08 11:20:00</span>
+              <div class="col-span-2 flex items-center gap-3">
+                <button class="text-primary text-sm font-medium hover:underline w-fit">编辑</button>
+                <button class="text-error text-sm font-medium hover:underline w-fit">停用</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 分页 -->
+        <div class="flex items-center justify-between mt-4">
+          <div class="text-sm text-on-surface-variant">
+            共 <span class="font-medium text-on-surface">5</span> 条记录
+          </div>
+          <div class="flex items-center gap-2">
+            <button class="px-3 py-1.5 text-sm border border-outline-variant/30 rounded-md hover:bg-surface-container transition-colors">
+              <i data-lucide="chevron-left" class="w-4 h-4"></i>
+            </button>
+            <button class="px-3 py-1.5 text-sm bg-primary text-on-primary rounded-md">1</button>
+            <button class="px-3 py-1.5 text-sm border border-outline-variant/30 rounded-md hover:bg-surface-container transition-colors">
+              <i data-lucide="chevron-right" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+      </main>
+      <!-- @main-content:end -->
+    </div>
+  </div>
+
+  <script>
+    $(function() {
+      // 搜索功能
+      $('#search-input').on('input', function() {
+        const keyword = $(this).val().toLowerCase();
+        $('#entities-table-body > div').each(function() {
+          const text = $(this).text().toLowerCase();
+          $(this).toggle(text.indexOf(keyword) > -1);
+        });
+      });
+
+      // 状态筛选
+      $('#status-filter').on('change', function() {
+        const status = $(this).val();
+        $('#entities-table-body > div').each(function() {
+          if (!status) {
+            $(this).show();
+            return;
+          }
+          const statusText = $(this).find('span:nth-child(5)').text();
+          const isActive = statusText === '启用';
+          $(this).toggle((status === 'active' && isActive) || (status === 'inactive' && !isActive));
+        });
+      });
+
+      // 新建签约主体按钮
+      $('#btn-new-entity').on('click', function() {
+        window.location.href = 'signing-entities-new.html';
+      });
+
+      // 编辑按钮 - 点击后应跳转到编辑页面
+      $('#entities-table-body').on('click', 'button:contains("编辑")', function() {
+        const entityName = $(this).closest('.grid').find('span:first').text();
+        console.log('编辑签约主体:', entityName);
+        // 后续应实现跳转到编辑页面，如 signing-entities-edit.html?id=xxx
+      });
+
+      // 停用/启用按钮 - 点击后应二次确认并切换状态
+      $('#entities-table-body').on('click', 'button:contains("停用"), button:contains("启用")', function() {
+        const action = $(this).text();
+        const entityName = $(this).closest('.grid').find('span:first').text();
+        console.log(action + '签约主体:', entityName);
+        // 后续应实现：
+        // 1. 弹出二次确认对话框
+        // 2. 确认后更新状态标签和按钮文本
+        // 3. 刷新列表数据
+      });
+    });
+  </script>
+
+  <script>lucide.createIcons();</script>
+</body>
+
+</html>

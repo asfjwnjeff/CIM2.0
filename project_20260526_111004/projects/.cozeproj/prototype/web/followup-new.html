@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <script src="https://lf-code-agent.coze.cn/obj/x-ai-cn/cdn/jquery/jquery-3.7.1.min.js"></script>
+  <script src="https://lf-code-agent.coze.cn/obj/x-ai-cn/cdn/lucide/lucide-1.11.0.min.js"></script>
+  <script src="https://lf-code-agent.coze.cn/obj/x-ai-cn/cdn/tailwindcss/tailwindcss-browser-4.2.4.min.js"></script>
+
+  <style type="text/tailwindcss">
+    @theme {
+      /* === 品牌色 === */
+      --color-primary:              #1E40AF;
+      --color-primary-container:    #DBEAFE;
+      --color-on-primary:           #ffffff;
+      /* === 背景 / 表面 === */
+      --color-background:                 #FFFFFF;
+      --color-surface-container-lowest:   #F9FAFB;
+      --color-surface:                    #FFFFFF;
+      --color-surface-container:          #F3F4F6;
+      --color-surface-container-high:     #E5E7EB;
+      --color-surface-container-highest:  #D1D5DB;
+      /* === 文字 === */
+      --color-on-surface:           #111827;
+      --color-on-surface-variant:   #6B7280;
+      /* === 功能色 === */
+      --color-success:  #22c55e;
+      --color-error:    #ef4444;
+      --color-warning:  #f59e0b;
+      /* === 边框 === */
+      --color-outline:          #D1D5DB;
+      --color-outline-variant:  #E5E7EB;
+      /* === 圆角 === */
+      --radius-sm:   0.375rem;
+      --radius-md:   0.5rem;
+      --radius-lg:   0.75rem;
+      --radius-xl:   1rem;
+      --radius-2xl:  1.5rem;
+      --radius-full: 9999px;
+      /* === 阴影 === */
+      --shadow-card:   0 2px 8px rgba(0,0,0,0.10);
+      --shadow-float:  0 10px 25px rgba(0,0,0,0.15);
+      --shadow-dialog: 0 25px 50px rgba(0,0,0,0.20);
+      /* === 字体 === */
+      --font-sans: "Inter", "Noto Sans SC", system-ui, sans-serif;
+    }
+  </style>
+
+  <!-- 图片兜底 -->
+  <script>
+    document.addEventListener('error', function (e) {
+      const img = e.target;
+      if (img.tagName !== 'IMG' || img.dataset.fallback) return;
+      img.dataset.fallback = '1';
+      const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      const cat = img.getAttribute('data-category') || '其他';
+      const alt = img.getAttribute('alt') || '';
+      const label = esc(alt.length > 8 ? alt.slice(0, 8) + '…' : alt);
+      const icons = { '人物': '👤', '自然风景': '🏞', '动物': '🐾', '建筑城市': '🏙', '运动体育': '⚽', '交通工具': '🚗', '食物': '🍽', '服饰时尚': '👗', '商业科技': '💼', '游戏娱乐': '🎮', '艺术': '🎨', '其他': '🖼' };
+      const icon = icons[cat] || '🖼';
+      const w = img.width || 400, h = img.height || 300;
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}"><rect width="100%" height="100%" fill="%23f3f4f6"/><text x="50%" y="45%" text-anchor="middle" font-size="${Math.min(w, h) * 0.18}" dominant-baseline="central">${icon}</text><text x="50%" y="68%" text-anchor="middle" font-size="${Math.min(w, h) * 0.07}" fill="%239ca3af" font-family="system-ui,sans-serif" dominant-baseline="central">${label}</text></svg>`;
+      img.src = 'data:image/svg+xml,' + svg;
+    }, true);
+  </script>
+</head>
+
+<body class="bg-background text-on-surface font-sans min-h-screen">
+
+  <!-- @nav:start 导航组件，不需要的页面则不要复制此段（从 @nav:start 到 @nav:end） -->
+  <div class="flex" style="height: 100vh;">
+    <aside class="w-64 shrink-0 bg-surface-container-lowest border-r border-outline-variant/20 overflow-y-auto">
+      <div class="p-4 border-b border-outline-variant/20">
+        <div class="flex items-center gap-2">
+          <i data-lucide="building" class="text-primary w-6 h-6"></i>
+          <span class="font-bold text-lg">CIM V2.0</span>
+        </div>
+      </div>
+      <div class="p-3 space-y-1">
+        <a href="customers.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors">
+          <i data-lucide="users" class="w-4 h-4"></i>客户管理
+        </a>
+        <a href="opportunities.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors">
+          <i data-lucide="target" class="w-4 h-4"></i>商机管理
+        </a>
+        <a href="followup.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors">
+          <i data-lucide="message-square" class="w-4 h-4"></i>客户跟进
+        </a>
+        <a href="quotes.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors">
+          <i data-lucide="file-text" class="w-4 h-4"></i>售前报价
+        </a>
+        <a href="approvals.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors">
+          <i data-lucide="shield-check" class="w-4 h-4"></i>风控审批
+        </a>
+        <div class="pt-2 mt-2 border-t border-outline-variant/20">
+          <a href="rules.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors">
+            <i data-lucide="settings" class="w-4 h-4"></i>规则配置
+          </a>
+        </div>
+      </div>
+    </aside>
+
+    <div class="flex-1 flex flex-col min-w-0">
+      <header class="bg-surface border-b border-outline-variant/20 h-16 flex items-center justify-between px-6">
+        <div class="flex items-center gap-4">
+          <h1 class="text-xl font-semibold" id="page-title">新增跟进</h1>
+        </div>
+        <div class="flex items-center gap-4">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center text-sm font-medium">初</div>
+            <span class="text-sm text-on-surface">小初</span>
+          </div>
+        </div>
+      </header>
+  <!-- @nav:end 导航组件，不需要的页面则不要复制此段 -->
+
+      <!-- @main-content:start -->
+      <main class="flex-1 min-w-0 overflow-y-auto bg-background p-6">
+        <!-- 页面内容将由子Agent填充 -->
+        
+        <!-- 顶部操作栏 -->
+        <div class="flex items-center justify-between mb-6">
+          <div class="flex items-center gap-3">
+            <button id="btn-back" class="flex items-center gap-2 text-on-surface-variant hover:text-on-surface transition-colors">
+              <i data-lucide="arrow-left" class="w-4 h-4"></i>
+              <span class="text-sm font-medium">返回</span>
+            </button>
+          </div>
+          <div class="flex items-center gap-3">
+            <button id="btn-cancel" class="bg-surface-container text-on-surface border-none px-4 py-2 rounded-md text-sm font-medium hover:bg-surface-container-high active:scale-[0.98] transition-all">
+              取消
+            </button>
+            <button id="btn-save" class="bg-primary text-on-primary px-4 py-2 rounded-md text-sm font-medium hover:opacity-90 active:scale-[0.98] transition-all inline-flex items-center gap-2">
+              <i data-lucide="save" class="w-3.5 h-3.5"></i>
+              保存
+            </button>
+          </div>
+        </div>
+
+        <!-- 表单区域 -->
+        <div class="space-y-6">
+          
+          <!-- 基本信息卡片 -->
+          <div class="bg-surface rounded-lg shadow-card p-5">
+            <h2 class="text-base font-semibold text-on-surface mb-4">基本信息</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <!-- 客户名称 -->
+              <div class="space-y-1.5">
+                <label class="text-sm font-medium text-on-surface">客户名称 <span class="text-error">*</span></label>
+                <select id="customer-name" class="w-full bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors">
+                  <option value="">请选择客户</option>
+                  <option value="1">上海芯智半导体有限公司</option>
+                  <option value="2">北京微芯科技股份有限公司</option>
+                  <option value="3">深圳芯创电子有限公司</option>
+                </select>
+              </div>
+              
+              <!-- 跟进类型 -->
+              <div class="space-y-1.5">
+                <label class="text-sm font-medium text-on-surface">跟进类型 <span class="text-error">*</span></label>
+                <select id="followup-type" class="w-full bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors">
+                  <option value="">请选择跟进类型</option>
+                  <option value="phone">电话</option>
+                  <option value="email">邮件</option>
+                  <option value="meeting">面谈</option>
+                  <option value="other">其他</option>
+                </select>
+              </div>
+              
+              <!-- 跟进方式 -->
+              <div class="space-y-1.5">
+                <label class="text-sm font-medium text-on-surface">跟进方式 <span class="text-error">*</span></label>
+                <select id="followup-method" class="w-full bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors">
+                  <option value="">请选择跟进方式</option>
+                  <option value="phone">电话</option>
+                  <option value="onsite">上门访谈</option>
+                  <option value="video">视频会议</option>
+                  <option value="hmg_meeting">HMG现场会议</option>
+                </select>
+              </div>
+              
+              <!-- 跟进状态 -->
+              <div class="space-y-1.5">
+                <label class="text-sm font-medium text-on-surface">跟进状态 <span class="text-error">*</span></label>
+                <select id="followup-status" class="w-full bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors">
+                  <option value="">请选择跟进状态</option>
+                  <option value="new_requirement">新建需求</option>
+                  <option value="communicating">沟通方案</option>
+                  <option value="promoting">促单</option>
+                  <option value="success">成功</option>
+                  <option value="no_progress">无进展</option>
+                  <option value="requirement_cancelled">需求取消</option>
+                  <option value="contract_terminated">合同终止</option>
+                </select>
+              </div>
+              
+              <!-- 跟进时间 -->
+              <div class="space-y-1.5">
+                <label class="text-sm font-medium text-on-surface">跟进时间 <span class="text-error">*</span></label>
+                <input type="datetime-local" id="followup-time" class="w-full bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors" value="2024-05-14T14:30">
+              </div>
+            </div>
+          </div>
+
+          <!-- 人员信息卡片 -->
+          <div class="bg-surface rounded-lg shadow-card p-5">
+            <h2 class="text-base font-semibold text-on-surface mb-4">人员信息</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <!-- 负责人 -->
+              <div class="space-y-1.5">
+                <label class="text-sm font-medium text-on-surface">负责人 <span class="text-error">*</span></label>
+                <select id="responsible-person" class="w-full bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors">
+                  <option value="">请选择负责人</option>
+                  <option value="1" selected>小初</option>
+                  <option value="2">张三</option>
+                  <option value="3">李四</option>
+                </select>
+              </div>
+              
+              <!-- 协同人 -->
+              <div class="space-y-1.5">
+                <label class="text-sm font-medium text-on-surface">协同人</label>
+                <select id="collaborator" class="w-full bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors">
+                  <option value="">请选择协同人</option>
+                  <option value="1">王五</option>
+                  <option value="2">赵六</option>
+                  <option value="3">钱七</option>
+                </select>
+              </div>
+              
+              <!-- 联系人 -->
+              <div class="space-y-1.5">
+                <label class="text-sm font-medium text-on-surface">联系人 <span class="text-error">*</span></label>
+                <select id="contact-person" class="w-full bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors">
+                  <option value="">请选择联系人</option>
+                  <option value="1">陈经理 - 138****1234</option>
+                  <option value="2">刘总监 - 139****5678</option>
+                  <option value="3">周主管 - 137****9012</option>
+                </select>
+              </div>
+              
+              <!-- 下次跟进 -->
+              <div class="space-y-1.5">
+                <label class="text-sm font-medium text-on-surface">下次跟进</label>
+                <input type="datetime-local" id="next-followup" class="w-full bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors" value="2024-05-21T10:00">
+              </div>
+            </div>
+          </div>
+
+          <!-- 内容信息卡片 -->
+          <div class="bg-surface rounded-lg shadow-card p-5">
+            <h2 class="text-base font-semibold text-on-surface mb-4">内容信息</h2>
+            <div class="space-y-4">
+              <!-- 跟进内容 -->
+              <div class="space-y-1.5">
+                <label class="text-sm font-medium text-on-surface">跟进内容</label>
+                <textarea id="followup-content" rows="4" class="w-full bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors resize-none" placeholder="请输入跟进内容...">与客户陈经理进行了电话沟通，详细了解了他们对芯片进口通关服务的需求。客户目前每月有50票左右的通关业务，希望能够提供更快速的通关服务和一站式物流解决方案。客户对我们的报价模板表示感兴趣，约定下周三上门面谈。</textarea>
+              </div>
+              
+              <!-- 纪要 -->
+              <div class="space-y-1.5">
+                <label class="text-sm font-medium text-on-surface">纪要</label>
+                <textarea id="meeting-minutes" rows="3" class="w-full bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors resize-none" placeholder="请输入纪要...">1. 客户对通关时效要求较高，希望能够做到「当日申报、当日放行」
+2. 需要提供一体化的物流方案，包括仓储、运输、报关等环节
+3. 客户对价格敏感，希望能够根据业务量给予一定折扣
+4. 约定下周三（5月15日）上午10点上门面谈</textarea>
+              </div>
+              
+              <!-- 待办事项 -->
+              <div class="space-y-1.5">
+                <label class="text-sm font-medium text-on-surface">待办事项</label>
+                <textarea id="todos" rows="3" class="w-full bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors resize-none" placeholder="请输入待办事项...">1. 准备定制化的报价方案
+2. 安排下周三的上门拜访
+3. 收集客户的详细业务需求信息
+4. 准备公司资质和成功案例资料</textarea>
+              </div>
+              
+              <!-- 附件 -->
+              <div class="space-y-1.5">
+                <label class="text-sm font-medium text-on-surface">附件</label>
+                <div id="attachment-area" class="bg-surface-container border-2 border-dashed border-outline-variant/30 rounded-md p-6 text-center">
+                  <i data-lucide="upload-cloud" class="w-10 h-10 text-on-surface-variant/50 mx-auto mb-3"></i>
+                  <p class="text-sm text-on-surface-variant mb-2">点击或拖拽文件到此处上传</p>
+                  <p class="text-xs text-on-surface-variant/50">支持 PDF、Word、Excel、图片等格式</p>
+                  <button id="btn-upload" class="mt-3 bg-surface text-on-surface border border-outline-variant/20 px-4 py-2 rounded-md text-sm font-medium hover:bg-surface-container-high active:scale-[0.98] transition-all">
+                    选择文件
+                  </button>
+                </div>
+                
+                <!-- 附件列表 - 硬编码 -->
+                <div id="attachment-list" class="mt-3 space-y-2">
+                  <!-- 附件1 -->
+                  <div class="flex items-center justify-between p-3 bg-surface-container rounded-md">
+                    <div class="flex items-center gap-3">
+                      <i data-lucide="file-text" class="w-5 h-5 text-primary"></i>
+                      <div>
+                        <p class="text-sm font-medium text-on-surface">客户需求调研表.docx</p>
+                        <p class="text-xs text-on-surface-variant">2.3 MB</p>
+                      </div>
+                    </div>
+                    <button class="text-on-surface-variant hover:text-error transition-colors" data-action="delete">
+                      <i data-lucide="trash-2" class="w-4 h-4"></i>
+                    </button>
+                  </div>
+                  <!-- 附件2 -->
+                  <div class="flex items-center justify-between p-3 bg-surface-container rounded-md">
+                    <div class="flex items-center gap-3">
+                      <i data-lucide="file-spreadsheet" class="w-5 h-5 text-success"></i>
+                      <div>
+                        <p class="text-sm font-medium text-on-surface">初步报价方案.xlsx</p>
+                        <p class="text-xs text-on-surface-variant">1.8 MB</p>
+                      </div>
+                    </div>
+                    <button class="text-on-surface-variant hover:text-error transition-colors" data-action="delete">
+                      <i data-lucide="trash-2" class="w-4 h-4"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+      <!-- @main-content:end -->
+    </div>
+  </div>
+
+  <script>
+    $(function() {
+      // 初始化图标
+      lucide.createIcons();
+      
+      // 返回按钮 - 点击后应实现：
+      // 1. 检查表单是否有未保存的改动
+      // 2. 如果有改动，弹出确认对话框询问是否放弃修改
+      // 3. 如果没有改动或用户确认放弃，跳转回列表页
+      $('#btn-back').on('click', function() {
+        console.log('返回按钮点击');
+        window.location.href = 'followup.html';
+      });
+      
+      // 取消按钮 - 点击后应实现：
+      // 1. 检查表单是否有未保存的改动
+      // 2. 如果有改动，弹出确认对话框询问是否放弃修改
+      // 3. 如果没有改动或用户确认放弃，跳转回列表页
+      $('#btn-cancel').on('click', function() {
+        console.log('取消按钮点击');
+        window.location.href = 'followup.html';
+      });
+      
+      // 保存按钮 - 点击后应实现：
+      // 1. 验证必填字段是否已填写
+      // 2. 如果验证失败，显示错误提示并聚焦到第一个错误字段
+      // 3. 如果验证通过，收集表单数据
+      // 4. 调用保存接口提交数据
+      // 5. 保存成功后显示成功提示，然后跳转回列表页
+      $('#btn-save').on('click', function() {
+        console.log('保存按钮点击');
+        // 模拟保存成功
+        alert('保存成功！');
+        window.location.href = 'followup.html';
+      });
+      
+      // 上传按钮 - 点击后应实现：
+      // 1. 打开文件选择对话框
+      // 2. 支持多选文件
+      // 3. 选择文件后添加到附件列表
+      // 4. 显示上传进度条
+      // 5. 上传完成后更新附件列表
+      $('#btn-upload').on('click', function() {
+        console.log('上传按钮点击');
+        // 复杂交互，只绑定事件入口，后续实现文件选择和上传功能
+      });
+      
+      // 附件删除按钮 - 点击后应实现：
+      // 1. 弹出确认对话框询问是否删除
+      // 2. 确认后从列表中移除该附件
+      // 3. 如果是已上传的文件，调用删除接口
+      $('#attachment-list').on('click', 'button[data-action="delete"]', function() {
+        const $attachment = $(this).closest('.flex.items-center.justify-between');
+        console.log('删除附件:', $attachment.find('p:first').text());
+        if (confirm('确定要删除该附件吗？')) {
+          $attachment.remove();
+        }
+      });
+    });
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- 字体 -->
+  <link href="https://lf-code-agent.coze.cn/obj/x-ai-cn/fonts/google/google-all-fonts.css" rel="stylesheet"/>
+
+  <script src="https://lf-code-agent.coze.cn/obj/x-ai-cn/cdn/jquery/jquery-3.7.1.min.js"></script>
+  <script src="https://lf-code-agent.coze.cn/obj/x-ai-cn/cdn/lucide/lucide-1.11.0.min.js"></script>
+  <script src="https://lf-code-agent.coze.cn/obj/x-ai-cn/cdn/tailwindcss/tailwindcss-browser-4.2.4.min.js"></script>
+
+  <style type="text/tailwindcss">
+    @theme {
+      /* === 品牌色 - 商务稳重风格 === */
+      --color-primary:              #1E40AF;
+      --color-primary-container:    #DBEAFE;
+      --color-on-primary:           #ffffff;
+      /* === 背景 / 表面 === */
+      --color-background:                 #F8F9FC;
+      --color-surface-container-lowest:   #FFFFFF;
+      --color-surface:                    #FFFFFF;
+      --color-surface-container:          #F3F4F6;
+      --color-surface-container-high:     #E5E7EB;
+      --color-surface-container-highest:  #D1D5DB;
+      /* === 文字 === */
+      --color-on-surface:           #1A1A1A;
+      --color-on-surface-variant:   #6B7597;
+      /* === 功能色 === */
+      --color-success:  #00B87C;
+      --color-error:    #FF4D4F;
+      --color-warning:  #FF8A00;
+      /* === 边框 === */
+      --color-outline:          #E8ECF5;
+      --color-outline-variant:  #D1D5DB;
+      /* === 圆角 === */
+      --radius-sm:   0.375rem;
+      --radius-md:   0.5rem;
+      --radius-lg:   0.75rem;
+      --radius-xl:   1rem;
+      --radius-2xl:  1.5rem;
+      --radius-full: 9999px;
+      /* === 阴影 === */
+      --shadow-card:   0 2px 8px rgba(0,0,0,0.08);
+      --shadow-float:  0 10px 25px rgba(0,0,0,0.12);
+      --shadow-dialog: 0 25px 50px rgba(0,0,0,0.15);
+      /* === 字体 === */
+      --font-sans: "Inter", "Noto Sans SC", system-ui, sans-serif;
+    }
+  </style>
+
+  <!-- 图片兜底 -->
+  <script>
+    document.addEventListener('error', function (e) {
+      const img = e.target;
+      if (img.tagName !== 'IMG' || img.dataset.fallback) return;
+      img.dataset.fallback = '1';
+      const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      const cat = img.getAttribute('data-category') || '其他';
+      const alt = img.getAttribute('alt') || '';
+      const label = esc(alt.length > 8 ? alt.slice(0, 8) + '…' : alt);
+      const icons = { '人物': '👤', '自然风景': '🏞', '动物': '🐾', '建筑城市': '🏙', '运动体育': '⚽', '交通工具': '🚗', '食物': '🍽', '服饰时尚': '👗', '商业科技': '💼', '游戏娱乐': '🎮', '艺术': '🎨', '其他': '🖼' };
+      const icon = icons[cat] || '🖼';
+      const w = img.width || 400, h = img.height || 300;
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}"><rect width="100%" height="100%" fill="%23f3f4f6"/><text x="50%" y="45%" text-anchor="middle" font-size="${Math.min(w, h) * 0.18}" dominant-baseline="central">${icon}</text><text x="50%" y="68%" text-anchor="middle" font-size="${Math.min(w, h) * 0.07}" fill="%239ca3af" font-family="system-ui,sans-serif" dominant-baseline="central">${label}</text></svg>`;
+      img.src = 'data:image/svg+xml,' + svg;
+    }, true);
+  </script>
+</head>
+
+<body class="bg-background text-on-surface font-sans">
+
+  <!-- @nav:start 导航组件，不需要的页面则不要复制此段 -->
+  <header class="bg-surface sticky top-0 z-40 h-16 flex items-center justify-between px-6 border-b border-outline">
+    <div class="flex items-center gap-2">
+      <i data-lucide="briefcase" class="text-primary w-6 h-6"></i>
+      <span class="font-bold text-xl text-on-surface">CIM 客户信息管理</span>
+    </div>
+    <div class="flex items-center gap-4">
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center text-sm font-medium">初</div>
+        <span class="text-sm text-on-surface">小初</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="flex" style="height: calc(100vh - 4rem)">
+    <aside class="w-60 shrink-0 bg-surface border-r border-outline overflow-y-auto">
+      <div class="p-3 space-y-0.5">
+        <a href="home.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors">
+          <i data-lucide="gauge" class="w-4 h-4"></i>首页
+        </a>
+        <a href="customers.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors">
+          <i data-lucide="users" class="w-4 h-4"></i>客户管理
+        </a>
+        <a href="opportunities.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors">
+          <i data-lucide="trending-up" class="w-4 h-4"></i>商机管理
+        </a>
+        <a href="quotes.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md bg-primary/10 text-primary font-medium text-sm" aria-current="page">
+          <i data-lucide="file-text" class="w-4 h-4"></i>售前报价
+        </a>
+        <a href="approvals.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors">
+          <i data-lucide="shield-alert" class="w-4 h-4"></i>客户风险控制
+        </a>
+        <a href="entities.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors">
+          <i data-lucide="building" class="w-4 h-4"></i>主体管理
+        </a>
+        <a href="contracts.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors">
+          <i data-lucide="file-signature" class="w-4 h-4"></i>合同签署
+        </a>
+        <a href="followup.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors">
+          <i data-lucide="message-square" class="w-4 h-4"></i>客户跟进
+        </a>
+        <a href="rules.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors">
+          <i data-lucide="settings" class="w-4 h-4"></i>规则管理
+        </a>
+      </div>
+    </aside>
+
+    <!-- @main-content:start -->
+    <main class="flex-1 min-w-0 overflow-y-auto bg-background p-6">
+      <!-- 页面内容 -->
+      <div class="max-w-7xl mx-auto space-y-6">
+        <!-- 面包屑和顶部操作栏 -->
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <button id="btn-back" class="flex items-center gap-2 text-sm text-on-surface-variant hover:text-on-surface transition-colors">
+              <i data-lucide="arrow-left" class="w-4 h-4"></i>
+              返回列表
+            </button>
+            <span class="text-on-surface-variant">/</span>
+            <span class="text-sm text-on-surface">报价单详情</span>
+          </div>
+          <div class="flex items-center gap-3">
+            <button id="btn-add-item" class="bg-surface-container text-on-surface px-4 py-2 rounded-md text-sm font-medium hover:bg-surface-container-high active:scale-[0.98] transition-all inline-flex items-center gap-2">
+              <i data-lucide="plus" class="w-3.5 h-3.5"></i>添加服务项目
+            </button>
+            <button id="btn-transfer-cpq" class="bg-warning text-white px-4 py-2 rounded-md text-sm font-medium hover:opacity-90 active:scale-[0.98] transition-all inline-flex items-center gap-2">
+              <i data-lucide="external-link" class="w-3.5 h-3.5"></i>转移到CPQ
+            </button>
+            <button id="btn-edit" class="bg-primary text-on-primary px-4 py-2 rounded-md text-sm font-medium hover:opacity-90 active:scale-[0.98] transition-all inline-flex items-center gap-2">
+              <i data-lucide="pencil" class="w-3.5 h-3.5"></i>编辑
+            </button>
+          </div>
+        </div>
+
+        <!-- 基本信息卡片 -->
+        <div class="bg-surface rounded-lg shadow-card p-6">
+          <div class="flex items-start justify-between mb-6">
+            <div>
+              <div class="flex items-center gap-3 mb-2">
+                <h1 id="quote-title" class="text-2xl font-bold text-on-surface">2024年度系统集成服务项目</h1>
+                <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-warning/15 text-warning">审批中</span>
+              </div>
+              <p id="quote-number" class="text-sm text-on-surface-variant">报价单号：QT-2024-12001</p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-6">
+            <div>
+              <p class="text-xs text-on-surface-variant mb-1">客户名称</p>
+              <p id="customer-name" class="text-sm font-medium text-on-surface">北京科技创新有限公司</p>
+            </div>
+            <div>
+              <p class="text-xs text-on-surface-variant mb-1">负责人</p>
+              <p id="quote-owner" class="text-sm font-medium text-on-surface">小初</p>
+            </div>
+            <div>
+              <p class="text-xs text-on-surface-variant mb-1">有效期至</p>
+              <p id="valid-until" class="text-sm font-medium text-on-surface">2025-01-31</p>
+            </div>
+          </div>
+
+          <div class="border-t border-outline-variant/20 pt-4">
+            <p class="text-xs text-on-surface-variant mb-2">备注</p>
+            <p id="quote-remark" class="text-sm text-on-surface">此报价包含系统集成、一年期运维服务及培训费用，最终价格以双方确认合同为准。</p>
+          </div>
+        </div>
+
+        <!-- 服务项目列表 -->
+        <div class="bg-surface rounded-lg shadow-card overflow-hidden">
+          <div class="px-6 py-4 border-b border-outline-variant/20">
+            <h2 class="text-base font-semibold text-on-surface">服务项目列表</h2>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead>
+                <tr class="bg-surface-container">
+                  <th class="px-6 py-3 text-left text-xs font-semibold text-on-surface-variant uppercase tracking-wide">项目名称</th>
+                  <th class="px-6 py-3 text-left text-xs font-semibold text-on-surface-variant uppercase tracking-wide">描述</th>
+                  <th class="px-6 py-3 text-left text-xs font-semibold text-on-surface-variant uppercase tracking-wide">数量</th>
+                  <th class="px-6 py-3 text-left text-xs font-semibold text-on-surface-variant uppercase tracking-wide">单价</th>
+                  <th class="px-6 py-3 text-left text-xs font-semibold text-on-surface-variant uppercase tracking-wide">折扣</th>
+                  <th class="px-6 py-3 text-left text-xs font-semibold text-on-surface-variant uppercase tracking-wide">小计</th>
+                  <th class="px-6 py-3 text-left text-xs font-semibold text-on-surface-variant uppercase tracking-wide">操作</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-outline-variant/50">
+                <!-- 服务项目1 -->
+                <tr id="item-1" class="hover:bg-surface-container/50 transition-colors">
+                  <td class="px-6 py-4">
+                    <span class="text-sm font-medium text-on-surface">系统集成服务</span>
+                  </td>
+                  <td class="px-6 py-4">
+                    <span class="text-sm text-on-surface-variant">包括需求调研、方案设计、系统部署及联调</span>
+                  </td>
+                  <td class="px-6 py-4">
+                    <span class="text-sm text-on-surface">1.0</span>
+                  </td>
+                  <td class="px-6 py-4">
+                    <span class="text-sm text-on-surface">¥ 320,000.00</span>
+                  </td>
+                  <td class="px-6 py-4">
+                    <span class="text-sm text-on-surface">0%</span>
+                  </td>
+                  <td class="px-6 py-4">
+                    <span class="text-sm font-semibold text-on-surface">¥ 320,000.00</span>
+                  </td>
+                  <td class="px-6 py-4">
+                    <button class="btn-edit-item text-primary text-sm font-medium hover:underline" data-id="1">编辑</button>
+                  </td>
+                </tr>
+                <!-- 服务项目2 -->
+                <tr id="item-2" class="hover:bg-surface-container/50 transition-colors">
+                  <td class="px-6 py-4">
+                    <span class="text-sm font-medium text-on-surface">运维服务（1年）</span>
+                  </td>
+                  <td class="px-6 py-4">
+                    <span class="text-sm text-on-surface-variant">7x24小时技术支持，月度巡检，季度报告</span>
+                  </td>
+                  <td class="px-6 py-4">
+                    <span class="text-sm text-on-surface">1.0</span>
+                  </td>
+                  <td class="px-6 py-4">
+                    <span class="text-sm text-on-surface">¥ 120,000.00</span>
+                  </td>
+                  <td class="px-6 py-4">
+                    <span class="text-sm text-on-surface">10%</span>
+                  </td>
+                  <td class="px-6 py-4">
+                    <span class="text-sm font-semibold text-on-surface">¥ 108,000.00</span>
+                  </td>
+                  <td class="px-6 py-4">
+                    <button class="btn-edit-item text-primary text-sm font-medium hover:underline" data-id="2">编辑</button>
+                  </td>
+                </tr>
+                <!-- 服务项目3 -->
+                <tr id="item-3" class="hover:bg-surface-container/50 transition-colors">
+                  <td class="px-6 py-4">
+                    <span class="text-sm font-medium text-on-surface">系统培训服务</span>
+                  </td>
+                  <td class="px-6 py-4">
+                    <span class="text-sm text-on-surface-variant">系统操作培训、管理员培训各2天</span>
+                  </td>
+                  <td class="px-6 py-4">
+                    <span class="text-sm text-on-surface">2.0</span>
+                  </td>
+                  <td class="px-6 py-4">
+                    <span class="text-sm text-on-surface">¥ 50,000.00</span>
+                  </td>
+                  <td class="px-6 py-4">
+                    <span class="text-sm text-on-surface">0%</span>
+                  </td>
+                  <td class="px-6 py-4">
+                    <span class="text-sm font-semibold text-on-surface">¥ 100,000.00</span>
+                  </td>
+                  <td class="px-6 py-4">
+                    <button class="btn-edit-item text-primary text-sm font-medium hover:underline" data-id="3">编辑</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+
+        <!-- 协作者和操作历史区域 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- 协作者区域 -->
+          <div class="bg-surface rounded-lg shadow-card p-6">
+            <h2 class="text-base font-semibold text-on-surface mb-4">协作者</h2>
+            <div class="space-y-3">
+              <!-- 协作者1 -->
+              <div id="collaborator-1" class="flex items-center justify-between p-3 rounded-md bg-surface-container/30">
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center text-sm font-medium">初</div>
+                  <div>
+                    <p class="text-sm font-medium text-on-surface">小初</p>
+                    <p class="text-xs text-on-surface-variant">负责人</p>
+                  </div>
+                </div>
+                <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-primary/15 text-primary">编辑</span>
+              </div>
+              <!-- 协作者2 -->
+              <div id="collaborator-2" class="flex items-center justify-between p-3 rounded-md bg-surface-container/30">
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 rounded-full bg-success text-on-primary flex items-center justify-center text-sm font-medium">李</div>
+                  <div>
+                    <p class="text-sm font-medium text-on-surface">李明</p>
+                    <p class="text-xs text-on-surface-variant">技术顾问</p>
+                  </div>
+                </div>
+                <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-surface-container text-on-surface-variant">查看</span>
+              </div>
+              <!-- 协作者3 -->
+              <div id="collaborator-3" class="flex items-center justify-between p-3 rounded-md bg-surface-container/30">
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 rounded-full bg-warning text-on-primary flex items-center justify-center text-sm font-medium">张</div>
+                  <div>
+                    <p class="text-sm font-medium text-on-surface">张华</p>
+                    <p class="text-xs text-on-surface-variant">商务经理</p>
+                  </div>
+                </div>
+                <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-primary/15 text-primary">编辑</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 操作历史区域 -->
+          <div class="bg-surface rounded-lg shadow-card p-6">
+            <h2 class="text-base font-semibold text-on-surface mb-4">操作历史</h2>
+            <div class="space-y-4">
+              <!-- 历史记录1 -->
+              <div id="history-1" class="flex gap-3">
+                <div class="w-2 h-2 rounded-full bg-primary mt-2"></div>
+                <div class="flex-1">
+                  <div class="flex items-center gap-2 mb-1">
+                    <p class="text-sm font-medium text-on-surface">提交审批</p>
+                    <span class="text-xs text-on-surface-variant">小初</span>
+                  </div>
+                  <p class="text-xs text-on-surface-variant">2024-12-15 10:30:00</p>
+                  <p class="text-sm text-on-surface mt-1">提交报价单进行审批，等待审批结果</p>
+                </div>
+              </div>
+              <!-- 历史记录2 -->
+              <div id="history-2" class="flex gap-3">
+                <div class="w-2 h-2 rounded-full bg-success mt-2"></div>
+                <div class="flex-1">
+                  <div class="flex items-center gap-2 mb-1">
+                    <p class="text-sm font-medium text-on-surface">添加服务项目</p>
+                    <span class="text-xs text-on-surface-variant">小初</span>
+                  </div>
+                  <p class="text-xs text-on-surface-variant">2024-12-14 15:20:00</p>
+                  <p class="text-sm text-on-surface mt-1">添加了系统培训服务项目，金额¥100,000.00</p>
+                </div>
+              </div>
+              <!-- 历史记录3 -->
+              <div id="history-3" class="flex gap-3">
+                <div class="w-2 h-2 rounded-full bg-surface-container-highest mt-2"></div>
+                <div class="flex-1">
+                  <div class="flex items-center gap-2 mb-1">
+                    <p class="text-sm font-medium text-on-surface">创建报价单</p>
+                    <span class="text-xs text-on-surface-variant">小初</span>
+                  </div>
+                  <p class="text-xs text-on-surface-variant">2024-12-10 09:00:00</p>
+                  <p class="text-sm text-on-surface mt-1">创建报价单，关联客户北京科技创新有限公司</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+    <!-- @main-content:end -->
+  </div>
+  <!-- @nav:end 导航组件 -->
+
+  <script>
+    $(function() {
+      // 返回列表按钮 - 点击后跳转到报价单列表页
+      $('#btn-back').on('click', function() {
+        window.location.href = 'quotes.html';
+      });
+
+      // 编辑按钮 - 点击后跳转到编辑页面
+      $('#btn-edit').on('click', function() {
+        window.location.href = 'quotes-edit.html?id=1';
+      });
+
+      // 添加服务项目按钮 - 点击后显示添加服务项目弹窗
+      $('#btn-add-item').on('click', function() {
+        // 这里应该显示添加服务项目的弹窗
+        console.log('添加服务项目 - 点击后应显示添加服务项目弹窗：');
+        console.log('1. 弹窗标题：添加服务项目');
+        console.log('2. 表单内容：项目名称、描述、数量、单位、单价、折扣');
+        console.log('3. 操作按钮：确认（添加并刷新列表）、取消（关闭弹窗）');
+      });
+
+      // 转移到CPQ按钮 - 点击后显示确认弹窗
+      $('#btn-transfer-cpq').on('click', function() {
+        console.log('转移到CPQ - 点击后应显示确认弹窗：');
+        console.log('1. 弹窗标题：确认转移到CPQ');
+        console.log('2. 提示内容：确定要将此报价单转移到CPQ系统进行正式报价吗？');
+        console.log('3. 操作按钮：确认（执行转移并刷新状态）、取消（关闭弹窗）');
+      });
+
+      // 服务项目编辑按钮 - 点击后显示编辑弹窗
+      $('table').on('click', '.btn-edit-item', function() {
+        const itemId = $(this).data('id');
+        console.log('编辑服务项目 - 项目ID:', itemId);
+        console.log('1. 弹窗标题：编辑服务项目');
+        console.log('2. 表单内容：预填充当前项目的各项信息');
+        console.log('3. 操作按钮：确认（更新并刷新列表）、取消（关闭弹窗）');
+      });
+    });
+  </script>
+
+  <script>lucide.createIcons();</script>
+</body>
+
+</html>

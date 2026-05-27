@@ -1,0 +1,60 @@
+{
+  "elements": [
+    {
+      "type": "html",
+      "options": {
+        "path": ".cozeproj/prototype/web/approval-workflows.html"
+      },
+      "title": "审批流程配置列表",
+      "size": "web"
+    },
+    {
+      "type": "html",
+      "options": {
+        "path": ".cozeproj/prototype/web/approval-workflow-detail.html"
+      },
+      "title": "审批流程配置详情",
+      "size": "web"
+    },
+    {
+      "type": "html",
+      "options": {
+        "path": ".cozeproj/prototype/web/approval-workflow-edit.html"
+      },
+      "title": "审批流程配置编辑",
+      "size": "web"
+    },
+    {
+      "type": "html",
+      "options": {
+        "path": ".cozeproj/prototype/web/approval-auto-rules.html"
+      },
+      "title": "自动审批规则列表",
+      "size": "web"
+    },
+    {
+      "type": "html",
+      "options": {
+        "path": ".cozeproj/prototype/web/approval-auto-rule-edit.html"
+      },
+      "title": "自动审批规则编辑",
+      "size": "web"
+    },
+    {
+      "type": "html",
+      "options": {
+        "path": ".cozeproj/prototype/web/followup-new-ai.html"
+      },
+      "title": "跟进记录新增(AI增强)",
+      "size": "web"
+    },
+    {
+      "type": "html",
+      "options": {
+        "path": ".cozeproj/prototype/web/followup-edit-ai.html"
+      },
+      "title": "跟进记录编辑(AI增强)",
+      "size": "web"
+    }
+  ]
+}

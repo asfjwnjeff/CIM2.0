@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- 字体 -->
+  <link href="https://fonts.googleapis.cn/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+
+  <script src="https://lf-code-agent.coze.cn/obj/x-ai-cn/cdn/jquery/jquery-3.7.1.min.js"></script>
+  <script src="https://lf-code-agent.coze.cn/obj/x-ai-cn/cdn/lucide/lucide-1.11.0.min.js"></script>
+  <script src="https://lf-code-agent.coze.cn/obj/x-ai-cn/cdn/tailwindcss/tailwindcss-browser-4.2.4.min.js"></script>
+
+  <style type="text/tailwindcss">
+    @theme {
+      /* === 品牌色 - 商务稳重蓝色系 === */
+      --color-primary:              #1E40AF;
+      --color-primary-container:    #DBEAFE;
+      --color-on-primary:           #ffffff;
+      /* === 背景 / 表面 - 纯白背景 === */
+      --color-background:                 #FFFFFF;
+      --color-surface-container-lowest:   #FAFAFA;
+      --color-surface:                    #FFFFFF;
+      --color-surface-container:          #F3F4F6;
+      --color-surface-container-high:     #E5E7EB;
+      --color-surface-container-highest:  #D1D5DB;
+      /* === 文字 === */
+      --color-on-surface:           #111827;
+      --color-on-surface-variant:   #6B7280;
+      /* === 功能色 === */
+      --color-success:  #22c55e;
+      --color-error:    #ef4444;
+      --color-warning:  #f59e0b;
+      /* === 边框 === */
+      --color-outline:          #9CA3AF;
+      --color-outline-variant:  #D1D5DB;
+      /* === 圆角 - 8px === */
+      --radius-sm:   0.375rem;
+      --radius-md:   0.5rem;
+      --radius-lg:   0.625rem;
+      --radius-xl:   0.75rem;
+      --radius-2xl:  1rem;
+      --radius-full: 9999px;
+      /* === 阴影 === */
+      --shadow-card:   0 2px 8px rgba(0,0,0,0.10);
+      --shadow-float:  0 10px 25px rgba(0,0,0,0.12);
+      --shadow-dialog: 0 25px 50px rgba(0,0,0,0.15);
+      /* === 字体 === */
+      --font-sans: "Inter", "Noto Sans SC", system-ui, sans-serif;
+    }
+  </style>
+
+  <!-- 图片兜底 -->
+  <script>
+    document.addEventListener('error', function (e) {
+      const img = e.target;
+      if (img.tagName !== 'IMG' || img.dataset.fallback) return;
+      img.dataset.fallback = '1';
+      const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      const cat = img.getAttribute('data-category') || '其他';
+      const alt = img.getAttribute('alt') || '';
+      const label = esc(alt.length > 8 ? alt.slice(0, 8) + '…' : alt);
+      const icons = { '人物': '👤', '自然风景': '🏞', '动物': '🐾', '建筑城市': '🏙', '运动体育': '⚽', '交通工具': '🚗', '食物': '🍽', '服饰时尚': '👗', '商业科技': '💼', '游戏娱乐': '🎮', '艺术': '🎨', '其他': '🖼' };
+      const icon = icons[cat] || '🖼';
+      const w = img.width || 400, h = img.height || 300;
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}"><rect width="100%" height="100%" fill="%23f3f4f6"/><text x="50%" y="45%" text-anchor="middle" font-size="${Math.min(w, h) * 0.18}" dominant-baseline="central">${icon}</text><text x="50%" y="68%" text-anchor="middle" font-size="${Math.min(w, h) * 0.07}" fill="%239ca3af" font-family="system-ui,sans-serif" dominant-baseline="central">${label}</text></svg>`;
+      img.src = 'data:image/svg+xml,' + svg;
+    }, true);
+  </script>
+</head>
+
+<body class="bg-background text-on-surface font-sans">
+
+  <!-- @nav:start 导航组件 -->
+  <header class="bg-surface sticky top-0 z-40 h-16 flex items-center justify-between px-6 border-b border-outline-variant/20">
+    <div class="flex items-center gap-3">
+      <a href="followup-new-ai.html" class="flex items-center gap-2">
+        <i data-lucide="shield-check" class="text-primary w-6 h-6"></i>
+        <span class="font-bold text-lg">CIM 风控审批</span>
+      </a>
+    </div>
+    <nav class="flex items-center gap-1">
+      <a href="approval-workflows.html" class="px-3 py-1.5 text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded-md transition-colors">风控审批</a>
+      <a href="approval-workflows.html" class="px-3 py-1.5 text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded-md transition-colors">流程配置</a>
+      <a href="approval-auto-rules.html" class="px-3 py-1.5 text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded-md transition-colors">自动规则</a>
+      <a href="followup-new-ai.html" class="px-3 py-1.5 text-sm font-medium text-primary bg-primary/10 rounded-md" aria-current="page">AI跟进</a>
+    </nav>
+    <div class="flex items-center gap-3">
+      <button class="bg-surface-container text-on-surface px-4 py-2 rounded-md text-sm font-medium hover:bg-surface-container-high transition-colors">
+        <i data-lucide="bell" class="w-4 h-4 inline mr-2"></i>
+        通知
+      </button>
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 rounded-full bg-primary/20 text-primary flex items-center justify-center text-sm font-semibold">初</div>
+        <span class="text-sm font-medium">小初</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="flex" style="height: calc(100vh - 4rem)">
+    <aside class="w-56 shrink-0 bg-surface-container-lowest border-r border-outline-variant/20 overflow-y-auto">
+      <div class="p-3 space-y-0.5">
+        <div class="px-3 py-2 text-xs font-semibold text-on-surface-variant uppercase tracking-wider">风控审批</div>
+        <a href="approval-workflows.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors">
+          <i data-lucide="clipboard-list" class="w-4 h-4"></i>审批列表
+        </a>
+        <a href="approval-workflows.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors">
+          <i data-lucide="workflow" class="w-4 h-4"></i>流程配置
+        </a>
+        <a href="approval-auto-rules.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors">
+          <i data-lucide="zap" class="w-4 h-4"></i>自动规则
+        </a>
+        
+        <div class="px-3 py-2 mt-4 text-xs font-semibold text-on-surface-variant uppercase tracking-wider">跟进记录</div>
+        <a href="followup-new-ai.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md bg-primary/10 text-primary font-medium text-sm" aria-current="page">
+          <i data-lucide="mic" class="w-4 h-4"></i>AI听记
+        </a>
+        
+        <div class="px-3 py-2 mt-4 text-xs font-semibold text-on-surface-variant uppercase tracking-wider">快速链接</div>
+        <a href="approval-workflows.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors">
+          <i data-lucide="trending-up" class="w-4 h-4"></i>商机管理
+        </a>
+        <a href="approval-workflows.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors">
+          <i data-lucide="users" class="w-4 h-4"></i>客户管理
+        </a>
+      </div>
+    </aside>
+
+    <!-- @main-content:start -->
+    <main class="flex-1 min-w-0 overflow-y-auto bg-background p-6">
+      <!-- 页面标题区 -->
+      <div class="mb-8">
+        <div class="flex items-center gap-3 mb-2">
+          <button id="btn-back" class="text-on-surface-variant hover:text-on-surface transition-colors">
+            <i data-lucide="arrow-left" class="w-5 h-5"></i>
+          </button>
+          <h1 class="text-2xl font-bold text-on-surface">跟进记录新增</h1>
+          <span class="inline-flex items-center gap-1 px-2.5 py-1 bg-primary/10 text-primary rounded-full text-xs font-medium">
+            <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+            AI增强
+          </span>
+        </div>
+        <p class="text-sm text-on-surface-variant">AI智能听记，自动生成会议纪要，让跟进更高效</p>
+      </div>
+
+      <!-- 表单内容区 -->
+      <div class="space-y-8">
+        <!-- 基本信息卡片 -->
+        <div class="bg-surface rounded-lg shadow-card p-6">
+          <h2 class="text-base font-semibold text-on-surface mb-4 flex items-center gap-2">
+            <i data-lucide="info" class="w-4 h-4 text-primary"></i>
+            基本信息
+          </h2>
+          <div class="grid grid-cols-2 gap-6">
+            <!-- 关联客户 -->
+            <div class="space-y-1.5">
+              <label class="text-sm font-medium text-on-surface">关联客户</label>
+              <select id="customer-select" class="w-full bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors">
+                <option value="">请选择客户</option>
+                <option value="customer1">上海恒远物流有限公司</option>
+                <option value="customer2">深圳安达供应链管理有限公司</option>
+                <option value="customer3">北京盛达国际货运代理有限公司</option>
+              </select>
+            </div>
+            <!-- 关联商机 -->
+            <div class="space-y-1.5">
+              <label class="text-sm font-medium text-on-surface">关联商机</label>
+              <select id="opportunity-select" class="w-full bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors">
+                <option value="">请选择商机</option>
+                <option value="opportunity1">2024年度华东区运输服务项目</option>
+                <option value="opportunity2">华南区仓储配送一体化项目</option>
+                <option value="opportunity3">跨境电商进出口物流服务</option>
+              </select>
+            </div>
+            <!-- 跟进类型 -->
+            <div class="space-y-1.5">
+              <label class="text-sm font-medium text-on-surface">跟进类型</label>
+              <select id="followup-type" class="w-full bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors">
+                <option value="meeting">会议沟通</option>
+                <option value="phone">电话拜访</option>
+                <option value="visit">上门拜访</option>
+                <option value="email">邮件往来</option>
+              </select>
+            </div>
+            <!-- 跟进时间 -->
+            <div class="space-y-1.5">
+              <label class="text-sm font-medium text-on-surface">跟进时间</label>
+              <input type="datetime-local" id="followup-time" class="w-full bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors">
+            </div>
+            <!-- 负责人 -->
+            <div class="space-y-1.5">
+              <label class="text-sm font-medium text-on-surface">负责人</label>
+              <select id="followup-owner" class="w-full bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors">
+                <option value="xiaochu">小初</option>
+                <option value="zhangjie">张洁</option>
+                <option value="jiangzong">蒋总</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- AI听记功能区 -->
+        <div class="bg-surface rounded-lg shadow-card p-6">
+          <h2 class="text-base font-semibold text-on-surface mb-4 flex items-center gap-2">
+            <i data-lucide="mic" class="w-4 h-4 text-primary"></i>
+            AI听记
+            <span id="recording-status" class="text-xs text-success font-medium hidden">
+              <span class="inline-flex items-center gap-1">
+                <span class="w-2 h-2 bg-success rounded-full animate-pulse"></span>
+                正在录音中...
+              </span>
+            </span>
+            <span id="transcribing-status" class="text-xs text-primary font-medium hidden">
+              <span class="inline-flex items-center gap-1">
+                <i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i>
+                AI正在转写...
+              </span>
+            </span>
+          </h2>
+          
+          <!-- 录音控制 -->
+          <div class="flex items-center gap-4 mb-6">
+            <button id="btn-start-record" class="bg-success text-white px-4 py-2 rounded-md text-sm font-medium hover:opacity-90 active:scale-[0.98] transition-all inline-flex items-center gap-2">
+              <i data-lucide="mic" class="w-4 h-4"></i>
+              开始录音
+            </button>
+            <button id="btn-pause-record" class="bg-surface-container text-on-surface px-4 py-2 rounded-md text-sm font-medium hover:bg-surface-container-high transition-colors inline-flex items-center gap-2 hidden">
+              <i data-lucide="pause" class="w-4 h-4"></i>
+              暂停录音
+            </button>
+            <button id="btn-stop-record" class="bg-error text-white px-4 py-2 rounded-md text-sm font-medium hover:opacity-90 active:scale-[0.98] transition-all inline-flex items-center gap-2 hidden">
+              <i data-lucide="square" class="w-4 h-4"></i>
+              停止录音
+            </button>
+            <div class="flex items-center gap-2 text-sm text-on-surface-variant">
+              <i data-lucide="clock" class="w-4 h-4"></i>
+              <span id="record-duration">00:00:00</span>
+            </div>
+          </div>
+
+          <!-- 实时转写区域 -->
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <label class="text-sm font-medium text-on-surface">实时转写</label>
+              <div class="flex items-center gap-2">
+                <button id="btn-edit-transcript" class="text-primary text-sm font-medium hover:underline inline-flex items-center gap-1">
+                  <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
+                  编辑修正
+                </button>
+              </div>
+            </div>
+            <div id="transcript-container" class="bg-surface-container-lowest rounded-lg p-4 min-h-[200px] max-h-[300px] overflow-y-auto">
+              <!-- 转写内容-说话人1 -->
+              <div class="mb-4">
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary/20 text-primary text-xs font-medium">张</span>
+                  <span class="text-sm font-medium text-on-surface">张洁</span>
+                  <span class="text-xs text-on-surface-variant">14:30:15</span>
+                </div>
+                <p class="text-sm text-on-surface ml-8">
+                  今天我们主要讨论一下<span class="bg-primary/15 text-primary font-medium">华东区运输服务项目</span>的实施细节，王总您这边有什么想法？
+                </p>
+              </div>
+              <!-- 转写内容-说话人2 -->
+              <div class="mb-4">
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-success/20 text-success text-xs font-medium">王</span>
+                  <span class="text-sm font-medium text-on-surface">王总</span>
+                  <span class="text-xs text-on-surface-variant">14:31:22</span>
+                </div>
+                <p class="text-sm text-on-surface ml-8">
+                  我们希望能够在<span class="bg-primary/15 text-primary font-medium">6月底前</span>完成系统对接，7月份正式开始试运行。另外，关于<span class="bg-primary/15 text-primary font-medium">KPI考核指标</span>，我们希望运输及时率能达到99%以上。
+                </p>
+              </div>
+              <!-- 转写内容-说话人1 -->
+              <div class="mb-4">
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary/20 text-primary text-xs font-medium">张</span>
+                  <span class="text-sm font-medium text-on-surface">张洁</span>
+                  <span class="text-xs text-on-surface-variant">14:33:45</span>
+                </div>
+                <p class="text-sm text-on-surface ml-8">
+                  没问题，系统对接我们会安排技术团队在下周进场，KPI指标方面，99%的及时率我们可以做到，但需要贵司配合做好<span class="bg-primary/15 text-primary font-medium">货物预报</span>工作。
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 会议纪要功能区 -->
+        <div class="bg-surface rounded-lg shadow-card p-6">
+          <h2 class="text-base font-semibold text-on-surface mb-4 flex items-center gap-2">
+            <i data-lucide="file-text" class="w-4 h-4 text-primary"></i>
+            会议纪要
+            <span id="generating-status" class="text-xs text-primary font-medium hidden">
+              <span class="inline-flex items-center gap-1">
+                <i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i>
+                纪要生成中...
+              </span>
+            </span>
+          </h2>
+          
+          <!-- 生成纪要按钮 -->
+          <div class="mb-6">
+            <button id="btn-generate-summary" class="bg-primary text-on-primary px-4 py-2 rounded-md text-sm font-medium hover:opacity-90 active:scale-[0.98] transition-all inline-flex items-center gap-2">
+              <i data-lucide="wand-2" class="w-4 h-4"></i>
+              一键生成纪要
+            </button>
+            <p class="text-xs text-on-surface-variant mt-2">基于转写内容智能提取会议摘要、关键要点、待办事项和决策事项</p>
+          </div>
+
+          <!-- 会议纪要内容 -->
+          <div class="space-y-6">
+            <!-- 会议摘要 -->
+            <div class="space-y-2">
+              <div class="flex items-center justify-between">
+                <h3 class="text-sm font-semibold text-on-surface flex items-center gap-2">
+                  <i data-lucide="align-left" class="w-4 h-4 text-on-surface-variant"></i>
+                  会议摘要
+                </h3>
+                <button class="text-primary text-sm font-medium hover:underline">编辑</button>
+              </div>
+              <div class="bg-surface-container-lowest rounded-lg p-4">
+                <p class="text-sm text-on-surface">
+                  本次会议主要讨论了华东区运输服务项目的实施细节。双方就系统对接时间、KPI考核指标、货物预报配合等关键事项达成共识，确定了6月底前完成系统对接、7月份试运行的时间节点，并明确了各自的责任分工。
+                </p>
+              </div>
+            </div>
+
+            <!-- 关键要点 -->
+            <div class="space-y-2">
+              <div class="flex items-center justify-between">
+                <h3 class="text-sm font-semibold text-on-surface flex items-center gap-2">
+                  <i data-lucide="list-checks" class="w-4 h-4 text-on-surface-variant"></i>
+                  关键要点
+                </h3>
+                <button class="text-primary text-sm font-medium hover:underline">编辑</button>
+              </div>
+              <div class="bg-surface-container-lowest rounded-lg p-4">
+                <ul class="space-y-2">
+                  <li class="text-sm text-on-surface flex items-start gap-2">
+                    <i data-lucide="circle" class="w-4 h-4 text-primary shrink-0 mt-0.5"></i>
+                    <span>项目时间节点：6月底前完成系统对接，7月份正式试运行</span>
+                  </li>
+                  <li class="text-sm text-on-surface flex items-start gap-2">
+                    <i data-lucide="circle" class="w-4 h-4 text-primary shrink-0 mt-0.5"></i>
+                    <span>KPI考核指标：运输及时率要求达到99%以上</span>
+                  </li>
+                  <li class="text-sm text-on-surface flex items-start gap-2">
+                    <i data-lucide="circle" class="w-4 h-4 text-primary shrink-0 mt-0.5"></i>
+                    <span>双方配合事项：客户需配合做好货物预报工作</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            <!-- 待办事项 -->
+            <div class="space-y-2">
+              <div class="flex items-center justify-between">
+                <h3 class="text-sm font-semibold text-on-surface flex items-center gap-2">
+                  <i data-lucide="check-square" class="w-4 h-4 text-on-surface-variant"></i>
+                  待办事项
+                  <span class="text-xs text-on-surface-variant font-normal">（自动同步到跟进记录）</span>
+                </h3>
+                <button class="text-primary text-sm font-medium hover:underline">编辑</button>
+              </div>
+              <div class="bg-surface-container-lowest rounded-lg p-4">
+                <div class="space-y-3">
+                  <!-- 待办事项1 -->
+                  <div class="flex items-start gap-3 p-3 bg-surface rounded-md">
+                    <input type="checkbox" class="mt-1" checked>
+                    <div class="flex-1">
+                      <p class="text-sm text-on-surface line-through">安排技术团队下周进场进行系统对接</p>
+                      <div class="flex items-center gap-4 mt-1">
+                        <span class="text-xs text-on-surface-variant flex items-center gap-1">
+                          <i data-lucide="user" class="w-3 h-3"></i>
+                          负责人：张洁
+                        </span>
+                        <span class="text-xs text-on-surface-variant flex items-center gap-1">
+                          <i data-lucide="calendar" class="w-3 h-3"></i>
+                          截止时间：2024-06-20
+                        </span>
+                        <span class="text-xs text-success flex items-center gap-1">
+                          <i data-lucide="flag" class="w-3 h-3"></i>
+                          高优先级
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- 待办事项2 -->
+                  <div class="flex items-start gap-3 p-3 bg-surface rounded-md">
+                    <input type="checkbox" class="mt-1">
+                    <div class="flex-1">
+                      <p class="text-sm text-on-surface">准备货物预报流程规范文档</p>
+                      <div class="flex items-center gap-4 mt-1">
+                        <span class="text-xs text-on-surface-variant flex items-center gap-1">
+                          <i data-lucide="user" class="w-3 h-3"></i>
+                          负责人：王总
+                        </span>
+                        <span class="text-xs text-on-surface-variant flex items-center gap-1">
+                          <i data-lucide="calendar" class="w-3 h-3"></i>
+                          截止时间：2024-06-25
+                        </span>
+                        <span class="text-xs text-warning flex items-center gap-1">
+                          <i data-lucide="flag" class="w-3 h-3"></i>
+                          中优先级
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- 待办事项3 -->
+                  <div class="flex items-start gap-3 p-3 bg-surface rounded-md">
+                    <input type="checkbox" class="mt-1">
+                    <div class="flex-1">
+                      <p class="text-sm text-on-surface">制定KPI考核细则和奖惩方案</p>
+                      <div class="flex items-center gap-4 mt-1">
+                        <span class="text-xs text-on-surface-variant flex items-center gap-1">
+                          <i data-lucide="user" class="w-3 h-3"></i>
+                          负责人：张洁
+                        </span>
+                        <span class="text-xs text-on-surface-variant flex items-center gap-1">
+                          <i data-lucide="calendar" class="w-3 h-3"></i>
+                          截止时间：2024-06-28
+                        </span>
+                        <span class="text-xs text-on-surface-variant flex items-center gap-1">
+                          <i data-lucide="flag" class="w-3 h-3"></i>
+                          低优先级
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 决策事项 -->
+            <div class="space-y-2">
+              <div class="flex items-center justify-between">
+                <h3 class="text-sm font-semibold text-on-surface flex items-center gap-2">
+                  <i data-lucide="thumbs-up" class="w-4 h-4 text-on-surface-variant"></i>
+                  决策事项
+                </h3>
+                <button class="text-primary text-sm font-medium hover:underline">编辑</button>
+              </div>
+              <div class="bg-surface-container-lowest rounded-lg p-4">
+                <ul class="space-y-2">
+                  <li class="text-sm text-on-surface flex items-start gap-2">
+                    <i data-lucide="check" class="w-4 h-4 text-success shrink-0 mt-0.5"></i>
+                    <span>确定华东区运输服务项目的合作模式和服务范围</span>
+                  </li>
+                  <li class="text-sm text-on-surface flex items-start gap-2">
+                    <i data-lucide="check" class="w-4 h-4 text-success shrink-0 mt-0.5"></i>
+                    <span>同意将运输及时率99%作为KPI考核目标</span>
+                  </li>
+                  <li class="text-sm text-on-surface flex items-start gap-2">
+                    <i data-lucide="check" class="w-4 h-4 text-success shrink-0 mt-0.5"></i>
+                    <span>确定由双方共同组成项目组，每周召开项目进度会议</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 跟进内容编辑区 -->
+        <div class="bg-surface rounded-lg shadow-card p-6">
+          <h2 class="text-base font-semibold text-on-surface mb-4 flex items-center gap-2">
+            <i data-lucide="edit-3" class="w-4 h-4 text-primary"></i>
+            跟进内容
+          </h2>
+          <div class="space-y-4">
+            <div class="space-y-1.5">
+              <label class="text-sm font-medium text-on-surface">跟进详情</label>
+              <textarea id="followup-content" rows="6" class="w-full bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors" placeholder="请输入跟进内容详情...">本次会议就华东区运输服务项目的实施细节进行了深入讨论，双方达成了多项共识。项目将按照既定时间节点推进，技术团队下周进场开始系统对接工作。KPI考核指标定为运输及时率99%以上，客户方将配合做好货物预报工作。下一步将继续细化项目方案，确保7月份能够顺利试运行。</textarea>
+            </div>
+            <div class="space-y-1.5">
+              <label class="text-sm font-medium text-on-surface">下次跟进</label>
+              <input type="datetime-local" id="next-followup" class="w-full bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors">
+            </div>
+          </div>
+        </div>
+
+        <!-- 底部操作栏 -->
+        <div class="flex items-center justify-end gap-3 pt-4 border-t border-outline-variant/20">
+          <button id="btn-cancel" class="bg-surface-container text-on-surface px-4 py-2 rounded-md text-sm font-medium hover:bg-surface-container-high transition-colors">
+            取消
+          </button>
+          <button id="btn-save-summary" class="bg-surface-container text-primary px-4 py-2 rounded-md text-sm font-medium hover:bg-surface-container-high transition-colors inline-flex items-center gap-2">
+            <i data-lucide="file-text" class="w-4 h-4"></i>
+            保存并生成纪要
+          </button>
+          <button id="btn-save" class="bg-primary text-on-primary px-4 py-2 rounded-md text-sm font-medium hover:opacity-90 active:scale-[0.98] transition-all inline-flex items-center gap-2">
+            <i data-lucide="save" class="w-4 h-4"></i>
+            保存
+          </button>
+        </div>
+      </div>
+    </main>
+    <!-- @main-content:end -->
+  </div>
+  <!-- @nav:end 导航组件 -->
+
+  <script>
+    lucide.createIcons();
+    
+    $(function() {
+      // 初始化时间
+      const now = new Date();
+      const localDateTime = now.toISOString().slice(0, 16);
+      $('#followup-time').val(localDateTime);
+      
+      // 返回按钮
+      $('#btn-back').on('click', function() {
+        console.log('返回跟进记录列表页');
+      });
+      
+      // 录音控制 - 开始录音
+      $('#btn-start-record').on('click', function() {
+        console.log('开始录音');
+        // 显示录音状态
+        $('#recording-status').removeClass('hidden');
+        $('#transcribing-status').removeClass('hidden');
+        // 切换按钮显示
+        $('#btn-start-record').addClass('hidden');
+        $('#btn-pause-record').removeClass('hidden');
+        $('#btn-stop-record').removeClass('hidden');
+      });
+      
+      // 录音控制 - 暂停录音
+      $('#btn-pause-record').on('click', function() {
+        console.log('暂停录音');
+        // 这里可以添加暂停录音的完整逻辑
+      });
+      
+      // 录音控制 - 停止录音
+      $('#btn-stop-record').on('click', function() {
+        console.log('停止录音');
+        // 隐藏录音状态
+        $('#recording-status').addClass('hidden');
+        $('#transcribing-status').addClass('hidden');
+        // 切换按钮显示
+        $('#btn-start-record').removeClass('hidden');
+        $('#btn-pause-record').addClass('hidden');
+        $('#btn-stop-record').addClass('hidden');
+      });
+      
+      // 编辑转写内容
+      $('#btn-edit-transcript').on('click', function() {
+        console.log('编辑修正转写内容');
+        // 点击后应实现内联编辑转写内容：
+        // 1. 将转写内容区域变为可编辑状态
+        // 2. 支持修改文本内容
+        // 3. 提供保存和取消按钮
+        // 4. 保存后更新显示内容
+      });
+      
+      // 生成会议纪要
+      $('#btn-generate-summary').on('click', function() {
+        console.log('基于转写内容生成会议纪要');
+        $('#generating-status').removeClass('hidden');
+        // 模拟生成过程
+        setTimeout(function() {
+          $('#generating-status').addClass('hidden');
+          console.log('会议纪要生成完成');
+        }, 2000);
+      });
+      
+      // 保存按钮
+      $('#btn-save').on('click', function() {
+        console.log('保存跟进记录');
+      });
+      
+      // 保存并生成纪要按钮
+      $('#btn-save-summary').on('click', function() {
+        console.log('保存跟进记录并生成会议纪要');
+      });
+      
+      // 取消按钮
+      $('#btn-cancel').on('click', function() {
+        console.log('取消操作，返回列表页');
+      });
+    });
+  </script>
+</body>
+
+</html>

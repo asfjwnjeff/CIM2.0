@@ -1,0 +1,24 @@
+id,name,code,taxpayerId,status,settlementEntity,createdAt
+be-1,FWD-8635,8635,,active,,2024-01-01
+be-2,FWD-8639&8641,"8639,8641",,active,,2024-01-01
+be-3,FWD-8644,8644,,active,,2024-01-01
+be-4,TKM-8603,8603,,active,,2024-01-01
+be-5,TKM-8642,8642,,active,,2024-01-01
+be-6,RVC-35830,35830,,active,,2024-01-01
+be-7,FWD,FWD,,active,,2024-01-01
+be-8,物流部,WLB,,active,,2024-01-01
+be-9,Sales Operations Analyst部门,SOA,,active,,2024-01-01
+be-10,工程师部门,ENG,,active,,2024-01-01
+be-11,NNP 实验室部门,NNP,,active,,2024-01-01
+be-12,TMF部门,TMF,,active,,2024-01-01
+be-13,CMP部门,CMP,,active,,2024-01-01
+be-14,COMP部门,COMP,,active,,2024-01-01
+be-15,账单1,ZD1,,active,,2024-01-01
+be-16,账单2,ZD2,,active,,2024-01-01
+be-17,CSS上海部,CSS-SH,,active,,2024-01-01
+be-18,TSS德国部,TSS-DE,,active,,2024-01-01
+be-19,设备类,SB,,active,,2024-01-01
+be-20,备件类,BJ,,active,,2024-01-01
+be-21,备件货,BJH,,active,,2024-01-01
+be-22,闲置品,XZP,,active,,2024-01-01
+be-23,分子泵,FZB,,active,,2024-01-01

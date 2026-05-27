@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CIM客户信息管理系统 - 业务架构图</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f5f7fa;
+            min-height: 100vh;
+            padding: 30px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .header h1 {
+            font-size: 32px;
+            color: #2c3e50;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        .header p {
+            color: #7f8c8d;
+            font-size: 15px;
+        }
+        .architecture-wrapper {
+            display: flex;
+            gap: 25px;
+            align-items: flex-start;
+        }
+        .column {
+            flex: 1;
+        }
+        .column-title {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            color: white;
+            padding: 14px 20px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 16px;
+            border-radius: 8px 8px 0 0;
+        }
+        .column-title.blue {
+            background: linear-gradient(135deg, #1A2FFF 0%, #3498db 100%);
+        }
+        .column-title.green {
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+        }
+        .column-title.purple {
+            background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+        }
+        .column-content {
+            background: white;
+            border-radius: 0 0 8px 8px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+        .section-title {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            margin: 20px 0 15px 0;
+        }
+        .section-title.orange {
+            background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);
+        }
+        .section-title.purple {
+            background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+        }
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .grid-item {
+            background: #f8f9fa;
+            padding: 12px 8px;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 13px;
+            color: #2c3e50;
+            font-weight: 500;
+            border: 1px solid #e9ecef;
+        }
+        .grid-item:hover {
+            background: #1A2FFF;
+            color: white;
+            border-color: #1A2FFF;
+        }
+        .integration-item {
+            background: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            border-left: 5px solid #1A2FFF;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .integration-item h4 {
+            font-size: 15px;
+            color: #2c3e50;
+            margin-bottom: 5px;
+            font-weight: 700;
+        }
+        .integration-item p {
+            font-size: 12px;
+            color: #7f8c8d;
+        }
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 40px;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .legend-color {
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+        }
+        .legend-color.blue { background: linear-gradient(135deg, #1A2FFF 0%, #3498db 100%); }
+        .legend-color.green { background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); }
+        .legend-text {
+            font-size: 13px;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏗️ CIM客户信息管理系统 - 业务架构图</h1>
+            <p>简单直观的系统架构，清晰展示业务功能和外部系统集成</p>
+        </div>
+
+        <div class="architecture-wrapper">
+            <!-- 业务功能 -->
+            <div class="column" style="flex: 4;">
+                <div class="column-title blue">CIM客户信息管理系统</div>
+                <div class="column-content">
+                    <div class="section-title">客户管理</div>
+                    <div class="grid-4">
+                        <div class="grid-item">企业基本信息</div>
+                        <div class="grid-item">工商资质全景</div>
+                        <div class="grid-item">半导体产业链定位</div>
+                        <div class="grid-item">上下游关联关系</div>
+                    </div>
+                    <div class="grid-4">
+                        <div class="grid-item">经营商品档案</div>
+                        <div class="grid-item">客户信息配置</div>
+                        <div class="grid-item">账单主体配置</div>
+                        <div class="grid-item">操作日志查询</div>
+                    </div>
+
+                    <div class="section-title">账单主体规则管理</div>
+                    <div class="grid-4">
+                        <div class="grid-item">规则创建</div>
+                        <div class="grid-item">规则编辑</div>
+                        <div class="grid-item">规则删除</div>
+                        <div class="grid-item">优先级排序</div>
+                    </div>
+                    <div class="grid-4">
+                        <div class="grid-item">条件组配置</div>
+                        <div class="grid-item">AND/OR逻辑</div>
+                        <div class="grid-item">账单主体选择</div>
+                        <div class="grid-item">规则测试</div>
+                    </div>
+
+                    <div class="section-title purple">客户信息配置管理</div>
+                    <div class="grid-4">
+                        <div class="grid-item">按客户分组配置</div>
+                        <div class="grid-item">账单区分字段管理</div>
+                        <div class="grid-item">字段名称配置</div>
+                        <div class="grid-item">字段类型配置</div>
+                    </div>
+                    <div class="grid-4">
+                        <div class="grid-item">可选值管理</div>
+                        <div class="grid-item">字段增删改</div>
+                        <div class="grid-item">分客户配置</div>
+                        <div class="grid-item">字段分类管理</div>
+                    </div>
+
+                    <div class="section-title">系统管理</div>
+                    <div class="grid-4">
+                        <div class="grid-item">字典管理</div>
+                        <div class="grid-item">权限管理</div>
+                        <div class="grid-item">接口管理</div>
+                        <div class="grid-item">系统设置</div>
+                    </div>
+                    <div class="grid-4">
+                        <div class="grid-item">角色管理</div>
+                        <div class="grid-item">用户管理</div>
+                        <div class="grid-item">功能权限</div>
+                        <div class="grid-item">数据权限</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 业务协同 -->
+            <div class="column" style="flex: 0 0 200px;">
+                <div class="column-title green">业务协同系统</div>
+                <div class="column-content">
+                    <div class="integration-item">
+                        <h4>COS订单系统</h4>
+                        <p>字段配置调用</p>
+                    </div>
+                    <div class="integration-item">
+                        <h4>CPQ报价系统</h4>
+                        <p>调用规则进行账单主体判断</p>
+                    </div>
+                    <div class="integration-item">
+                        <h4>权限平台</h4>
+                        <p>统一身份认证、权限控制</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color blue"></div>
+                <span class="legend-text">CIM核心系统</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color green"></div>
+                <span class="legend-text">业务协同系统</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

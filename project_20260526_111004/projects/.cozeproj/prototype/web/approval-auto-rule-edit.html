@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- 字体 -->
+  <link href="https://fonts.googleapis.cn/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+
+  <script src="https://lf-code-agent.coze.cn/obj/x-ai-cn/cdn/jquery/jquery-3.7.1.min.js"></script>
+  <script src="https://lf-code-agent.coze.cn/obj/x-ai-cn/cdn/lucide/lucide-1.11.0.min.js"></script>
+  <script src="https://lf-code-agent.coze.cn/obj/x-ai-cn/cdn/tailwindcss/tailwindcss-browser-4.2.4.min.js"></script>
+
+  <style type="text/tailwindcss">
+    @theme {
+      /* === 品牌色 - 商务稳重蓝色系 === */
+      --color-primary:              #1E40AF;
+      --color-primary-container:    #DBEAFE;
+      --color-on-primary:           #ffffff;
+      /* === 背景 / 表面 - 纯白背景 === */
+      --color-background:                 #FFFFFF;
+      --color-surface-container-lowest:   #FAFAFA;
+      --color-surface:                    #FFFFFF;
+      --color-surface-container:          #F3F4F6;
+      --color-surface-container-high:     #E5E7EB;
+      --color-surface-container-highest:  #D1D5DB;
+      /* === 文字 === */
+      --color-on-surface:           #111827;
+      --color-on-surface-variant:   #6B7280;
+      /* === 功能色 === */
+      --color-success:  #22c55e;
+      --color-error:    #ef4444;
+      --color-warning:  #f59e0b;
+      /* === 边框 === */
+      --color-outline:          #9CA3AF;
+      --color-outline-variant:  #D1D5DB;
+      /* === 圆角 - 8px === */
+      --radius-sm:   0.375rem;
+      --radius-md:   0.5rem;
+      --radius-lg:   0.625rem;
+      --radius-xl:   0.75rem;
+      --radius-2xl:  1rem;
+      --radius-full: 9999px;
+      /* === 阴影 === */
+      --shadow-card:   0 2px 8px rgba(0,0,0,0.10);
+      --shadow-float:  0 10px 25px rgba(0,0,0,0.12);
+      --shadow-dialog: 0 25px 50px rgba(0,0,0,0.15);
+      /* === 字体 === */
+      --font-sans: "Inter", "Noto Sans SC", system-ui, sans-serif;
+    }
+  </style>
+
+  <!-- 图片兜底 -->
+  <script>
+    document.addEventListener('error', function (e) {
+      const img = e.target;
+      if (img.tagName !== 'IMG' || img.dataset.fallback) return;
+      img.dataset.fallback = '1';
+      const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      const cat = img.getAttribute('data-category') || '其他';
+      const alt = img.getAttribute('alt') || '';
+      const label = esc(alt.length > 8 ? alt.slice(0, 8) + '…' : alt);
+      const icons = { '人物': '👤', '自然风景': '🏞', '动物': '🐾', '建筑城市': '🏙', '运动体育': '⚽', '交通工具': '🚗', '食物': '🍽', '服饰时尚': '👗', '商业科技': '💼', '游戏娱乐': '🎮', '艺术': '🎨', '其他': '🖼' };
+      const icon = icons[cat] || '🖼';
+      const w = img.width || 400, h = img.height || 300;
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}"><rect width="100%" height="100%" fill="%23f3f4f6"/><text x="50%" y="45%" text-anchor="middle" font-size="${Math.min(w, h) * 0.18}" dominant-baseline="central">${icon}</text><text x="50%" y="68%" text-anchor="middle" font-size="${Math.min(w, h) * 0.07}" fill="%239ca3af" font-family="system-ui,sans-serif" dominant-baseline="central">${label}</text></svg>`;
+      img.src = 'data:image/svg+xml,' + svg;
+    }, true);
+  </script>
+</head>
+
+<body class="bg-background text-on-surface font-sans">
+
+  <!-- @nav:start 导航组件，不需要的页面则不要复制此段 -->
+  <header class="bg-surface sticky top-0 z-40 h-16 flex items-center justify-between px-6 border-b border-outline-variant/20">
+    <div class="flex items-center gap-3">
+      <a href="approval-workflows.html" class="flex items-center gap-2">
+        <i data-lucide="shield-check" class="text-primary w-6 h-6"></i>
+        <span class="font-bold text-lg">CIM 风控审批</span>
+      </a>
+    </div>
+    <nav class="flex items-center gap-1">
+      <a href="approval-workflows.html" class="px-3 py-1.5 text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded-md transition-colors">风控审批</a>
+      <a href="approval-workflows.html" class="px-3 py-1.5 text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded-md transition-colors">流程配置</a>
+      <a href="approval-auto-rules.html" class="px-3 py-1.5 text-sm font-medium text-primary bg-primary/10 rounded-md" aria-current="page">自动规则</a>
+      <a href="followup-new-ai.html" class="px-3 py-1.5 text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded-md transition-colors">AI跟进</a>
+    </nav>
+    <div class="flex items-center gap-3">
+      <button class="bg-surface-container text-on-surface px-4 py-2 rounded-md text-sm font-medium hover:bg-surface-container-high transition-colors">
+        <i data-lucide="bell" class="w-4 h-4 inline mr-2"></i>
+        通知
+      </button>
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 rounded-full bg-primary/20 text-primary flex items-center justify-center text-sm font-semibold">初</div>
+        <span class="text-sm font-medium">小初</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="flex" style="height: calc(100vh - 4rem)">
+    <aside class="w-56 shrink-0 bg-surface-container-lowest border-r border-outline-variant/20 overflow-y-auto">
+      <div class="p-3 space-y-0.5">
+        <div class="px-3 py-2 text-xs font-semibold text-on-surface-variant uppercase tracking-wider">风控审批</div>
+        <a href="approval-workflows.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors">
+          <i data-lucide="clipboard-list" class="w-4 h-4"></i>审批列表
+        </a>
+        <a href="approval-workflows.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors">
+          <i data-lucide="workflow" class="w-4 h-4"></i>流程配置
+        </a>
+        <a href="approval-auto-rules.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md bg-primary/10 text-primary font-medium text-sm" aria-current="page">
+          <i data-lucide="zap" class="w-4 h-4"></i>自动规则
+        </a>
+        
+        <div class="px-3 py-2 mt-4 text-xs font-semibold text-on-surface-variant uppercase tracking-wider">跟进记录</div>
+        <a href="followup-new-ai.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors">
+          <i data-lucide="mic" class="w-4 h-4"></i>AI听记
+        </a>
+        
+        <div class="px-3 py-2 mt-4 text-xs font-semibold text-on-surface-variant uppercase tracking-wider">快速链接</div>
+        <a href="approval-workflows.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors">
+          <i data-lucide="trending-up" class="w-4 h-4"></i>商机管理
+        </a>
+        <a href="approval-workflows.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors">
+          <i data-lucide="users" class="w-4 h-4"></i>客户管理
+        </a>
+      </div>
+    </aside>
+
+    <!-- @main-content:start -->
+    <main class="flex-1 min-w-0 overflow-y-auto bg-background p-6">
+      <!-- 页面头部 -->
+      <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center gap-3">
+          <button id="btn-back" class="p-2 hover:bg-surface-container rounded-md transition-colors">
+            <i data-lucide="arrow-left" class="w-5 h-5 text-on-surface-variant"></i>
+          </button>
+          <div>
+            <h1 class="text-2xl font-bold text-on-surface">编辑自动审批规则</h1>
+            <p class="text-sm text-on-surface-variant mt-1">配置自动审批的触发条件和执行动作</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-3">
+          <button id="btn-cancel" class="bg-surface-container text-on-surface px-4 py-2 rounded-md text-sm font-medium hover:bg-surface-container-high transition-colors">
+            取消
+          </button>
+          <button id="btn-test" class="bg-surface-container text-primary px-4 py-2 rounded-md text-sm font-medium hover:bg-primary/10 transition-colors">
+            <i data-lucide="play" class="w-4 h-4 inline mr-2"></i>
+            测试规则
+          </button>
+          <button id="btn-save" class="bg-primary text-on-primary px-4 py-2 rounded-md text-sm font-medium hover:opacity-90 active:scale-[0.98] transition-all inline-flex items-center gap-2">
+            <i data-lucide="save" class="w-4 h-4"></i>
+            保存
+          </button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-3 gap-6">
+        <!-- 左侧：规则配置 -->
+        <div class="col-span-2 space-y-6">
+          <!-- 基本信息卡片 -->
+          <div class="bg-surface rounded-lg shadow-card p-5">
+            <h2 class="text-base font-semibold text-on-surface mb-4">基本信息</h2>
+            <div class="space-y-4">
+              <div>
+                <label for="rule-name" class="block text-sm font-medium text-on-surface mb-1.5">规则名称 <span class="text-error">*</span></label>
+                <input id="rule-name" type="text" class="w-full bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors" placeholder="请输入规则名称" value="贸易代理自动审批">
+              </div>
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label for="service-product" class="block text-sm font-medium text-on-surface mb-1.5">服务产品 <span class="text-error">*</span></label>
+                  <select id="service-product" class="w-full bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors">
+                    <option value="">请选择服务产品</option>
+                    <option value="货代" selected>货代</option>
+                    <option value="关务">关务</option>
+                    <option value="仓库">仓库</option>
+                    <option value="运输">运输</option>
+                    <option value="进出口">进出口</option>
+                    <option value="维修">维修</option>
+                    <option value="合同物流">合同物流</option>
+                    <option value="一体化供应链">一体化供应链</option>
+                  </select>
+                </div>
+                <div>
+                  <label for="rule-status" class="block text-sm font-medium text-on-surface mb-1.5">状态</label>
+                  <select id="rule-status" class="w-full bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors">
+                    <option value="active" selected>启用</option>
+                    <option value="inactive">禁用</option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label for="rule-remark" class="block text-sm font-medium text-on-surface mb-1.5">备注</label>
+                <textarea id="rule-remark" class="w-full bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors" rows="3" placeholder="请输入备注信息">当是否贸易代理为是时，自动添加白沥作为审批人</textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- 触发条件配置卡片 -->
+          <div class="bg-surface rounded-lg shadow-card p-5">
+            <div class="flex items-center justify-between mb-4">
+              <h2 class="text-base font-semibold text-on-surface">触发条件</h2>
+              <button id="btn-add-condition-group" class="text-primary text-sm font-medium hover:underline inline-flex items-center gap-1">
+                <i data-lucide="plus" class="w-4 h-4"></i>
+                添加条件组
+              </button>
+            </div>
+
+            <!-- 条件组1 -->
+            <div id="condition-group-1" class="condition-group border border-outline-variant/20 rounded-lg p-4 mb-4">
+              <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-2">
+                  <span class="text-xs font-semibold text-on-surface-variant uppercase tracking-wider">条件组 1</span>
+                  <select class="bg-surface-container border-none rounded-md px-2 py-1 text-xs text-on-surface focus:outline-none">
+                    <option value="and">全部满足 (AND)</option>
+                    <option value="or">满足任一 (OR)</option>
+                  </select>
+                </div>
+                <button class="btn-delete-group text-on-surface-variant hover:text-error transition-colors">
+                  <i data-lucide="trash-2" class="w-4 h-4"></i>
+                </button>
+              </div>
+
+              <!-- 条件1-1 -->
+              <div id="condition-1-1" class="condition-item flex items-center gap-3 mb-3">
+                <select class="condition-field flex-1 bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors">
+                  <option value="">选择字段</option>
+                  <option value="isTradeAgent" selected>是否贸易代理</option>
+                  <option value="businessType">业务类型</option>
+                  <option value="monthlyOrderCount">月均订单数</option>
+                  <option value="monthlyInvoiceAmount">月开票金额</option>
+                  <option value="transportTimeliness">运输及时率</option>
+                  <option value="registeredCapital">注册资本</option>
+                  <option value="socialSecurityCount">社保人数</option>
+                </select>
+                <select class="condition-operator flex-1 bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors">
+                  <option value="equals" selected>等于</option>
+                  <option value="notEquals">不等于</option>
+                  <option value="contains">包含</option>
+                  <option value="notContains">不包含</option>
+                  <option value="greaterThan">大于</option>
+                  <option value="lessThan">小于</option>
+                  <option value="greaterOrEqual">大于等于</option>
+                  <option value="lessOrEqual">小于等于</option>
+                </select>
+                <input type="text" class="condition-value flex-1 bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors" placeholder="输入值" value="是">
+                <button class="btn-delete-condition text-on-surface-variant hover:text-error transition-colors">
+                  <i data-lucide="minus-circle" class="w-5 h-5"></i>
+                </button>
+              </div>
+
+              <button class="btn-add-condition text-primary text-sm font-medium hover:underline inline-flex items-center gap-1 mt-2">
+                <i data-lucide="plus" class="w-4 h-4"></i>
+                添加条件
+              </button>
+            </div>
+
+            <div class="text-center text-sm text-on-surface-variant py-2">
+              或
+            </div>
+
+            <!-- 条件组2 -->
+            <div id="condition-group-2" class="condition-group border border-outline-variant/20 rounded-lg p-4">
+              <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-2">
+                  <span class="text-xs font-semibold text-on-surface-variant uppercase tracking-wider">条件组 2</span>
+                  <select class="bg-surface-container border-none rounded-md px-2 py-1 text-xs text-on-surface focus:outline-none">
+                    <option value="and" selected>全部满足 (AND)</option>
+                    <option value="or">满足任一 (OR)</option>
+                  </select>
+                </div>
+                <button class="btn-delete-group text-on-surface-variant hover:text-error transition-colors">
+                  <i data-lucide="trash-2" class="w-4 h-4"></i>
+                </button>
+              </div>
+
+              <!-- 条件2-1 -->
+              <div id="condition-2-1" class="condition-item flex items-center gap-3 mb-3">
+                <select class="condition-field flex-1 bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors">
+                  <option value="">选择字段</option>
+                  <option value="isTradeAgent">是否贸易代理</option>
+                  <option value="businessType">业务类型</option>
+                  <option value="monthlyOrderCount">月均订单数</option>
+                  <option value="monthlyInvoiceAmount" selected>月开票金额</option>
+                  <option value="transportTimeliness">运输及时率</option>
+                  <option value="registeredCapital">注册资本</option>
+                  <option value="socialSecurityCount">社保人数</option>
+                </select>
+                <select class="condition-operator flex-1 bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors">
+                  <option value="equals">等于</option>
+                  <option value="notEquals">不等于</option>
+                  <option value="contains">包含</option>
+                  <option value="notContains">不包含</option>
+                  <option value="greaterThan">大于</option>
+                  <option value="lessThan" selected>小于</option>
+                  <option value="greaterOrEqual">大于等于</option>
+                  <option value="lessOrEqual">小于等于</option>
+                </select>
+                <input type="text" class="condition-value flex-1 bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors" placeholder="输入值" value="5000">
+                <button class="btn-delete-condition text-on-surface-variant hover:text-error transition-colors">
+                  <i data-lucide="minus-circle" class="w-5 h-5"></i>
+                </button>
+              </div>
+
+              <!-- 条件2-2 -->
+              <div id="condition-2-2" class="condition-item flex items-center gap-3 mb-3">
+                <select class="condition-field flex-1 bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors">
+                  <option value="">选择字段</option>
+                  <option value="isTradeAgent">是否贸易代理</option>
+                  <option value="businessType">业务类型</option>
+                  <option value="monthlyOrderCount" selected>月均订单数</option>
+                  <option value="monthlyInvoiceAmount">月开票金额</option>
+                  <option value="transportTimeliness">运输及时率</option>
+                  <option value="registeredCapital">注册资本</option>
+                  <option value="socialSecurityCount">社保人数</option>
+                </select>
+                <select class="condition-operator flex-1 bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors">
+                  <option value="equals">等于</option>
+                  <option value="notEquals">不等于</option>
+                  <option value="contains">包含</option>
+                  <option value="notContains">不包含</option>
+                  <option value="greaterThan">大于</option>
+                  <option value="lessThan">小于</option>
+                  <option value="greaterOrEqual">大于等于</option>
+                  <option value="lessOrEqual" selected>小于等于</option>
+                </select>
+                <input type="text" class="condition-value flex-1 bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors" placeholder="输入值" value="5">
+                <button class="btn-delete-condition text-on-surface-variant hover:text-error transition-colors">
+                  <i data-lucide="minus-circle" class="w-5 h-5"></i>
+                </button>
+              </div>
+
+              <button class="btn-add-condition text-primary text-sm font-medium hover:underline inline-flex items-center gap-1 mt-2">
+                <i data-lucide="plus" class="w-4 h-4"></i>
+                添加条件
+              </button>
+            </div>
+          </div>
+
+          <!-- 自动动作配置卡片 -->
+          <div class="bg-surface rounded-lg shadow-card p-5">
+            <div class="flex items-center justify-between mb-4">
+              <h2 class="text-base font-semibold text-on-surface">自动动作</h2>
+              <button id="btn-add-action" class="text-primary text-sm font-medium hover:underline inline-flex items-center gap-1">
+                <i data-lucide="plus" class="w-4 h-4"></i>
+                添加动作
+              </button>
+            </div>
+
+            <!-- 动作1 -->
+            <div id="action-1" class="action-item border border-outline-variant/20 rounded-lg p-4 mb-3">
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-xs font-semibold text-on-surface-variant uppercase tracking-wider">动作 1</span>
+                <button class="btn-delete-action text-on-surface-variant hover:text-error transition-colors">
+                  <i data-lucide="trash-2" class="w-4 h-4"></i>
+                </button>
+              </div>
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-on-surface mb-1.5">动作类型</label>
+                  <select class="action-type w-full bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors">
+                    <option value="">选择动作</option>
+                    <option value="auto_approve">自动通过</option>
+                    <option value="auto_reject">自动拒绝</option>
+                    <option value="add_approver" selected>自动添加审批人</option>
+                    <option value="jump_node">自动跳转节点</option>
+                    <option value="show_hint">显示提示</option>
+                  </select>
+                </div>
+                <div id="approver-select-container">
+                  <label class="block text-sm font-medium text-on-surface mb-1.5">审批人</label>
+                  <select class="w-full bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors">
+                    <option value="">选择审批人</option>
+                    <option value="baili" selected>白沥</option>
+                    <option value="zhangjie">张洁</option>
+                    <option value="jiangzong">蒋总</option>
+                    <option value="wuzong">吴总</option>
+                    <option value="zhutao">朱弢</option>
+                    <option value="laiyifeng">赖逸峰</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- 动作2 -->
+            <div id="action-2" class="action-item border border-outline-variant/20 rounded-lg p-4">
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-xs font-semibold text-on-surface-variant uppercase tracking-wider">动作 2</span>
+                <button class="btn-delete-action text-on-surface-variant hover:text-error transition-colors">
+                  <i data-lucide="trash-2" class="w-4 h-4"></i>
+                </button>
+              </div>
+              <div class="grid grid-cols-1 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-on-surface mb-1.5">动作类型</label>
+                  <select class="action-type w-full bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors">
+                    <option value="">选择动作</option>
+                    <option value="auto_approve">自动通过</option>
+                    <option value="auto_reject">自动拒绝</option>
+                    <option value="add_approver">自动添加审批人</option>
+                    <option value="jump_node">自动跳转节点</option>
+                    <option value="show_hint" selected>显示提示</option>
+                  </select>
+                </div>
+                <div id="hint-message-container">
+                  <label class="block text-sm font-medium text-on-surface mb-1.5">提示信息</label>
+                  <textarea class="w-full bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors" rows="2" placeholder="请输入提示信息">贸易代理已自动添加白沥作为审批人</textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 提示信息配置卡片 -->
+          <div class="bg-surface rounded-lg shadow-card p-5">
+            <h2 class="text-base font-semibold text-on-surface mb-4">提示信息配置</h2>
+            <div class="space-y-4">
+              <div>
+                <label for="satisfy-hint" class="block text-sm font-medium text-on-surface mb-1.5">满足条件时提示</label>
+                <textarea id="satisfy-hint" class="w-full bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors" rows="2" placeholder="满足条件时显示的提示信息">规则已触发，已自动执行相应动作</textarea>
+              </div>
+              <div>
+                <label for="not-satisfy-hint" class="block text-sm font-medium text-on-surface mb-1.5">不满足条件时提示</label>
+                <textarea id="not-satisfy-hint" class="w-full bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors" rows="2" placeholder="不满足条件时显示的提示信息">规则未触发，将进入人工审批流程</textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 右侧：实时预览 -->
+        <div class="col-span-1">
+          <div class="bg-surface rounded-lg shadow-card p-5 sticky top-6">
+            <div class="flex items-center justify-between mb-4">
+              <h2 class="text-base font-semibold text-on-surface">规则预览</h2>
+              <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-success/15 text-success">
+                <i data-lucide="check-circle" class="w-3 h-3 mr-1"></i>
+                有效
+              </span>
+            </div>
+
+            <div class="space-y-4">
+              <!-- 规则摘要 -->
+              <div class="bg-surface-container-lowest rounded-md p-4">
+                <div class="flex items-center gap-2 mb-2">
+                  <i data-lucide="zap" class="w-4 h-4 text-primary"></i>
+                  <span class="text-sm font-medium text-on-surface">贸易代理自动审批</span>
+                </div>
+                <p class="text-xs text-on-surface-variant">服务产品：货代</p>
+              </div>
+
+              <!-- 条件预览 -->
+              <div>
+                <h3 class="text-sm font-medium text-on-surface mb-2">触发条件</h3>
+                <div class="space-y-2">
+                  <!-- 条件组1预览 -->
+                  <div class="bg-surface-container-lowest rounded-md p-3">
+                    <div class="text-xs text-on-surface-variant mb-2">满足以下全部条件：</div>
+                    <div class="flex items-center gap-2 text-sm">
+                      <span class="px-2 py-0.5 bg-primary/10 text-primary rounded text-xs">是否贸易代理</span>
+                      <span class="text-on-surface-variant">等于</span>
+                      <span class="px-2 py-0.5 bg-success/10 text-success rounded text-xs">是</span>
+                    </div>
+                  </div>
+                  <div class="text-center text-xs text-on-surface-variant">或</div>
+                  <!-- 条件组2预览 -->
+                  <div class="bg-surface-container-lowest rounded-md p-3">
+                    <div class="text-xs text-on-surface-variant mb-2">满足以下全部条件：</div>
+                    <div class="space-y-2">
+                      <div class="flex items-center gap-2 text-sm">
+                        <span class="px-2 py-0.5 bg-primary/10 text-primary rounded text-xs">月开票金额</span>
+                        <span class="text-on-surface-variant">小于</span>
+                        <span class="px-2 py-0.5 bg-warning/10 text-warning rounded text-xs">5000 元</span>
+                      </div>
+                      <div class="flex items-center gap-2 text-sm">
+                        <span class="px-2 py-0.5 bg-primary/10 text-primary rounded text-xs">月均订单数</span>
+                        <span class="text-on-surface-variant">小于等于</span>
+                        <span class="px-2 py-0.5 bg-warning/10 text-warning rounded text-xs">5 单</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 动作预览 -->
+              <div>
+                <h3 class="text-sm font-medium text-on-surface mb-2">执行动作</h3>
+                <div class="space-y-2">
+                  <div class="bg-surface-container-lowest rounded-md p-3 flex items-center gap-2">
+                    <i data-lucide="user-plus" class="w-4 h-4 text-success"></i>
+                    <div>
+                      <div class="text-sm text-on-surface">自动添加审批人</div>
+                      <div class="text-xs text-on-surface-variant">白沥</div>
+                    </div>
+                  </div>
+                  <div class="bg-surface-container-lowest rounded-md p-3 flex items-center gap-2">
+                    <i data-lucide="message-circle" class="w-4 h-4 text-primary"></i>
+                    <div>
+                      <div class="text-sm text-on-surface">显示提示</div>
+                      <div class="text-xs text-on-surface-variant">贸易代理已自动添加白沥作为审批人</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 测试区域 -->
+              <div class="border-t border-outline-variant/20 pt-4">
+                <h3 class="text-sm font-medium text-on-surface mb-3">测试规则</h3>
+                <div class="space-y-3">
+                  <div>
+                    <label class="block text-xs font-medium text-on-surface mb-1">是否贸易代理</label>
+                    <select id="test-isTradeAgent" class="w-full bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors">
+                      <option value="yes" selected>是</option>
+                      <option value="no">否</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block text-xs font-medium text-on-surface mb-1">月开票金额</label>
+                    <input id="test-monthlyInvoiceAmount" type="number" class="w-full bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors" value="3000">
+                  </div>
+                  <div>
+                    <label class="block text-xs font-medium text-on-surface mb-1">月均订单数</label>
+                    <input id="test-monthlyOrderCount" type="number" class="w-full bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors" value="3">
+                  </div>
+                  <button id="btn-run-test" class="w-full bg-primary text-on-primary px-4 py-2 rounded-md text-sm font-medium hover:opacity-90 active:scale-[0.98] transition-all">
+                    运行测试
+                  </button>
+                </div>
+
+                <!-- 测试结果 -->
+                <div id="test-result" class="mt-4 bg-success/10 border border-success/20 rounded-md p-3">
+                  <div class="flex items-center gap-2 mb-1">
+                    <i data-lucide="check-circle" class="w-4 h-4 text-success"></i>
+                    <span class="text-sm font-medium text-success">规则触发成功</span>
+                  </div>
+                  <p class="text-xs text-on-surface-variant">贸易代理已自动添加白沥作为审批人</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+    <!-- @main-content:end -->
+  </div>
+  <!-- @nav:end 导航组件，不需要的页面则不要复制此段 -->
+
+  <script>
+    $(function() {
+      // 返回按钮 - 点击后跳转到自动规则列表页
+      $('#btn-back').on('click', function() {
+        window.location.href = 'approval-auto-rules.html';
+      });
+
+      // 取消按钮 - 点击后跳转到自动规则列表页
+      $('#btn-cancel').on('click', function() {
+        window.location.href = 'approval-auto-rules.html';
+      });
+
+      // 保存按钮 - 点击后保存规则并跳转
+      $('#btn-save').on('click', function() {
+        console.log('保存自动审批规则');
+        // 这里可以添加保存逻辑，成功后跳转
+        window.location.href = 'approval-auto-rules.html';
+      });
+
+      // 测试规则按钮 - 点击后运行测试
+      $('#btn-test').on('click', function() {
+        console.log('测试规则');
+        // 触发测试逻辑
+        $('#btn-run-test').click();
+      });
+
+      // 添加条件组按钮
+      $('#btn-add-condition-group').on('click', function() {
+        console.log('添加条件组');
+        // 复杂交互：添加新的条件组
+        // 1. 创建新的条件组HTML结构
+        // 2. 分配唯一ID
+        // 3. 添加到条件组列表中
+        // 4. 绑定新添加元素的事件
+      });
+
+      // 删除条件组按钮
+      $('.condition-group').on('click', '.btn-delete-group', function() {
+        console.log('删除条件组');
+        // 复杂交互：删除条件组
+        // 1. 确认删除（可选）
+        // 2. 移除对应的条件组DOM元素
+        // 3. 重新编号剩余的条件组
+      });
+
+      // 添加条件按钮
+      $('.condition-group').on('click', '.btn-add-condition', function() {
+        console.log('添加条件');
+        // 复杂交互：在当前条件组内添加新条件
+        // 1. 创建新的条件行HTML结构
+        // 2. 分配唯一ID
+        // 3. 添加到当前条件组的条件列表中
+        // 4. 绑定新添加元素的事件
+      });
+
+      // 删除条件按钮
+      $('.condition-group').on('click', '.btn-delete-condition', function() {
+        console.log('删除条件');
+        // 复杂交互：删除当前条件
+        // 1. 确认删除（可选）
+        // 2. 移除对应的条件行DOM元素
+      });
+
+      // 添加动作按钮
+      $('#btn-add-action').on('click', function() {
+        console.log('添加动作');
+        // 复杂交互：添加新的动作
+        // 1. 创建新的动作项HTML结构
+        // 2. 分配唯一ID
+        // 3. 添加到动作列表中
+        // 4. 绑定新添加元素的事件
+      });
+
+      // 删除动作按钮
+      $('.action-item').on('click', '.btn-delete-action', function() {
+        console.log('删除动作');
+        // 复杂交互：删除当前动作
+        // 1. 确认删除（可选）
+        // 2. 移除对应的动作项DOM元素
+        // 3. 重新编号剩余的动作
+      });
+
+      // 动作类型变更 - 显示/隐藏相应的配置项
+      $('.action-type').on('change', function() {
+        const actionType = $(this).val();
+        const actionItem = $(this).closest('.action-item');
+        console.log('动作类型变更为:', actionType);
+        // 复杂交互：根据动作类型显示/隐藏相应的配置项
+        // 1. 隐藏所有类型特有的配置区域
+        // 2. 根据选中的动作类型显示对应的配置区域
+        // 3. 清空隐藏区域的输入值
+      });
+
+      // 运行测试按钮
+      $('#btn-run-test').on('click', function() {
+        console.log('运行规则测试');
+        const isTradeAgent = $('#test-isTradeAgent').val();
+        const monthlyInvoiceAmount = $('#test-monthlyInvoiceAmount').val();
+        const monthlyOrderCount = $('#test-monthlyOrderCount').val();
+        
+        // 简单测试逻辑
+        const shouldTrigger = isTradeAgent === 'yes' || 
+                             (parseInt(monthlyInvoiceAmount) < 5000 && parseInt(monthlyOrderCount) <= 5);
+        
+        if (shouldTrigger) {
+          $('#test-result').removeClass('bg-error/10 border-error/20').addClass('bg-success/10 border-success/20');
+          $('#test-result').html(`
+            <div class="flex items-center gap-2 mb-1">
+              <i data-lucide="check-circle" class="w-4 h-4 text-success"></i>
+              <span class="text-sm font-medium text-success">规则触发成功</span>
+            </div>
+            <p class="text-xs text-on-surface-variant">贸易代理已自动添加白沥作为审批人</p>
+          `);
+        } else {
+          $('#test-result').removeClass('bg-success/10 border-success/20').addClass('bg-error/10 border-error/20');
+          $('#test-result').html(`
+            <div class="flex items-center gap-2 mb-1">
+              <i data-lucide="x-circle" class="w-4 h-4 text-error"></i>
+              <span class="text-sm font-medium text-error">规则未触发</span>
+            </div>
+            <p class="text-xs text-on-surface-variant">不满足触发条件，将进入人工审批流程</p>
+          `);
+        }
+        lucide.createIcons();
+      });
+
+      // 条件字段变更 - 实时更新预览
+      $('.condition-field, .condition-operator, .condition-value').on('change', function() {
+        console.log('条件变更，更新预览');
+        // 复杂交互：实时更新右侧预览区域
+        // 1. 获取所有条件组的当前值
+        // 2. 更新预览区域的条件显示
+        // 3. 校验规则的有效性
+      });
+
+      // 动作配置变更 - 实时更新预览
+      $('.action-type, .action-type').closest('.action-item').find('select, textarea, input').on('change', function() {
+        console.log('动作配置变更，更新预览');
+        // 复杂交互：实时更新右侧预览区域
+        // 1. 获取所有动作的当前配置
+        // 2. 更新预览区域的动作显示
+      });
+    });
+  </script>
+  <script>lucide.createIcons();</script>
+</body>
+
+</html>

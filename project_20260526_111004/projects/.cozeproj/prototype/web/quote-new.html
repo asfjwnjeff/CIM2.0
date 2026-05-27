@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <script src="https://lf-code-agent.coze.cn/obj/x-ai-cn/cdn/jquery/jquery-3.7.1.min.js"></script>
+  <script src="https://lf-code-agent.coze.cn/obj/x-ai-cn/cdn/lucide/lucide-1.11.0.min.js"></script>
+  <script src="https://lf-code-agent.coze.cn/obj/x-ai-cn/cdn/tailwindcss/tailwindcss-browser-4.2.4.min.js"></script>
+
+  <style type="text/tailwindcss">
+    @theme {
+      /* === 品牌色 === */
+      --color-primary:              #1E40AF;
+      --color-primary-container:    #DBEAFE;
+      --color-on-primary:           #ffffff;
+      /* === 背景 / 表面 === */
+      --color-background:                 #FFFFFF;
+      --color-surface-container-lowest:   #F9FAFB;
+      --color-surface:                    #FFFFFF;
+      --color-surface-container:          #F3F4F6;
+      --color-surface-container-high:     #E5E7EB;
+      --color-surface-container-highest:  #D1D5DB;
+      /* === 文字 === */
+      --color-on-surface:           #111827;
+      --color-on-surface-variant:   #6B7280;
+      /* === 功能色 === */
+      --color-success:  #22c55e;
+      --color-error:    #ef4444;
+      --color-warning:  #f59e0b;
+      /* === 边框 === */
+      --color-outline:          #D1D5DB;
+      --color-outline-variant:  #E5E7EB;
+      /* === 圆角 === */
+      --radius-sm:   0.375rem;
+      --radius-md:   0.5rem;
+      --radius-lg:   0.75rem;
+      --radius-xl:   1rem;
+      --radius-2xl:  1.5rem;
+      --radius-full: 9999px;
+      /* === 阴影 === */
+      --shadow-card:   0 2px 8px rgba(0,0,0,0.10);
+      --shadow-float:  0 10px 25px rgba(0,0,0,0.15);
+      --shadow-dialog: 0 25px 50px rgba(0,0,0,0.20);
+      /* === 字体 === */
+      --font-sans: "Inter", "Noto Sans SC", system-ui, sans-serif;
+    }
+  </style>
+
+  <!-- 图片兜底 -->
+  <script>
+    document.addEventListener('error', function (e) {
+      const img = e.target;
+      if (img.tagName !== 'IMG' || img.dataset.fallback) return;
+      img.dataset.fallback = '1';
+      const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      const cat = img.getAttribute('data-category') || '其他';
+      const alt = img.getAttribute('alt') || '';
+      const label = esc(alt.length > 8 ? alt.slice(0, 8) + '…' : alt);
+      const icons = { '人物': '👤', '自然风景': '🏞', '动物': '🐾', '建筑城市': '🏙', '运动体育': '⚽', '交通工具': '🚗', '食物': '🍽', '服饰时尚': '👗', '商业科技': '💼', '游戏娱乐': '🎮', '艺术': '🎨', '其他': '🖼' };
+      const icon = icons[cat] || '🖼';
+      const w = img.width || 400, h = img.height || 300;
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}"><rect width="100%" height="100%" fill="%23f3f4f6"/><text x="50%" y="45%" text-anchor="middle" font-size="${Math.min(w, h) * 0.18}" dominant-baseline="central">${icon}</text><text x="50%" y="68%" text-anchor="middle" font-size="${Math.min(w, h) * 0.07}" fill="%239ca3af" font-family="system-ui,sans-serif" dominant-baseline="central">${label}</text></svg>`;
+      img.src = 'data:image/svg+xml,' + svg;
+    }, true);
+  </script>
+</head>
+
+<body class="bg-background text-on-surface font-sans min-h-screen">
+
+  <!-- @nav:start 导航组件 -->
+  <div class="flex" style="height: 100vh;">
+    <aside class="w-64 shrink-0 bg-surface-container-lowest border-r border-outline-variant/20 overflow-y-auto">
+      <div class="p-4 border-b border-outline-variant/20">
+        <div class="flex items-center gap-2">
+          <i data-lucide="building" class="text-primary w-6 h-6"></i>
+          <span class="font-bold text-lg">CIM V2.0</span>
+        </div>
+      </div>
+      <div class="p-3 space-y-1">
+        <a href="customers.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors">
+          <i data-lucide="users" class="w-4 h-4"></i>客户管理
+        </a>
+        <a href="opportunities.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors">
+          <i data-lucide="target" class="w-4 h-4"></i>商机管理
+        </a>
+        <a href="followup.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors">
+          <i data-lucide="message-square" class="w-4 h-4"></i>客户跟进
+        </a>
+        <a href="quotes.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md bg-primary/10 text-primary font-medium text-sm transition-colors" aria-current="page">
+          <i data-lucide="file-text" class="w-4 h-4"></i>售前报价
+        </a>
+        <a href="approvals.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors">
+          <i data-lucide="shield-check" class="w-4 h-4"></i>风控审批
+        </a>
+        <div class="pt-2 mt-2 border-t border-outline-variant/20">
+          <a href="rules.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors">
+            <i data-lucide="settings" class="w-4 h-4"></i>规则配置
+          </a>
+        </div>
+      </div>
+    </aside>
+
+    <div class="flex-1 flex flex-col min-w-0">
+      <header class="bg-surface border-b border-outline-variant/20 h-16 flex items-center justify-between px-6">
+        <div class="flex items-center gap-4">
+          <h1 class="text-xl font-semibold" id="page-title">新增报价</h1>
+        </div>
+        <div class="flex items-center gap-4">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center text-sm font-medium">初</div>
+            <span class="text-sm text-on-surface">小初</span>
+          </div>
+        </div>
+      </header>
+  <!-- @nav:end 导航组件 -->
+
+      <!-- @main-content:start -->
+      <main class="flex-1 min-w-0 overflow-y-auto bg-background p-6">
+        <!-- 顶部操作栏 -->
+        <div class="flex items-center justify-between mb-6">
+          <div class="flex items-center gap-3">
+            <button id="btn-back" class="flex items-center gap-2 text-on-surface-variant hover:text-on-surface transition-colors">
+              <i data-lucide="arrow-left" class="w-4 h-4"></i>
+              <span class="text-sm font-medium">返回</span>
+            </button>
+          </div>
+          <div class="flex items-center gap-3">
+            <button id="btn-cancel" class="bg-surface-container text-on-surface border-none px-4 py-2 rounded-md text-sm font-medium hover:bg-surface-container-high active:scale-[0.98] transition-all">取消</button>
+            <button id="btn-save-draft" class="bg-surface-container text-on-surface border-none px-4 py-2 rounded-md text-sm font-medium hover:bg-surface-container-high active:scale-[0.98] transition-all">保存草稿</button>
+            <button id="btn-submit" class="bg-primary text-on-primary px-4 py-2 rounded-md text-sm font-medium hover:opacity-90 active:scale-[0.98] transition-all inline-flex items-center gap-2">
+              <i data-lucide="send" class="w-3.5 h-3.5"></i>提交报价
+            </button>
+          </div>
+        </div>
+
+        <!-- 表单内容区 -->
+        <div class="space-y-6">
+          <!-- 区块一：报价单头信息 -->
+          <div class="bg-surface rounded-lg shadow-card p-5">
+            <h2 class="text-base font-semibold text-on-surface mb-4">基本信息</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div class="space-y-1.5">
+                <label class="text-sm font-medium text-on-surface">报价单名称</label>
+                <input id="quote-title" type="text" class="w-full bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors" placeholder="请输入报价单名称" value="2024年度半导体设备物流服务报价">
+              </div>
+              <div class="space-y-1.5">
+                <label class="text-sm font-medium text-on-surface">关联客户</label>
+                <div class="flex items-center gap-2">
+                  <input id="customer-name" type="text" class="flex-1 bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors" placeholder="请选择客户" value="上海芯智科技有限公司" readonly>
+                  <button id="btn-select-customer" class="bg-surface-container text-on-surface border-none px-3 py-2 rounded-md text-sm font-medium hover:bg-surface-container-high active:scale-[0.98] transition-all">
+                    <i data-lucide="search" class="w-4 h-4"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="space-y-1.5">
+                <label class="text-sm font-medium text-on-surface">关联商机 *</label>
+                <div class="flex items-center gap-2">
+                  <input id="opportunity-name" type="text" class="flex-1 bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors" placeholder="请选择商机" value="2024年Q2芯片进口物流项目" readonly>
+                  <button id="btn-select-opportunity" class="bg-surface-container text-on-surface border-none px-3 py-2 rounded-md text-sm font-medium hover:bg-surface-container-high active:scale-[0.98] transition-all">
+                    <i data-lucide="search" class="w-4 h-4"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="space-y-1.5">
+                <label class="text-sm font-medium text-on-surface">服务产品</label>
+                <input id="service-product" type="text" class="w-full bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors" placeholder="从商机继承" value="进出口 + 运输" readonly>
+              </div>
+              <div class="space-y-1.5">
+                <label class="text-sm font-medium text-on-surface">泓明主体</label>
+                <select id="hmg-entity" class="w-full bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors">
+                  <option>请选择泓明主体</option>
+                  <option selected>上海泓明供应链有限公司</option>
+                  <option>深圳泓明物流有限公司</option>
+                  <option>北京泓明国际货运代理有限公司</option>
+                </select>
+              </div>
+              <div class="space-y-1.5">
+                <label class="text-sm font-medium text-on-surface">所属部门</label>
+                <select id="department" class="w-full bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors">
+                  <option>请选择部门</option>
+                  <option selected>半导体事业部</option>
+                  <option>综合物流部</option>
+                  <option>关务服务部</option>
+                </select>
+              </div>
+              <div class="space-y-1.5">
+                <label class="text-sm font-medium text-on-surface">币别</label>
+                <select id="currency" class="w-full bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors">
+                  <option>请选择币别</option>
+                  <option selected>人民币 (CNY)</option>
+                  <option>美元 (USD)</option>
+                  <option>欧元 (EUR)</option>
+                </select>
+              </div>
+              <div class="space-y-1.5">
+                <label class="text-sm font-medium text-on-surface">计税方式</label>
+                <div class="flex items-center gap-4">
+                  <label class="flex items-center gap-2">
+                    <input type="radio" name="tax-type" class="w-4 h-4 text-primary" checked>
+                    <span class="text-sm text-on-surface">含税</span>
+                  </label>
+                  <label class="flex items-center gap-2">
+                    <input type="radio" name="tax-type" class="w-4 h-4 text-primary">
+                    <span class="text-sm text-on-surface">不含税</span>
+                  </label>
+                </div>
+              </div>
+              <div class="space-y-1.5">
+                <label class="text-sm font-medium text-on-surface">税率</label>
+                <select id="tax-rate" class="w-full bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors">
+                  <option>请选择税率</option>
+                  <option selected>13%</option>
+                  <option>9%</option>
+                  <option>6%</option>
+                  <option>0%</option>
+                </select>
+              </div>
+              <div class="space-y-1.5">
+                <label class="text-sm font-medium text-on-surface">有效期起</label>
+                <input id="effective-from" type="date" class="w-full bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors" value="2024-01-01">
+              </div>
+              <div class="space-y-1.5">
+                <label class="text-sm font-medium text-on-surface">有效期至</label>
+                <input id="effective-to" type="date" class="w-full bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors" value="2024-12-31">
+              </div>
+            </div>
+            <div class="mt-4 space-y-1.5">
+              <label class="text-sm font-medium text-on-surface">报价说明</label>
+              <textarea id="declaration" rows="3" class="w-full bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors" placeholder="请输入报价说明">1. 本报价基于当前市场情况，如有变动将另行通知；
+2. 以上价格不含特殊货物处理费用；
+3. 报价有效期至2024年12月31日。</textarea>
+            </div>
+          </div>
+
+          <!-- 区块二：报价明细行 -->
+          <div class="bg-surface rounded-lg shadow-card p-5">
+            <div class="flex items-center justify-between mb-4">
+              <h2 class="text-base font-semibold text-on-surface">报价明细</h2>
+              <div class="flex items-center gap-2">
+                <button id="btn-add-template" class="bg-surface-container text-on-surface border-none px-3 py-2 rounded-md text-sm font-medium hover:bg-surface-container-high active:scale-[0.98] transition-all flex items-center gap-2">
+                  <i data-lucide="layers" class="w-4 h-4"></i>选择业务模板
+                </button>
+                <button id="btn-add-item" class="bg-primary text-on-primary px-3 py-2 rounded-md text-sm font-medium hover:opacity-90 active:scale-[0.98] transition-all flex items-center gap-2">
+                  <i data-lucide="plus" class="w-4 h-4"></i>添加行
+                </button>
+              </div>
+            </div>
+            
+            <!-- 报价明细表格 -->
+            <div class="overflow-x-auto">
+              <table class="w-full">
+                <thead>
+                  <tr class="bg-surface-container">
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-on-surface-variant uppercase tracking-wide">业务分组</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-on-surface-variant uppercase tracking-wide">产品一级</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-on-surface-variant uppercase tracking-wide">产品二级</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-on-surface-variant uppercase tracking-wide">产品三级</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-on-surface-variant uppercase tracking-wide">单位</th>
+                    <th class="px-4 py-3 text-right text-xs font-semibold text-on-surface-variant uppercase tracking-wide">单价</th>
+                    <th class="px-4 py-3 text-right text-xs font-semibold text-on-surface-variant uppercase tracking-wide">行折扣</th>
+                    <th class="px-4 py-3 text-right text-xs font-semibold text-on-surface-variant uppercase tracking-wide">折后单价</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-on-surface-variant uppercase tracking-wide">备注</th>
+                    <th class="px-4 py-3 text-center text-xs font-semibold text-on-surface-variant uppercase tracking-wide">操作</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-outline-variant/50">
+                  <!-- 列表-报价明细1 -->
+                  <tr class="hover:bg-surface-container/50 transition-colors">
+                    <td class="px-4 py-3">
+                      <select class="w-full bg-surface-container border-none rounded-md px-2 py-1.5 text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors">
+                        <option>请选择</option>
+                        <option selected>进出口</option>
+                        <option>货代</option>
+                        <option>关务</option>
+                        <option>仓储</option>
+                        <option>运输</option>
+                      </select>
+                    </td>
+                    <td class="px-4 py-3"><input type="text" class="w-full bg-surface-container border-none rounded-md px-2 py-1.5 text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors" value="进口代理"></td>
+                    <td class="px-4 py-3"><input type="text" class="w-full bg-surface-container border-none rounded-md px-2 py-1.5 text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors" value="通关服务"></td>
+                    <td class="px-4 py-3"><input type="text" class="w-full bg-surface-container border-none rounded-md px-2 py-1.5 text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors" value="口岸清关"></td>
+                    <td class="px-4 py-3"><input type="text" class="w-full bg-surface-container border-none rounded-md px-2 py-1.5 text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors" value="票"></td>
+                    <td class="px-4 py-3 text-right"><input type="number" class="w-24 bg-surface-container border-none rounded-md px-2 py-1.5 text-sm text-on-surface text-right focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors" value="800.00"></td>
+                    <td class="px-4 py-3 text-right"><input type="number" class="w-20 bg-surface-container border-none rounded-md px-2 py-1.5 text-sm text-on-surface text-right focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors" value="100"></td>
+                    <td class="px-4 py-3 text-right text-sm font-medium text-primary">¥800.00</td>
+                    <td class="px-4 py-3"><input type="text" class="w-full bg-surface-container border-none rounded-md px-2 py-1.5 text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors" value="含换单费"></td>
+                    <td class="px-4 py-3 text-center">
+                      <button class="text-error text-sm font-medium hover:underline" data-action="delete-item">删除</button>
+                    </td>
+                  </tr>
+                  <!-- 列表-报价明细2 -->
+                  <tr class="hover:bg-surface-container/50 transition-colors">
+                    <td class="px-4 py-3">
+                      <select class="w-full bg-surface-container border-none rounded-md px-2 py-1.5 text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors">
+                        <option>请选择</option>
+                        <option>进出口</option>
+                        <option>货代</option>
+                        <option>关务</option>
+                        <option selected>运输</option>
+                        <option>仓储</option>
+                      </select>
+                    </td>
+                    <td class="px-4 py-3"><input type="text" class="w-full bg-surface-container border-none rounded-md px-2 py-1.5 text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors" value="国内运输"></td>
+                    <td class="px-4 py-3"><input type="text" class="w-full bg-surface-container border-none rounded-md px-2 py-1.5 text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors" value="干线运输"></td>
+                    <td class="px-4 py-3"><input type="text" class="w-full bg-surface-container border-none rounded-md px-2 py-1.5 text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors" value="上海-深圳"></td>
+                    <td class="px-4 py-3"><input type="text" class="w-full bg-surface-container border-none rounded-md px-2 py-1.5 text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors" value="kg"></td>
+                    <td class="px-4 py-3 text-right"><input type="number" class="w-24 bg-surface-container border-none rounded-md px-2 py-1.5 text-sm text-on-surface text-right focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors" value="12.50"></td>
+                    <td class="px-4 py-3 text-right"><input type="number" class="w-20 bg-surface-container border-none rounded-md px-2 py-1.5 text-sm text-on-surface text-right focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors" value="95"></td>
+                    <td class="px-4 py-3 text-right text-sm font-medium text-primary">¥11.88</td>
+                    <td class="px-4 py-3"><input type="text" class="w-full bg-surface-container border-none rounded-md px-2 py-1.5 text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors" value="含保险费"></td>
+                    <td class="px-4 py-3 text-center">
+                      <button class="text-error text-sm font-medium hover:underline" data-action="delete-item">删除</button>
+                    </td>
+                  </tr>
+                  <!-- 列表-报价明细3 -->
+                  <tr class="hover:bg-surface-container/50 transition-colors">
+                    <td class="px-4 py-3">
+                      <select class="w-full bg-surface-container border-none rounded-md px-2 py-1.5 text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors">
+                        <option>请选择</option>
+                        <option>进出口</option>
+                        <option>货代</option>
+                        <option selected>关务</option>
+                        <option>运输</option>
+                        <option>仓储</option>
+                      </select>
+                    </td>
+                    <td class="px-4 py-3"><input type="text" class="w-full bg-surface-container border-none rounded-md px-2 py-1.5 text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors" value="报关服务"></td>
+                    <td class="px-4 py-3"><input type="text" class="w-full bg-surface-container border-none rounded-md px-2 py-1.5 text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors" value="代理报关"></td>
+                    <td class="px-4 py-3"><input type="text" class="w-full bg-surface-container border-none rounded-md px-2 py-1.5 text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors" value="一般贸易"></td>
+                    <td class="px-4 py-3"><input type="text" class="w-full bg-surface-container border-none rounded-md px-2 py-1.5 text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors" value="票"></td>
+                    <td class="px-4 py-3 text-right"><input type="number" class="w-24 bg-surface-container border-none rounded-md px-2 py-1.5 text-sm text-on-surface text-right focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors" value="350.00"></td>
+                    <td class="px-4 py-3 text-right"><input type="number" class="w-20 bg-surface-container border-none rounded-md px-2 py-1.5 text-sm text-on-surface text-right focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors" value="100"></td>
+                    <td class="px-4 py-3 text-right text-sm font-medium text-primary">¥350.00</td>
+                    <td class="px-4 py-3"><input type="text" class="w-full bg-surface-container border-none rounded-md px-2 py-1.5 text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors" value="不含商检费"></td>
+                    <td class="px-4 py-3 text-center">
+                      <button class="text-error text-sm font-medium hover:underline" data-action="delete-item">删除</button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            
+            <!-- 汇总信息 -->
+            <div class="mt-4 flex items-center justify-end gap-8">
+              <div class="text-right">
+                <div class="text-sm text-on-surface-variant">报价总计</div>
+                <div class="text-2xl font-bold text-primary">¥1,261.88</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 区块三：附件信息 -->
+          <div class="bg-surface rounded-lg shadow-card p-5">
+            <div class="flex items-center justify-between mb-4">
+              <h2 class="text-base font-semibold text-on-surface">附件信息</h2>
+              <button id="btn-upload-attachment" class="bg-primary text-on-primary px-3 py-2 rounded-md text-sm font-medium hover:opacity-90 active:scale-[0.98] transition-all flex items-center gap-2">
+                <i data-lucide="upload" class="w-4 h-4"></i>上传附件
+              </button>
+            </div>
+            <div class="space-y-2">
+              <!-- 列表-附件1 -->
+              <div class="flex items-center justify-between p-3 bg-surface-container/50 rounded-md">
+                <div class="flex items-center gap-3">
+                  <i data-lucide="file-text" class="w-5 h-5 text-on-surface-variant"></i>
+                  <div>
+                    <div class="text-sm font-medium text-on-surface">报价方案说明.docx</div>
+                    <div class="text-xs text-on-surface-variant">2.3 MB · 2024-01-15 10:30</div>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2">
+                  <button class="text-primary text-sm font-medium hover:underline">下载</button>
+                  <button class="text-error text-sm font-medium hover:underline">删除</button>
+                </div>
+              </div>
+              <!-- 列表-附件2 -->
+              <div class="flex items-center justify-between p-3 bg-surface-container/50 rounded-md">
+                <div class="flex items-center gap-3">
+                  <i data-lucide="file-spreadsheet" class="w-5 h-5 text-on-surface-variant"></i>
+                  <div>
+                    <div class="text-sm font-medium text-on-surface">成本测算表.xlsx</div>
+                    <div class="text-xs text-on-surface-variant">1.8 MB · 2024-01-15 10:28</div>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2">
+                  <button class="text-primary text-sm font-medium hover:underline">下载</button>
+                  <button class="text-error text-sm font-medium hover:underline">删除</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+      <!-- @main-content:end -->
+
+      <!-- 选择客户和商机弹窗 -->
+      <div id="modal-select-customer" class="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-surface rounded-xl shadow-dialog max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+          <div class="p-6 border-b border-outline-variant/20">
+            <div class="flex items-center justify-between">
+              <h3 class="text-lg font-semibold text-on-surface">选择客户和商机</h3>
+              <button id="btn-close-modal" class="text-on-surface-variant hover:text-on-surface transition-colors">
+                <i data-lucide="x" class="w-5 h-5"></i>
+              </button>
+            </div>
+          </div>
+          
+          <div class="p-6 space-y-6">
+            <!-- 客户选择 -->
+            <div class="space-y-2">
+              <label class="text-sm font-medium text-on-surface">选择客户</label>
+              <div class="space-y-2">
+                <!-- 列表-客户1 -->
+                <label class="flex items-center gap-3 p-3 bg-surface-container/50 rounded-md cursor-pointer hover:bg-surface-container transition-colors">
+                  <input type="radio" name="customer" value="1" class="w-4 h-4 text-primary" checked>
+                  <div class="flex-1">
+                    <div class="text-sm font-medium text-on-surface">上海芯智科技有限公司</div>
+                    <div class="text-xs text-on-surface-variant">统一社会信用代码：91310000MA1FL3XK8E</div>
+                  </div>
+                </label>
+                <!-- 列表-客户2 -->
+                <label class="flex items-center gap-3 p-3 bg-surface-container/50 rounded-md cursor-pointer hover:bg-surface-container transition-colors">
+                  <input type="radio" name="customer" value="2" class="w-4 h-4 text-primary">
+                  <div class="flex-1">
+                    <div class="text-sm font-medium text-on-surface">深圳微芯电子有限公司</div>
+                    <div class="text-xs text-on-surface-variant">统一社会信用代码：91440300MA5D8XK8E</div>
+                  </div>
+                </label>
+                <!-- 列表-客户3 -->
+                <label class="flex items-center gap-3 p-3 bg-surface-container/50 rounded-md cursor-pointer hover:bg-surface-container transition-colors">
+                  <input type="radio" name="customer" value="3" class="w-4 h-4 text-primary">
+                  <div class="flex-1">
+                    <div class="text-sm font-medium text-on-surface">北京晶源半导体有限公司</div>
+                    <div class="text-xs text-on-surface-variant">统一社会信用代码：91110000MA00XK8E</div>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            <!-- 商机选择 -->
+            <div class="space-y-2">
+              <label class="text-sm font-medium text-on-surface">选择商机 *</label>
+              <div class="space-y-2">
+                <!-- 列表-商机1 -->
+                <label class="flex items-center gap-3 p-3 bg-surface-container/50 rounded-md cursor-pointer hover:bg-surface-container transition-colors">
+                  <input type="radio" name="opportunity" value="1" class="w-4 h-4 text-primary" checked>
+                  <div class="flex-1">
+                    <div class="text-sm font-medium text-on-surface">2024年Q2芯片进口物流项目</div>
+                    <div class="text-xs text-on-surface-variant">服务产品：进出口 + 运输 · 预估金额：¥500,000</div>
+                  </div>
+                </label>
+                <!-- 列表-商机2 -->
+                <label class="flex items-center gap-3 p-3 bg-surface-container/50 rounded-md cursor-pointer hover:bg-surface-container transition-colors">
+                  <input type="radio" name="opportunity" value="2" class="w-4 h-4 text-primary">
+                  <div class="flex-1">
+                    <div class="text-sm font-medium text-on-surface">半导体设备仓储服务项目</div>
+                    <div class="text-xs text-on-surface-variant">服务产品：仓储 · 预估金额：¥300,000</div>
+                  </div>
+                </label>
+                <!-- 列表-商机3 -->
+                <label class="flex items-center gap-3 p-3 bg-surface-container/50 rounded-md cursor-pointer hover:bg-surface-container transition-colors">
+                  <input type="radio" name="opportunity" value="3" class="w-4 h-4 text-primary">
+                  <div class="flex-1">
+                    <div class="text-sm font-medium text-on-surface">晶圆出口报关项目</div>
+                    <div class="text-xs text-on-surface-variant">服务产品：关务 · 预估金额：¥200,000</div>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            <!-- 业务模板选择 -->
+            <div class="space-y-2">
+              <label class="text-sm font-medium text-on-surface">选择业务模板（可多选）</label>
+              <div class="space-y-2">
+                <!-- 列表-业务模板1 -->
+                <label class="flex items-center gap-3 p-3 bg-surface-container/50 rounded-md cursor-pointer hover:bg-surface-container transition-colors">
+                  <input type="checkbox" name="template" value="1" class="w-4 h-4 text-primary" checked>
+                  <div class="flex-1">
+                    <div class="text-sm font-medium text-on-surface">半导体进出口标准模板</div>
+                    <div class="text-xs text-on-surface-variant">适用业务：进出口 · 费用行数：15 · 维护人：张经理</div>
+                  </div>
+                </label>
+                <!-- 列表-业务模板2 -->
+                <label class="flex items-center gap-3 p-3 bg-surface-container/50 rounded-md cursor-pointer hover:bg-surface-container transition-colors">
+                  <input type="checkbox" name="template" value="2" class="w-4 h-4 text-primary">
+                  <div class="flex-1">
+                    <div class="text-sm font-medium text-on-surface">国内运输服务模板</div>
+                    <div class="text-xs text-on-surface-variant">适用业务：运输 · 费用行数：8 · 维护人：李经理</div>
+                  </div>
+                </label>
+                <!-- 列表-业务模板3 -->
+                <label class="flex items-center gap-3 p-3 bg-surface-container/50 rounded-md cursor-pointer hover:bg-surface-container transition-colors">
+                  <input type="checkbox" name="template" value="3" class="w-4 h-4 text-primary" checked>
+                  <div class="flex-1">
+                    <div class="text-sm font-medium text-on-surface">关务报关服务模板</div>
+                    <div class="text-xs text-on-surface-variant">适用业务：关务 · 费用行数：10 · 维护人：王经理</div>
+                  </div>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="p-6 border-t border-outline-variant/20 flex items-center justify-end gap-3">
+            <button id="btn-cancel-modal" class="bg-surface-container text-on-surface border-none px-4 py-2 rounded-md text-sm font-medium hover:bg-surface-container-high active:scale-[0.98] transition-all">取消</button>
+            <button id="btn-confirm-modal" class="bg-primary text-on-primary px-4 py-2 rounded-md text-sm font-medium hover:opacity-90 active:scale-[0.98] transition-all inline-flex items-center gap-2">
+              <i data-lucide="check" class="w-3.5 h-3.5"></i>确认选择
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    lucide.createIcons();
+
+    $(function() {
+      // 返回按钮
+      $('#btn-back').on('click', function() {
+        window.location.href = 'quotes.html';
+      });
+
+      // 取消按钮
+      $('#btn-cancel').on('click', function() {
+        window.location.href = 'quotes.html';
+      });
+
+      // 保存草稿按钮
+      $('#btn-save-draft').on('click', function() {
+        console.log('保存报价草稿');
+        alert('报价单已保存为草稿！');
+      });
+
+      // 提交报价按钮
+      $('#btn-submit').on('click', function() {
+        console.log('提交报价');
+        alert('报价单已提交！');
+        window.location.href = 'quotes.html';
+      });
+
+      // 打开选择客户/商机/模板弹窗
+      $('#btn-select-customer, #btn-select-opportunity, #btn-add-template').on('click', function() {
+        $('#modal-select-customer').removeClass('hidden');
+      });
+
+      // 关闭弹窗
+      $('#btn-close-modal, #btn-cancel-modal').on('click', function() {
+        $('#modal-select-customer').addClass('hidden');
+      });
+
+      // 确认选择
+      $('#btn-confirm-modal').on('click', function() {
+        console.log('确认选择客户、商机和业务模板');
+        $('#modal-select-customer').addClass('hidden');
+      });
+
+      // 删除报价明细行
+      $('tbody').on('click', '[data-action="delete-item"]', function() {
+        $(this).closest('tr').remove();
+        console.log('删除报价明细行');
+      });
+
+      // 添加报价明细行
+      $('#btn-add-item').on('click', function() {
+        console.log('添加报价明细行 - 应实现：在表格末尾添加一行空的报价明细');
+        alert('添加报价明细行功能');
+      });
+
+      // 上传附件
+      $('#btn-upload-attachment').on('click', function() {
+        console.log('上传附件 - 应实现：打开文件选择对话框，支持上传多个文件');
+        alert('上传附件功能');
+      });
+
+      // 点击弹窗外部关闭
+      $('#modal-select-customer').on('click', function(e) {
+        if (e.target === this) {
+          $(this).addClass('hidden');
+        }
+      });
+    });
+  </script>
+</body>
+
+</html>

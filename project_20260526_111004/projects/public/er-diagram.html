@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CIM客户信息管理系统 - 数据模型ER图</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #1A2FFF 0%, #3a4fff 100%);
+            color: white;
+            padding: 30px 40px;
+        }
+        .header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        .nav-tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .nav-tab {
+            padding: 16px 30px;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            font-size: 14px;
+            font-weight: 500;
+            color: #6c757d;
+            transition: all 0.2s;
+            border-bottom: 3px solid transparent;
+        }
+        .nav-tab:hover {
+            color: #1A2FFF;
+            background: rgba(26, 47, 255, 0.05);
+        }
+        .nav-tab.active {
+            color: #1A2FFF;
+            border-bottom-color: #1A2FFF;
+            background: white;
+        }
+        .content {
+            padding: 40px;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .mermaid {
+            background: #fafbfc;
+            border-radius: 8px;
+            padding: 30px;
+            border: 1px solid #e9ecef;
+            overflow-x: auto;
+        }
+        .entity-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .entity-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            border-left: 4px solid #1A2FFF;
+        }
+        .entity-card h3 {
+            font-size: 16px;
+            color: #1A2FFF;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+        .entity-card p {
+            font-size: 13px;
+            color: #6c757d;
+            line-height: 1.6;
+        }
+        .entity-card .pk {
+            display: inline-block;
+            background: #1A2FFF;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            margin-top: 10px;
+        }
+        .flow-diagram {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 8px;
+            padding: 40px;
+            margin-top: 30px;
+        }
+        .flow-step {
+            display: flex;
+            align-items: center;
+            margin: 20px 0;
+        }
+        .flow-step-number {
+            width: 40px;
+            height: 40px;
+            background: #1A2FFF;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+        .flow-step-content {
+            margin-left: 20px;
+            background: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .flow-arrow {
+            text-align: center;
+            color: #1A2FFF;
+            font-size: 24px;
+            margin: 10px 0;
+        }
+        .legend {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .legend h3 {
+            font-size: 14px;
+            color: #495057;
+            margin-bottom: 15px;
+        }
+        .legend-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+        }
+        .legend-box {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+        .legend-box.entity { background: #e3f2fd; border: 2px solid #1976d2; }
+        .legend-box.relation { background: #f3e5f5; border: 2px solid #7b1fa2; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏗️ CIM客户信息管理系统</h1>
+            <p>数据模型ER图 - 实体关系设计</p>
+        </div>
+
+        <div class="nav-tabs">
+            <button class="nav-tab active" data-tab="er">ER图</button>
+            <button class="nav-tab" data-tab="entities">实体列表</button>
+            <button class="nav-tab" data-tab="flow">业务流程</button>
+        </div>
+
+        <div class="content">
+            <!-- ER图 -->
+            <div class="tab-content active" id="tab-er">
+                <h2 style="font-size: 20px; color: #212529; margin-bottom: 20px;">📊 实体关系图</h2>
+                <div class="mermaid">
+erDiagram
+    Customer ||--o{ BillingEntity : "拥有(关联)"
+    Customer ||--o{ BillingRule : "配置"
+    Customer ||--o{ OrderMapping : "产生"
+    Customer ||--o{ RelatedCompany : "关联"
+    Customer ||--o{ CompanyProduct : "经营"
+    Customer ||--o{ AuditLog : "被审计"
+    Customer ||--o{ OperationLog : "被操作"
+
+    BillingRule }o--|| BillingEntity : "目标主体"
+
+    OrderMapping }o--|| Customer : "属于"
+    OrderMapping }o--|| BillingEntity : "映射到"
+    OrderMapping }o--|| BillingRule : "匹配规则"
+
+    SystemField ||--o{ SplitField : "系统定义"
+
+    User ||--o{ AuditLog : "执行"
+    User ||--o{ OperationLog : "执行"
+
+    Customer {
+        string id PK
+        string name
+        string erpCustomerId
+        string signingEntity
+        string serviceEntity
+        string[] billingEntities
+        string[] ruleIds
+        Status status
+        string createdAt
+        string updatedAt
+    }
+
+    BillingEntity {
+        string id PK
+        string name
+        string code
+        string taxId
+        string settlementEntity
+        Status status
+        string createdAt
+    }
+
+    BillingRule {
+        string id PK
+        string customerId FK
+        string customerName
+        string name
+        int priority
+        RuleGroup conditionGroup
+        string targetBillingEntity
+        string targetBillingEntityId FK
+        Status status
+        string remark
+        string createdAt
+    }
+
+    OrderMapping {
+        string id PK
+        string orderNumber
+        string customerId FK
+        string customerName
+        json splitParams
+        string billingEntityId FK
+        string billingEntityName
+        string matchedRuleId FK
+        string matchedRuleName
+        string splitAt
+        string operator
+        string status
+    }
+
+    SplitField {
+        string id PK
+        string name
+        string fieldKey
+        FieldType type
+        string[] options
+        boolean required
+        FieldCategory category
+    }
+
+    SystemField {
+        string id PK
+        string field
+        string label
+        string type
+        string[] options
+        boolean required
+        Status status
+    }
+
+    User {
+        string id PK
+        string name
+        string role
+        string avatar
+    }
+
+    AuditLog {
+        string id PK
+        string timestamp
+        string operator
+        string operatorId
+        string action
+        string targetType
+        string targetId
+        string customerId FK
+    }
+
+    OperationLog {
+        string id PK
+        string timestamp
+        string operator
+        string action
+        string target
+        string customerId FK
+        string module
+    }
+
+    RelatedCompany {
+        string id PK
+        string relatedCompanyId
+        string relatedCompanyName
+        string relation
+        string createdAt
+    }
+
+    CompanyProduct {
+        string id PK
+        string productName
+        string productCode
+        string origin
+        string createdAt
+    }
+                </div>
+            </div>
+
+            <!-- 实体列表 -->
+            <div class="tab-content" id="tab-entities">
+                <h2 style="font-size: 20px; color: #212529; margin-bottom: 20px;">📋 核心实体说明</h2>
+                
+                <div class="entity-list">
+                    <div class="entity-card">
+                        <h3>Customer (客户)</h3>
+                        <p>系统核心实体，存储客户的所有信息，包括基本信息、工商信息、产业链信息、关联企业、经营商品等。</p>
+                        <span class="pk">PK: id</span>
+                    </div>
+                    
+                    <div class="entity-card">
+                        <h3>BillingEntity (账单主体)</h3>
+                        <p>账单拆分的目标主体，如FWD-8635、物流部等，是规则匹配的输出结果。</p>
+                        <span class="pk">PK: id</span>
+                    </div>
+                    
+                    <div class="entity-card">
+                        <h3>BillingRule (账单拆分规则)</h3>
+                        <p>定义如何将订单拆分到不同账单主体的规则，支持嵌套AND/OR条件组。</p>
+                        <span class="pk">PK: id</span>
+                    </div>
+                    
+                    <div class="entity-card">
+                        <h3>OrderMapping (订单映射)</h3>
+                        <p>记录订单与账单主体的匹配结果，包含拆分参数、匹配规则、操作人等信息。</p>
+                        <span class="pk">PK: id</span>
+                    </div>
+                    
+                    <div class="entity-card">
+                        <h3>SplitField (拆分字段)</h3>
+                        <p>客户自定义的拆分字段配置，包括字段名称、类型、可选值等。</p>
+                        <span class="pk">PK: id</span>
+                    </div>
+                    
+                    <div class="entity-card">
+                        <h3>SystemField (系统字段)</h3>
+                        <p>系统预定义的拆分字段模板，作为客户自定义字段的基础。</p>
+                        <span class="pk">PK: id</span>
+                    </div>
+                    
+                    <div class="entity-card">
+                        <h3>RelatedCompany (关联企业)</h3>
+                        <p>客户的上下游关联企业，包括供应商、代工厂、采购商、合作伙伴等。</p>
+                        <span class="pk">PK: id</span>
+                    </div>
+                    
+                    <div class="entity-card">
+                        <h3>CompanyProduct (经营商品)</h3>
+                        <p>客户经营的商品档案，包括商品名称、编码、报关要素、产地等。</p>
+                        <span class="pk">PK: id</span>
+                    </div>
+                    
+                    <div class="entity-card">
+                        <h3>User (用户)</h3>
+                        <p>系统用户，包括管理员、操作员、查看者等角色。</p>
+                        <span class="pk">PK: id</span>
+                    </div>
+                    
+                    <div class="entity-card">
+                        <h3>AuditLog (审计日志)</h3>
+                        <p>详细的字段级变更记录，记录谁在什么时间修改了什么字段的什么值。</p>
+                        <span class="pk">PK: id</span>
+                    </div>
+                    
+                    <div class="entity-card">
+                        <h3>OperationLog (操作日志)</h3>
+                        <p>简化的操作记录，记录用户的主要操作行为。</p>
+                        <span class="pk">PK: id</span>
+                    </div>
+                </div>
+
+                <div class="legend">
+                    <h3>🔍 关系符号说明</h3>
+                    <div class="legend-items">
+                        <div class="legend-item">
+                            <span style="font-family: monospace;">||--o{</span>
+                            <span>一对多关系（一个客户拥有多个账单主体）</span>
+                        </div>
+                        <div class="legend-item">
+                            <span style="font-family: monospace;">}o--||</span>
+                            <span>多对一关系（多个规则指向一个账单主体）</span>
+                        </div>
+                        <div class="legend-item">
+                            <span style="font-family: monospace;">PK</span>
+                            <span>主键（Primary Key）</span>
+                        </div>
+                        <div class="legend-item">
+                            <span style="font-family: monospace;">FK</span>
+                            <span>外键（Foreign Key）</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 业务流程 -->
+            <div class="tab-content" id="tab-flow">
+                <h2 style="font-size: 20px; color: #212529; margin-bottom: 20px;">🔄 关键业务流程</h2>
+                
+                <div class="flow-diagram">
+                    <h3 style="font-size: 18px; color: #1A2FFF; margin-bottom: 25px;">📦 账单拆分流程</h3>
+                    
+                    <div class="flow-step">
+                        <div class="flow-step-number">1</div>
+                        <div class="flow-step-content">
+                            <strong>COS 获取字段配置</strong><br>
+                            COS 调用 CIM 接口获取客户的账单区分字段配置
+                        </div>
+                    </div>
+                    <div class="flow-arrow">↓</div>
+                    <div class="flow-step">
+                        <div class="flow-step-number">2</div>
+                        <div class="flow-step-content">
+                            <strong>用户录入字段值</strong><br>
+                            用户在 COS 中录入订单及账单区分字段值（Plant、Location、客户部门等）
+                        </div>
+                    </div>
+                    <div class="flow-arrow">↓</div>
+                    <div class="flow-step">
+                        <div class="flow-step-number">3</div>
+                        <div class="flow-step-content">
+                            <strong>COS 发送订单到 CIM</strong><br>
+                            COS 将订单号、客户ID、字段值发送给 CIM
+                        </div>
+                    </div>
+                    <div class="flow-arrow">↓</div>
+                    <div class="flow-step">
+                        <div class="flow-step-number">4</div>
+                        <div class="flow-step-content">
+                            <strong>CIM 匹配规则</strong><br>
+                            CIM 按优先级从高到低匹配 BillingRule，首次匹配成功即返回
+                        </div>
+                    </div>
+                    <div class="flow-arrow">↓</div>
+                    <div class="flow-step">
+                        <div class="flow-step-number">5</div>
+                        <div class="flow-step-content">
+                            <strong>返回账单主体</strong><br>
+                            CIM 返回匹配的 BillingEntity 给 COS
+                        </div>
+                    </div>
+                    <div class="flow-arrow">↓</div>
+                    <div class="flow-step">
+                        <div class="flow-step-number">6</div>
+                        <div class="flow-step-content">
+                            <strong>记录映射结果</strong><br>
+                            CIM 记录 OrderMapping，CPQ 可查询获取账单主体信息
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flow-diagram" style="margin-top: 30px;">
+                    <h3 style="font-size: 18px; color: #1A2FFF; margin-bottom: 25px;">⚙️ 规则配置流程</h3>
+                    
+                    <div class="flow-step">
+                        <div class="flow-step-number">1</div>
+                        <div class="flow-step-content">
+                            <strong>选择客户</strong><br>
+                            在账单主体规则管理中选择要配置规则的客户
+                        </div>
+                    </div>
+                    <div class="flow-arrow">↓</div>
+                    <div class="flow-step">
+                        <div class="flow-step-number">2</div>
+                        <div class="flow-step-content">
+                            <strong>创建规则</strong><br>
+                            点击"新增规则"，填写规则名称和优先级
+                        </div>
+                    </div>
+                    <div class="flow-arrow">↓</div>
+                    <div class="flow-step">
+                        <div class="flow-step-number">3</div>
+                        <div class="flow-step-content">
+                            <strong>配置条件组</strong><br>
+                            添加条件组，支持嵌套 AND/OR 逻辑，设置字段、操作符、值
+                        </div>
+                    </div>
+                    <div class="flow-arrow">↓</div>
+                    <div class="flow-step">
+                        <div class="flow-step-number">4</div>
+                        <div class="flow-step-content">
+                            <strong>选择目标主体</strong><br>
+                            选择规则匹配成功后的目标账单主体
+                        </div>
+                    </div>
+                    <div class="flow-arrow">↓</div>
+                    <div class="flow-step">
+                        <div class="flow-step-number">5</div>
+                        <div class="flow-step-content">
+                            <strong>保存并激活</strong><br>
+                            保存规则并设置为激活状态，规则立即生效
+                        </div>
+                    </div>
+                </div>
+
+                <div class="legend" style="margin-top: 30px;">
+                    <h3>🔗 系统集成关系</h3>
+                    <div style="display: flex; justify-content: center; gap: 40px; margin-top: 20px;">
+                        <div style="text-align: center;">
+                            <div style="width: 100px; height: 100px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 14px;">COS</div>
+                            <p style="margin-top: 10px; font-size: 12px; color: #6c757d;">订单系统<br>调用CIM获取字段<br>发送订单数据</p>
+                        </div>
+                        <div style="display: flex; align-items: center; color: #1A2FFF; font-size: 24px;">↔</div>
+                        <div style="text-align: center;">
+                            <div style="width: 100px; height: 100px; background: linear-gradient(135deg, #1A2FFF 0%, #3a4fff 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 14px;">CIM</div>
+                            <p style="margin-top: 10px; font-size: 12px; color: #6c757d;">客户信息管理<br>规则匹配引擎<br>字段配置管理</p>
+                        </div>
+                        <div style="display: flex; align-items: center; color: #1A2FFF; font-size: 24px;">↔</div>
+                        <div style="text-align: center;">
+                            <div style="width: 100px; height: 100px; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 14px;">CPQ</div>
+                            <p style="margin-top: 10px; font-size: 12px; color: #6c757d;">报价系统<br>调用CIM获取规则<br>查询映射结果</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            er: {
+                layoutDirection: 'TB',
+                minEntityWidth: 100,
+                minEntityHeight: 75,
+                entityPadding: 15,
+                useMaxWidth: true
+            }
+        });
+
+        // 标签页切换
+        const tabs = document.querySelectorAll('.nav-tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tabId = tab.dataset.tab;
+
+                tabs.forEach(t => t.classList.remove('active'));
+                tabContents.forEach(c => c.classList.remove('active'));
+
+                tab.classList.add('active');
+                document.getElementById('tab-' + tabId).classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>

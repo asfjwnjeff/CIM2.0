@@ -1,0 +1,208 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    /* === 品牌色 — 仅5%的UI使用 === */
+    --accent: #2D3BFF;
+    --accent-hover: #4338CA;
+    --accent-light: #E8EBFF;
+    --accent-foreground: #FFFFFF;
+
+    /* === 中性色 — 95%的UI使用 === */
+    --text-primary: #0A0A0A;
+    --text-secondary: #5A5A5A;
+    --text-tertiary: #999999;
+    --bg-page: #FAFAFA;
+    --bg-surface: #FFFFFF;
+    --bg-hover: #F5F5F5;
+    --border-light: #EBEBEB;
+    --border-medium: #D5D5D5;
+
+    /* === 功能色 === */
+    --success: #0D8A5E;
+    --success-light: #E6F7F0;
+    --warning: #E8850C;
+    --warning-light: #FFF4E8;
+    --error: #D63031;
+    --error-light: #FFEBEE;
+    --info: #2D3BFF;
+
+    /* === 圆角 === */
+    --radius-sm: 6px;
+    --radius-md: 8px;
+    --radius-lg: 16px;
+    --radius-xl: 24px;
+    --radius-full: 9999px;
+
+    /* === 阴影 === */
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+    --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
+
+    /* === 字体 === */
+    --font-sans: "PingFang SC", "Microsoft YaHei", "Noto Sans SC", system-ui, sans-serif;
+    --font-mono: "SF Mono", "JetBrains Mono", "Consolas", monospace;
+
+    /* === 字号梯度 === */
+    --text-xs: 11px;
+    --text-sm: 13px;
+    --text-base: 14px;
+    --text-md: 16px;
+    --text-lg: 20px;
+    --text-xl: 24px;
+    --text-2xl: 32px;
+    --text-3xl: 40px;
+
+    /* === shadcn/ui 兼容变量 === */
+    --primary: #2D3BFF;
+    --primary-foreground: #FFFFFF;
+    --background: #FAFAFA;
+    --foreground: #0A0A0A;
+    --card: #FFFFFF;
+    --card-foreground: #0A0A0A;
+    --popover: #FFFFFF;
+    --popover-foreground: #0A0A0A;
+    --secondary: #F5F5F5;
+    --secondary-foreground: #0A0A0A;
+    --muted: #F5F5F5;
+    --muted-foreground: #5A5A5A;
+    --accent-shadcn: #E8EBFF;
+    --accent-shadcn-foreground: #2D3BFF;
+    --destructive: #D63031;
+    --destructive-foreground: #FFFFFF;
+    --border: #D5D5D5;
+    --input: #D5D5D5;
+    --ring: #2D3BFF;
+    --radius: 8px;
+  }
+
+  .dark {
+    --background: #0D0F1A;
+    --foreground: #F1F3F8;
+    --card: #1A1C2E;
+    --card-foreground: #F1F3F8;
+    --popover: #1A1C2E;
+    --popover-foreground: #F1F3F8;
+    --primary: #4C6FFF;
+    --primary-foreground: #FFFFFF;
+    --secondary: #2A2D3E;
+    --secondary-foreground: #F1F3F8;
+    --muted: #2A2D3E;
+    --muted-foreground: #9BA5C2;
+    --accent-shadcn: #1A2FFF;
+    --accent-shadcn-foreground: #FFFFFF;
+    --destructive: #FF6B6D;
+    --destructive-foreground: #FFFFFF;
+    --border: #2A2D3E;
+    --input: #3A3D5E;
+    --ring: #4C6FFF;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html {
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    background-color: var(--bg-page);
+    color: var(--text-primary);
+    min-height: 100vh;
+  }
+
+  ::selection {
+    background-color: var(--accent-light);
+    color: var(--accent);
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #D5D5D5;
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #999999;
+  }
+
+  *:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+}
+
+/* === 动画关键帧 === */
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 200ms ease-out;
+}
+
+.animate-slideUp {
+  animation: slideUp 200ms ease-out;
+}
+
+.animate-slideDown {
+  animation: slideDown 200ms ease-out;
+}
+
+.animate-shimmer {
+  animation: shimmer 1.5s infinite;
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}

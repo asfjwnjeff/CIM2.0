@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <script src="https://lf-code-agent.coze.cn/obj/x-ai-cn/cdn/jquery/jquery-3.7.1.min.js"></script>
+  <script src="https://lf-code-agent.coze.cn/obj/x-ai-cn/cdn/lucide/lucide-1.11.0.min.js"></script>
+  <script src="https://lf-code-agent.coze.cn/obj/x-ai-cn/cdn/tailwindcss/tailwindcss-browser-4.2.4.min.js"></script>
+
+  <style type="text/tailwindcss">
+    @theme {
+      /* === 品牌色 === */
+      --color-primary:              #1E40AF;
+      --color-primary-container:    #DBEAFE;
+      --color-on-primary:           #ffffff;
+      /* === 背景 / 表面 === */
+      --color-background:                 #FFFFFF;
+      --color-surface-container-lowest:   #F9FAFB;
+      --color-surface:                    #FFFFFF;
+      --color-surface-container:          #F3F4F6;
+      --color-surface-container-high:     #E5E7EB;
+      --color-surface-container-highest:  #D1D5DB;
+      /* === 文字 === */
+      --color-on-surface:           #111827;
+      --color-on-surface-variant:   #6B7280;
+      /* === 功能色 === */
+      --color-success:  #22c55e;
+      --color-error:    #ef4444;
+      --color-warning:  #f59e0b;
+      /* === 边框 === */
+      --color-outline:          #D1D5DB;
+      --color-outline-variant:  #E5E7EB;
+      /* === 圆角 === */
+      --radius-sm:   0.375rem;
+      --radius-md:   0.5rem;
+      --radius-lg:   0.75rem;
+      --radius-xl:   1rem;
+      --radius-2xl:  1.5rem;
+      --radius-full: 9999px;
+      /* === 阴影 === */
+      --shadow-card:   0 2px 8px rgba(0,0,0,0.10);
+      --shadow-float:  0 10px 25px rgba(0,0,0,0.15);
+      --shadow-dialog: 0 25px 50px rgba(0,0,0,0.20);
+      /* === 字体 === */
+      --font-sans: "Inter", "Noto Sans SC", system-ui, sans-serif;
+    }
+  </style>
+
+  <!-- 图片兜底 -->
+  <script>
+    document.addEventListener('error', function (e) {
+      const img = e.target;
+      if (img.tagName !== 'IMG' || img.dataset.fallback) return;
+      img.dataset.fallback = '1';
+      const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      const cat = img.getAttribute('data-category') || '其他';
+      const alt = img.getAttribute('alt') || '';
+      const label = esc(alt.length > 8 ? alt.slice(0, 8) + '…' : alt);
+      const icons = { '人物': '👤', '自然风景': '🏞', '动物': '🐾', '建筑城市': '🏙', '运动体育': '⚽', '交通工具': '🚗', '食物': '🍽', '服饰时尚': '👗', '商业科技': '💼', '游戏娱乐': '🎮', '艺术': '🎨', '其他': '🖼' };
+      const icon = icons[cat] || '🖼';
+      const w = img.width || 400, h = img.height || 300;
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}"><rect width="100%" height="100%" fill="%23f3f4f6"/><text x="50%" y="45%" text-anchor="middle" font-size="${Math.min(w, h) * 0.18}" dominant-baseline="central">${icon}</text><text x="50%" y="68%" text-anchor="middle" font-size="${Math.min(w, h) * 0.07}" fill="%239ca3af" font-family="system-ui,sans-serif" dominant-baseline="central">${label}</text></svg>`;
+      img.src = 'data:image/svg+xml,' + svg;
+    }, true);
+  </script>
+</head>
+
+<body class="bg-background text-on-surface font-sans min-h-screen">
+
+  <!-- @nav:start 导航组件，不需要的页面则不要复制此段（从 @nav:start 到 @nav:end） -->
+  <div class="flex" style="height: 100vh;">
+    <aside class="w-64 shrink-0 bg-surface-container-lowest border-r border-outline-variant/20 overflow-y-auto">
+      <div class="p-4 border-b border-outline-variant/20">
+        <div class="flex items-center gap-2">
+          <i data-lucide="building" class="text-primary w-6 h-6"></i>
+          <span class="font-bold text-lg">CIM V2.0</span>
+        </div>
+      </div>
+      <div class="p-3 space-y-1">
+        <a href="customers.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors">
+          <i data-lucide="users" class="w-4 h-4"></i>客户管理
+        </a>
+        <a href="opportunities.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors">
+          <i data-lucide="target" class="w-4 h-4"></i>商机管理
+        </a>
+        <a href="followup.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors">
+          <i data-lucide="message-square" class="w-4 h-4"></i>客户跟进
+        </a>
+        <a href="quotes.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors">
+          <i data-lucide="file-text" class="w-4 h-4"></i>售前报价
+        </a>
+        <a href="approvals.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md bg-primary/10 text-primary font-medium text-sm transition-colors" aria-current="page">
+          <i data-lucide="shield-check" class="w-4 h-4"></i>风控审批
+        </a>
+        <div class="pt-2 mt-2 border-t border-outline-variant/20">
+          <a href="rules.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors">
+            <i data-lucide="settings" class="w-4 h-4"></i>规则配置
+          </a>
+        </div>
+      </div>
+    </aside>
+
+    <div class="flex-1 flex flex-col min-w-0">
+      <header class="bg-surface border-b border-outline-variant/20 h-16 flex items-center justify-between px-6">
+        <div class="flex items-center gap-4">
+          <h1 class="text-xl font-semibold" id="page-title">风控审批</h1>
+        </div>
+        <div class="flex items-center gap-4">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center text-sm font-medium">初</div>
+            <span class="text-sm text-on-surface">小初</span>
+          </div>
+        </div>
+      </header>
+  <!-- @nav:end 导航组件，不需要的页面则不要复制此段 -->
+
+      <!-- @main-content:start -->
+      <main class="flex-1 min-w-0 overflow-y-auto bg-background p-6">
+        <!-- 操作栏 -->
+        <div class="bg-surface rounded-lg shadow-card p-4 mb-6">
+          <div class="flex flex-wrap items-center gap-4">
+            <!-- 搜索框 -->
+            <div class="flex-1 min-w-[200px]">
+              <div class="relative">
+                <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant"></i>
+                <input id="search-input" type="text" placeholder="搜索审批单号、客户名称" class="w-full bg-surface-container border-none rounded-md pl-10 pr-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors"/>
+              </div>
+            </div>
+            <!-- 审批状态筛选 -->
+            <div class="min-w-[150px]">
+              <select id="status-filter" class="w-full bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors">
+                <option value="">全部状态</option>
+                <option value="draft">暂存</option>
+                <option value="pending">审批中</option>
+                <option value="approved">已通过</option>
+                <option value="rejected">已驳回</option>
+              </select>
+            </div>
+            <!-- 服务产品筛选 -->
+            <div class="min-w-[150px]">
+              <select id="product-filter" class="w-full bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors">
+                <option value="">全部服务产品</option>
+                <option value="forwarding">货代</option>
+                <option value="customs">关务</option>
+                <option value="warehousing">仓储</option>
+                <option value="transportation">运输</option>
+                <option value="import_export">进出口</option>
+                <option value="repair">维修</option>
+                <option value="contract_logistics">合同物流</option>
+                <option value="integrated_supply_chain">一体化供应链</option>
+                <option value="other">其他</option>
+              </select>
+            </div>
+            <!-- 新增按钮 -->
+            <button id="btn-new-approval" class="bg-primary text-on-primary px-4 py-2 rounded-md text-sm font-medium hover:opacity-90 active:scale-[0.98] transition-all inline-flex items-center gap-2">
+              <i data-lucide="plus" class="w-3.5 h-3.5"></i>新增审批
+            </button>
+          </div>
+        </div>
+
+        <!-- 表格 -->
+        <div class="bg-surface rounded-lg shadow-card overflow-hidden">
+          <!-- 表头 -->
+          <div class="grid grid-cols-12 px-4 py-3 bg-surface-container text-xs font-semibold text-on-surface-variant uppercase tracking-wide">
+            <span class="col-span-2">审批单号</span>
+            <span class="col-span-2">客户名称</span>
+            <span class="col-span-1">服务产品</span>
+            <span class="col-span-1">业务类型</span>
+            <span class="col-span-2">风控目的</span>
+            <span class="col-span-1">状态</span>
+            <span class="col-span-1">提交时间</span>
+            <span class="col-span-2 text-center">操作</span>
+          </div>
+          <!-- 表格内容 -->
+          <div id="approval-table-body" class="divide-y divide-outline-variant/50">
+            <!-- 列表-审批1 -->
+            <div class="grid grid-cols-12 px-4 py-3 hover:bg-surface-container/50 transition-colors items-center">
+              <span class="col-span-2 text-sm font-medium text-primary">APP-20240514-001</span>
+              <span class="col-span-2 text-sm">上海芯科半导体有限公司</span>
+              <span class="col-span-1 text-sm">货代</span>
+              <span class="col-span-1 text-sm">进口代理</span>
+              <span class="col-span-2 text-sm text-on-surface-variant">新客户风险评估</span>
+              <span class="col-span-1">
+                <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-success/15 text-success">已通过</span>
+              </span>
+              <span class="col-span-1 text-sm text-on-surface-variant">2024-05-14</span>
+              <div class="col-span-2 flex justify-center gap-2">
+                <button class="text-primary text-sm font-medium hover:underline" data-id="1">查看</button>
+              </div>
+            </div>
+            <!-- 列表-审批2 -->
+            <div class="grid grid-cols-12 px-4 py-3 hover:bg-surface-container/50 transition-colors items-center">
+              <span class="col-span-2 text-sm font-medium text-primary">APP-20240513-002</span>
+              <span class="col-span-2 text-sm">深圳微芯科技有限公司</span>
+              <span class="col-span-1 text-sm">关务</span>
+              <span class="col-span-1 text-sm">报关服务</span>
+              <span class="col-span-2 text-sm text-on-surface-variant">额度申请</span>
+              <span class="col-span-1">
+                <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-warning/15 text-warning">审批中</span>
+              </span>
+              <span class="col-span-1 text-sm text-on-surface-variant">2024-05-13</span>
+              <div class="col-span-2 flex justify-center gap-2">
+                <button class="text-primary text-sm font-medium hover:underline" data-id="2">查看</button>
+              </div>
+            </div>
+            <!-- 列表-审批3 -->
+            <div class="grid grid-cols-12 px-4 py-3 hover:bg-surface-container/50 transition-colors items-center">
+              <span class="col-span-2 text-sm font-medium text-primary">APP-20240512-003</span>
+              <span class="col-span-2 text-sm">北京国芯电子有限公司</span>
+              <span class="col-span-1 text-sm">仓储</span>
+              <span class="col-span-1 text-sm">保税仓储</span>
+              <span class="col-span-2 text-sm text-on-surface-variant">服务变更评估</span>
+              <span class="col-span-1">
+                <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-error/15 text-error">已驳回</span>
+              </span>
+              <span class="col-span-1 text-sm text-on-surface-variant">2024-05-12</span>
+              <div class="col-span-2 flex justify-center gap-2">
+                <button class="text-primary text-sm font-medium hover:underline" data-id="3">查看</button>
+              </div>
+            </div>
+            <!-- 列表-审批4 -->
+            <div class="grid grid-cols-12 px-4 py-3 hover:bg-surface-container/50 transition-colors items-center">
+              <span class="col-span-2 text-sm font-medium text-primary">APP-20240511-004</span>
+              <span class="col-span-2 text-sm">苏州晶方半导体有限公司</span>
+              <span class="col-span-1 text-sm">运输</span>
+              <span class="col-span-1 text-sm">冷链运输</span>
+              <span class="col-span-2 text-sm text-on-surface-variant">新客户风险评估</span>
+              <span class="col-span-1">
+                <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-surface-container-high text-on-surface-variant">暂存</span>
+              </span>
+              <span class="col-span-1 text-sm text-on-surface-variant">2024-05-11</span>
+              <div class="col-span-2 flex justify-center gap-2">
+                <button class="text-primary text-sm font-medium hover:underline btn-edit-approval" data-id="4">编辑</button>
+                <button class="text-primary text-sm font-medium hover:underline btn-submit-approval" data-id="4">提交</button>
+              </div>
+            </div>
+            <!-- 列表-审批5 -->
+            <div class="grid grid-cols-12 px-4 py-3 hover:bg-surface-container/50 transition-colors items-center">
+              <span class="col-span-2 text-sm font-medium text-primary">APP-20240510-005</span>
+              <span class="col-span-2 text-sm">杭州士兰微电子有限公司</span>
+              <span class="col-span-1 text-sm">合同物流</span>
+              <span class="col-span-1 text-sm">综合物流</span>
+              <span class="col-span-2 text-sm text-on-surface-variant">年度资质审核</span>
+              <span class="col-span-1">
+                <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-success/15 text-success">已通过</span>
+              </span>
+              <span class="col-span-1 text-sm text-on-surface-variant">2024-05-10</span>
+              <div class="col-span-2 flex justify-center gap-2">
+                <button class="text-primary text-sm font-medium hover:underline" data-id="5">查看</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+      <!-- @main-content:end -->
+    </div>
+  </div>
+
+  <script>
+    $(function() {
+      // 初始化图标
+      lucide.createIcons();
+
+      // 新增审批按钮 - 点击跳转到新增页面
+      $('#btn-new-approval').on('click', function() {
+        window.location.href = 'approval-new.html';
+      });
+
+      // 编辑按钮 - 点击跳转到编辑页面
+      $('#approval-table-body').on('click', '.btn-edit-approval', function() {
+        const approvalId = $(this).data('id');
+        window.location.href = `approval-edit.html?id=${approvalId}`;
+      });
+
+      // 提交按钮 - 提交审批
+      $('#approval-table-body').on('click', '.btn-submit-approval', function() {
+        const approvalId = $(this).data('id');
+        console.log('提交审批:', approvalId);
+        // 这里应该实现提交审批的完整逻辑：
+        // 1. 显示确认弹窗
+        // 2. 确认后更新状态为"审批中"
+        // 3. 刷新列表或更新当前行
+      });
+
+      // 搜索框 - 实时过滤
+      $('#search-input').on('input', function() {
+        const keyword = $(this).val().toLowerCase();
+        console.log('搜索关键词:', keyword);
+        // 这里应该实现搜索过滤的完整逻辑：
+        // 1. 遍历表格行
+        // 2. 根据审批单号或客户名称匹配
+        // 3. 显示/隐藏匹配的行
+      });
+
+      // 状态筛选 - 按状态过滤
+      $('#status-filter').on('change', function() {
+        const status = $(this).val();
+        console.log('状态筛选:', status);
+        // 这里应该实现状态筛选的完整逻辑：
+        // 1. 遍历表格行
+        // 2. 根据状态值匹配
+        // 3. 显示/隐藏匹配的行
+      });
+
+      // 服务产品筛选 - 按服务产品过滤
+      $('#product-filter').on('change', function() {
+        const product = $(this).val();
+        console.log('服务产品筛选:', product);
+        // 这里应该实现服务产品筛选的完整逻辑：
+        // 1. 遍历表格行
+        // 2. 根据服务产品值匹配
+        // 3. 显示/隐藏匹配的行
+      });
+    });
+  </script>
+</body>
+
+</html>
