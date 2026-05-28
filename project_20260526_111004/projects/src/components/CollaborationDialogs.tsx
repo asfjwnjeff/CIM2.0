@@ -2,10 +2,7 @@
 
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -46,6 +43,40 @@ function UserAvatar({ user, size }: { user: MockUser; size?: 'sm' | 'md' }) {
   );
 }
 
+const TYPE_STYLES: Record<CollaborationDialogType, { icon: string; color: string; bg: string; border: string; hoverBg: string; confirmBg: string; confirmHover: string }> = {
+  collaborate: {
+    icon: 'text-[#2D3BFF]',
+    color: 'text-[#2D3BFF]',
+    bg: 'bg-[#E8EBFF]',
+    border: 'border-[#C7CCFF]',
+    hoverBg: 'hover:bg-[#D8DCFF]',
+    confirmBg: 'bg-[#2D3BFF]',
+    confirmHover: 'hover:bg-[#4338CA]',
+  },
+  assign: {
+    icon: 'text-[#0D8A5E]',
+    color: 'text-[#0D8A5E]',
+    bg: 'bg-[#E6F7F0]',
+    border: 'border-[#B8E8D4]',
+    hoverBg: 'hover:bg-[#D0F0E4]',
+    confirmBg: 'bg-[#0D8A5E]',
+    confirmHover: 'hover:bg-[#0A7A4E]',
+  },
+  transfer: {
+    icon: 'text-[#E8850C]',
+    color: 'text-[#E8850C]',
+    bg: 'bg-[#FFF4E8]',
+    border: 'border-[#FFE0B2]',
+    hoverBg: 'hover:bg-[#FFECD0]',
+    confirmBg: 'bg-[#E8850C]',
+    confirmHover: 'hover:bg-[#D4780A]',
+  },
+};
+
+const LABEL_CLASS = 'text-[13px] font-medium text-[#0A0A0A] mb-1.5 block';
+const TRIGGER_CLASS = 'w-full h-[38px] flex items-center gap-2 px-3 border border-[#D5D5D5] rounded-lg text-sm hover:border-[#2D3BFF] transition-colors bg-white';
+const TRIGGER_PLACEHOLDER = 'text-[#999999] font-light';
+
 export function CollaborationDialogs({
   open,
   onOpenChange,
@@ -63,7 +94,6 @@ export function CollaborationDialogs({
 
   const handleOpenChange = (open: boolean) => {
     if (!open) {
-      // Reset state
       setSelectedCollaborators(currentCollaboratorIds);
       setSelectedPerson('');
       setNewResponsiblePerson('');
@@ -93,6 +123,7 @@ export function CollaborationDialogs({
   };
 
   const currentOwner = currentOwnerId ? getUserById(currentOwnerId) : undefined;
+  const ts = TYPE_STYLES[type];
 
   const dialogTitle =
     type === 'collaborate'
@@ -107,7 +138,7 @@ export function CollaborationDialogs({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>{dialogTitle}</DialogTitle>
           <DialogDescription>
@@ -121,17 +152,17 @@ export function CollaborationDialogs({
           {/* Current Owner display (assign & transfer) */}
           {(type === 'assign' || type === 'transfer') && (
             <div>
-              <label className="text-sm font-medium text-gray-700 mb-1.5 block">当前负责人</label>
+              <label className={LABEL_CLASS}>当前负责人</label>
               {currentOwner ? (
-                <div className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg">
+                <div className="flex items-center gap-3 p-3 bg-[#FAFAFA] rounded-xl border border-[#EBEBEB]">
                   <UserAvatar user={currentOwner} size="sm" />
                   <div>
-                    <div className="text-sm font-medium">{currentOwner.name}</div>
-                    <div className="text-xs text-gray-500">{currentOwner.department}</div>
+                    <div className="text-sm font-medium text-[#0A0A0A]">{currentOwner.name}</div>
+                    <div className="text-xs text-[#5A5A5A]">{currentOwner.department}</div>
                   </div>
                 </div>
               ) : (
-                <div className="text-sm text-gray-400 p-2 bg-gray-50 rounded-lg">暂无负责人</div>
+                <div className="text-sm text-[#999999] p-3 bg-[#FAFAFA] rounded-xl border border-[#EBEBEB]">暂无负责人</div>
               )}
             </div>
           )}
@@ -139,10 +170,9 @@ export function CollaborationDialogs({
           {/* Collaborators multi-select */}
           {type === 'collaborate' && (
             <>
-              {/* Current collaborators */}
               {selectedCollaborators.length > 0 && (
                 <div>
-                  <label className="text-sm font-medium text-gray-700 mb-1.5 block">
+                  <label className={LABEL_CLASS}>
                     已选协同人 ({selectedCollaborators.length})
                   </label>
                   <div className="flex flex-wrap gap-1.5">
@@ -150,34 +180,39 @@ export function CollaborationDialogs({
                       const user = getUserById(id);
                       if (!user) return null;
                       return (
-                        <Badge key={id} variant="secondary" className="gap-1 pr-1">
-                          <UserAvatar user={user} size="sm" />
-                          <span className="text-xs">{user.name}</span>
+                        <span
+                          key={id}
+                          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${ts.bg} ${ts.color} border ${ts.border}`}
+                        >
+                          <span className="w-4 h-4 rounded-full bg-current/20 flex items-center justify-center text-[10px] font-bold">
+                            {user.name.charAt(0)}
+                          </span>
+                          {user.name}
                           <button
                             type="button"
                             onClick={() => toggleCollaborator(id)}
-                            className="ml-0.5 rounded-full hover:bg-gray-300 p-0.5"
+                            className={`ml-0.5 rounded-full p-0.5 ${ts.hoverBg} transition-colors`}
                           >
                             <X className="w-3 h-3" />
                           </button>
-                        </Badge>
+                        </span>
                       );
                     })}
                   </div>
                 </div>
               )}
 
-              {/* User search/select */}
               <div>
-                <label className="text-sm font-medium text-gray-700 mb-1.5 block">选择协同人</label>
+                <label className={LABEL_CLASS}>选择协同人</label>
                 <Popover open={userSelectOpen} onOpenChange={setUserSelectOpen}>
                   <PopoverTrigger asChild>
-                    <Button variant="outline" className="w-full justify-between" size="sm">
-                      <span className="text-gray-500">搜索并选择用户...</span>
-                      <ChevronsUpDown className="w-4 h-4 ml-2 opacity-50" />
-                    </Button>
+                    <button className={TRIGGER_CLASS}>
+                      <User className="w-4 h-4 text-[#999999] shrink-0" />
+                      <span className={TRIGGER_PLACEHOLDER}>搜索并选择用户...</span>
+                      <ChevronsUpDown className="w-4 h-4 ml-auto opacity-40 shrink-0" />
+                    </button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+                  <PopoverContent className="w-[--radix-popover-trigger-width] p-0 rounded-xl border-[#EBEBEB] shadow-[0_4px_16px_rgba(0,0,0,0.08)]" align="start">
                     <Command>
                       <CommandInput placeholder="搜索用户名..." />
                       <CommandList>
@@ -190,14 +225,14 @@ export function CollaborationDialogs({
                                 <CommandItem
                                   key={user.id}
                                   onSelect={() => toggleCollaborator(user.id)}
-                                  className="flex items-center gap-2"
+                                  className="flex items-center gap-2.5 rounded-lg aria-selected:bg-[#F5F5F5] cursor-pointer"
                                 >
                                   <UserAvatar user={user} size="sm" />
                                   <div className="flex-1">
-                                    <div className="text-sm">{user.name}</div>
-                                    <div className="text-xs text-gray-500">{user.department}</div>
+                                    <div className="text-sm text-[#0A0A0A]">{user.name}</div>
+                                    <div className="text-xs text-[#5A5A5A]">{user.department}</div>
                                   </div>
-                                  {isSelected && <Check className="w-4 h-4 text-[#2D3BFF]" />}
+                                  {isSelected && <Check className="w-4 h-4 text-[#2D3BFF] shrink-0" />}
                                 </CommandItem>
                               );
                             })}
@@ -214,22 +249,25 @@ export function CollaborationDialogs({
           {/* Assign single select */}
           {type === 'assign' && (
             <div>
-              <label className="text-sm font-medium text-gray-700 mb-1.5 block">新负责人</label>
+              <label className={LABEL_CLASS}>新负责人</label>
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" className="w-full justify-between" size="sm">
+                  <button className={TRIGGER_CLASS}>
                     {selectedPerson ? (
                       <div className="flex items-center gap-2">
                         <UserAvatar user={getUserById(selectedPerson)!} size="sm" />
-                        <span>{getUserById(selectedPerson)?.name}</span>
+                        <span className="text-sm text-[#0A0A0A]">{getUserById(selectedPerson)?.name}</span>
                       </div>
                     ) : (
-                      <span className="text-gray-500">选择负责人...</span>
+                      <>
+                        <User className="w-4 h-4 text-[#999999] shrink-0" />
+                        <span className={TRIGGER_PLACEHOLDER}>选择负责人...</span>
+                      </>
                     )}
-                    <ChevronsUpDown className="w-4 h-4 ml-2 opacity-50" />
-                  </Button>
+                    <ChevronsUpDown className="w-4 h-4 ml-auto opacity-40 shrink-0" />
+                  </button>
                 </PopoverTrigger>
-                <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+                <PopoverContent className="w-[--radix-popover-trigger-width] p-0 rounded-xl border-[#EBEBEB] shadow-[0_4px_16px_rgba(0,0,0,0.08)]" align="start">
                   <Command>
                     <CommandInput placeholder="搜索用户名..." />
                     <CommandList>
@@ -240,14 +278,14 @@ export function CollaborationDialogs({
                             <CommandItem
                               key={user.id}
                               onSelect={() => setSelectedPerson(user.id)}
-                              className="flex items-center gap-2"
+                              className="flex items-center gap-2.5 rounded-lg aria-selected:bg-[#F5F5F5] cursor-pointer"
                             >
                               <UserAvatar user={user} size="sm" />
                               <div className="flex-1">
-                                <div className="text-sm">{user.name}</div>
-                                <div className="text-xs text-gray-500">{user.department}</div>
+                                <div className="text-sm text-[#0A0A0A]">{user.name}</div>
+                                <div className="text-xs text-[#5A5A5A]">{user.department}</div>
                               </div>
-                              {selectedPerson === user.id && <Check className="w-4 h-4 text-[#2D3BFF]" />}
+                              {selectedPerson === user.id && <Check className="w-4 h-4 text-[#0D8A5E] shrink-0" />}
                             </CommandItem>
                           ))}
                         </ScrollArea>
@@ -263,22 +301,25 @@ export function CollaborationDialogs({
           {type === 'transfer' && (
             <>
               <div>
-                <label className="text-sm font-medium text-gray-700 mb-1.5 block">新负责人</label>
+                <label className={LABEL_CLASS}>新负责人</label>
                 <Popover>
                   <PopoverTrigger asChild>
-                    <Button variant="outline" className="w-full justify-between" size="sm">
+                    <button className={TRIGGER_CLASS}>
                       {newResponsiblePerson ? (
                         <div className="flex items-center gap-2">
                           <UserAvatar user={getUserById(newResponsiblePerson)!} size="sm" />
-                          <span>{getUserById(newResponsiblePerson)?.name}</span>
+                          <span className="text-sm text-[#0A0A0A]">{getUserById(newResponsiblePerson)?.name}</span>
                         </div>
                       ) : (
-                        <span className="text-gray-500">选择新负责人...</span>
+                        <>
+                          <User className="w-4 h-4 text-[#999999] shrink-0" />
+                          <span className={TRIGGER_PLACEHOLDER}>选择新负责人...</span>
+                        </>
                       )}
-                      <ChevronsUpDown className="w-4 h-4 ml-2 opacity-50" />
-                    </Button>
+                      <ChevronsUpDown className="w-4 h-4 ml-auto opacity-40 shrink-0" />
+                    </button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+                  <PopoverContent className="w-[--radix-popover-trigger-width] p-0 rounded-xl border-[#EBEBEB] shadow-[0_4px_16px_rgba(0,0,0,0.08)]" align="start">
                     <Command>
                       <CommandInput placeholder="搜索用户名..." />
                       <CommandList>
@@ -289,14 +330,14 @@ export function CollaborationDialogs({
                               <CommandItem
                                 key={user.id}
                                 onSelect={() => setNewResponsiblePerson(user.id)}
-                                className="flex items-center gap-2"
+                                className="flex items-center gap-2.5 rounded-lg aria-selected:bg-[#F5F5F5] cursor-pointer"
                               >
                                 <UserAvatar user={user} size="sm" />
                                 <div className="flex-1">
-                                  <div className="text-sm">{user.name}</div>
-                                  <div className="text-xs text-gray-500">{user.department}</div>
+                                  <div className="text-sm text-[#0A0A0A]">{user.name}</div>
+                                  <div className="text-xs text-[#5A5A5A]">{user.department}</div>
                                 </div>
-                                {newResponsiblePerson === user.id && <Check className="w-4 h-4 text-[#2D3BFF]" />}
+                                {newResponsiblePerson === user.id && <Check className="w-4 h-4 text-[#E8850C] shrink-0" />}
                               </CommandItem>
                             ))}
                           </ScrollArea>
@@ -307,13 +348,13 @@ export function CollaborationDialogs({
                 </Popover>
               </div>
               <div>
-                <label className="text-sm font-medium text-gray-700 mb-1.5 block">移交原因（可选）</label>
+                <label className={LABEL_CLASS}>移交原因（可选）</label>
                 <Textarea
                   placeholder="请输入移交原因..."
                   value={transferReason}
                   onChange={(e) => setTransferReason(e.target.value)}
                   rows={2}
-                  className="resize-none"
+                  className="resize-none border-[#D5D5D5] rounded-lg text-sm placeholder:text-[#999999] placeholder:font-light focus:border-[#E8850C] focus:shadow-[0_0_0_2px_rgba(232,133,12,0.10)]"
                 />
               </div>
             </>
@@ -321,12 +362,21 @@ export function CollaborationDialogs({
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={() => handleOpenChange(false)}>
+          <button
+            type="button"
+            onClick={() => handleOpenChange(false)}
+            className="inline-flex items-center justify-center h-[38px] px-4 border border-[#D5D5D5] text-[#0A0A0A] rounded-lg text-sm font-medium hover:bg-[#F5F5F5] transition-colors"
+          >
             取消
-          </Button>
-          <Button onClick={handleConfirm} disabled={isConfirmDisabled} className="bg-[#2D3BFF] hover:bg-[#4338CA]">
+          </button>
+          <button
+            type="button"
+            onClick={handleConfirm}
+            disabled={isConfirmDisabled}
+            className={`inline-flex items-center justify-center h-[38px] px-4 rounded-lg text-sm font-medium text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${ts.confirmBg} ${ts.confirmHover}`}
+          >
             确认
-          </Button>
+          </button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

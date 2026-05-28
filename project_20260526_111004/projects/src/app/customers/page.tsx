@@ -22,6 +22,9 @@ import {
   List,
   MoreHorizontal,
   User,
+  UserPlus,
+  UserCheck,
+  UserX,
   Phone,
   ChevronDown,
   Check,
@@ -139,8 +142,8 @@ export default function CustomersPage() {
         c.name.toLowerCase().includes(s) ||
         (c.customerCode && c.customerCode.toLowerCase().includes(s)) ||
         c.basicInfo?.unifiedSocialCreditCode?.toLowerCase().includes(s) ||
-        (c.basicInfo?.phone && c.basicInfo.phone.includes(s)) ||
-        (c.basicInfo?.legalRepresentative && c.basicInfo.legalRepresentative.toLowerCase().includes(s))
+        (c.businessInfo?.phone && c.businessInfo.phone.includes(s)) ||
+        (c.businessInfo?.legalRepresentative && c.businessInfo.legalRepresentative.toLowerCase().includes(s))
       );
     }
 
@@ -388,20 +391,23 @@ export default function CustomersPage() {
             <div className="flex items-center gap-2">
               <button
                 onClick={() => handleBatchAction('collaborate')}
-                className="px-3 py-1.5 text-sm border border-[#2D3BFF]/30 text-[#2D3BFF] rounded-lg hover:bg-[#2D3BFF]/5 transition-colors"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm bg-[#E8EBFF] text-[#2D3BFF] border border-[#C7CCFF] rounded-lg font-medium hover:bg-[#D8DCFF] transition-colors"
               >
+                <UserPlus className="w-3.5 h-3.5" />
                 批量协同
               </button>
               <button
                 onClick={() => handleBatchAction('assign')}
-                className="px-3 py-1.5 text-sm border border-[#2D3BFF]/30 text-[#2D3BFF] rounded-lg hover:bg-[#2D3BFF]/5 transition-colors"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm bg-[#E6F7F0] text-[#0D8A5E] border border-[#B8E8D4] rounded-lg font-medium hover:bg-[#D0F0E4] transition-colors"
               >
+                <UserCheck className="w-3.5 h-3.5" />
                 批量分配
               </button>
               <button
                 onClick={() => handleBatchAction('transfer')}
-                className="px-3 py-1.5 text-sm border border-[#2D3BFF]/30 text-[#2D3BFF] rounded-lg hover:bg-[#2D3BFF]/5 transition-colors"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm bg-[#FFF4E8] text-[#E8850C] border border-[#FFE0B2] rounded-lg font-medium hover:bg-[#FFECD0] transition-colors"
               >
+                <UserX className="w-3.5 h-3.5" />
                 批量移交
               </button>
             </div>
@@ -416,7 +422,7 @@ export default function CustomersPage() {
               const levelColors = INDUSTRY_CHAIN_LEVEL_COLORS[chainLevel];
               const ownerUsers = customer.responsiblePersons.map((id) => getUserById(id)).filter(Boolean);
               const createdByUser = getUserById(customer.createdBy);
-              const contact = customer.basicInfo?.phone || customer.basicInfo?.email || '';
+              const contact = customer.businessInfo?.phone || customer.businessInfo?.email || '';
               const isSelected = selectedIds.has(customer.id);
 
               return (
@@ -504,23 +510,26 @@ export default function CustomersPage() {
                         {openMenuId === customer.id && (
                           <>
                             <div className="fixed inset-0 z-10" onClick={() => setOpenMenuId(null)} />
-                            <div className="absolute right-0 bottom-full mb-1 w-32 bg-white rounded-lg shadow-lg border border-[#EBEBEB] py-1 z-20">
+                            <div className="absolute right-0 bottom-full mb-1 w-36 bg-white rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.08)] border border-[#EBEBEB] py-1.5 z-20">
                               <button
                                 onClick={() => openDialog('collaborate', customer.id, customer.name, customer.responsiblePersons, customer.collaborators)}
-                                className="w-full text-left px-3 py-1.5 text-sm text-[#0A0A0A] hover:bg-[#F5F5F5]"
+                                className="w-full text-left px-3 py-2 text-sm text-[#2D3BFF] hover:bg-[#E8EBFF] transition-colors flex items-center gap-2"
                               >
+                                <UserPlus className="w-3.5 h-3.5" />
                                 协同
                               </button>
                               <button
                                 onClick={() => openDialog('assign', customer.id, customer.name, customer.responsiblePersons, customer.collaborators)}
-                                className="w-full text-left px-3 py-1.5 text-sm text-[#0A0A0A] hover:bg-[#F5F5F5]"
+                                className="w-full text-left px-3 py-2 text-sm text-[#0D8A5E] hover:bg-[#E6F7F0] transition-colors flex items-center gap-2"
                               >
+                                <UserCheck className="w-3.5 h-3.5" />
                                 分配
                               </button>
                               <button
                                 onClick={() => openDialog('transfer', customer.id, customer.name, customer.responsiblePersons, customer.collaborators)}
-                                className="w-full text-left px-3 py-1.5 text-sm text-[#0A0A0A] hover:bg-[#F5F5F5]"
+                                className="w-full text-left px-3 py-2 text-sm text-[#E8850C] hover:bg-[#FFF4E8] transition-colors flex items-center gap-2"
                               >
+                                <UserX className="w-3.5 h-3.5" />
                                 移交
                               </button>
                             </div>
@@ -617,10 +626,10 @@ export default function CustomersPage() {
                           </span>
                         </td>
                         <td className="px-3 py-3 text-[13px] text-[#0A0A0A]">
-                          {customer.basicInfo?.legalRepresentative || '-'}
+                          {customer.businessInfo?.legalRepresentative || '-'}
                         </td>
                         <td className="px-3 py-3 text-[13px] text-[#5A5A5A]">
-                          {customer.basicInfo?.phone || '-'}
+                          {customer.businessInfo?.phone || '-'}
                         </td>
                         <td className="px-3 py-3">
                           {ownerUsers.length > 0 ? (
@@ -672,13 +681,13 @@ export default function CustomersPage() {
                             {openMenuId === customer.id && (
                               <>
                                 <div className="fixed inset-0 z-10" onClick={() => setOpenMenuId(null)} />
-                                <div className="absolute right-0 top-full mt-1 w-32 bg-white rounded-lg shadow-lg border border-[#EBEBEB] py-1 z-20">
+                                <div className="absolute right-0 top-full mt-1 w-36 bg-white rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.08)] border border-[#EBEBEB] py-1.5 z-20">
                                   <button
                                     onClick={() => {
                                       router.push(`/customers/${customer.id}/edit`);
                                       setOpenMenuId(null);
                                     }}
-                                    className="w-full text-left px-3 py-1.5 text-sm text-[#0A0A0A] hover:bg-[#F5F5F5]"
+                                    className="w-full text-left px-3 py-2 text-sm text-[#0A0A0A] hover:bg-[#F5F5F5] transition-colors"
                                   >
                                     编辑
                                   </button>
@@ -686,24 +695,27 @@ export default function CustomersPage() {
                                     onClick={() => {
                                       openDialog('collaborate', customer.id, customer.name, customer.responsiblePersons, customer.collaborators);
                                     }}
-                                    className="w-full text-left px-3 py-1.5 text-sm text-[#0A0A0A] hover:bg-[#F5F5F5]"
+                                    className="w-full text-left px-3 py-2 text-sm text-[#2D3BFF] hover:bg-[#E8EBFF] transition-colors flex items-center gap-2"
                                   >
+                                    <UserPlus className="w-3.5 h-3.5" />
                                     协同
                                   </button>
                                   <button
                                     onClick={() => {
                                       openDialog('assign', customer.id, customer.name, customer.responsiblePersons, customer.collaborators);
                                     }}
-                                    className="w-full text-left px-3 py-1.5 text-sm text-[#0A0A0A] hover:bg-[#F5F5F5]"
+                                    className="w-full text-left px-3 py-2 text-sm text-[#0D8A5E] hover:bg-[#E6F7F0] transition-colors flex items-center gap-2"
                                   >
+                                    <UserCheck className="w-3.5 h-3.5" />
                                     分配
                                   </button>
                                   <button
                                     onClick={() => {
                                       openDialog('transfer', customer.id, customer.name, customer.responsiblePersons, customer.collaborators);
                                     }}
-                                    className="w-full text-left px-3 py-1.5 text-sm text-[#0A0A0A] hover:bg-[#F5F5F5]"
+                                    className="w-full text-left px-3 py-2 text-sm text-[#E8850C] hover:bg-[#FFF4E8] transition-colors flex items-center gap-2"
                                   >
+                                    <UserX className="w-3.5 h-3.5" />
                                     移交
                                   </button>
                                 </div>

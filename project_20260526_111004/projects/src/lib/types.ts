@@ -45,17 +45,56 @@ export type IndustryChainRole =
   | 'equipment_supplier' | 'distributor_agent' | 'wafer_foundry' | 'chip_design';
 
 export interface CompanyBasicInfo {
+  // 客户LOGO
+  logoUrls?: string[];
+  // 统一社会信用证代码
   unifiedSocialCreditCode?: string;
-  phone?: string;
-  registrationStatus?: string;
-  legalRepresentative?: string;
-  email?: string;
-  enterpriseScale?: string;
-  registeredCapital?: string;
-  website?: string;
-  establishmentDate?: string;
+  // 客户国（地）别：中企/美企/日企/韩企/台企等
   countryRegion?: string;
-  industryTags?: string[];
+  // 产业分类：半导体/消费品/工业工程/医疗健康/新能源
+  industryCategory?: string;
+  // 主营产品工艺
+  mainProducts?: string;
+  // 产业链业态
+  industryChainFormat?: string;
+  // 供应链角色
+  supplyChainRole?: string;
+  // 跨境模式：口岸/直通/保税仓库/保税区域/普通仓库/其他
+  crossBorderMode?: string;
+  // 客户渠道：直客/代理/同行
+  customerChannel?: string;
+  // 客户来源：公司资源/自主开拓/电话咨询/客户推荐
+  customerSource?: string;
+  // 潜在竞争对手
+  potentialCompetitors?: string;
+  // 关联上下游企业
+  relatedEnterprises?: string;
+  // 公司营业地址 - 省
+  addressProvince?: string;
+  // 公司营业地址 - 市
+  addressCity?: string;
+  // 公司营业地址 - 区
+  addressDistrict?: string;
+  // 公司营业地址 - 详细地址
+  addressDetail?: string;
+  // 意向服务地区（多选国内城市）
+  intendedServiceRegions?: string[];
+  // 服务产品需求：货代/关务/仓储/运输/进出口/维修/合同物流/一体化供应链/其他
+  serviceProducts?: string[];
+  // 预计月均业务量（票）
+  estimatedMonthlyVolume?: string;
+  // 仓库面积（平方米）
+  warehouseArea?: string;
+  // 仓库温湿度要求
+  warehouseConditions?: string;
+  // 客户系统代码（风控审批通过后自动回填，不可修改）
+  customerSystemCode?: string;
+  // 客户等级：K/A/B/C/D
+  customerLevel?: string;
+  // 我司优势简述
+  ourAdvantage?: string;
+  // 我司劣势简述
+  ourDisadvantage?: string;
 }
 
 export interface CompanyBusinessInfo {
@@ -75,6 +114,17 @@ export interface CompanyBusinessInfo {
   registeredAddress: string;
   correspondenceAddress: string;
   businessScope: string;
+  // 从旧 CompanyBasicInfo 移入的工商类字段（可选）
+  phone?: string;
+  registrationStatus?: string;
+  legalRepresentative?: string;
+  email?: string;
+  enterpriseScale?: string;
+  registeredCapital?: string;
+  website?: string;
+  establishmentDate?: string;
+  countryRegion?: string;
+  industryTags?: string[];
 }
 
 export interface CompanySemiconductorInfo {

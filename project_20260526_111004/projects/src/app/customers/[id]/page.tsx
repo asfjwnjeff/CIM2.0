@@ -15,6 +15,7 @@ import {
   MOCK_USERS,
   getCustomerLevelIcon,
   getCustomerChainRoleLabel,
+  getCustomerStatusColor,
 } from '@/lib/sample-data';
 import { ArrowLeft, Edit3, UserPlus, UserCheck, UserX } from 'lucide-react';
 
@@ -216,21 +217,21 @@ export default function CustomerDetailPage() {
             </button>
             <button
               onClick={() => openDialog('collaborate')}
-              className="inline-flex items-center gap-1.5 px-3 py-2 border border-[#D5D5D5] text-[#0A0A0A] rounded-lg text-sm hover:bg-[#F5F5F5] transition-colors"
+              className="inline-flex items-center gap-1.5 px-3 py-2 bg-[#E8EBFF] text-[#2D3BFF] border border-[#C7CCFF] rounded-lg text-sm font-medium hover:bg-[#D8DCFF] transition-colors"
             >
               <UserPlus className="w-4 h-4" />
               协同
             </button>
             <button
               onClick={() => openDialog('assign')}
-              className="inline-flex items-center gap-1.5 px-3 py-2 border border-[#D5D5D5] text-[#0A0A0A] rounded-lg text-sm hover:bg-[#F5F5F5] transition-colors"
+              className="inline-flex items-center gap-1.5 px-3 py-2 bg-[#E6F7F0] text-[#0D8A5E] border border-[#B8E8D4] rounded-lg text-sm font-medium hover:bg-[#D0F0E4] transition-colors"
             >
               <UserCheck className="w-4 h-4" />
               分配
             </button>
             <button
               onClick={() => openDialog('transfer')}
-              className="inline-flex items-center gap-1.5 px-3 py-2 border border-[#D5D5D5] text-[#0A0A0A] rounded-lg text-sm hover:bg-[#F5F5F5] transition-colors"
+              className="inline-flex items-center gap-1.5 px-3 py-2 bg-[#FFF4E8] text-[#E8850C] border border-[#FFE0B2] rounded-lg text-sm font-medium hover:bg-[#FFECD0] transition-colors"
             >
               <UserX className="w-4 h-4" />
               移交
@@ -324,6 +325,16 @@ export default function CustomerDetailPage() {
                     </span>
                   </div>
                   <div>
+                    <label className="block text-[13px] text-[#5A5A5A] mb-1">客户代码</label>
+                    <p className="text-[13px] text-[#0A0A0A] font-mono">{customer.customerCode || '-'}</p>
+                  </div>
+                  <div>
+                    <label className="block text-[13px] text-[#5A5A5A] mb-1">客户状态</label>
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getCustomerStatusColor(customer.status)}`}>
+                      {customer.status === 'active' ? '活跃' : customer.status === 'inactive' ? '非活跃' : customer.status === 'potential' ? '潜在' : customer.status === 'frozen' ? '冻结' : customer.status}
+                    </span>
+                  </div>
+                  <div>
                     <label className="block text-[13px] text-[#5A5A5A] mb-1">签约主体</label>
                     <div className="flex flex-wrap gap-1">
                       {(customer.signingEntityIds || []).length > 0 ? (
@@ -371,61 +382,121 @@ export default function CustomerDetailPage() {
                 </div>
               </div>
 
-              {/* Existing basic info */}
+              {/* 企业基本信息 - new fields */}
               <div className="bg-white rounded-2xl border border-[#EBEBEB] shadow-[0_2px_8px_rgba(0,0,0,0.06)] p-6">
                 <h3 className="text-[16px] font-semibold text-[#0A0A0A] mb-4">企业基本信息</h3>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                   <div>
-                    <label className="block text-[13px] text-[#5A5A5A] mb-1">统一社会信用代码</label>
+                    <label className="block text-[13px] text-[#5A5A5A] mb-1">客户LOGO</label>
+                    <div className="flex flex-wrap gap-1">
+                      {customer.basicInfo?.logoUrls?.length ? (
+                        customer.basicInfo.logoUrls.map((url, idx) => (
+                          <img key={idx} src={url} alt={`LOGO ${idx + 1}`} className="w-8 h-8 rounded object-cover border border-[#EBEBEB]" />
+                        ))
+                      ) : <span className="text-sm text-[#999999]">-</span>}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-[13px] text-[#5A5A5A] mb-1">客户名称</label>
+                    <p className="text-[13px] text-[#0A0A0A] font-medium">{customer.name || '-'}</p>
+                  </div>
+                  <div>
+                    <label className="block text-[13px] text-[#5A5A5A] mb-1">统一社会信用证代码</label>
                     <p className="text-[13px] text-[#0A0A0A] font-mono">{customer.basicInfo?.unifiedSocialCreditCode || '-'}</p>
                   </div>
                   <div>
-                    <label className="block text-[13px] text-[#5A5A5A] mb-1">电话</label>
-                    <p className="text-[13px] text-[#0A0A0A]">{customer.basicInfo?.phone || '-'}</p>
+                    <label className="block text-[13px] text-[#5A5A5A] mb-1">客户国（地）别</label>
+                    <p className="text-[13px] text-[#0A0A0A]">{customer.basicInfo?.countryRegion || '-'}</p>
                   </div>
                   <div>
-                    <label className="block text-[13px] text-[#5A5A5A] mb-1">登记状态</label>
-                    <p className="text-[13px] text-[#0A0A0A]">{customer.basicInfo?.registrationStatus || '-'}</p>
+                    <label className="block text-[13px] text-[#5A5A5A] mb-1">产业分类</label>
+                    <p className="text-[13px] text-[#0A0A0A]">{customer.basicInfo?.industryCategory || '-'}</p>
                   </div>
                   <div>
-                    <label className="block text-[13px] text-[#5A5A5A] mb-1">法定代表人</label>
-                    <p className="text-[13px] text-[#0A0A0A]">{customer.basicInfo?.legalRepresentative || '-'}</p>
+                    <label className="block text-[13px] text-[#5A5A5A] mb-1">主营产品工艺</label>
+                    <p className="text-[13px] text-[#0A0A0A]">{customer.basicInfo?.mainProducts || '-'}</p>
                   </div>
                   <div>
-                    <label className="block text-[13px] text-[#5A5A5A] mb-1">邮箱</label>
-                    <p className="text-[13px] text-[#0A0A0A]">{customer.basicInfo?.email || '-'}</p>
+                    <label className="block text-[13px] text-[#5A5A5A] mb-1">产业链业态</label>
+                    <p className="text-[13px] text-[#0A0A0A]">{customer.basicInfo?.industryChainFormat || '-'}</p>
                   </div>
                   <div>
-                    <label className="block text-[13px] text-[#5A5A5A] mb-1">企业规模</label>
-                    <p className="text-[13px] text-[#0A0A0A]">{customer.basicInfo?.enterpriseScale || '-'}</p>
+                    <label className="block text-[13px] text-[#5A5A5A] mb-1">供应链角色</label>
+                    <p className="text-[13px] text-[#0A0A0A]">{customer.basicInfo?.supplyChainRole || '-'}</p>
                   </div>
                   <div>
-                    <label className="block text-[13px] text-[#5A5A5A] mb-1">注册资本</label>
-                    <p className="text-[13px] text-[#0A0A0A]">{customer.basicInfo?.registeredCapital || '-'}</p>
+                    <label className="block text-[13px] text-[#5A5A5A] mb-1">跨境模式</label>
+                    <p className="text-[13px] text-[#0A0A0A]">{customer.basicInfo?.crossBorderMode || '-'}</p>
                   </div>
                   <div>
-                    <label className="block text-[13px] text-[#5A5A5A] mb-1">官网</label>
-                    <p className="text-sm text-[#2D3BFF]">
-                      {customer.basicInfo?.website ? (
-                        <a href={customer.basicInfo.website} target="_blank" rel="noopener noreferrer">{customer.basicInfo.website}</a>
-                      ) : '-'}
+                    <label className="block text-[13px] text-[#5A5A5A] mb-1">客户渠道</label>
+                    <p className="text-[13px] text-[#0A0A0A]">{customer.basicInfo?.customerChannel || '-'}</p>
+                  </div>
+                  <div>
+                    <label className="block text-[13px] text-[#5A5A5A] mb-1">客户来源</label>
+                    <p className="text-[13px] text-[#0A0A0A]">{customer.basicInfo?.customerSource || '-'}</p>
+                  </div>
+                  <div>
+                    <label className="block text-[13px] text-[#5A5A5A] mb-1">客户等级</label>
+                    <p className="text-[13px] text-[#0A0A0A]">{customer.basicInfo?.customerLevel || '-'}</p>
+                  </div>
+                  <div>
+                    <label className="block text-[13px] text-[#5A5A5A] mb-1">潜在竞争对手</label>
+                    <p className="text-[13px] text-[#0A0A0A]">{customer.basicInfo?.potentialCompetitors || '-'}</p>
+                  </div>
+                  <div>
+                    <label className="block text-[13px] text-[#5A5A5A] mb-1">关联上下游企业</label>
+                    <p className="text-[13px] text-[#0A0A0A]">{customer.basicInfo?.relatedEnterprises || '-'}</p>
+                  </div>
+                  <div>
+                    <label className="block text-[13px] text-[#5A5A5A] mb-1">意向服务地区</label>
+                    <div className="flex flex-wrap gap-1">
+                      {customer.basicInfo?.intendedServiceRegions?.length ? (
+                        customer.basicInfo.intendedServiceRegions.map((city, idx) => (
+                          <span key={idx} className="px-2 py-0.5 rounded-full text-xs bg-[#E8EBFF] text-[#2D3BFF]">{city}</span>
+                        ))
+                      ) : <span className="text-sm text-[#999999]">-</span>}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-[13px] text-[#5A5A5A] mb-1">服务产品</label>
+                    <div className="flex flex-wrap gap-1">
+                      {customer.basicInfo?.serviceProducts?.length ? (
+                        customer.basicInfo.serviceProducts.map((sp, idx) => (
+                          <span key={idx} className="px-2 py-0.5 rounded-full text-xs bg-[#E6F7F0] text-[#0D8A5E]">{sp}</span>
+                        ))
+                      ) : <span className="text-sm text-[#999999]">-</span>}
+                    </div>
+                  </div>
+                  <div className="lg:col-span-4">
+                    <label className="block text-[13px] text-[#5A5A5A] mb-1">公司营业地址</label>
+                    <p className="text-[13px] text-[#0A0A0A]">
+                      {[customer.basicInfo?.addressProvince, customer.basicInfo?.addressCity, customer.basicInfo?.addressDistrict, customer.basicInfo?.addressDetail].filter(Boolean).join(' ') || '-'}
                     </p>
                   </div>
                   <div>
-                    <label className="block text-[13px] text-[#5A5A5A] mb-1">成立日期</label>
-                    <p className="text-[13px] text-[#0A0A0A]">{customer.basicInfo?.establishmentDate || '-'}</p>
+                    <label className="block text-[13px] text-[#5A5A5A] mb-1">预计月均业务量（票）</label>
+                    <p className="text-[13px] text-[#0A0A0A]">{customer.basicInfo?.estimatedMonthlyVolume || '-'}</p>
                   </div>
                   <div>
-                    <label className="block text-[13px] text-[#5A5A5A] mb-1">国家（地区）</label>
-                    <p className="text-[13px] text-[#0A0A0A]">{customer.basicInfo?.countryRegion || '-'}</p>
+                    <label className="block text-[13px] text-[#5A5A5A] mb-1">仓库面积（㎡）</label>
+                    <p className="text-[13px] text-[#0A0A0A]">{customer.basicInfo?.warehouseArea || '-'}</p>
+                  </div>
+                  <div>
+                    <label className="block text-[13px] text-[#5A5A5A] mb-1">仓库温湿度要求</label>
+                    <p className="text-[13px] text-[#0A0A0A]">{customer.basicInfo?.warehouseConditions || '-'}</p>
+                  </div>
+                  <div>
+                    <label className="block text-[13px] text-[#5A5A5A] mb-1">客户系统代码</label>
+                    <p className="text-[13px] text-[#0A0A0A] font-mono">{customer.basicInfo?.customerSystemCode || '-'}</p>
                   </div>
                   <div className="lg:col-span-2">
-                    <label className="block text-[13px] text-[#5A5A5A] mb-1">行业标签</label>
-                    <div className="flex flex-wrap gap-1.5">
-                      {customer.basicInfo?.industryTags?.map((tag, idx) => (
-                        <span key={idx} className="px-2 py-0.5 rounded-full text-xs bg-[#E8EBFF] text-[#2D3BFF]">{tag}</span>
-                      )) || <span className="text-sm text-[#999999]">-</span>}
-                    </div>
+                    <label className="block text-[13px] text-[#5A5A5A] mb-1">我司优势简述</label>
+                    <p className="text-[13px] text-[#0A0A0A]">{customer.basicInfo?.ourAdvantage || '-'}</p>
+                  </div>
+                  <div className="lg:col-span-2">
+                    <label className="block text-[13px] text-[#5A5A5A] mb-1">我司劣势简述</label>
+                    <p className="text-[13px] text-[#0A0A0A]">{customer.basicInfo?.ourDisadvantage || '-'}</p>
                   </div>
                 </div>
               </div>
@@ -433,25 +504,61 @@ export default function CustomerDetailPage() {
           )}
 
           {activeTab === 'business' && (
-            <div className="bg-white rounded-2xl border border-[#EBEBEB] shadow-[0_2px_8px_rgba(0,0,0,0.06)] p-6">
-              <h3 className="text-[16px] font-semibold text-[#0A0A0A] mb-4">工商资质全景信息</h3>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                <div><label className="block text-[13px] text-[#5A5A5A] mb-1">实缴资本</label><p className="text-[13px] text-[#0A0A0A]">{customer.businessInfo?.paidInCapital || '-'}</p></div>
-                <div><label className="block text-[13px] text-[#5A5A5A] mb-1">组织机构代码</label><p className="text-[13px] text-[#0A0A0A] font-mono">{customer.businessInfo?.organizationCode || '-'}</p></div>
-                <div><label className="block text-[13px] text-[#5A5A5A] mb-1">工商注册号</label><p className="text-[13px] text-[#0A0A0A] font-mono">{customer.businessInfo?.businessRegistrationNumber || '-'}</p></div>
-                <div><label className="block text-[13px] text-[#5A5A5A] mb-1">纳税人识别号</label><p className="text-[13px] text-[#0A0A0A] font-mono">{customer.businessInfo?.taxpayerIdentificationNumber || '-'}</p></div>
-                <div><label className="block text-[13px] text-[#5A5A5A] mb-1">企业类型</label><p className="text-[13px] text-[#0A0A0A]">{customer.businessInfo?.enterpriseType || '-'}</p></div>
-                <div><label className="block text-[13px] text-[#5A5A5A] mb-1">营业期限</label><p className="text-[13px] text-[#0A0A0A]">{customer.businessInfo?.businessTerm || '-'}</p></div>
-                <div><label className="block text-[13px] text-[#5A5A5A] mb-1">纳税人资质</label><p className="text-[13px] text-[#0A0A0A]">{customer.businessInfo?.taxpayerQualification || '-'}</p></div>
-                <div><label className="block text-[13px] text-[#5A5A5A] mb-1">人员规模</label><p className="text-[13px] text-[#0A0A0A]">{customer.businessInfo?.staffSize || '-'}</p></div>
-                <div><label className="block text-[13px] text-[#5A5A5A] mb-1">参保人数</label><p className="text-[13px] text-[#0A0A0A]">{customer.businessInfo?.insuredNumber || '-'}</p></div>
-                <div><label className="block text-[13px] text-[#5A5A5A] mb-1">核准日期</label><p className="text-[13px] text-[#0A0A0A]">{customer.businessInfo?.approvalDate || '-'}</p></div>
-                <div><label className="block text-[13px] text-[#5A5A5A] mb-1">所属地区</label><p className="text-[13px] text-[#0A0A0A]">{customer.businessInfo?.region || '-'}</p></div>
-                <div><label className="block text-[13px] text-[#5A5A5A] mb-1">登记机关</label><p className="text-[13px] text-[#0A0A0A]">{customer.businessInfo?.registrationAuthority || '-'}</p></div>
-                <div><label className="block text-[13px] text-[#5A5A5A] mb-1">英文名</label><p className="text-[13px] text-[#0A0A0A]">{customer.businessInfo?.englishName || '-'}</p></div>
-                <div className="md:col-span-2"><label className="block text-[13px] text-[#5A5A5A] mb-1">注册地址</label><p className="text-[13px] text-[#0A0A0A]">{customer.businessInfo?.registeredAddress || '-'}</p></div>
-                <div className="md:col-span-2"><label className="block text-[13px] text-[#5A5A5A] mb-1">通信地址</label><p className="text-[13px] text-[#0A0A0A]">{customer.businessInfo?.correspondenceAddress || '-'}</p></div>
-                <div className="lg:col-span-4"><label className="block text-[13px] text-[#5A5A5A] mb-1">经营范围</label><p className="text-[13px] text-[#0A0A0A]">{customer.businessInfo?.businessScope || '-'}</p></div>
+            <div className="space-y-6">
+              {/* 企业工商信息（从旧基本信息移入） */}
+              <div className="bg-white rounded-2xl border border-[#EBEBEB] shadow-[0_2px_8px_rgba(0,0,0,0.06)] p-6">
+                <h3 className="text-[16px] font-semibold text-[#0A0A0A] mb-4">企业工商信息</h3>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  <div><label className="block text-[13px] text-[#5A5A5A] mb-1">电话</label><p className="text-[13px] text-[#0A0A0A]">{customer.businessInfo?.phone || '-'}</p></div>
+                  <div><label className="block text-[13px] text-[#5A5A5A] mb-1">登记状态</label><p className="text-[13px] text-[#0A0A0A]">{customer.businessInfo?.registrationStatus || '-'}</p></div>
+                  <div><label className="block text-[13px] text-[#5A5A5A] mb-1">法定代表人</label><p className="text-[13px] text-[#0A0A0A]">{customer.businessInfo?.legalRepresentative || '-'}</p></div>
+                  <div><label className="block text-[13px] text-[#5A5A5A] mb-1">邮箱</label><p className="text-[13px] text-[#0A0A0A]">{customer.businessInfo?.email || '-'}</p></div>
+                  <div><label className="block text-[13px] text-[#5A5A5A] mb-1">企业规模</label><p className="text-[13px] text-[#0A0A0A]">{customer.businessInfo?.enterpriseScale || '-'}</p></div>
+                  <div><label className="block text-[13px] text-[#5A5A5A] mb-1">注册资本</label><p className="text-[13px] text-[#0A0A0A]">{customer.businessInfo?.registeredCapital || '-'}</p></div>
+                  <div>
+                    <label className="block text-[13px] text-[#5A5A5A] mb-1">官网</label>
+                    <p className="text-sm text-[#2D3BFF]">
+                      {customer.businessInfo?.website ? (
+                        <a href={customer.businessInfo.website} target="_blank" rel="noopener noreferrer">{customer.businessInfo.website}</a>
+                      ) : '-'}
+                    </p>
+                  </div>
+                  <div><label className="block text-[13px] text-[#5A5A5A] mb-1">成立日期</label><p className="text-[13px] text-[#0A0A0A]">{customer.businessInfo?.establishmentDate || '-'}</p></div>
+                  <div><label className="block text-[13px] text-[#5A5A5A] mb-1">国家（地区）</label><p className="text-[13px] text-[#0A0A0A]">{customer.businessInfo?.countryRegion || '-'}</p></div>
+                  <div className="lg:col-span-2">
+                    <label className="block text-[13px] text-[#5A5A5A] mb-1">行业标签</label>
+                    <div className="flex flex-wrap gap-1.5">
+                      {customer.businessInfo?.industryTags?.length ? (
+                        customer.businessInfo.industryTags.map((tag, idx) => (
+                          <span key={idx} className="px-2 py-0.5 rounded-full text-xs bg-[#E8EBFF] text-[#2D3BFF]">{tag}</span>
+                        ))
+                      ) : <span className="text-sm text-[#999999]">-</span>}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* 工商登记信息 */}
+              <div className="bg-white rounded-2xl border border-[#EBEBEB] shadow-[0_2px_8px_rgba(0,0,0,0.06)] p-6">
+                <h3 className="text-[16px] font-semibold text-[#0A0A0A] mb-4">工商登记信息</h3>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  <div><label className="block text-[13px] text-[#5A5A5A] mb-1">实缴资本</label><p className="text-[13px] text-[#0A0A0A]">{customer.businessInfo?.paidInCapital || '-'}</p></div>
+                  <div><label className="block text-[13px] text-[#5A5A5A] mb-1">组织机构代码</label><p className="text-[13px] text-[#0A0A0A] font-mono">{customer.businessInfo?.organizationCode || '-'}</p></div>
+                  <div><label className="block text-[13px] text-[#5A5A5A] mb-1">工商注册号</label><p className="text-[13px] text-[#0A0A0A] font-mono">{customer.businessInfo?.businessRegistrationNumber || '-'}</p></div>
+                  <div><label className="block text-[13px] text-[#5A5A5A] mb-1">纳税人识别号</label><p className="text-[13px] text-[#0A0A0A] font-mono">{customer.businessInfo?.taxpayerIdentificationNumber || '-'}</p></div>
+                  <div><label className="block text-[13px] text-[#5A5A5A] mb-1">企业类型</label><p className="text-[13px] text-[#0A0A0A]">{customer.businessInfo?.enterpriseType || '-'}</p></div>
+                  <div><label className="block text-[13px] text-[#5A5A5A] mb-1">营业期限</label><p className="text-[13px] text-[#0A0A0A]">{customer.businessInfo?.businessTerm || '-'}</p></div>
+                  <div><label className="block text-[13px] text-[#5A5A5A] mb-1">纳税人资质</label><p className="text-[13px] text-[#0A0A0A]">{customer.businessInfo?.taxpayerQualification || '-'}</p></div>
+                  <div><label className="block text-[13px] text-[#5A5A5A] mb-1">人员规模</label><p className="text-[13px] text-[#0A0A0A]">{customer.businessInfo?.staffSize || '-'}</p></div>
+                  <div><label className="block text-[13px] text-[#5A5A5A] mb-1">参保人数</label><p className="text-[13px] text-[#0A0A0A]">{customer.businessInfo?.insuredNumber || '-'}</p></div>
+                  <div><label className="block text-[13px] text-[#5A5A5A] mb-1">核准日期</label><p className="text-[13px] text-[#0A0A0A]">{customer.businessInfo?.approvalDate || '-'}</p></div>
+                  <div><label className="block text-[13px] text-[#5A5A5A] mb-1">所属地区</label><p className="text-[13px] text-[#0A0A0A]">{customer.businessInfo?.region || '-'}</p></div>
+                  <div><label className="block text-[13px] text-[#5A5A5A] mb-1">登记机关</label><p className="text-[13px] text-[#0A0A0A]">{customer.businessInfo?.registrationAuthority || '-'}</p></div>
+                  <div><label className="block text-[13px] text-[#5A5A5A] mb-1">英文名</label><p className="text-[13px] text-[#0A0A0A]">{customer.businessInfo?.englishName || '-'}</p></div>
+                  <div className="md:col-span-2"><label className="block text-[13px] text-[#5A5A5A] mb-1">注册地址</label><p className="text-[13px] text-[#0A0A0A]">{customer.businessInfo?.registeredAddress || '-'}</p></div>
+                  <div className="md:col-span-2"><label className="block text-[13px] text-[#5A5A5A] mb-1">通信地址</label><p className="text-[13px] text-[#0A0A0A]">{customer.businessInfo?.correspondenceAddress || '-'}</p></div>
+                  <div className="lg:col-span-4"><label className="block text-[13px] text-[#5A5A5A] mb-1">经营范围</label><p className="text-[13px] text-[#0A0A0A]">{customer.businessInfo?.businessScope || '-'}</p></div>
+                </div>
               </div>
             </div>
           )}
