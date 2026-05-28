@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
-import AppLayout from '@/components/layout/AppLayout';
 
 const serviceProductOptions = ['货代', '关务', '仓储', '运输', '进出口', '维修', '合同物流', '其他'];
 
@@ -154,8 +153,7 @@ export default function AutoRuleEditPage() {
   };
 
   return (
-    <AppLayout>
-      <div className="p-6 space-y-6">
+      <div className="max-w-7xl mx-auto space-y-6">
         {/* 顶部导航 */}
         <div>
           <div className="flex items-center text-sm text-[#999999] mb-4">
@@ -419,6 +417,5 @@ export default function AutoRuleEditPage() {
           </div>
         </div>
       </div>
-    </AppLayout>
   );
 }

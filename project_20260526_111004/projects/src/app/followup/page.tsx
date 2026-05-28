@@ -2,7 +2,10 @@
 
 import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import AppLayout from '@/components/layout/AppLayout';
+import { useApp } from '@/lib/store';
+import type { FollowUpRecord } from '@/lib/types';
+import { useGroupFilter, GroupTabs, GroupManageDialog } from '@/components/groups';
+import { FIELD_META_MAP } from '@/lib/group-utils';
 
 // 内联SVG图标
 const PlusIcon = ({ className = '' }: { className?: string }) => (
@@ -192,7 +195,14 @@ const mockFollowUps = [
 
 export default function FollowUpPage() {
   const router = useRouter();
-  
+  const { currentUser } = useApp();
+
+  // ====== 分组功能 ======
+  const groupFilter = useGroupFilter<FollowUpRecord>({
+    moduleKey: 'followup',
+    currentUserId: currentUser.id,
+  });
+
   const [searchKeyword, setSearchKeyword] = useState('');
   const [viewMode, setViewMode] = useState<'table' | 'timeline'>('table');
   const [showFilter, setShowFilter] = useState(false);
@@ -203,7 +213,9 @@ export default function FollowUpPage() {
   
   // 筛选数据
   const filteredFollowUps = useMemo(() => {
-    return mockFollowUps.filter(followUp => {
+    // 第一步：应用分组筛选
+    let data = groupFilter.applyFilter(mockFollowUps as FollowUpRecord[]);
+    return data.filter(followUp => {
       // 关键词搜索
       const matchesKeyword = 
         !searchKeyword || 
@@ -227,7 +239,7 @@ export default function FollowUpPage() {
       
       return matchesKeyword && matchesType && matchesStatus && matchesMethod && matchesCustomer;
     }).sort((a, b) => new Date(b.followUpDate || b.createdAt).getTime() - new Date(a.followUpDate || a.createdAt).getTime());
-  }, [searchKeyword, filterType, filterStatus, filterMethod, filterCustomer]);
+  }, [groupFilter, searchKeyword, filterType, filterStatus, filterMethod, filterCustomer]);
 
   // 获取状态徽章颜色
   const getStatusBadgeClass = (status?: string) => {
@@ -289,8 +301,7 @@ export default function FollowUpPage() {
   };
 
   return (
-    <AppLayout>
-      <div className="p-6 space-y-6">
+      <div className="max-w-7xl mx-auto space-y-6">
         {/* 页面标题和操作区 */}
         <div className="flex items-center justify-between">
           <div>
@@ -307,6 +318,14 @@ export default function FollowUpPage() {
             </button>
           </div>
         </div>
+
+        {/* 分组标签栏 */}
+        <GroupTabs
+          groups={groupFilter.groups}
+          activeGroupId={groupFilter.activeGroupId}
+          onSelect={groupFilter.setActiveGroupId}
+          onManage={groupFilter.openCreateDialog}
+        />
 
         {/* 顶部工具栏 */}
         <div className="flex items-center justify-between gap-4">
@@ -626,7 +645,18 @@ export default function FollowUpPage() {
             )}
           </div>
         )}
+
+        {/* 分组管理弹窗 */}
+        <GroupManageDialog
+          open={groupFilter.dialogOpen}
+          onClose={groupFilter.closeDialog}
+          groups={groupFilter.groups}
+          editingGroup={groupFilter.editingGroup}
+          fieldMeta={FIELD_META_MAP.followup}
+          onSave={groupFilter.createGroup}
+          onUpdate={groupFilter.updateGroup}
+          onDelete={groupFilter.deleteGroup}
+        />
       </div>
-    </AppLayout>
   );
 }

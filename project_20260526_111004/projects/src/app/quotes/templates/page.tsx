@@ -2,7 +2,6 @@
 
 import React, { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import AppLayout from '@/components/layout/AppLayout';
 import { useApp } from '@/lib/store';
 import { QuoteTemplate, QUOTE_TEMPLATE_BUSINESS_LABELS } from '@/lib/types';
 
@@ -47,8 +46,7 @@ export default function QuoteTemplatesPage() {
   };
 
   return (
-    <AppLayout>
-      <div className="p-5">
+      <div className="max-w-7xl mx-auto space-y-6">
         {/* 头部操作区 */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
@@ -224,6 +222,5 @@ export default function QuoteTemplatesPage() {
           </div>
         )}
       </div>
-    </AppLayout>
   );
 }

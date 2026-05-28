@@ -81,11 +81,11 @@ export default function RolesPage() {
   });
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-7xl mx-auto space-y-6">
       {/* 页面标题 */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[#1E2340]">角色管理</h1>
+          <h1 className="text-2xl font-bold text-[#0A0A0A]">角色管理</h1>
           <p className="text-sm text-[#5A5A5A] mt-1">管理系统角色，配置角色权限</p>
         </div>
         <button
@@ -141,7 +141,7 @@ export default function RolesPage() {
             {filteredRoles.map((role) => (
               <tr key={role.id} className="hover:bg-[#F5F5F5] transition-colors">
                 <td className="px-4 py-3">
-                  <div className="text-sm font-medium text-[#1E2340] whitespace-nowrap">{role.name}</div>
+                  <div className="text-sm font-medium text-[#0A0A0A] whitespace-nowrap">{role.name}</div>
                 </td>
                 <td className="px-4 py-3">
                   <div className="text-sm text-[#5A5A5A] whitespace-nowrap font-mono">{role.code}</div>
@@ -175,7 +175,7 @@ export default function RolesPage() {
                       编辑
                     </button>
                     <span className="text-[#EBEBEB]">|</span>
-                    <button className="text-[#5A5A5A] hover:text-[#1E2340] text-sm font-medium transition-colors">
+                    <button className="text-[#5A5A5A] hover:text-[#0A0A0A] text-sm font-medium transition-colors">
                       权限
                     </button>
                     <span className="text-[#EBEBEB]">|</span>
@@ -194,7 +194,7 @@ export default function RolesPage() {
       <div className="grid grid-cols-4 gap-4">
         <div className="bg-white rounded-xl shadow-sm border border-[#EBEBEB] p-4">
           <div className="text-sm text-[#5A5A5A]">总角色数</div>
-          <div className="text-2xl font-bold text-[#1E2340] mt-1">{roles.length}</div>
+          <div className="text-2xl font-bold text-[#0A0A0A] mt-1">{roles.length}</div>
         </div>
         <div className="bg-white rounded-xl shadow-sm border border-[#EBEBEB] p-4">
           <div className="text-sm text-[#5A5A5A]">已启用</div>
@@ -215,12 +215,12 @@ export default function RolesPage() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl shadow-xl w-[480px] max-h-[90vh] overflow-y-auto">
             <div className="px-6 py-4 border-b border-[#EBEBEB] flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-[#1E2340]">
+              <h2 className="text-lg font-semibold text-[#0A0A0A]">
                 {editingRole ? '编辑角色' : '新增角色'}
               </h2>
               <button
                 onClick={() => { setShowAddModal(false); setEditingRole(null); }}
-                className="text-[#5A5A5A] hover:text-[#1E2340]"
+                className="text-[#5A5A5A] hover:text-[#0A0A0A]"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
@@ -229,7 +229,7 @@ export default function RolesPage() {
             </div>
             <div className="p-6 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-[#1E2340] mb-1">
+                <label className="block text-sm font-medium text-[#0A0A0A] mb-1">
                   角色名称 <span className="text-[#EF4444]">*</span>
                 </label>
                 <input
@@ -240,7 +240,7 @@ export default function RolesPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-[#1E2340] mb-1">
+                <label className="block text-sm font-medium text-[#0A0A0A] mb-1">
                   角色代码 <span className="text-[#EF4444]">*</span>
                 </label>
                 <input
@@ -251,7 +251,7 @@ export default function RolesPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-[#1E2340] mb-1">描述</label>
+                <label className="block text-sm font-medium text-[#0A0A0A] mb-1">描述</label>
                 <textarea
                   defaultValue={editingRole?.description}
                   rows={3}
@@ -260,7 +260,7 @@ export default function RolesPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-[#1E2340] mb-1">状态</label>
+                <label className="block text-sm font-medium text-[#0A0A0A] mb-1">状态</label>
                 <div className="flex items-center space-x-4">
                   <label className="flex items-center">
                     <input

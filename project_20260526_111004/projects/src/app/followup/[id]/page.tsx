@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import AppLayout from '@/components/layout/AppLayout';
 
 // 内联SVG图标
 const PlusIcon = ({ className = '' }: { className?: string }) => (
@@ -199,8 +198,7 @@ export default function FollowUpDetailPage() {
   const statusConfig = followUpStatusMap[data.followUpStatus] || followUpStatusMap['discussing'];
 
   return (
-    <AppLayout>
-      <div className="p-6 space-y-6">
+      <div className="max-w-7xl mx-auto space-y-6">
         {/* 顶部 */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -417,6 +415,5 @@ export default function FollowUpDetailPage() {
           </div>
         </div>
       </div>
-    </AppLayout>
   );
 }

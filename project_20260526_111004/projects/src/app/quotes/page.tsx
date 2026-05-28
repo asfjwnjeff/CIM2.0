@@ -2,7 +2,6 @@
 
 import React, { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import AppLayout from '@/components/layout/AppLayout';
 import { useApp } from '@/lib/store';
 import { Quote, QuoteStatus } from '@/lib/types';
 
@@ -75,8 +74,7 @@ export default function QuotesPage() {
   };
 
   return (
-    <AppLayout>
-      <div className="p-5">
+      <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
@@ -345,6 +343,5 @@ export default function QuotesPage() {
           </div>
         )}
       </div>
-    </AppLayout>
   );
 }

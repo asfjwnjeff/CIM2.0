@@ -2,7 +2,6 @@
 
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import AppLayout from '@/components/layout/AppLayout';
 import { useApp } from '@/lib/store';
 import { MOCK_USERS, PROGRESS_STATUS_LABELS } from '@/lib/sample-data';
 import type { ProgressStatus, IndustryChainLevel, IndustryChainRole, CustomerStatus } from '@/lib/types';
@@ -33,8 +32,9 @@ const TAB_LABELS: Record<TabType, string> = {
 interface FormData {
   name: string;
   customerCode: string;
-  signingEntity: string;
-  serviceEntity: string;
+  signingEntityIds: string[];
+  serviceEntityIds: string[];
+  settlementEntityIds: string[];
   status: CustomerStatus;
   createdBy: string;
   responsiblePersons: string[];
@@ -119,11 +119,22 @@ const PROGRESS_STATUS_OPTIONS: SelectOption[] = Object.entries(PROGRESS_STATUS_L
 
 const USER_OPTIONS: SelectOption[] = MOCK_USERS.map((u) => ({ value: u.id, label: u.name }));
 
+function getSigningEntityOptions(signingEntities: ReturnType<typeof useApp>['signingEntities']): SelectOption[] {
+  return signingEntities.map((e) => ({ value: e.id, label: e.name }));
+}
+function getServiceEntityOptions(serviceEntities: ReturnType<typeof useApp>['serviceEntities']): SelectOption[] {
+  return serviceEntities.map((e) => ({ value: e.id, label: e.name }));
+}
+function getSettlementEntityOptions(settlementEntities: ReturnType<typeof useApp>['settlementEntities']): SelectOption[] {
+  return settlementEntities.map((e) => ({ value: e.id, label: e.name }));
+}
+
 const EMPTY_FORM: FormData = {
   name: '',
   customerCode: '',
-  signingEntity: '',
-  serviceEntity: '',
+  signingEntityIds: [],
+  serviceEntityIds: [],
+  settlementEntityIds: [],
   status: 'active',
   createdBy: 'user-1',
   responsiblePersons: [],
@@ -200,7 +211,7 @@ function UserBadgeRender({ userId, onRemove }: { userId: string; onRemove: () =>
 
 export default function NewCustomerPage() {
   const router = useRouter();
-  const { addCustomer, addLog } = useApp();
+  const { addCustomer, addLog, signingEntities, serviceEntities, settlementEntities } = useApp();
   const [activeTab, setActiveTab] = useState<TabType>('basic');
   const [form, setForm] = useState<FormData>({ ...EMPTY_FORM });
   const [isDirty, setIsDirty] = useState(false);
@@ -259,8 +270,9 @@ export default function NewCustomerPage() {
     const newCustomer = {
       name: form.name.trim(),
       customerCode: form.customerCode.trim() || undefined,
-      signingEntity: form.signingEntity.trim() || undefined,
-      serviceEntity: form.serviceEntity.trim() || undefined,
+      signingEntityIds: form.signingEntityIds.length > 0 ? form.signingEntityIds : undefined,
+      serviceEntityIds: form.serviceEntityIds.length > 0 ? form.serviceEntityIds : undefined,
+      settlementEntityIds: form.settlementEntityIds.length > 0 ? form.settlementEntityIds : undefined,
       status: form.status,
       level: undefined,
       relationshipLoyalty: undefined,
@@ -331,15 +343,14 @@ export default function NewCustomerPage() {
   const requiredStar = FIELD_STYLES.requiredStar;
 
   return (
-    <AppLayout>
-      <div className="max-w-7xl mx-auto space-y-5">
+      <div className="max-w-7xl mx-auto space-y-6">
         {/* Page header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button onClick={handleBack} className="p-2 text-[#5A5A5A] hover:text-[#0A0A0A] hover:bg-[#F5F5F5] rounded-lg transition-colors">
               <ArrowLeft className="w-5 h-5" />
             </button>
-            <h1 className="text-[20px] font-bold text-[#0A0A0A]">新增客户</h1>
+            <h1 className="text-2xl font-bold text-[#0A0A0A]">新增客户</h1>
           </div>
           <div className="flex items-center gap-3">
             <button onClick={handleBack} className="px-4 py-2 border border-[#D5D5D5] text-[#5A5A5A] hover:bg-[#F5F5F5] rounded-lg text-sm font-medium transition-colors">
@@ -435,11 +446,36 @@ export default function NewCustomerPage() {
                   </div>
                   <div>
                     <label className={FIELD_STYLES.label}>签约主体</label>
-                    <input type="text" className={FIELD_STYLES.input} value={form.signingEntity} onChange={(e) => updateField('signingEntity', e.target.value)} placeholder="请输入签约主体" />
+                    <SearchableMultiSelect
+                      values={form.signingEntityIds}
+                      onChange={(ids) => updateField('signingEntityIds', ids)}
+                      options={getSigningEntityOptions(signingEntities)}
+                      placeholder="搜索并选择签约主体..."
+                      searchPlaceholder="搜索签约主体..."
+                      emptyText="未找到签约主体"
+                    />
                   </div>
                   <div>
                     <label className={FIELD_STYLES.label}>服务主体</label>
-                    <input type="text" className={FIELD_STYLES.input} value={form.serviceEntity} onChange={(e) => updateField('serviceEntity', e.target.value)} placeholder="请输入服务主体" />
+                    <SearchableMultiSelect
+                      values={form.serviceEntityIds}
+                      onChange={(ids) => updateField('serviceEntityIds', ids)}
+                      options={getServiceEntityOptions(serviceEntities)}
+                      placeholder="搜索并选择服务主体..."
+                      searchPlaceholder="搜索服务主体..."
+                      emptyText="未找到服务主体"
+                    />
+                  </div>
+                  <div>
+                    <label className={FIELD_STYLES.label}>结算主体</label>
+                    <SearchableMultiSelect
+                      values={form.settlementEntityIds}
+                      onChange={(ids) => updateField('settlementEntityIds', ids)}
+                      options={getSettlementEntityOptions(settlementEntities)}
+                      placeholder="搜索并选择结算主体..."
+                      searchPlaceholder="搜索结算主体..."
+                      emptyText="未找到结算主体"
+                    />
                   </div>
                 </div>
               </div>
@@ -554,7 +590,6 @@ export default function NewCustomerPage() {
           {activeTab === 'logs' && <EmptyTab message="操作日志将在客户创建后产生" />}
         </div>
       </div>
-    </AppLayout>
   );
 }
 

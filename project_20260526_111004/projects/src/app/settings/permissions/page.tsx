@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import AppLayout from '@/components/layout/AppLayout';
 
 const UsersIcon = () => (
   <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -14,8 +13,7 @@ const UsersIcon = () => (
 
 export default function PermissionsPage() {
   return (
-    <AppLayout>
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-7xl mx-auto space-y-6">
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-[#0A0A0A]">权限管理</h1>
           <p className="text-[#5A5A5A] mt-1">管理系统用户和权限配置</p>
@@ -69,6 +67,5 @@ export default function PermissionsPage() {
           </div>
         </div>
       </div>
-    </AppLayout>
   );
 }

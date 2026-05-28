@@ -183,11 +183,11 @@ export default function RulesPage() {
   };
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="max-w-7xl mx-auto space-y-6">
       {/* 页面标题 */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-[32px] font-bold text-[#0A0A0A]">
+          <h1 className="text-2xl font-bold text-[#0A0A0A]">
             账单主体规则管理
           </h1>
           <p className="text-[#5A5A5A] mt-2 text-sm">配置订单拆分规则，自动匹配账单主体</p>

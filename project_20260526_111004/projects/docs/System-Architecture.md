@@ -138,7 +138,7 @@ graph TB
     Context --> MockData
     Context --> LocalStorage
 
-    style NextJS fill:#1A2FFF,stroke:#fff,stroke-width:2px,color:#fff
+    style NextJS fill:#2D3BFF,stroke:#fff,stroke-width:2px,color:#fff
     style React fill:#61DAFB,stroke:#333,stroke-width:2px
     style RuleService fill:#764ba2,stroke:#fff,stroke-width:2px,color:#fff
     style LLMService fill:#ff6b6b,stroke:#fff,stroke-width:2px,color:#fff
@@ -194,7 +194,7 @@ graph LR
     shadcn --> Tailwind
     Components --> Icons
 
-    style NextJS fill:#1A2FFF,stroke:#fff,stroke-width:2px,color:#fff
+    style NextJS fill:#2D3BFF,stroke:#fff,stroke-width:2px,color:#fff
 ```
 
 #### 后端服务 (Backend)

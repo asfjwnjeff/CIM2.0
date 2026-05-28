@@ -295,10 +295,10 @@ export default function ApiManagementPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-7xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[#1E2340]">接口管理</h1>
+          <h1 className="text-2xl font-bold text-[#0A0A0A]">接口管理</h1>
           <p className="text-sm text-[#5A5A5A] mt-1">管理系统与COS、CPQ系统的接口配置和调用监控</p>
         </div>
         <div className="flex items-center space-x-3">
@@ -316,7 +316,7 @@ export default function ApiManagementPage() {
               运行中
             </span>
           </div>
-          <div className="text-lg font-bold text-[#1E2340]">CIM 客户信息管理系统</div>
+          <div className="text-lg font-bold text-[#0A0A0A]">CIM 客户信息管理系统</div>
           <div className="text-xs text-[#5A5A5A] mt-2">提供账单拆分规则配置和账单主体匹配服务</div>
         </div>
         {systemConfigs.map((system) => (
@@ -327,7 +327,7 @@ export default function ApiManagementPage() {
                 {system.status === 'connected' ? '已连接' : system.status === 'error' ? '异常' : '未连接'}
               </span>
             </div>
-            <div className="text-lg font-bold text-[#1E2340]">{system.systemName}</div>
+            <div className="text-lg font-bold text-[#0A0A0A]">{system.systemName}</div>
             <div className="text-xs text-[#5A5A5A] mt-2">{system.description}</div>
             <div className="text-xs text-[#999999] mt-2">最后同步：{system.lastSyncTime}</div>
           </div>
@@ -341,7 +341,7 @@ export default function ApiManagementPage() {
             className={`px-6 py-3 text-sm font-medium transition-colors ${
               activeTab === 'flow'
                 ? 'text-[#2D3BFF] border-b-2 border-[#2D3BFF]'
-                : 'text-[#5A5A5A] hover:text-[#1E2340]'
+                : 'text-[#5A5A5A] hover:text-[#0A0A0A]'
             }`}
           >
             业务流程
@@ -351,7 +351,7 @@ export default function ApiManagementPage() {
             className={`px-6 py-3 text-sm font-medium transition-colors ${
               activeTab === 'interfaces'
                 ? 'text-[#2D3BFF] border-b-2 border-[#2D3BFF]'
-                : 'text-[#5A5A5A] hover:text-[#1E2340]'
+                : 'text-[#5A5A5A] hover:text-[#0A0A0A]'
             }`}
           >
             接口列表
@@ -361,7 +361,7 @@ export default function ApiManagementPage() {
             className={`px-6 py-3 text-sm font-medium transition-colors ${
               activeTab === 'logs'
                 ? 'text-[#2D3BFF] border-b-2 border-[#2D3BFF]'
-                : 'text-[#5A5A5A] hover:text-[#1E2340]'
+                : 'text-[#5A5A5A] hover:text-[#0A0A0A]'
             }`}
           >
             调用日志
@@ -370,9 +370,9 @@ export default function ApiManagementPage() {
 
         <div className="p-6">
           {activeTab === 'flow' && (
-            <div className="space-y-6">
+            <div className="max-w-7xl mx-auto space-y-6">
               <div className="bg-[#F5F5F5] rounded-xl p-6">
-                <h3 className="text-sm font-semibold text-[#1E2340] mb-4">业务流程时序图</h3>
+                <h3 className="text-sm font-semibold text-[#0A0A0A] mb-4">业务流程时序图</h3>
                 <div className="relative">
                   <div className="grid grid-cols-4 gap-4 mb-6">
                     <div className="text-center">
@@ -421,7 +421,7 @@ export default function ApiManagementPage() {
                           </div>
                           <div className="ml-3 flex-1">
                             <div className="flex items-center justify-between">
-                              <span className="font-medium text-[#1E2340]">{stage.name}</span>
+                              <span className="font-medium text-[#0A0A0A]">{stage.name}</span>
                               <span className="text-xs text-[#5A5A5A]">{stage.participants.join(' → ')}</span>
                             </div>
                             <div className="text-xs text-[#5A5A5A] mt-1">{stage.description}</div>
@@ -482,7 +482,7 @@ export default function ApiManagementPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-white rounded-lg border border-[#EBEBEB] p-4">
-                  <h4 className="text-sm font-semibold text-[#1E2340] mb-3 flex items-center">
+                  <h4 className="text-sm font-semibold text-[#0A0A0A] mb-3 flex items-center">
                     <span className="w-2 h-2 rounded-full bg-[#22C55E] mr-2"></span>
                     对外提供的接口（别人调CIM）
                   </h4>
@@ -493,7 +493,7 @@ export default function ApiManagementPage() {
                           <span className={`px-2 py-0.5 text-xs font-medium rounded ${getMethodStyle(ep.method)}`}>
                             {ep.method}
                           </span>
-                          <span className="text-sm text-[#1E2340]">{ep.name}</span>
+                          <span className="text-sm text-[#0A0A0A]">{ep.name}</span>
                         </div>
                         <span className="text-xs text-[#22C55E]">← {ep.sourceSystem}</span>
                       </div>
@@ -501,7 +501,7 @@ export default function ApiManagementPage() {
                   </div>
                 </div>
                 <div className="bg-white rounded-lg border border-[#EBEBEB] p-4">
-                  <h4 className="text-sm font-semibold text-[#1E2340] mb-3 flex items-center">
+                  <h4 className="text-sm font-semibold text-[#0A0A0A] mb-3 flex items-center">
                     <span className="w-2 h-2 rounded-full bg-[#2D3BFF] mr-2"></span>
                     调用外部系统的接口（CIM调别人）
                   </h4>
@@ -512,7 +512,7 @@ export default function ApiManagementPage() {
                           <span className={`px-2 py-0.5 text-xs font-medium rounded ${getMethodStyle(ep.method)}`}>
                             {ep.method}
                           </span>
-                          <span className="text-sm text-[#1E2340]">{ep.name}</span>
+                          <span className="text-sm text-[#0A0A0A]">{ep.name}</span>
                         </div>
                         <span className="text-xs text-[#2D3BFF]">→ {ep.targetSystem}</span>
                       </div>
@@ -527,7 +527,7 @@ export default function ApiManagementPage() {
             <div className="space-y-4">
               <div className="grid grid-cols-4 gap-4">
                 <div className="bg-[#F5F5F5] rounded-lg p-4 text-center">
-                  <div className="text-2xl font-bold text-[#1E2340]">{endpoints.length}</div>
+                  <div className="text-2xl font-bold text-[#0A0A0A]">{endpoints.length}</div>
                   <div className="text-xs text-[#5A5A5A]">接口总数</div>
                 </div>
                 <div className="bg-[#E8FCEF] rounded-lg p-4 text-center">
@@ -578,11 +578,11 @@ export default function ApiManagementPage() {
                           </span>
                         </td>
                         <td className="px-4 py-3">
-                          <div className="text-sm font-medium text-[#1E2340]">{ep.name}</div>
+                          <div className="text-sm font-medium text-[#0A0A0A]">{ep.name}</div>
                           <div className="text-xs text-[#5A5A5A]">{ep.description}</div>
                         </td>
                         <td className="px-4 py-3 whitespace-nowrap">
-                          <code className="text-xs bg-[#F1F5F9] px-2 py-1 rounded text-[#1E2340]">{ep.path}</code>
+                          <code className="text-xs bg-[#F1F5F9] px-2 py-1 rounded text-[#0A0A0A]">{ep.path}</code>
                         </td>
                         <td className="px-4 py-3 whitespace-nowrap text-sm text-[#5A5A5A]">
                           {ep.direction === 'inbound' ? (
@@ -591,7 +591,7 @@ export default function ApiManagementPage() {
                             <span className="text-[#2D3BFF]">→ {ep.targetSystem}</span>
                           )}
                         </td>
-                        <td className="px-4 py-3 whitespace-nowrap text-sm text-[#1E2340]">{ep.callCount.toLocaleString()}</td>
+                        <td className="px-4 py-3 whitespace-nowrap text-sm text-[#0A0A0A]">{ep.callCount.toLocaleString()}</td>
                         <td className="px-4 py-3 whitespace-nowrap text-sm text-[#5A5A5A]">{ep.avgResponseTime}ms</td>
                         <td className="px-4 py-3 whitespace-nowrap">
                           <span className={`px-2 py-1 text-xs font-medium rounded ${ep.status === 'active' ? 'bg-[#E8FCEF] text-[#22C55E]' : 'bg-[#F1F5F9] text-[#5A5A5A]'}`}>
@@ -609,13 +609,13 @@ export default function ApiManagementPage() {
           {activeTab === 'logs' && (
             <div className="space-y-4">
               <div className="flex items-center space-x-4">
-                <select className="px-3 py-2 border border-[#EBEBEB] rounded-lg text-sm text-[#1E2340] focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/20">
+                <select className="px-3 py-2 border border-[#EBEBEB] rounded-lg text-sm text-[#0A0A0A] focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/20">
                   <option value="all">全部流程阶段</option>
                   <option value="match">账单主体匹配</option>
                   <option value="sync">数据同步</option>
                   <option value="rule">规则查询</option>
                 </select>
-                <select className="px-3 py-2 border border-[#EBEBEB] rounded-lg text-sm text-[#1E2340] focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/20">
+                <select className="px-3 py-2 border border-[#EBEBEB] rounded-lg text-sm text-[#0A0A0A] focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/20">
                   <option value="all">全部状态</option>
                   <option value="success">成功</option>
                   <option value="error">失败</option>
@@ -640,7 +640,7 @@ export default function ApiManagementPage() {
                   <tbody className="bg-white divide-y divide-[#EBEBEB]">
                     {flowLogs.map((log) => (
                       <tr key={log.id} className="hover:bg-[#F5F5F5] transition-colors">
-                        <td className="px-4 py-3 whitespace-nowrap text-sm text-[#1E2340]">{log.requestTime}</td>
+                        <td className="px-4 py-3 whitespace-nowrap text-sm text-[#0A0A0A]">{log.requestTime}</td>
                         <td className="px-4 py-3 whitespace-nowrap">
                           <span className="px-2 py-1 text-xs font-medium rounded bg-[#F1F5F9] text-[#5A5A5A]">{log.flowStage}</span>
                         </td>
@@ -651,7 +651,7 @@ export default function ApiManagementPage() {
                         </td>
                         <td className="px-4 py-3 whitespace-nowrap text-sm text-[#5A5A5A]">{log.sourceSystem} → {log.targetSystem}</td>
                         <td className="px-4 py-3 whitespace-nowrap">
-                          <code className="text-xs bg-[#F1F5F9] px-2 py-1 rounded text-[#1E2340]">{log.endpoint}</code>
+                          <code className="text-xs bg-[#F1F5F9] px-2 py-1 rounded text-[#0A0A0A]">{log.endpoint}</code>
                         </td>
                         <td className="px-4 py-3 whitespace-nowrap text-sm">
                           <span className={log.statusCode === 200 ? 'text-[#22C55E]' : 'text-[#EF4444]'}>{log.statusCode}</span>
@@ -677,8 +677,8 @@ export default function ApiManagementPage() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl shadow-xl w-[500px] max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between p-4 border-b border-[#EBEBEB]">
-              <h3 className="text-lg font-semibold text-[#1E2340]">{editingSystem ? '编辑系统配置' : '新增系统配置'}</h3>
-              <button onClick={() => setShowEditModal(false)} className="text-[#5A5A5A] hover:text-[#1E2340]">
+              <h3 className="text-lg font-semibold text-[#0A0A0A]">{editingSystem ? '编辑系统配置' : '新增系统配置'}</h3>
+              <button onClick={() => setShowEditModal(false)} className="text-[#5A5A5A] hover:text-[#0A0A0A]">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
@@ -686,27 +686,27 @@ export default function ApiManagementPage() {
             </div>
             <div className="p-4 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-[#1E2340] mb-1">系统名称</label>
+                <label className="block text-sm font-medium text-[#0A0A0A] mb-1">系统名称</label>
                 <input type="text" className="w-full px-3 py-2 border border-[#EBEBEB] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/20" placeholder="请输入系统名称" defaultValue={editingSystem?.systemName} />
               </div>
               <div>
-                <label className="block text-sm font-medium text-[#1E2340] mb-1">系统代码</label>
+                <label className="block text-sm font-medium text-[#0A0A0A] mb-1">系统代码</label>
                 <input type="text" className="w-full px-3 py-2 border border-[#EBEBEB] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/20" placeholder="如：CPQ、COS" defaultValue={editingSystem?.systemCode} />
               </div>
               <div>
-                <label className="block text-sm font-medium text-[#1E2340] mb-1">Base URL</label>
+                <label className="block text-sm font-medium text-[#0A0A0A] mb-1">Base URL</label>
                 <input type="text" className="w-full px-3 py-2 border border-[#EBEBEB] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/20" placeholder="https://api.example.com" defaultValue={editingSystem?.baseUrl} />
               </div>
               <div>
-                <label className="block text-sm font-medium text-[#1E2340] mb-1">API Key</label>
+                <label className="block text-sm font-medium text-[#0A0A0A] mb-1">API Key</label>
                 <input type="text" className="w-full px-3 py-2 border border-[#EBEBEB] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/20" placeholder="请输入API Key" defaultValue={editingSystem?.apiKey} />
               </div>
               <div>
-                <label className="block text-sm font-medium text-[#1E2340] mb-1">API Secret</label>
+                <label className="block text-sm font-medium text-[#0A0A0A] mb-1">API Secret</label>
                 <input type="password" className="w-full px-3 py-2 border border-[#EBEBEB] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/20" placeholder="请输入API Secret" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-[#1E2340] mb-1">描述</label>
+                <label className="block text-sm font-medium text-[#0A0A0A] mb-1">描述</label>
                 <textarea className="w-full px-3 py-2 border border-[#EBEBEB] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/20" rows={3} placeholder="请输入系统描述" defaultValue={editingSystem?.description} />
               </div>
             </div>

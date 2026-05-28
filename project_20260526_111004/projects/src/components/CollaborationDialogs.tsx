@@ -40,7 +40,7 @@ function UserAvatar({ user, size }: { user: MockUser; size?: 'sm' | 'md' }) {
   const initial = user.name.charAt(0);
   const sizeClass = size === 'sm' ? 'w-6 h-6 text-xs' : 'w-8 h-8 text-sm';
   return (
-    <div className={`${sizeClass} rounded-full bg-gradient-to-br from-[#1A2FFF] to-[#3B52FF] text-white flex items-center justify-center font-medium shrink-0`}>
+    <div className={`${sizeClass} rounded-full bg-[#2D3BFF] text-white flex items-center justify-center font-medium shrink-0`}>
       {initial}
     </div>
   );
@@ -197,7 +197,7 @@ export function CollaborationDialogs({
                                     <div className="text-sm">{user.name}</div>
                                     <div className="text-xs text-gray-500">{user.department}</div>
                                   </div>
-                                  {isSelected && <Check className="w-4 h-4 text-[#1A2FFF]" />}
+                                  {isSelected && <Check className="w-4 h-4 text-[#2D3BFF]" />}
                                 </CommandItem>
                               );
                             })}
@@ -247,7 +247,7 @@ export function CollaborationDialogs({
                                 <div className="text-sm">{user.name}</div>
                                 <div className="text-xs text-gray-500">{user.department}</div>
                               </div>
-                              {selectedPerson === user.id && <Check className="w-4 h-4 text-[#1A2FFF]" />}
+                              {selectedPerson === user.id && <Check className="w-4 h-4 text-[#2D3BFF]" />}
                             </CommandItem>
                           ))}
                         </ScrollArea>
@@ -296,7 +296,7 @@ export function CollaborationDialogs({
                                   <div className="text-sm">{user.name}</div>
                                   <div className="text-xs text-gray-500">{user.department}</div>
                                 </div>
-                                {newResponsiblePerson === user.id && <Check className="w-4 h-4 text-[#1A2FFF]" />}
+                                {newResponsiblePerson === user.id && <Check className="w-4 h-4 text-[#2D3BFF]" />}
                               </CommandItem>
                             ))}
                           </ScrollArea>
@@ -324,7 +324,7 @@ export function CollaborationDialogs({
           <Button variant="outline" onClick={() => handleOpenChange(false)}>
             取消
           </Button>
-          <Button onClick={handleConfirm} disabled={isConfirmDisabled} className="bg-[#1A2FFF] hover:bg-[#1524CC]">
+          <Button onClick={handleConfirm} disabled={isConfirmDisabled} className="bg-[#2D3BFF] hover:bg-[#4338CA]">
             确认
           </Button>
         </DialogFooter>

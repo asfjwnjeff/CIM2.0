@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { SearchableSelect } from '@/components/ui/searchable-select';
-import AppLayout from '@/components/layout/AppLayout';
 import { useApp } from '@/lib/store';
 import type { Customer } from '@/lib/types';
 
@@ -33,8 +32,7 @@ export default function NewQuotePage() {
   };
 
   return (
-    <AppLayout>
-      <div className="flex flex-col h-full">
+      <div className="max-w-7xl mx-auto space-y-6">
         {/* 页面头部 */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
@@ -43,7 +41,7 @@ export default function NewQuotePage() {
               返回
             </Button>
             <div>
-              <h1 className="text-2xl font-bold">新增报价单</h1>
+              <h1 className="text-2xl font-bold text-[#0A0A0A]">新增报价单</h1>
             </div>
           </div>
         </div>
@@ -163,6 +161,5 @@ export default function NewQuotePage() {
           </div>
         </form>
       </div>
-    </AppLayout>
   );
 }

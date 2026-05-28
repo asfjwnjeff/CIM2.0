@@ -107,7 +107,7 @@ async function seed() {
   for (const c of initialCustomers) {
     db.insert(customers).values({
       id: c.id, name: c.name, customerCode: c.customerCode ?? null,
-      signingEntity: c.signingEntity ?? null, serviceEntity: c.serviceEntity ?? null,
+      signingEntityIds: c.signingEntityIds ? JSON.stringify(c.signingEntityIds) : null, serviceEntityIds: c.serviceEntityIds ? JSON.stringify(c.serviceEntityIds) : null, settlementEntityIds: c.settlementEntityIds ? JSON.stringify(c.settlementEntityIds) : null,
       status: c.status,
       basicInfo: c.basicInfo ? JSON.stringify(c.basicInfo) : null,
       businessInfo: c.businessInfo ? JSON.stringify(c.businessInfo) : null,

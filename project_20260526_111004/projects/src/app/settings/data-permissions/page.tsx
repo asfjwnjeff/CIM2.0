@@ -189,7 +189,7 @@ function CustomerMultiSelect({
                     className="w-4 h-4 rounded border-[#D1D5DB] text-[#2D3BFF] focus:ring-[#2D3BFF]/30 mr-2.5"
                   />
                   <div className="flex-1 min-w-0">
-                    <div className="text-sm text-[#1E2340] truncate">{c.name}</div>
+                    <div className="text-sm text-[#0A0A0A] truncate">{c.name}</div>
                     <div className="text-xs text-[#B0B8D1]">{c.customerCode}</div>
                   </div>
                 </label>
@@ -352,10 +352,10 @@ export default function DataPermissionsPage() {
   };
 
   return (
-    <div className="space-y-5">
+    <div className="max-w-7xl mx-auto space-y-6">
       {/* 页面标题 */}
       <div>
-        <h1 className="text-2xl font-bold text-[#1E2340]">数据权限管理</h1>
+        <h1 className="text-2xl font-bold text-[#0A0A0A]">数据权限管理</h1>
         <p className="text-sm text-[#5A5A5A] mt-1">配置用户、角色、部门的客户数据可见性</p>
       </div>
 
@@ -370,7 +370,7 @@ export default function DataPermissionsPage() {
                 className={`flex items-center gap-2 px-6 py-3.5 text-sm font-medium border-b-2 transition-colors ${
                   activeTab === tab.key
                     ? 'border-[#2D3BFF] text-[#2D3BFF] bg-[#2D3BFF]/[0.03]'
-                    : 'border-transparent text-[#5A5A5A] hover:text-[#1E2340] hover:bg-[#F5F5F5]'
+                    : 'border-transparent text-[#5A5A5A] hover:text-[#0A0A0A] hover:bg-[#F5F5F5]'
                 }`}
               >
                 {tab.icon}
@@ -437,7 +437,7 @@ export default function DataPermissionsPage() {
                       <td
                         key={i}
                         className={`px-4 py-3 text-sm whitespace-nowrap ${
-                          i === 0 ? 'text-center text-[#5A5A5A]' : 'text-[#1E2340]'
+                          i === 0 ? 'text-center text-[#5A5A5A]' : 'text-[#0A0A0A]'
                         } ${i === 1 ? 'font-medium' : ''}`}
                       >
                         {cell as React.ReactNode}
@@ -491,15 +491,15 @@ export default function DataPermissionsPage() {
           <div className="bg-white rounded-xl shadow-xl w-[640px] max-h-[85vh] overflow-y-auto">
             <div className="px-6 py-4 border-b border-[#EBEBEB] flex items-center justify-between">
               <div>
-                <h2 className="text-lg font-semibold text-[#1E2340]">数据权限设置</h2>
+                <h2 className="text-lg font-semibold text-[#0A0A0A]">数据权限设置</h2>
                 <p className="text-sm text-[#5A5A5A] mt-0.5">
                   {activeTab === 'user' ? '用户' : activeTab === 'role' ? '角色' : '部门'}：
-                  <span className="font-medium text-[#1E2340]">{editingTargetName}</span>
+                  <span className="font-medium text-[#0A0A0A]">{editingTargetName}</span>
                 </p>
               </div>
               <button
                 onClick={() => { setShowConfigModal(false); setEditingPermission(null); setEditingTargetId(''); setEditingTargetName(''); }}
-                className="text-[#5A5A5A] hover:text-[#1E2340] transition-colors"
+                className="text-[#5A5A5A] hover:text-[#0A0A0A] transition-colors"
               >
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
@@ -515,7 +515,7 @@ export default function DataPermissionsPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                   <div>
-                    <div className="text-sm font-medium text-[#1E2340]">客户数据可见性</div>
+                    <div className="text-sm font-medium text-[#0A0A0A]">客户数据可见性</div>
                     <div className="text-sm text-[#5A5A5A] mt-1">
                       选择该{activeTab === 'user' ? '用户' : activeTab === 'role' ? '角色' : '部门'}可以查看的客户数据。未配置则表示不可查看任何客户数据。
                     </div>
@@ -525,7 +525,7 @@ export default function DataPermissionsPage() {
 
               {/* 客户选择器 */}
               <div>
-                <label className="block text-sm font-medium text-[#1E2340] mb-2">
+                <label className="block text-sm font-medium text-[#0A0A0A] mb-2">
                   可见客户 <span className="text-[#EF4444]">*</span>
                 </label>
                 <CustomerMultiSelect
@@ -538,7 +538,7 @@ export default function DataPermissionsPage() {
               {/* 已选客户预览 */}
               {selectedCustomerIds.length > 0 && (
                 <div>
-                  <label className="block text-sm font-medium text-[#1E2340] mb-2">
+                  <label className="block text-sm font-medium text-[#0A0A0A] mb-2">
                     已选客户预览
                   </label>
                   <div className="border border-[#EBEBEB] rounded-lg p-3 max-h-[200px] overflow-y-auto">
@@ -549,7 +549,7 @@ export default function DataPermissionsPage() {
                         return (
                           <div key={id} className="flex items-center justify-between py-1.5 px-2 rounded-md hover:bg-[#F5F5F5]">
                             <div>
-                              <div className="text-sm text-[#1E2340]">{customer.name}</div>
+                              <div className="text-sm text-[#0A0A0A]">{customer.name}</div>
                               <div className="text-xs text-[#B0B8D1]">{customer.customerCode}</div>
                             </div>
                             <button

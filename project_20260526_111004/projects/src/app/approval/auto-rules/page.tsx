@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import AppLayout from '@/components/layout/AppLayout';
 
 interface MockRule {
   id: string;
@@ -84,8 +83,7 @@ export default function AutoRulesPage() {
   });
 
   return (
-    <AppLayout>
-      <div className="p-6 space-y-6">
+      <div className="max-w-7xl mx-auto space-y-6">
         {/* 页面标题 */}
         <div>
           <div className="flex items-center text-sm text-[#999999] mb-4">
@@ -187,6 +185,5 @@ export default function AutoRulesPage() {
           )}
         </div>
       </div>
-    </AppLayout>
   );
 }

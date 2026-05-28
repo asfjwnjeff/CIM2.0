@@ -2,7 +2,6 @@
 
 import React, { useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import AppLayout from '@/components/layout/AppLayout';
 import { useApp } from '@/lib/store';
 
 const PlusIcon = () => (
@@ -91,8 +90,7 @@ function SettingsPageContent() {
   ];
 
   return (
-    <AppLayout>
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-7xl mx-auto space-y-6">
         {/* 页面标题 */}
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-[#0A0A0A]">系统设置</h1>
@@ -318,7 +316,6 @@ function SettingsPageContent() {
           </div>
         )}
       </div>
-    </AppLayout>
   );
 }
 

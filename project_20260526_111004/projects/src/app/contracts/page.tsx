@@ -85,7 +85,7 @@ export default function ContractsPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-7xl mx-auto space-y-6">
       {/* 页面头部 */}
       <div className="flex items-center justify-between">
         <div>
@@ -94,7 +94,7 @@ export default function ContractsPage() {
             <span>/</span>
             <span>合同签署</span>
           </div>
-          <h1 className="text-2xl font-bold text-[#1E2340]">📄 合同签署</h1>
+          <h1 className="text-2xl font-bold text-[#0A0A0A]">📄 合同签署</h1>
         </div>
         <Button 
           className="bg-[#2D3BFF] hover:from-[#2B45FF] hover:to-[#4B62FF] text-white"
@@ -110,7 +110,7 @@ export default function ContractsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-[#5A5A5A] mb-1">待签署</p>
-                <p className="text-2xl font-bold text-[#1E2340]">3</p>
+                <p className="text-2xl font-bold text-[#0A0A0A]">3</p>
               </div>
               <div className="w-10 h-10 bg-[#E8EBFF] rounded-lg flex items-center justify-center">
                 <span className="text-lg">📝</span>
@@ -123,7 +123,7 @@ export default function ContractsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-[#5A5A5A] mb-1">审批中</p>
-                <p className="text-2xl font-bold text-[#1E2340]">1</p>
+                <p className="text-2xl font-bold text-[#0A0A0A]">1</p>
               </div>
               <div className="w-10 h-10 bg-[#FEF7E0] rounded-lg flex items-center justify-center">
                 <span className="text-lg">⏳</span>
@@ -136,7 +136,7 @@ export default function ContractsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-[#5A5A5A] mb-1">已生效</p>
-                <p className="text-2xl font-bold text-[#1E2340]">12</p>
+                <p className="text-2xl font-bold text-[#0A0A0A]">12</p>
               </div>
               <div className="w-10 h-10 bg-[#E6F4EA] rounded-lg flex items-center justify-center">
                 <span className="text-lg">✅</span>
@@ -149,7 +149,7 @@ export default function ContractsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-[#5A5A5A] mb-1">本月新增</p>
-                <p className="text-2xl font-bold text-[#1E2340]">5</p>
+                <p className="text-2xl font-bold text-[#0A0A0A]">5</p>
               </div>
               <div className="w-10 h-10 bg-[#FFF7ED] rounded-lg flex items-center justify-center">
                 <span className="text-lg">📈</span>
@@ -219,11 +219,11 @@ export default function ContractsPage() {
                 <TableBody>
                   {mockContracts.map((contract) => (
                     <TableRow key={contract.id} className="hover:bg-[#F8FAFF]">
-                      <TableCell className="font-semibold text-[#1E2340]">{contract.id}</TableCell>
-                      <TableCell className="text-[#1E2340]">{contract.name}</TableCell>
-                      <TableCell className="text-[#1E2340]">{contract.customerName}</TableCell>
+                      <TableCell className="font-semibold text-[#0A0A0A]">{contract.id}</TableCell>
+                      <TableCell className="text-[#0A0A0A]">{contract.name}</TableCell>
+                      <TableCell className="text-[#0A0A0A]">{contract.customerName}</TableCell>
                       <TableCell className="font-semibold text-[#0D904F]">{contract.amount}</TableCell>
-                      <TableCell className="text-[#1E2340]">{contract.signer}</TableCell>
+                      <TableCell className="text-[#0A0A0A]">{contract.signer}</TableCell>
                       <TableCell>
                         <Badge className={getStatusBadgeClass(contract.status)}>
                           {getStatusText(contract.status)}
@@ -256,7 +256,7 @@ export default function ContractsPage() {
             <Card className="border-[#EBEBEB]">
               <CardContent className="p-8 text-center">
                 <div className="text-4xl mb-4">📄</div>
-                <h3 className="text-lg font-medium text-[#1E2340] mb-2">
+                <h3 className="text-lg font-medium text-[#0A0A0A] mb-2">
                   {tab === 'draft' ? '草稿' : 
                    tab === 'pending' ? '审批中' :
                    tab === 'signing' ? '待签署' :

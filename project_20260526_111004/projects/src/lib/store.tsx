@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useReducer, useCallback, ReactNode } from 'react';
-import { initialSplitFields, initialBillingEntities, initialBillingRules, initialCustomers, initialQuotes, initialApprovalWorkflows, initialAutoApprovalRules, initialQuoteTemplates } from './sample-data';
+import { initialSplitFields, initialBillingEntities, initialBillingRules, initialCustomers, initialQuotes, initialApprovalWorkflows, initialAutoApprovalRules, initialQuoteTemplates, initialSigningEntities, initialServiceEntities, initialSettlementEntities } from './sample-data';
 import type {
   RuleGroup,
   SplitField,
@@ -73,6 +73,21 @@ export interface AppContextType {
   updateBillingRule: (id: string, updates: Partial<BillingRule>) => void;
   deleteBillingRule: (id: string) => void;
 
+  // 签约主体管理
+  addSigningEntity: (entity: Omit<SigningEntity, 'id' | 'createdAt'>) => void;
+  updateSigningEntity: (id: string, updates: Partial<SigningEntity>) => void;
+  deleteSigningEntity: (id: string) => void;
+
+  // 服务主体管理
+  addServiceEntity: (entity: Omit<ServiceEntity, 'id' | 'createdAt'>) => void;
+  updateServiceEntity: (id: string, updates: Partial<ServiceEntity>) => void;
+  deleteServiceEntity: (id: string) => void;
+
+  // 结算主体管理
+  addSettlementEntity: (entity: Omit<SettlementEntity, 'id' | 'createdAt'>) => void;
+  updateSettlementEntity: (id: string, updates: Partial<SettlementEntity>) => void;
+  deleteSettlementEntity: (id: string) => void;
+
   // 客户管理
   addCustomer: (customer: Omit<Customer, 'id' | 'createdAt'>) => void;
   updateCustomer: (id: string, updates: Partial<Customer>) => void;
@@ -129,9 +144,9 @@ const defaultState = {
   contacts: [] as Contact[],
   contracts: [] as Contract[],
   riskApprovals: [] as RiskApproval[],
-  serviceEntities: [] as ServiceEntity[],
-  signingEntities: [] as SigningEntity[],
-  settlementEntities: [] as SettlementEntity[],
+  serviceEntities: initialServiceEntities as ServiceEntity[],
+  signingEntities: initialSigningEntities as SigningEntity[],
+  settlementEntities: initialSettlementEntities as SettlementEntity[],
   approvalWorkflows: initialApprovalWorkflows as ApprovalWorkflow[],
   approvalWorkflowHistories: [] as ApprovalWorkflowHistory[],
   autoApprovalRules: initialAutoApprovalRules as AutoApprovalRule[],
@@ -196,7 +211,16 @@ type Action =
   | { type: 'UPDATE_AUTO_APPROVAL_RULE'; payload: { id: string; updates: Partial<AutoApprovalRule> } }
   | { type: 'DELETE_AUTO_APPROVAL_RULE'; payload: string }
   | { type: 'ADD_FOLLOWUP'; payload: Omit<FollowUpRecord, 'id' | 'createdAt'> }
-  | { type: 'UPDATE_FOLLOWUP'; payload: { id: string; updates: Partial<FollowUpRecord> } };
+  | { type: 'UPDATE_FOLLOWUP'; payload: { id: string; updates: Partial<FollowUpRecord> } }
+  | { type: 'ADD_SIGNING_ENTITY'; payload: Omit<SigningEntity, 'id' | 'createdAt'> }
+  | { type: 'UPDATE_SIGNING_ENTITY'; payload: { id: string; updates: Partial<SigningEntity> } }
+  | { type: 'DELETE_SIGNING_ENTITY'; payload: string }
+  | { type: 'ADD_SERVICE_ENTITY'; payload: Omit<ServiceEntity, 'id' | 'createdAt'> }
+  | { type: 'UPDATE_SERVICE_ENTITY'; payload: { id: string; updates: Partial<ServiceEntity> } }
+  | { type: 'DELETE_SERVICE_ENTITY'; payload: string }
+  | { type: 'ADD_SETTLEMENT_ENTITY'; payload: Omit<SettlementEntity, 'id' | 'createdAt'> }
+  | { type: 'UPDATE_SETTLEMENT_ENTITY'; payload: { id: string; updates: Partial<SettlementEntity> } }
+  | { type: 'DELETE_SETTLEMENT_ENTITY'; payload: string };
 
 function reducer(state: AppState, action: Action): AppState {
   switch (action.type) {
@@ -434,6 +458,57 @@ function reducer(state: AppState, action: Action): AppState {
           fu.id === action.payload.id ? { ...fu, ...action.payload.updates } : fu
         ),
       };
+    case 'ADD_SIGNING_ENTITY':
+      return {
+        ...state,
+        signingEntities: [...state.signingEntities, { ...action.payload, id: `se-${Date.now()}`, createdAt: new Date().toISOString() }],
+      };
+    case 'UPDATE_SIGNING_ENTITY':
+      return {
+        ...state,
+        signingEntities: state.signingEntities.map((e) =>
+          e.id === action.payload.id ? { ...e, ...action.payload.updates } : e
+        ),
+      };
+    case 'DELETE_SIGNING_ENTITY':
+      return {
+        ...state,
+        signingEntities: state.signingEntities.filter((e) => e.id !== action.payload),
+      };
+    case 'ADD_SERVICE_ENTITY':
+      return {
+        ...state,
+        serviceEntities: [...state.serviceEntities, { ...action.payload, id: `svc-${Date.now()}`, createdAt: new Date().toISOString() }],
+      };
+    case 'UPDATE_SERVICE_ENTITY':
+      return {
+        ...state,
+        serviceEntities: state.serviceEntities.map((e) =>
+          e.id === action.payload.id ? { ...e, ...action.payload.updates } : e
+        ),
+      };
+    case 'DELETE_SERVICE_ENTITY':
+      return {
+        ...state,
+        serviceEntities: state.serviceEntities.filter((e) => e.id !== action.payload),
+      };
+    case 'ADD_SETTLEMENT_ENTITY':
+      return {
+        ...state,
+        settlementEntities: [...state.settlementEntities, { ...action.payload, id: `stl-${Date.now()}`, createdAt: new Date().toISOString() }],
+      };
+    case 'UPDATE_SETTLEMENT_ENTITY':
+      return {
+        ...state,
+        settlementEntities: state.settlementEntities.map((e) =>
+          e.id === action.payload.id ? { ...e, ...action.payload.updates } : e
+        ),
+      };
+    case 'DELETE_SETTLEMENT_ENTITY':
+      return {
+        ...state,
+        settlementEntities: state.settlementEntities.filter((e) => e.id !== action.payload),
+      };
     default:
       return state;
   }
@@ -543,6 +618,45 @@ export function AppProvider({ children }: { children: ReactNode }) {
     dispatch({ type: 'UPDATE_FOLLOWUP', payload: { id, updates } });
   }, []);
 
+  // 签约主体管理
+  const addSigningEntity = useCallback((entity: Omit<SigningEntity, 'id' | 'createdAt'>) => {
+    dispatch({ type: 'ADD_SIGNING_ENTITY', payload: entity });
+  }, []);
+
+  const updateSigningEntity = useCallback((id: string, updates: Partial<SigningEntity>) => {
+    dispatch({ type: 'UPDATE_SIGNING_ENTITY', payload: { id, updates } });
+  }, []);
+
+  const deleteSigningEntity = useCallback((id: string) => {
+    dispatch({ type: 'DELETE_SIGNING_ENTITY', payload: id });
+  }, []);
+
+  // 服务主体管理
+  const addServiceEntity = useCallback((entity: Omit<ServiceEntity, 'id' | 'createdAt'>) => {
+    dispatch({ type: 'ADD_SERVICE_ENTITY', payload: entity });
+  }, []);
+
+  const updateServiceEntity = useCallback((id: string, updates: Partial<ServiceEntity>) => {
+    dispatch({ type: 'UPDATE_SERVICE_ENTITY', payload: { id, updates } });
+  }, []);
+
+  const deleteServiceEntity = useCallback((id: string) => {
+    dispatch({ type: 'DELETE_SERVICE_ENTITY', payload: id });
+  }, []);
+
+  // 结算主体管理
+  const addSettlementEntity = useCallback((entity: Omit<SettlementEntity, 'id' | 'createdAt'>) => {
+    dispatch({ type: 'ADD_SETTLEMENT_ENTITY', payload: entity });
+  }, []);
+
+  const updateSettlementEntity = useCallback((id: string, updates: Partial<SettlementEntity>) => {
+    dispatch({ type: 'UPDATE_SETTLEMENT_ENTITY', payload: { id, updates } });
+  }, []);
+
+  const deleteSettlementEntity = useCallback((id: string) => {
+    dispatch({ type: 'DELETE_SETTLEMENT_ENTITY', payload: id });
+  }, []);
+
   // 客户协同操作
   const updateCustomerProgress = useCallback((id: string, status: ProgressStatus) => {
     dispatch({ type: 'UPDATE_CUSTOMER_PROGRESS', payload: { id, status } });
@@ -621,6 +735,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
         addBillingRule,
         updateBillingRule,
         deleteBillingRule,
+        addSigningEntity,
+        updateSigningEntity,
+        deleteSigningEntity,
+        addServiceEntity,
+        updateServiceEntity,
+        deleteServiceEntity,
+        addSettlementEntity,
+        updateSettlementEntity,
+        deleteSettlementEntity,
         addCustomer,
         updateCustomer,
         deleteCustomer,

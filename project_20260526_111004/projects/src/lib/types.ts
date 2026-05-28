@@ -174,8 +174,9 @@ export interface Customer {
   id: string;
   name: string;
   customerCode?: string;
-  signingEntity?: string;
-  serviceEntity?: string;
+  signingEntityIds?: string[];
+  serviceEntityIds?: string[];
+  settlementEntityIds?: string[];
   billingEntities?: string[];
   rules?: SplitRule[];
   status: CustomerStatus;
@@ -617,12 +618,16 @@ export interface ServiceEntity {
   id: string;
   name: string;
   code?: string;
+  unifiedSocialCreditCode?: string;
+  legalRepresentative?: string;
   type?: string;
   status: Status;
+  establishmentDate?: string;
   taxId?: string;
   address?: string;
   contactPerson?: string;
-  contactPhone?: string;
+  phone?: string;
+  email?: string;
   remark?: string;
   createdAt: string;
   updatedAt?: string;
@@ -632,13 +637,20 @@ export interface SigningEntity {
   id: string;
   name: string;
   code?: string;
+  unifiedSocialCreditCode?: string;
+  legalRepresentative?: string;
   type?: string;
   status: Status;
+  establishmentDate?: string;
   taxId?: string;
   address?: string;
-  legalPerson?: string;
   contactPerson?: string;
-  contactPhone?: string;
+  phone?: string;
+  email?: string;
+  industry?: string;
+  registeredCapital?: string;
+  businessScope?: string;
+  settlementEntity?: string;
   remark?: string;
   createdAt: string;
   updatedAt?: string;
@@ -648,12 +660,13 @@ export interface SettlementEntity {
   id: string;
   name: string;
   code?: string;
+  unifiedSocialCreditCode?: string;
   type?: string;
   status: Status;
+  taxId?: string;
   bankName?: string;
   bankAccount?: string;
   currency?: string;
-  taxId?: string;
   remark?: string;
   createdAt: string;
   updatedAt?: string;
@@ -721,6 +734,42 @@ export interface AITranscription {
   actionItems?: string[];
   createdAt: string;
   updatedAt?: string;
+}
+
+// ==================== 分组功能 ====================
+
+export type GroupConditionOperator =
+  | 'equals' | 'not_equals' | 'contains' | 'not_contains'
+  | 'in' | 'not_in'
+  | 'gt' | 'gte' | 'lt' | 'lte'
+  | 'today' | 'this_week' | 'this_month' | 'this_year'
+  | 'empty' | 'not_empty';
+
+export interface GroupCondition {
+  id: string;
+  field: string;
+  operator: GroupConditionOperator;
+  value: string;
+}
+
+export interface GroupDefinition {
+  id: string;
+  name: string;
+  isSystem: boolean;
+  conditions: GroupCondition[];
+  sortOrder: number;
+}
+
+export interface ModuleGroupConfig {
+  groups: GroupDefinition[];
+  activeGroupId: string;
+}
+
+export interface GroupFieldMeta {
+  key: string;
+  label: string;
+  type: 'string' | 'number' | 'date' | 'select' | 'multiselect';
+  options?: { value: string; label: string }[];
 }
 
 // ==================== 兼容类型别名 ====================

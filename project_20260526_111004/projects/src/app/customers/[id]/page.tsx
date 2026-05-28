@@ -2,7 +2,6 @@
 
 import { useState, useMemo, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import AppLayout from '@/components/layout/AppLayout';
 import { useApp } from '@/lib/store';
 import { ProgressStepper } from '@/components/ProgressStepper';
 import { CollaborationDialogs, type CollaborationResult, type CollaborationDialogType } from '@/components/CollaborationDialogs';
@@ -47,6 +46,9 @@ export default function CustomerDetailPage() {
     opportunities,
     contracts,
     riskApprovals,
+    signingEntities,
+    serviceEntities,
+    settlementEntities,
     updateCustomerProgress,
     collaborateCustomer,
     assignCustomer,
@@ -84,9 +86,8 @@ export default function CustomerDetailPage() {
 
   if (!customer) {
     return (
-      <AppLayout>
         <div className="max-w-7xl mx-auto py-12 text-center">
-          <h2 className="text-[20px] font-bold text-[#0A0A0A] mb-4">客户不存在</h2>
+          <h2 className="text-2xl font-bold text-[#0A0A0A] mb-4">客户不存在</h2>
           <button
             onClick={() => router.push('/customers')}
             className="inline-flex items-center px-4 py-2 bg-[#2D3BFF] text-white rounded-lg font-medium hover:bg-[#4338CA] transition-colors"
@@ -94,7 +95,6 @@ export default function CustomerDetailPage() {
             返回客户列表
           </button>
         </div>
-      </AppLayout>
     );
   }
 
@@ -188,8 +188,7 @@ export default function CustomerDetailPage() {
   };
 
   return (
-    <AppLayout>
-      <div className="max-w-7xl mx-auto space-y-5">
+      <div className="max-w-7xl mx-auto space-y-6">
         {/* Top bar: back + name + actions */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -203,7 +202,7 @@ export default function CustomerDetailPage() {
               {customer.name.charAt(0)}
             </div>
             <div>
-              <h1 className="text-[20px] font-bold text-[#0A0A0A]">{customer.name}</h1>
+              <h1 className="text-2xl font-bold text-[#0A0A0A]">{customer.name}</h1>
               <p className="text-[13px] text-[#5A5A5A]">客户代码: {customer.customerCode || '-'}</p>
             </div>
           </div>
@@ -241,6 +240,7 @@ export default function CustomerDetailPage() {
 
         {/* Progress stepper */}
         <ProgressStepper
+          readonly={true}
           currentStatus={customer.progressStatus}
           onAdvance={handleAdvance}
           onRollback={handleRollback}
@@ -322,6 +322,51 @@ export default function CustomerDetailPage() {
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${PROGRESS_STATUS_COLORS[customer.progressStatus].bg} ${PROGRESS_STATUS_COLORS[customer.progressStatus].text}`}>
                       {PROGRESS_STATUS_LABELS[customer.progressStatus]}
                     </span>
+                  </div>
+                  <div>
+                    <label className="block text-[13px] text-[#5A5A5A] mb-1">签约主体</label>
+                    <div className="flex flex-wrap gap-1">
+                      {(customer.signingEntityIds || []).length > 0 ? (
+                        customer.signingEntityIds!.map((id) => {
+                          const entity = signingEntities.find((e) => e.id === id);
+                          return entity ? (
+                            <span key={id} className="px-2 py-0.5 rounded-full text-xs bg-[#E8EBFF] text-[#2D3BFF]">{entity.name}</span>
+                          ) : null;
+                        })
+                      ) : (
+                        <span className="text-sm text-[#999999]">-</span>
+                      )}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-[13px] text-[#5A5A5A] mb-1">服务主体</label>
+                    <div className="flex flex-wrap gap-1">
+                      {(customer.serviceEntityIds || []).length > 0 ? (
+                        customer.serviceEntityIds!.map((id) => {
+                          const entity = serviceEntities.find((e) => e.id === id);
+                          return entity ? (
+                            <span key={id} className="px-2 py-0.5 rounded-full text-xs bg-[#E8EBFF] text-[#2D3BFF]">{entity.name}</span>
+                          ) : null;
+                        })
+                      ) : (
+                        <span className="text-sm text-[#999999]">-</span>
+                      )}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-[13px] text-[#5A5A5A] mb-1">结算主体</label>
+                    <div className="flex flex-wrap gap-1">
+                      {(customer.settlementEntityIds || []).length > 0 ? (
+                        customer.settlementEntityIds!.map((id) => {
+                          const entity = settlementEntities.find((e) => e.id === id);
+                          return entity ? (
+                            <span key={id} className="px-2 py-0.5 rounded-full text-xs bg-[#E8EBFF] text-[#2D3BFF]">{entity.name}</span>
+                          ) : null;
+                        })
+                      ) : (
+                        <span className="text-sm text-[#999999]">-</span>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -522,7 +567,6 @@ export default function CustomerDetailPage() {
           onConfirm={handleDialogConfirm}
         />
       </div>
-    </AppLayout>
   );
 }
 

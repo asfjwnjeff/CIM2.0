@@ -14,51 +14,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ArrowLeft, Save, X } from "lucide-react";
-import AppLayout from "@/components/layout/AppLayout";
-
-// 模拟数据
-const mockSigningEntities = [
-  {
-    id: "1",
-    name: "上海华力微电子有限公司",
-    code: "8635",
-    taxId: "91310000MA1FL00001",
-    address: "上海市浦东新区张江高科技园区",
-    phone: "021-12345678",
-    email: "contact@shhl.com",
-    legalRepresentative: "张总",
-    unifiedSocialCreditCode: "91310000MA1FL00001",
-    registrationStatus: "active",
-    industry: "半导体",
-    businessScope: "集成电路设计、制造、销售",
-    registeredCapital: "100000万元",
-    establishmentDate: "2015-01-01",
-    settlementEntity: "8635",
-    remark: "重要客户",
-  },
-  {
-    id: "2",
-    name: "应用材料（中国）有限公司",
-    code: "8639",
-    taxId: "91310000MA1FL00002",
-    address: "北京市朝阳区建国门外大街",
-    phone: "010-12345678",
-    email: "contact@amat.com",
-    legalRepresentative: "李总",
-    unifiedSocialCreditCode: "91310000MA1FL00002",
-    registrationStatus: "active",
-    industry: "半导体设备",
-    businessScope: "半导体设备生产、销售",
-    registeredCapital: "50000万元",
-    establishmentDate: "2010-05-15",
-    settlementEntity: "8639",
-    remark: "",
-  },
-];
+import { useApp } from "@/lib/store";
 
 export default function EditSigningEntityPage() {
   const params = useParams();
   const router = useRouter();
+  const { signingEntities, updateSigningEntity } = useApp();
   const [formData, setFormData] = useState({
     name: "",
     code: "",
@@ -78,12 +39,27 @@ export default function EditSigningEntityPage() {
   });
 
   useEffect(() => {
-    // 模拟从API获取数据
-    const entity = mockSigningEntities.find((e) => e.id === params.id);
+    const entity = signingEntities.find((e) => e.id === params.id);
     if (entity) {
-      setFormData(entity);
+      setFormData({
+        name: entity.name || "",
+        code: entity.code || "",
+        taxId: entity.taxId || "",
+        address: entity.address || "",
+        phone: entity.phone || "",
+        email: entity.email || "",
+        legalRepresentative: entity.legalRepresentative || "",
+        unifiedSocialCreditCode: entity.unifiedSocialCreditCode || "",
+        registrationStatus: entity.status || "active",
+        industry: entity.industry || "",
+        businessScope: entity.businessScope || "",
+        registeredCapital: entity.registeredCapital || "",
+        establishmentDate: entity.establishmentDate || "",
+        settlementEntity: entity.settlementEntity || "",
+        remark: entity.remark || "",
+      });
     }
-  }, [params.id]);
+  }, [params.id, signingEntities]);
 
   // 处理输入变化
   const handleInputChange = (
@@ -109,25 +85,39 @@ export default function EditSigningEntityPage() {
       alert("签约主体名称不能为空");
       return;
     }
-    alert("保存成功！");
+    updateSigningEntity(params.id as string, {
+      name: formData.name.trim(),
+      code: formData.code || undefined,
+      unifiedSocialCreditCode: formData.unifiedSocialCreditCode || undefined,
+      legalRepresentative: formData.legalRepresentative || undefined,
+      status: formData.registrationStatus as 'active' | 'inactive',
+      establishmentDate: formData.establishmentDate || undefined,
+      taxId: formData.taxId || undefined,
+      address: formData.address || undefined,
+      phone: formData.phone || undefined,
+      email: formData.email || undefined,
+      industry: formData.industry || undefined,
+      registeredCapital: formData.registeredCapital || undefined,
+      businessScope: formData.businessScope || undefined,
+      settlementEntity: formData.settlementEntity || undefined,
+      remark: formData.remark || undefined,
+    });
     router.push("/entities");
   };
 
   return (
-    <AppLayout>
-      <div className="min-h-screen bg-[#F5F5F5]">
-        <div className="max-w-6xl mx-auto p-6">
+      <div className="max-w-7xl mx-auto space-y-6">
           {/* 页面头部 */}
           <div className="flex items-center gap-4 mb-6">
             <Button
               variant="outline"
               onClick={() => router.back()}
-              className="border border-[#EBEBEB] text-[#5A5A5A] hover:bg-[#F5F5F5] px-3 py-2"
+              className="border border-[#EBEBEB] text-[#5A5A5A] hover:bg-[#FAFAFA] px-3 py-2"
             >
               <ArrowLeft className="w-4 h-4" />
             </Button>
             <div className="flex items-center gap-3">
-              <h1 className="text-xl font-bold text-[#1C2550]">
+              <h1 className="text-2xl font-bold text-[#0A0A0A]">
                 编辑签约主体
               </h1>
             </div>
@@ -135,11 +125,11 @@ export default function EditSigningEntityPage() {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* 基本信息 */}
-            <div className="bg-white rounded-xl shadow-sm border border-[#EBEBEB] p-6">
-              <h2 className="text-lg font-semibold text-[#1C2550] mb-4">基本信息</h2>
+            <div className="bg-white rounded-2xl border border-[#EBEBEB] shadow-[0_2px_8px_rgba(0,0,0,0.06)] p-6">
+              <h2 className="text-lg font-semibold text-[#0A0A0A] mb-4">基本信息</h2>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="name" className="text-sm text-[#5A5A5A]">
+                  <Label htmlFor="name" className="text-sm font-semibold text-[#0A0A0A]">
                     <span className="text-red-500">*</span> 签约主体名称
                   </Label>
                   <Input
@@ -148,12 +138,12 @@ export default function EditSigningEntityPage() {
                     value={formData.name}
                     onChange={handleInputChange}
                     placeholder="请输入签约主体名称"
-                    className="border-[#EBEBEB] focus-visible:ring-[#2D3BFF]"
+                    className="border-[#D5D5D5] focus:border-[#2D3BFF] focus:shadow-[0_0_0_2px_rgba(45,59,255,0.10)]"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="code" className="text-sm text-[#5A5A5A]">
+                  <Label htmlFor="code" className="text-sm font-semibold text-[#0A0A0A]">
                     主体代码
                   </Label>
                   <Input
@@ -162,12 +152,12 @@ export default function EditSigningEntityPage() {
                     value={formData.code}
                     onChange={handleInputChange}
                     placeholder="请输入主体代码"
-                    className="border-[#EBEBEB] focus-visible:ring-[#2D3BFF]"
+                    className="border-[#D5D5D5] focus:border-[#2D3BFF] focus:shadow-[0_0_0_2px_rgba(45,59,255,0.10)]"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="unifiedSocialCreditCode" className="text-sm text-[#5A5A5A]">
+                  <Label htmlFor="unifiedSocialCreditCode" className="text-sm font-semibold text-[#0A0A0A]">
                     统一社会信用代码
                   </Label>
                   <Input
@@ -176,12 +166,12 @@ export default function EditSigningEntityPage() {
                     value={formData.unifiedSocialCreditCode}
                     onChange={handleInputChange}
                     placeholder="请输入统一社会信用代码"
-                    className="border-[#EBEBEB] focus-visible:ring-[#2D3BFF]"
+                    className="border-[#D5D5D5] focus:border-[#2D3BFF] focus:shadow-[0_0_0_2px_rgba(45,59,255,0.10)]"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="legalRepresentative" className="text-sm text-[#5A5A5A]">
+                  <Label htmlFor="legalRepresentative" className="text-sm font-semibold text-[#0A0A0A]">
                     法定代表人
                   </Label>
                   <Input
@@ -190,19 +180,19 @@ export default function EditSigningEntityPage() {
                     value={formData.legalRepresentative}
                     onChange={handleInputChange}
                     placeholder="请输入法定代表人"
-                    className="border-[#EBEBEB] focus-visible:ring-[#2D3BFF]"
+                    className="border-[#D5D5D5] focus:border-[#2D3BFF] focus:shadow-[0_0_0_2px_rgba(45,59,255,0.10)]"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="registrationStatus" className="text-sm text-[#5A5A5A]">
+                  <Label htmlFor="registrationStatus" className="text-sm font-semibold text-[#0A0A0A]">
                     状态
                   </Label>
                   <Select
                     value={formData.registrationStatus}
                     onValueChange={(value) => handleSelectChange("registrationStatus", value)}
                   >
-                    <SelectTrigger className="border-[#EBEBEB]">
+                    <SelectTrigger className="border-[#D5D5D5]">
                       <SelectValue placeholder="请选择状态" />
                     </SelectTrigger>
                     <SelectContent className="bg-white">
@@ -213,7 +203,7 @@ export default function EditSigningEntityPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="establishmentDate" className="text-sm text-[#5A5A5A]">
+                  <Label htmlFor="establishmentDate" className="text-sm font-semibold text-[#0A0A0A]">
                     成立日期
                   </Label>
                   <Input
@@ -222,18 +212,18 @@ export default function EditSigningEntityPage() {
                     type="date"
                     value={formData.establishmentDate}
                     onChange={handleInputChange}
-                    className="border-[#EBEBEB] focus-visible:ring-[#2D3BFF]"
+                    className="border-[#D5D5D5] focus:border-[#2D3BFF] focus:shadow-[0_0_0_2px_rgba(45,59,255,0.10)]"
                   />
                 </div>
               </div>
             </div>
 
             {/* 联系信息 */}
-            <div className="bg-white rounded-xl shadow-sm border border-[#EBEBEB] p-6">
-              <h2 className="text-lg font-semibold text-[#1C2550] mb-4">联系信息</h2>
+            <div className="bg-white rounded-2xl border border-[#EBEBEB] shadow-[0_2px_8px_rgba(0,0,0,0.06)] p-6">
+              <h2 className="text-lg font-semibold text-[#0A0A0A] mb-4">联系信息</h2>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="phone" className="text-sm text-[#5A5A5A]">
+                  <Label htmlFor="phone" className="text-sm font-semibold text-[#0A0A0A]">
                     联系电话
                   </Label>
                   <Input
@@ -242,12 +232,12 @@ export default function EditSigningEntityPage() {
                     value={formData.phone}
                     onChange={handleInputChange}
                     placeholder="请输入联系电话"
-                    className="border-[#EBEBEB] focus-visible:ring-[#2D3BFF]"
+                    className="border-[#D5D5D5] focus:border-[#2D3BFF] focus:shadow-[0_0_0_2px_rgba(45,59,255,0.10)]"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="email" className="text-sm text-[#5A5A5A]">
+                  <Label htmlFor="email" className="text-sm font-semibold text-[#0A0A0A]">
                     电子邮箱
                   </Label>
                   <Input
@@ -257,12 +247,12 @@ export default function EditSigningEntityPage() {
                     value={formData.email}
                     onChange={handleInputChange}
                     placeholder="请输入电子邮箱"
-                    className="border-[#EBEBEB] focus-visible:ring-[#2D3BFF]"
+                    className="border-[#D5D5D5] focus:border-[#2D3BFF] focus:shadow-[0_0_0_2px_rgba(45,59,255,0.10)]"
                   />
                 </div>
 
                 <div className="space-y-2 col-span-2">
-                  <Label htmlFor="address" className="text-sm text-[#5A5A5A]">
+                  <Label htmlFor="address" className="text-sm font-semibold text-[#0A0A0A]">
                     注册地址
                   </Label>
                   <Input
@@ -271,18 +261,18 @@ export default function EditSigningEntityPage() {
                     value={formData.address}
                     onChange={handleInputChange}
                     placeholder="请输入注册地址"
-                    className="border-[#EBEBEB] focus-visible:ring-[#2D3BFF]"
+                    className="border-[#D5D5D5] focus:border-[#2D3BFF] focus:shadow-[0_0_0_2px_rgba(45,59,255,0.10)]"
                   />
                 </div>
               </div>
             </div>
 
             {/* 经营信息 */}
-            <div className="bg-white rounded-xl shadow-sm border border-[#EBEBEB] p-6">
-              <h2 className="text-lg font-semibold text-[#1C2550] mb-4">经营信息</h2>
+            <div className="bg-white rounded-2xl border border-[#EBEBEB] shadow-[0_2px_8px_rgba(0,0,0,0.06)] p-6">
+              <h2 className="text-lg font-semibold text-[#0A0A0A] mb-4">经营信息</h2>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="industry" className="text-sm text-[#5A5A5A]">
+                  <Label htmlFor="industry" className="text-sm font-semibold text-[#0A0A0A]">
                     所属行业
                   </Label>
                   <Input
@@ -291,12 +281,12 @@ export default function EditSigningEntityPage() {
                     value={formData.industry}
                     onChange={handleInputChange}
                     placeholder="请输入所属行业"
-                    className="border-[#EBEBEB] focus-visible:ring-[#2D3BFF]"
+                    className="border-[#D5D5D5] focus:border-[#2D3BFF] focus:shadow-[0_0_0_2px_rgba(45,59,255,0.10)]"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="registeredCapital" className="text-sm text-[#5A5A5A]">
+                  <Label htmlFor="registeredCapital" className="text-sm font-semibold text-[#0A0A0A]">
                     注册资本
                   </Label>
                   <Input
@@ -305,12 +295,12 @@ export default function EditSigningEntityPage() {
                     value={formData.registeredCapital}
                     onChange={handleInputChange}
                     placeholder="请输入注册资本"
-                    className="border-[#EBEBEB] focus-visible:ring-[#2D3BFF]"
+                    className="border-[#D5D5D5] focus:border-[#2D3BFF] focus:shadow-[0_0_0_2px_rgba(45,59,255,0.10)]"
                   />
                 </div>
 
                 <div className="space-y-2 col-span-2">
-                  <Label htmlFor="businessScope" className="text-sm text-[#5A5A5A]">
+                  <Label htmlFor="businessScope" className="text-sm font-semibold text-[#0A0A0A]">
                     经营范围
                   </Label>
                   <Textarea
@@ -320,18 +310,18 @@ export default function EditSigningEntityPage() {
                     onChange={handleInputChange}
                     placeholder="请输入经营范围"
                     rows={3}
-                    className="border-[#EBEBEB] focus-visible:ring-[#2D3BFF]"
+                    className="border-[#D5D5D5] focus:border-[#2D3BFF] focus:shadow-[0_0_0_2px_rgba(45,59,255,0.10)]"
                   />
                 </div>
               </div>
             </div>
 
             {/* 结算信息 */}
-            <div className="bg-white rounded-xl shadow-sm border border-[#EBEBEB] p-6">
-              <h2 className="text-lg font-semibold text-[#1C2550] mb-4">结算信息</h2>
+            <div className="bg-white rounded-2xl border border-[#EBEBEB] shadow-[0_2px_8px_rgba(0,0,0,0.06)] p-6">
+              <h2 className="text-lg font-semibold text-[#0A0A0A] mb-4">结算信息</h2>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="taxId" className="text-sm text-[#5A5A5A]">
+                  <Label htmlFor="taxId" className="text-sm font-semibold text-[#0A0A0A]">
                     纳税人识别号
                   </Label>
                   <Input
@@ -340,12 +330,12 @@ export default function EditSigningEntityPage() {
                     value={formData.taxId}
                     onChange={handleInputChange}
                     placeholder="请输入纳税人识别号"
-                    className="border-[#EBEBEB] focus-visible:ring-[#2D3BFF]"
+                    className="border-[#D5D5D5] focus:border-[#2D3BFF] focus:shadow-[0_0_0_2px_rgba(45,59,255,0.10)]"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="settlementEntity" className="text-sm text-[#5A5A5A]">
+                  <Label htmlFor="settlementEntity" className="text-sm font-semibold text-[#0A0A0A]">
                     结算主体
                   </Label>
                   <Input
@@ -354,17 +344,17 @@ export default function EditSigningEntityPage() {
                     value={formData.settlementEntity}
                     onChange={handleInputChange}
                     placeholder="请输入结算主体"
-                    className="border-[#EBEBEB] focus-visible:ring-[#2D3BFF]"
+                    className="border-[#D5D5D5] focus:border-[#2D3BFF] focus:shadow-[0_0_0_2px_rgba(45,59,255,0.10)]"
                   />
                 </div>
               </div>
             </div>
 
             {/* 备注信息 */}
-            <div className="bg-white rounded-xl shadow-sm border border-[#EBEBEB] p-6">
-              <h2 className="text-lg font-semibold text-[#1C2550] mb-4">备注信息</h2>
+            <div className="bg-white rounded-2xl border border-[#EBEBEB] shadow-[0_2px_8px_rgba(0,0,0,0.06)] p-6">
+              <h2 className="text-lg font-semibold text-[#0A0A0A] mb-4">备注信息</h2>
               <div className="space-y-2">
-                <Label htmlFor="remark" className="text-sm text-[#5A5A5A]">
+                <Label htmlFor="remark" className="text-sm font-semibold text-[#0A0A0A]">
                   备注
                 </Label>
                 <Textarea
@@ -374,19 +364,19 @@ export default function EditSigningEntityPage() {
                   onChange={handleInputChange}
                   placeholder="请输入备注信息"
                   rows={4}
-                  className="border-[#EBEBEB] focus-visible:ring-[#2D3BFF]"
+                  className="border-[#D5D5D5] focus:border-[#2D3BFF] focus:shadow-[0_0_0_2px_rgba(45,59,255,0.10)]"
                 />
               </div>
             </div>
 
             {/* 底部操作按钮 */}
-            <div className="flex items-center justify-between bg-white rounded-xl shadow-sm border border-[#EBEBEB] p-6">
+            <div className="flex items-center justify-between bg-white rounded-2xl border border-[#EBEBEB] shadow-[0_2px_8px_rgba(0,0,0,0.06)] p-6">
               <div className="flex items-center gap-3">
                 <Button
                   type="button"
                   variant="outline"
                   onClick={handleSaveDraft}
-                  className="border border-[#EBEBEB] text-[#5A5A5A] hover:bg-[#F5F5F5]"
+                  className="border border-[#EBEBEB] text-[#5A5A5A] hover:bg-[#FAFAFA]"
                 >
                   <Save className="w-4 h-4 mr-2" />
                   暂存
@@ -397,13 +387,13 @@ export default function EditSigningEntityPage() {
                   type="button"
                   variant="outline"
                   onClick={() => router.back()}
-                  className="border border-[#EBEBEB] text-[#5A5A5A] hover:bg-[#F5F5F5]"
+                  className="border border-[#EBEBEB] text-[#5A5A5A] hover:bg-[#FAFAFA]"
                 >
                   取消
                 </Button>
                 <Button
                   type="submit"
-                  className="bg-[#2D3BFF] hover:from-[#2B45FF] hover:to-[#4B62FF] text-white"
+                  className="bg-[#2D3BFF] hover:bg-[#4338CA] text-white"
                 >
                   <Save className="w-4 h-4 mr-2" />
                   保存
@@ -411,8 +401,6 @@ export default function EditSigningEntityPage() {
               </div>
             </div>
           </form>
-        </div>
       </div>
-    </AppLayout>
   );
 }

@@ -193,19 +193,19 @@ export default function TestPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-7xl mx-auto space-y-6">
       {/* 页面标题 */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">规则匹配测试</h1>
+        <h1 className="text-2xl font-bold text-[#0A0A0A]">规则匹配测试</h1>
         <p className="text-gray-500 mt-1">测试账单主体规则匹配效果</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* 左侧：参数输入 */}
-        <div className="space-y-6">
+        <div className="max-w-7xl mx-auto space-y-6">
           {/* 选择客户 */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">1. 选择客户</h2>
+            <h2 className="text-lg font-semibold text-[#0A0A0A] mb-4">1. 选择客户</h2>
             <select
               value={selectedCustomerId}
               onChange={(e) => {
@@ -235,7 +235,7 @@ export default function TestPage() {
 
           {/* 输入测试参数 */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">2. 输入测试参数</h2>
+            <h2 className="text-lg font-semibold text-[#0A0A0A] mb-4">2. 输入测试参数</h2>
             
             {!selectedCustomerId ? (
               <p className="text-gray-500 text-center py-8">请先选择客户</p>
@@ -298,10 +298,10 @@ export default function TestPage() {
         </div>
 
         {/* 右侧：测试结果 */}
-        <div className="space-y-6">
+        <div className="max-w-7xl mx-auto space-y-6">
           {/* 匹配结果 */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">匹配结果</h2>
+            <h2 className="text-lg font-semibold text-[#0A0A0A] mb-4">匹配结果</h2>
             
             {!testResult ? (
               <div className="text-center py-12 text-gray-400">
@@ -350,14 +350,14 @@ export default function TestPage() {
           {/* 匹配过程 */}
           {matchProcess.length > 0 && (
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">匹配过程</h2>
+              <h2 className="text-lg font-semibold text-[#0A0A0A] mb-4">匹配过程</h2>
               
               <div className="space-y-4">
                 {matchProcess.map((rule, ruleIndex) => (
                   <div key={ruleIndex} className="border border-gray-200 rounded-lg overflow-hidden">
                     <div className={`px-4 py-2 ${rule.result ? 'bg-green-100' : 'bg-gray-100'}`}>
                       <div className="flex items-center justify-between">
-                        <span className="font-medium text-gray-900">{rule.ruleName}</span>
+                        <span className="font-medium text-[#0A0A0A]">{rule.ruleName}</span>
                         <span className={`px-2 py-0.5 text-xs rounded ${rule.result ? 'bg-green-500 text-white' : 'bg-gray-400 text-white'}`}>
                           {rule.result ? '通过' : '未通过'}
                         </span>

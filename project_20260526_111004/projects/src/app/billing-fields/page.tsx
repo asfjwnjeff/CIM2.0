@@ -218,11 +218,11 @@ export default function BillingFieldsPage() {
   }, {} as Record<string, { customerName: string; fields: CustomerBillingField[] }>);
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-7xl mx-auto space-y-6">
       {/* 页面标题 */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[#1E2340]">客户信息配置管理</h1>
+          <h1 className="text-2xl font-bold text-[#0A0A0A]">客户信息配置管理</h1>
         </div>
         <button
           onClick={handleAdd}
@@ -283,7 +283,7 @@ export default function BillingFieldsPage() {
           </button>
         </div>
       ) : (
-        <div className="space-y-6">
+        <div className="max-w-7xl mx-auto space-y-6">
           {Object.entries(groupedFields).map(([customerId, { customerName, fields: customerFields }]) => (
             <div key={customerId} className="bg-white rounded-xl shadow-sm border border-[#EBEBEB] overflow-hidden">
               {/* 客户标题 */}
@@ -293,7 +293,7 @@ export default function BillingFieldsPage() {
                     <span className="text-white text-sm font-medium">{customerName.charAt(0)}</span>
                   </div>
                   <div>
-                    <h3 className="font-semibold text-[#1E2340]">{customerName}</h3>
+                    <h3 className="font-semibold text-[#0A0A0A]">{customerName}</h3>
                     <p className="text-xs text-[#999999]">共 {customerFields.length} 个字段</p>
                   </div>
                 </div>
@@ -316,7 +316,7 @@ export default function BillingFieldsPage() {
                       <tr key={field.id} className="border-b border-[#EBEBEB] hover:bg-[#F5F5F5] transition-colors">
                         <td className="px-6 py-4 text-sm text-[#5A5A5A]">{index + 1}</td>
                         <td className="px-6 py-4">
-                          <span className="text-sm font-medium text-[#1E2340]">{field.name}</span>
+                          <span className="text-sm font-medium text-[#0A0A0A]">{field.name}</span>
                         </td>
                         <td className="px-6 py-4">
                           <div className="flex flex-wrap gap-1.5">
@@ -374,7 +374,7 @@ export default function BillingFieldsPage() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-lg mx-4">
             <div className="px-6 py-4 border-b border-[#EBEBEB]">
-              <h3 className="text-lg font-semibold text-[#1E2340]">
+              <h3 className="text-lg font-semibold text-[#0A0A0A]">
                 {editingField ? '编辑字段' : '新增字段'}
               </h3>
             </div>
@@ -382,7 +382,7 @@ export default function BillingFieldsPage() {
             <div className="p-6 space-y-4">
               {/* 客户选择 */}
               <div>
-                <label className="block text-sm font-medium text-[#1E2340] mb-2">
+                <label className="block text-sm font-medium text-[#0A0A0A] mb-2">
                   客户 <span className="text-[#EF4444]">*</span>
                 </label>
                 <select
@@ -403,7 +403,7 @@ export default function BillingFieldsPage() {
 
               {/* 字段名称 */}
               <div>
-                <label className="block text-sm font-medium text-[#1E2340] mb-2">
+                <label className="block text-sm font-medium text-[#0A0A0A] mb-2">
                   字段名称 <span className="text-[#EF4444]">*</span>
                 </label>
                 <select
@@ -420,7 +420,7 @@ export default function BillingFieldsPage() {
 
               {/* 可选值 */}
               <div>
-                <label className="block text-sm font-medium text-[#1E2340] mb-2">
+                <label className="block text-sm font-medium text-[#0A0A0A] mb-2">
                   可选值
                 </label>
                 <p className="text-xs text-[#999999] mb-3">添加可选值后，该字段将显示为下拉单选框；不添加则为自由输入</p>

@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import AppLayout from '@/components/layout/AppLayout';
 import { SearchableSelect } from '@/components/ui/searchable-select';
 
 // 内联SVG图标
@@ -259,8 +258,7 @@ export default function FollowUpEditPage() {
   };
 
   return (
-    <AppLayout>
-      <div className="p-6 space-y-6">
+      <div className="max-w-7xl mx-auto space-y-6">
         {/* 顶部 */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -632,6 +630,5 @@ export default function FollowUpEditPage() {
           </div>
         </div>
       </div>
-    </AppLayout>
   );
 }

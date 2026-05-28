@@ -2,7 +2,6 @@
 
 import { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import AppLayout from '@/components/layout/AppLayout';
 import { useApp } from '@/lib/store';
 import { MOCK_USERS, PROGRESS_STATUS_LABELS } from '@/lib/sample-data';
 import type { ProgressStatus, IndustryChainLevel, IndustryChainRole, CustomerStatus } from '@/lib/types';
@@ -34,8 +33,9 @@ const TAB_LABELS: Record<TabType, string> = {
 interface EditFormData {
   name: string;
   customerCode: string;
-  signingEntity: string;
-  serviceEntity: string;
+  signingEntityIds: string[];
+  serviceEntityIds: string[];
+  settlementEntityIds: string[];
   status: CustomerStatus;
   responsiblePersons: string[];
   collaborators: string[];
@@ -76,8 +76,9 @@ function buildFormData(customer: ReturnType<typeof useApp>['customers'][number])
   return {
     name: customer.name || '',
     customerCode: customer.customerCode || '',
-    signingEntity: customer.signingEntity || '',
-    serviceEntity: customer.serviceEntity || '',
+    signingEntityIds: customer.signingEntityIds || [],
+    serviceEntityIds: customer.serviceEntityIds || [],
+    settlementEntityIds: customer.settlementEntityIds || [],
     status: customer.status || 'active',
     responsiblePersons: customer.responsiblePersons || [],
     collaborators: customer.collaborators || [],
@@ -158,6 +159,16 @@ const CUSTOMER_STATUS_OPTIONS: SelectOption<CustomerStatus>[] = [
 const PROGRESS_STATUS_OPTIONS: SelectOption[] = Object.entries(PROGRESS_STATUS_LABELS).map(([value, label]) => ({ value, label }));
 const USER_OPTIONS: SelectOption[] = MOCK_USERS.map((u) => ({ value: u.id, label: u.name }));
 
+function getSigningEntityOptions(signingEntities: ReturnType<typeof useApp>['signingEntities']): SelectOption[] {
+  return signingEntities.map((e) => ({ value: e.id, label: e.name }));
+}
+function getServiceEntityOptions(serviceEntities: ReturnType<typeof useApp>['serviceEntities']): SelectOption[] {
+  return serviceEntities.map((e) => ({ value: e.id, label: e.name }));
+}
+function getSettlementEntityOptions(settlementEntities: ReturnType<typeof useApp>['settlementEntities']): SelectOption[] {
+  return settlementEntities.map((e) => ({ value: e.id, label: e.name }));
+}
+
 function getUserById(id: string) {
   return MOCK_USERS.find((u) => u.id === id);
 }
@@ -198,7 +209,7 @@ function UserBadgeRender({ userId, onRemove }: { userId: string; onRemove: () =>
 export default function EditCustomerPage() {
   const params = useParams();
   const router = useRouter();
-  const { customers, updateCustomer, updateCustomerProgress, addLog } = useApp();
+  const { customers, updateCustomer, updateCustomerProgress, addLog, signingEntities, serviceEntities, settlementEntities } = useApp();
 
   const customer = useMemo(() => customers.find((c) => c.id === params.id), [params.id, customers]);
 
@@ -296,8 +307,9 @@ export default function EditCustomerPage() {
     updateCustomer(customer.id, {
       name: form.name.trim(),
       customerCode: form.customerCode.trim() || undefined,
-      signingEntity: form.signingEntity.trim() || undefined,
-      serviceEntity: form.serviceEntity.trim() || undefined,
+      signingEntityIds: form.signingEntityIds.length > 0 ? form.signingEntityIds : undefined,
+      serviceEntityIds: form.serviceEntityIds.length > 0 ? form.serviceEntityIds : undefined,
+      settlementEntityIds: form.settlementEntityIds.length > 0 ? form.settlementEntityIds : undefined,
       status: form.status,
       responsiblePersons: form.responsiblePersons,
       collaborators: form.collaborators,
@@ -361,14 +373,12 @@ export default function EditCustomerPage() {
 
   if (!customer || !form) {
     return (
-      <AppLayout>
         <div className="max-w-7xl mx-auto py-12 text-center">
           <h2 className="text-2xl font-bold text-[#0A0A0A] mb-4">客户不存在</h2>
           <button onClick={() => router.push('/customers')} className="inline-flex items-center px-4 py-2 bg-[#2D3BFF] text-white rounded-lg font-medium hover:bg-[#4338CA] transition-all">
             返回客户列表
           </button>
         </div>
-      </AppLayout>
     );
   }
 
@@ -376,8 +386,7 @@ export default function EditCustomerPage() {
   const requiredStar = FIELD_STYLES.requiredStar;
 
   return (
-    <AppLayout>
-      <div className="max-w-7xl mx-auto space-y-5">
+      <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -482,11 +491,36 @@ export default function EditCustomerPage() {
                   </div>
                   <div>
                     <label className={FIELD_STYLES.label}>签约主体</label>
-                    <input type="text" className={FIELD_STYLES.input} value={form.signingEntity} onChange={(e) => updateField('signingEntity', e.target.value)} />
+                    <SearchableMultiSelect
+                      values={form.signingEntityIds}
+                      onChange={(ids) => updateField('signingEntityIds', ids)}
+                      options={getSigningEntityOptions(signingEntities)}
+                      placeholder="搜索并选择签约主体..."
+                      searchPlaceholder="搜索签约主体..."
+                      emptyText="未找到签约主体"
+                    />
                   </div>
                   <div>
                     <label className={FIELD_STYLES.label}>服务主体</label>
-                    <input type="text" className={FIELD_STYLES.input} value={form.serviceEntity} onChange={(e) => updateField('serviceEntity', e.target.value)} />
+                    <SearchableMultiSelect
+                      values={form.serviceEntityIds}
+                      onChange={(ids) => updateField('serviceEntityIds', ids)}
+                      options={getServiceEntityOptions(serviceEntities)}
+                      placeholder="搜索并选择服务主体..."
+                      searchPlaceholder="搜索服务主体..."
+                      emptyText="未找到服务主体"
+                    />
+                  </div>
+                  <div>
+                    <label className={FIELD_STYLES.label}>结算主体</label>
+                    <SearchableMultiSelect
+                      values={form.settlementEntityIds}
+                      onChange={(ids) => updateField('settlementEntityIds', ids)}
+                      options={getSettlementEntityOptions(settlementEntities)}
+                      placeholder="搜索并选择结算主体..."
+                      searchPlaceholder="搜索结算主体..."
+                      emptyText="未找到结算主体"
+                    />
                   </div>
                 </div>
               </div>
@@ -592,7 +626,6 @@ export default function EditCustomerPage() {
           {activeTab === 'logs' && <ReadOnlyTab title="操作日志" message="请返回详情页查看" />}
         </div>
       </div>
-    </AppLayout>
   );
 }
 

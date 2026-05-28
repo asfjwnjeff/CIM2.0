@@ -25,47 +25,47 @@
 
 | Token | 色值 | 用途 |
 |-------|------|------|
-| `primary` | `#1A2FFF` | 主色：主要按钮、选中态、焦点环、链接、顶部导航背景起点 |
-| `primaryHover` | `#3B52FF` | 悬停态：按钮 hover、顶部导航背景终点 |
-| `primaryLight` | `#E8F0FF` | 浅色背景：侧边栏菜单悬停/选中背景、标签浅色底 |
+| `primary` | `#2D3BFF` | 主色：主要按钮、选中态、焦点环、链接、顶部导航背景起点 |
+| `primaryHover` | `#4338CA` | 悬停态：按钮 hover、顶部导航背景终点 |
+| `primaryLight` | `#E8EBFF` | 浅色背景：侧边栏菜单悬停/选中背景、标签浅色底 |
 
 在代码中通过 `BRAND_COLORS` 常量引用（`src/lib/ui-constants.tsx`）：
 
 ```typescript
 export const BRAND_COLORS = {
-  primary: '#1A2FFF',
-  primaryHover: '#3B52FF',
-  primaryLight: '#E8F0FF',
+  primary: '#2D3BFF',
+  primaryHover: '#4338CA',
+  primaryLight: '#E8EBFF',
 } as const;
 ```
 
-Tailwind 任意值用法：`bg-[#1A2FFF]` / `text-[#1A2FFF]` / `ring-[#1A2FFF]` / `border-[#1A2FFF]`
+Tailwind 任意值用法：`bg-[#2D3BFF]` / `text-[#2D3BFF]` / `ring-[#2D3BFF]` / `border-[#2D3BFF]`
 
 ### 1.2 功能色 (Semantic Colors)
 
 | Token | 色值 | 用途 |
 |-------|------|------|
-| `success` | `#52C41A` | 成功状态、通过审批、正常经营 |
-| `warning` | `#FAAD14` | 警告状态、待处理、即将到期 |
-| `error` | `#FF4D4F` | 错误状态、驳回、删除操作、必填星号 |
-| `info` | `#1890FF` | 信息提示、参考说明 |
+| `success` | `#0D8A5E` | 成功状态、通过审批、正常经营 |
+| `warning` | `#E8850C` | 警告状态、待处理、即将到期 |
+| `error` | `#D63031` | 错误状态、驳回、删除操作、必填星号 |
+| `info` | `#2D3BFF` | 信息提示、参考说明 |
 
 典型用法：
-- **成功卡片/标签**：`bg-[#E6F7F0] text-[#00A870]`（深绿文字配浅绿底）
-- **警告卡片/标签**：`bg-[#FFF4E8] text-[#FF8A00]`（深橙文字配浅橙底）
-- **错误卡片/标签**：`bg-[#FFEBEE] text-[#E53935]`（深红文字配浅红底）
-- **错误提示框**：`bg-[#FFF1F0] border border-[#FFCCC7] rounded-lg text-sm text-[#FF4D4F]`
+- **成功卡片/标签**：`bg-[#E6F7F0] text-[#0D8A5E]`（深绿文字配浅绿底）
+- **警告卡片/标签**：`bg-[#FFF4E8] text-[#E8850C]`（深橙文字配浅橙底）
+- **错误卡片/标签**：`bg-[#FFEBEE] text-[#D63031]`（深红文字配浅红底）
+- **错误提示框**：`bg-[#FFEBEE] border border-[#FFEBEE] rounded-lg text-sm text-[#D63031]`
 
 ### 1.3 中性色 (Neutral Colors)
 
 | Token | 色值 | Tailwind 类 | 用途 |
 |-------|------|-------------|------|
-| `textPrimary` | `#1A1A1A` | `text-[#1A1A1A]` | 正文标题、表单标签、重要文字 |
-| `textSecondary` | `#666666` | `text-[#666666]` | 辅助说明文字、次要信息 |
+| `textPrimary` | `#0A0A0A` | `text-[#0A0A0A]` | 正文标题、表单标签、重要文字 |
+| `textSecondary` | `#5A5A5A` | `text-[#5A5A5A]` | 辅助说明文字、次要信息 |
 | `textTertiary` | `#999999` | `text-[#999999]` | 占位符、禁用态文字、提示文字 |
-| `border` | `#E0E0E0` | `border-[#E0E0E0]` | 输入框边框、下拉边框 |
-| `borderLight` | `#EEEEEE` | `border-[#EEEEEE]` | 卡片边框、分割线 |
-| `bgPage` | `#F5F6F8` | `bg-[#F5F6F8]` | 页面底色、标签导航背景 |
+| `border` | `#D5D5D5` | `border-[#D5D5D5]` | 输入框边框、下拉边框 |
+| `borderLight` | `#EBEBEB` | `border-[#EBEBEB]` | 卡片边框、分割线 |
+| `bgPage` | `#FAFAFA` | `bg-[#FAFAFA]` | 页面底色、标签导航背景 |
 | `bgWhite` | `#FFFFFF` | `bg-white` | 卡片背景、输入框背景、白色容器 |
 
 ### 1.4 圆角 (Border Radius)
@@ -151,9 +151,9 @@ export interface SelectOption<T = string> {
 
 **触发器 (Trigger)：**
 - 宽度 100%，flex 布局，`items-center gap-2 px-3 py-2`
-- 边框：`border border-[#E0E0E0] rounded-lg`
-- hover 态：`hover:border-[#1A2FFF]`
-- 文字：选中态 `text-[#1A1A1A]`，未选中占位色 `text-[#999999]`
+- 边框：`border border-[#D5D5D5] rounded-lg`
+- hover 态：`hover:border-[#2D3BFF]`
+- 文字：选中态 `text-[#0A0A0A]`，未选中占位色 `text-[#999999]`
 - 右侧显示 `ChevronsUpDown` 图标（`w-4 h-4 opacity-50 shrink-0`）
 - 禁用态：`opacity-50 cursor-not-allowed`
 
@@ -167,7 +167,7 @@ export interface SelectOption<T = string> {
 **选项 (CommandItem)：**
 - 每行 flex 布局，`items-center gap-2`
 - 文字：`text-sm flex-1`
-- 选中标记：选项值等于 `value` 时，右侧显示蓝色 `Check` 图标（`w-4 h-4 text-[#1A2FFF] shrink-0`）
+- 选中标记：选项值等于 `value` 时，右侧显示蓝色 `Check` 图标（`w-4 h-4 text-[#2D3BFF] shrink-0`）
 
 #### 设计要点
 
@@ -284,7 +284,7 @@ import { SearchableMultiSelect } from '@/components/ui/searchable-multi-select';
 
 #### 设计要点
 
-- 项目中使用 `FIELD_STYLES.input` 类名获取统一样式（`w-full px-3 py-2 border border-[#E0E0E0] rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-[#1A2FFF] focus:border-[#1A2FFF]`）
+- 项目中使用 `FIELD_STYLES.input` 类名获取统一样式（`w-full px-3 py-2 border border-[#D5D5D5] rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-[#2D3BFF] focus:border-[#2D3BFF]`）
 - 带标签时标签在上方（见 [3.1 表单字段布局](#31-表单字段布局)）
 
 #### 使用示例
@@ -356,7 +356,7 @@ import { SearchableMultiSelect } from '@/components/ui/searchable-multi-select';
 
 | Variant | 样式 | 用途 |
 |---------|------|------|
-| `default` | `bg-primary text-primary-foreground hover:bg-primary/90` | 主按钮（实际渲染为品牌色 `#1A2FFF`） |
+| `default` | `bg-primary text-primary-foreground hover:bg-primary/90` | 主按钮（实际渲染为品牌色 `#2D3BFF`） |
 | `destructive` | `bg-destructive text-white hover:bg-destructive/90` | 危险操作 |
 | `outline` | `border bg-background shadow-xs hover:bg-accent` | 次按钮、取消按钮 |
 | `secondary` | `bg-secondary text-secondary-foreground hover:bg-secondary/80` | 辅助按钮 |
@@ -563,7 +563,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 
 - **TabsList**（Tab 容器）：
   - `bg-muted text-muted-foreground inline-flex h-9 w-fit items-center justify-center rounded-lg p-[3px]`
-  - 即背景色 `#F5F6F8`，圆角 8px，内边距 3px
+  - 即背景色 `#FAFAFA`，圆角 8px，内边距 3px
 - **TabsTrigger**（单个 Tab）：
   - `inline-flex h-[calc(100%-1px)] flex-1 items-center justify-center gap-1.5 rounded-md border border-transparent px-2 py-1 text-sm font-medium whitespace-nowrap`
   - 激活态：`data-[state=active]:bg-background data-[state=active]:shadow-sm`（白底 + 轻微阴影）
@@ -576,7 +576,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 
 <Tabs value={activeTab} onValueChange={setActiveTab}>
-  <TabsList className="bg-[#F5F6F8] rounded-lg p-1">
+  <TabsList className="bg-[#FAFAFA] rounded-lg p-1">
     <TabsTrigger value="basic">企业基本信息</TabsTrigger>
     <TabsTrigger value="business">工商资质全景</TabsTrigger>
   </TabsList>
@@ -613,7 +613,7 @@ function UserAvatar({ userId, size }: { userId: string; size?: 'sm' | 'md' }) {
   const initial = user ? user.name.charAt(0) : '?';
   const sizeClass = size === 'sm' ? 'w-6 h-6 text-xs' : 'w-8 h-8 text-sm';
   return (
-    <div className={`${sizeClass} rounded-full bg-gradient-to-br from-[#1A2FFF] to-[#3B52FF] text-white flex items-center justify-center font-medium shrink-0`}>
+    <div className={`${sizeClass} rounded-full bg-[#2D3BFF] text-white flex items-center justify-center font-medium shrink-0`}>
       {initial}
     </div>
   );
@@ -623,7 +623,7 @@ function UserAvatar({ userId, size }: { userId: string; size?: 'sm' | 'md' }) {
 #### 设计要点
 
 - 尺寸变体：`sm`（24px，`w-6 h-6 text-xs`）/ `md`（32px，`w-8 h-8 text-sm`）
-- 背景：渐变蓝色 `bg-gradient-to-br from-[#1A2FFF] to-[#3B52FF]`
+- 背景：纯色 `bg-[#2D3BFF]`
 - 文字：白色，`font-medium`
 - 显示内容：用户姓名的首字符
 
@@ -655,16 +655,16 @@ function UserAvatar({ userId, size }: { userId: string; size?: 'sm' | 'md' }) {
 
 ```tsx
 <div>
-  <label className="block text-sm font-medium text-[#1A1A1A] mb-1">
+  <label className="block text-sm font-medium text-[#0A0A0A] mb-1">
     字段名称
-    <span className="text-[#FF4D4F] ml-0.5">*</span>
+    <span className="text-[#D63031] ml-0.5">*</span>
   </label>
   <Input className={FIELD_STYLES.input} ... />
 </div>
 ```
 
 **开发约定：**
-- 标签样式统一使用 `FIELD_STYLES.label`（`'block text-sm font-medium text-[#1A1A1A] mb-1'`）
+- 标签样式统一使用 `FIELD_STYLES.label`（`'block text-sm font-medium text-[#0A0A0A] mb-1'`）
 - 必填星号统一使用 `FIELD_STYLES.requiredStar`（React 元素，避免 JSX 中重复创建 `<span>`）
 - 输入框样式统一使用 `FIELD_STYLES.input` 或 `FIELD_STYLES.selectTrigger`
 
@@ -678,7 +678,7 @@ function UserAvatar({ userId, size }: { userId: string; size?: 'sm' | 'md' }) {
 </label>
 ```
 
-- 颜色：`#FF4D4F`（error 色）
+- 颜色：`#D63031`（error 色）
 - 位置：标签文字右侧，间距 `ml-0.5`（2px）
 
 ### 3.3 表单网格布局
@@ -726,14 +726,14 @@ function UserAvatar({ userId, size }: { userId: string; size?: 'sm' | 'md' }) {
 ```tsx
 <div className="space-y-6">
   <section>
-    <h3 className="text-sm font-semibold text-[#1A1A1A] mb-4">基本信息</h3>
+    <h3 className="text-sm font-semibold text-[#0A0A0A] mb-4">基本信息</h3>
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       {/* 字段 */}
     </div>
   </section>
 
   <section>
-    <h3 className="text-sm font-semibold text-[#1A1A1A] mb-4">工商信息</h3>
+    <h3 className="text-sm font-semibold text-[#0A0A0A] mb-4">工商信息</h3>
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       {/* 字段 */}
     </div>
@@ -746,14 +746,14 @@ function UserAvatar({ userId, size }: { userId: string; size?: 'sm' | 'md' }) {
 字段级验证错误在对应字段下方显示：
 
 ```tsx
-<div className="bg-[#FFF1F0] border border-[#FFCCC7] rounded-lg text-sm text-[#FF4D4F] px-3 py-2 mt-1">
+<div className="bg-[#FFEBEE] border border-[#FFEBEE] rounded-lg text-sm text-[#D63031] px-3 py-2 mt-1">
   请输入客户名称
 </div>
 ```
 
-- 背景色：`#FFF1F0`（极浅红）
-- 边框色：`#FFCCC7`（浅红）
-- 文字色：`#FF4D4F`（错误红）
+- 背景色：`#FFEBEE`（极浅红）
+- 边框色：`#FFEBEE`（浅红）
+- 文字色：`#D63031`（错误红）
 - 圆角：`rounded-lg`（8px）
 - 与上方字段间距：`mt-1`（4px）
 
@@ -785,7 +785,7 @@ function UserAvatar({ userId, size }: { userId: string; size?: 'sm' | 'md' }) {
   </Card>
 
   {/* 提交区域 */}
-  <div className="flex justify-end gap-3 pt-4 border-t border-[#EEEEEE]">
+  <div className="flex justify-end gap-3 pt-4 border-t border-[#EBEBEB]">
     <Button variant="outline" type="button" onClick={handleCancel}>取消</Button>
     <Button type="submit" disabled={isSubmitting}>
       {isSubmitting ? '保存中...' : '保存'}
@@ -808,37 +808,62 @@ function UserAvatar({ userId, size }: { userId: string; size?: 'sm' | 'md' }) {
 
 | 区域 | 规格 | 说明 |
 |------|------|------|
-| 顶部导航高度 | `h-[60px]` | 固定在顶部，`z-50` |
-| 顶部导航背景 | `bg-gradient-to-r from-[#1A2FFF] via-[#2B45FF] to-[#3B52FF]` | 蓝色渐变 |
-| 侧边栏宽度 | `w-[200px]` | 固定宽度，`top-[60px]` 开始 |
-| 侧边栏背景 | `bg-white` | 白色底，右侧 `border-r border-[#E8ECF5]` |
-| 内容区左边距 | `ml-[200px]` | 与侧边栏对齐 |
-| 内容区内边距 | `p-5`（20px） | 统一内容区内边距 |
-| 页面底色 | `bg-gradient-to-br from-[#F8F9FC] via-[#F1F3F8] to-[#E8ECF5]` | 微渐变淡蓝灰底色 |
+| 顶部导航高度 | `h-[55px]` | 固定在顶部，`z-50` |
+| 顶部导航背景 | `bg-white` + `border-b border-[#EBEBEB]` | 纯白底+底部细线 |
+| 侧边栏宽度-收起 | `w-[56px]` | 仅显示图标，`z-40` |
+| 侧边栏宽度-展开 | `w-[240px]` | 完整菜单文本，浮层阴影 |
+| 侧边栏背景 | `bg-[#1A1C1E]` | 深色底（暗色主题侧栏） |
+| 内容区左边距-收起 | `ml-[56px]` | 与收起侧栏对齐 |
+| 内容区左边距-展开 | `ml-[240px]` | 与展开侧栏对齐 |
+| 内容区上边距 | `pt-[55px]` | 避开顶栏高度 |
+| 页面底色 | `bg-[#FAFAFA]` | 微暖灰底色 |
+| 过渡动画 | `duration-200 ease-out` | 侧栏宽度和内容偏移同步过渡 |
 
-#### 使用方式
+#### 使用方式 ⚠️ 关键约束
+
+**`AppLayout` 仅在根布局 `src/app/layout.tsx` 中使用一次，所有子页面不得再次包裹。**
 
 ```tsx
-'use client';
+// ✅ 正确：根布局 (src/app/layout.tsx)
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="zh-CN">
+      <body>
+        <AppProvider>
+          <AppLayout>{children}</AppLayout>  {/* 仅此一处 */}
+        </AppProvider>
+      </body>
+    </html>
+  );
+}
 
-import AppLayout from '@/components/layout/AppLayout';
-
+// ❌ 错误：页面文件中不应再包裹 AppLayout
+// 页面直接返回内容即可，无需额外包裹
 export default function CustomersPage() {
   return (
-    <AppLayout>
-      {/* 页面内容 */}
+    <AppLayout>  {/* 这会导致双重侧栏！ */}
+      <div className="p-6">...</div>
     </AppLayout>
   );
 }
 ```
 
-#### 侧边栏导航
+#### 侧边栏导航（瑞士现代设计）
 
-- 一级菜单：`px-4 py-3 rounded-xl text-sm`，激活态蓝色渐变 `from-[#1A2FFF] to-[#3B52FF] text-white font-semibold shadow-lg`
-- 二级菜单：`pl-4 pr-4 py-2.5 rounded-lg text-sm`，激活态同蓝色渐变
-- 菜单分组折叠/展开：ChevronDown 图标旋转 180 度
-- 激活指示：菜单右侧 `w-1.5 h-1.5 rounded-full bg-white animate-pulse`
-- 菜单间距：`mb-1`
+- **收起态 (56px)**：仅显示图标 `w-6 h-6`（24px），无文字
+- **展开态 (240px)**：图标缩小至 `w-5 h-5`（20px），显示完整菜单文字
+- **延迟文字显示**：展开时图标→文字切换有 200ms 延迟（与宽度过渡同步），收起时文字立即隐藏
+- 一级菜单（无子菜单 / 叶子菜单）：直接 `<Link>` 导航
+- 一级菜单（有子菜单）：`<button>` 控制子菜单展开/折叠
+- **收起态交互**：
+  - 点叶子菜单 → 直接导航，侧栏不展开
+  - 点父菜单 → 侧栏自动展开 + 展开该子菜单
+- **展开态交互**：
+  - 点叶子菜单 → 导航，侧栏保持展开
+  - 点父菜单 → 切换子菜单（不自动收起其他父菜单）
+  - 只有点击侧栏底部「收起菜单」按钮或顶栏折叠按钮才会收起
+- 子菜单仅在侧栏展开且 `showSidebarText` 为 true 时渲染
+- 激活态：父菜单 `bg-white/10 text-white`，子菜单 `bg-[#2D3BFF] text-white`
 
 #### 顶部导航栏
 
@@ -856,11 +881,11 @@ export default function CustomersPage() {
     {/* 返回按钮（子页面） */}
     <button
       onClick={() => router.back()}
-      className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[#F5F6F8] transition-colors"
+      className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[#FAFAFA] transition-colors"
     >
-      <ArrowLeft className="w-5 h-5 text-[#666666]" />
+      <ArrowLeft className="w-5 h-5 text-[#5A5A5A]" />
     </button>
-    <h1 className="text-xl font-bold text-[#1A1A1A]">页面标题</h1>
+    <h1 className="text-xl font-bold text-[#0A0A0A]">页面标题</h1>
   </div>
   <div className="flex items-center gap-3">
     {/* 右侧操作按钮 */}
@@ -873,7 +898,7 @@ export default function CustomersPage() {
 #### 设计要点
 
 - 返回按钮仅子页面（详情/编辑/新增）显示，列表页不显示
-- 标题使用 `text-xl font-bold text-[#1A1A1A]`
+- 标题使用 `text-xl font-bold text-[#0A0A0A]`
 - 操作按钮区域使用 `flex items-center gap-3`
 - 与下方内容间距：`mb-5`（20px）
 
@@ -893,7 +918,7 @@ export default function CustomersPage() {
 </Card>
 ```
 
-- 背景 `bg-white`、圆角 `rounded-xl`（12px）、边框 `border-[#EEEEEE]`
+- 背景 `bg-white`、圆角 `rounded-xl`（12px）、边框 `border-[#EBEBEB]`
 - 内边距 `p-6`（24px）
 - 卡片间垂直间距：`space-y-6`（24px）
 
@@ -903,7 +928,7 @@ export default function CustomersPage() {
 
 ```tsx
 <Tabs value={activeTab} onValueChange={setActiveTab}>
-  <TabsList className="bg-[#F5F6F8] rounded-lg p-1 mb-6">
+  <TabsList className="bg-[#FAFAFA] rounded-lg p-1 mb-6">
     <TabsTrigger value="tab1">标签一</TabsTrigger>
     <TabsTrigger value="tab2">标签二</TabsTrigger>
   </TabsList>
@@ -957,7 +982,7 @@ export default function CustomersPage() {
 #### 通用规则
 
 - 搜索输入框自动聚焦（打开面板后）
-- Check 图标 `text-[#1A2FFF]` 标识已选中
+- Check 图标 `text-[#2D3BFF]` 标识已选中
 - 选项列表最大高度 `h-52`（208px），超出后滚动
 - 选项 hover 有高亮背景
 - 空状态（无匹配结果）显示 `emptyText`
@@ -1070,7 +1095,7 @@ useEffect(() => {
 ```tsx
 const [viewMode, setViewMode] = useState<ViewMode>(getStoredViewMode);
 
-<div className="flex gap-1 bg-[#F5F6F8] rounded-lg p-1">
+<div className="flex gap-1 bg-[#FAFAFA] rounded-lg p-1">
   <button
     onClick={() => { setViewMode('card'); setStoredViewMode('card'); }}
     className={`p-1.5 rounded ${viewMode === 'card' ? 'bg-white shadow-sm' : ''}`}
@@ -1086,7 +1111,7 @@ const [viewMode, setViewMode] = useState<ViewMode>(getStoredViewMode);
 </div>
 ```
 
-- 切换按钮容器：`bg-[#F5F6F8] rounded-lg p-1` + `flex gap-1`
+- 切换按钮容器：`bg-[#FAFAFA] rounded-lg p-1` + `flex gap-1`
 - 激活按钮：`bg-white shadow-sm`
 - 图标：`LayoutGrid` / `List`（Lucide React）
 - 视图偏好存储键：`cim-customers-view-mode`
@@ -1119,18 +1144,18 @@ const [viewMode, setViewMode] = useState<ViewMode>(getStoredViewMode);
 
 | 状态类型 | 状态值 | Badge 样式 |
 |---------|-------|-----------|
-| 客户状态 - 正常 | `active` | `bg-[#E6F7F0] text-[#00A870]` |
-| 客户状态 - 停用 | `inactive` | `bg-[#EEEEEE] text-[#666666]` |
-| 客户状态 - 潜在 | `potential` | `bg-[#FFF4E8] text-[#FF8A00]` |
-| 客户状态 - 冻结 | `frozen` | `bg-[#FFEBEE] text-[#E53935]` |
+| 客户状态 - 正常 | `active` | `bg-[#E6F7F0] text-[#0D8A5E]` |
+| 客户状态 - 停用 | `inactive` | `bg-[#EBEBEB] text-[#5A5A5A]` |
+| 客户状态 - 潜在 | `potential` | `bg-[#FFF4E8] text-[#E8850C]` |
+| 客户状态 - 冻结 | `frozen` | `bg-[#FFEBEE] text-[#D63031]` |
 
 ```tsx
 function StatusBadge({ status }: { status: string }) {
   const colorMap: Record<string, string> = {
-    active: 'bg-[#E6F7F0] text-[#00A870]',
-    inactive: 'bg-[#EEEEEE] text-[#666666]',
-    potential: 'bg-[#FFF4E8] text-[#FF8A00]',
-    frozen: 'bg-[#FFEBEE] text-[#E53935]',
+    active: 'bg-[#E6F7F0] text-[#0D8A5E]',
+    inactive: 'bg-[#EBEBEB] text-[#5A5A5A]',
+    potential: 'bg-[#FFF4E8] text-[#E8850C]',
+    frozen: 'bg-[#FFEBEE] text-[#D63031]',
   };
   return (
     <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${colorMap[status]}`}>
@@ -1164,13 +1189,13 @@ function ProgressBadge({ status }: { status: ProgressStatus }) {
 
 - 小尺寸：`w-6 h-6 text-xs`（24px，用于列表行内）
 - 中尺寸：`w-8 h-8 text-sm`（32px，用于卡片）
-- 背景：`bg-gradient-to-br from-[#1A2FFF] to-[#3B52FF]`
+- 背景：`bg-[#2D3BFF]`
 - 文字：白色 `font-medium`
 
 #### 顶部导航栏用户头像
 
 - 尺寸：`w-9 h-9`（36px）
-- 背景：`bg-gradient-to-br from-white/30 to-white/10 backdrop-blur-sm border border-white/20`
+- 背景：`bg-white/20`
 - 文字：`text-sm font-semibold`
 - Hover：`hover:scale-105 transition-transform duration-200`
 
@@ -1180,7 +1205,7 @@ function ProgressBadge({ status }: { status: ProgressStatus }) {
 
 ```tsx
 <div className="flex flex-col items-center justify-center py-16">
-  <div className="w-16 h-16 flex items-center justify-center rounded-full bg-[#F5F6F8] mb-4">
+  <div className="w-16 h-16 flex items-center justify-center rounded-full bg-[#FAFAFA] mb-4">
     <Users className="w-8 h-8 text-[#999999]" />
   </div>
   <p className="text-[#999999] text-sm">暂无客户数据</p>
@@ -1192,7 +1217,7 @@ function ProgressBadge({ status }: { status: ProgressStatus }) {
 ```
 
 - 图标：Lucide 对应模块图标，`w-8 h-8 text-[#999999]`
-- 图标容器：`w-16 h-16 rounded-full bg-[#F5F6F8]`（64px 灰色圆形底）
+- 图标容器：`w-16 h-16 rounded-full bg-[#FAFAFA]`（64px 灰色圆形底）
 - 提示文字：`text-[#999999] text-sm`
 - 居中排列：`flex flex-col items-center justify-center`
 - 垂直内边距：`py-16`（64px）
@@ -1226,7 +1251,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
             <span className="text-sm">{getUserName(customer.responsiblePersons[0])}</span>
           </div>
         </TableCell>
-        <TableCell className="text-[#666666]">{customer.createdAt}</TableCell>
+        <TableCell className="text-[#5A5A5A]">{customer.createdAt}</TableCell>
         <TableCell>
           {/* 操作按钮 */}
         </TableCell>
@@ -1336,15 +1361,15 @@ src/
 
 ### 8.1 色彩使用规则
 
-1. **品牌色 `#1A2FFF`** 用于：主要按钮背景、选中态标识、焦点环、链接文字、顶部导航
-2. **品牌色悬停 `#3B52FF`** 用于：按钮 hover、渐变背景终点
-3. **品牌色浅色 `#E8F0FF`** 用于：菜单激活/悬停背景、选中卡片背景
+1. **品牌色 `#2D3BFF`** 用于：主要按钮背景、选中态标识、焦点环、链接文字、顶部导航
+2. **品牌色悬停 `#4338CA`** 用于：按钮 hover、渐变背景终点
+3. **品牌色浅色 `#E8EBFF`** 用于：菜单激活/悬停背景、选中卡片背景
 4. **功能色**（success / warning / error / info）：仅用于状态标识、提示信息
-5. **中性色**：正文文字 #1A1A1A、辅助文字 #666666、边框 #E0E0E0
+5. **中性色**：正文文字 #0A0A0A、辅助文字 #5A5A5A、边框 #D5D5D5
 
 ### 8.2 Tailwind 使用规范
 
-- 优先使用 Tailwind 内置类，其次使用任意值（`bg-[#1A2FFF]`）
+- 优先使用 Tailwind 内置类，其次使用任意值（`bg-[#2D3BFF]`）
 - 项目不使用 CSS Module，所有样式通过 Tailwind 类或内联 style 实现
 - 常见复用样式封装为常量（`FIELD_STYLES`）而非 CSS 类，保持 StyleX 一致
 
@@ -1394,3 +1419,64 @@ src/
 - [ ] 使用 `'use client'` 指令（如有交互逻辑）
 - [ ] 遵循不可变更新模式
 - [ ] 所有文案使用中文
+
+### 8.8 开发经验与常见陷阱
+
+#### 陷阱 1：全局 Layout 重复包裹
+
+**问题**：根布局 (`layout.tsx`) 已包裹 `<AppLayout>`，但页面文件中也包裹了 `<AppLayout>`，导致每页渲染两个侧栏 + 两个顶栏，造成视觉重叠。
+
+**原因**：早期模板代码在页面中写了 `<AppLayout>` 作为示例，后续以此为模板创建新页面时逐文件复制了该模式。
+
+**教训**：
+
+- 全局 Layout 组件只应在根布局中**使用一次**，子页面不再包裹
+- 创建新页面时从已有页面复制模板，需**检查 import 和 JSX 层级关系**
+- 用 `grep "<AppLayout>" src/app` 可以快速排查是否有重复包裹
+
+#### 陷阱 2：批量修改不完整
+
+**问题**：首次修复只处理了 4 个列表页（customers/followup/opportunities/approvals），但项目实际有 **30+ 页面**存在同样问题，导致修复后仍有重叠。
+
+**原因**：手动逐个修复容易遗漏，尤其是在模块目录下的详情页(`[id]/page.tsx`)、编辑页(`[id]/edit/page.tsx`)、新建页(`new/page.tsx`)。
+
+**教训**：
+
+- 批量修改时先用 `grep -rn` **列出所有受影响文件**的完整清单，再执行修改
+- 修改完成后再次 `grep` 验证，确保仅根布局保留该模式
+- 自动化脚本（sed / Node.js）比手动修改更可靠
+
+#### 陷阱 3：移除 JSX 包裹后多根元素报错
+
+**问题**：移除 `<AppLayout>` 开/闭标签后，如果页面内部有多个顶级 JSX 元素（如内容区 + 弹窗 Modal），会导致 "Expected ',', got '{'" 编译错误。
+
+**原因**：React/JSX 要求 return 只能有一个根元素。AppLayout 本来是那个根，移除后需要 Fragment 替代。
+
+**修复**：
+
+```tsx
+// 修复前 — AppLayout 是单根
+return (
+  <AppLayout>
+    <div>内容</div>
+    {modalOpen && <Dialog>...</Dialog>}
+  </AppLayout>
+);
+
+// 修复后 — 需要 Fragment 包裹
+return (<>
+  <div>内容</div>
+  {modalOpen && <Dialog>...</Dialog>}
+</>);
+```
+
+#### 陷阱 4：依赖视觉检查而非自动化测试
+
+**问题**：修复后仅通过 `pnpm build` 和肉眼浏览确认，但实际上人工难以覆盖所有 30+ 页面的交互场景。
+
+**教训**：
+
+- 使用 **Playwright** 编写自动化脚本模拟人工点击，覆盖关键交互路径
+- 关键检查点：`aside` 元素数量、侧栏宽度与主内容偏移匹配、收起/展开交互逻辑
+- 测试脚本应覆盖：列表页、详情页、编辑页、新建页等不同路由模式
+- Build 通过 ≠ 交互正确，需要两者兼验

@@ -2,7 +2,9 @@
 
 import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
-import AppLayout from '@/components/layout/AppLayout';
+import { useApp } from '@/lib/store';
+import { useGroupFilter, GroupTabs, GroupManageDialog } from '@/components/groups';
+import { FIELD_META_MAP } from '@/lib/group-utils';
 
 // 客户风险控制数据类型
 interface RiskControl {
@@ -331,6 +333,14 @@ const ChevronRightIcon = ({ className }: { className?: string }) => (
 );
 
 export default function ApprovalsPage() {
+  const { currentUser } = useApp();
+
+  // ====== 分组功能 ======
+  const groupFilter = useGroupFilter<RiskControl>({
+    moduleKey: 'approvals',
+    currentUserId: currentUser.id,
+  });
+
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [serviceProductFilter, setServiceProductFilter] = useState('all');
@@ -339,7 +349,9 @@ export default function ApprovalsPage() {
 
   // 筛选和搜索
   const filteredRiskControls = useMemo(() => {
-    return mockRiskControls.filter(rc => {
+    // 第一步：应用分组筛选
+    let data = groupFilter.applyFilter(mockRiskControls);
+    return data.filter(rc => {
       const matchesSearch = !searchQuery || 
         rc.companyName.toLowerCase().includes(searchQuery.toLowerCase()) ||
         rc.businessCustomerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -354,7 +366,7 @@ export default function ApprovalsPage() {
       
       return matchesSearch && matchesStatus && matchesServiceProduct && matchesTradeAgent;
     });
-  }, [searchQuery, statusFilter, serviceProductFilter, tradeAgentFilter]);
+  }, [groupFilter, searchQuery, statusFilter, serviceProductFilter, tradeAgentFilter]);
 
   // 获取审批状态颜色
   const getStatusColor = (status: string) => {
@@ -382,8 +394,7 @@ export default function ApprovalsPage() {
   };
 
   return (
-    <AppLayout>
-      <div className="p-5 space-y-6">
+      <div className="max-w-7xl mx-auto space-y-6">
         {/* 页面标题和操作区 */}
         <div className="flex items-center justify-between">
           <div>
@@ -427,6 +438,14 @@ export default function ApprovalsPage() {
             </Link>
           </div>
         </div>
+
+        {/* 分组标签栏 */}
+        <GroupTabs
+          groups={groupFilter.groups}
+          activeGroupId={groupFilter.activeGroupId}
+          onSelect={groupFilter.setActiveGroupId}
+          onManage={groupFilter.openCreateDialog}
+        />
 
         {/* 搜索和筛选区 */}
         <div className="bg-white rounded-xl border border-[#EBEBEB] shadow-sm p-4">
@@ -623,7 +642,18 @@ export default function ApprovalsPage() {
             <p className="text-[#5A5A5A]">请尝试调整搜索条件或筛选条件</p>
           </div>
         )}
+
+        {/* 分组管理弹窗 */}
+        <GroupManageDialog
+          open={groupFilter.dialogOpen}
+          onClose={groupFilter.closeDialog}
+          groups={groupFilter.groups}
+          editingGroup={groupFilter.editingGroup}
+          fieldMeta={FIELD_META_MAP.approvals}
+          onSave={groupFilter.createGroup}
+          onUpdate={groupFilter.updateGroup}
+          onDelete={groupFilter.deleteGroup}
+        />
       </div>
-    </AppLayout>
   );
 }

@@ -2,9 +2,10 @@
 
 import { useState, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import AppLayout from '@/components/layout/AppLayout';
 import { useApp } from '@/lib/store';
 import type { Customer, ProgressStatus, IndustryChainLevel } from '@/lib/types';
+import { useGroupFilter, GroupTabs, GroupManageDialog } from '@/components/groups';
+import { FIELD_META_MAP } from '@/lib/group-utils';
 import {
   INDUSTRY_CHAIN_LEVEL_LABELS,
   INDUSTRY_CHAIN_LEVEL_COLORS,
@@ -89,6 +90,7 @@ export default function CustomersPage() {
   const router = useRouter();
   const {
     customers,
+    currentUser,
     addLog,
     collaborateCustomer,
     assignCustomer,
@@ -97,6 +99,12 @@ export default function CustomersPage() {
     batchAssign,
     batchTransfer,
   } = useApp();
+
+  // ====== 分组功能 ======
+  const groupFilter = useGroupFilter<Customer>({
+    moduleKey: 'customers',
+    currentUserId: currentUser.id,
+  });
 
   const [search, setSearch] = useState('');
   const [filterLevel, setFilterLevel] = useState<IndustryChainLevel | 'all'>('all');
@@ -122,7 +130,8 @@ export default function CustomersPage() {
   }, []);
 
   const filteredCustomers = useMemo(() => {
-    let result = customers;
+    // 第一步：应用分组筛选
+    let result = groupFilter.applyFilter(customers);
 
     if (search) {
       const s = search.toLowerCase();
@@ -148,7 +157,7 @@ export default function CustomersPage() {
     }
 
     return result;
-  }, [customers, search, filterLevel, filterStatus, filterProgress]);
+  }, [customers, groupFilter, search, filterLevel, filterStatus, filterProgress]);
 
   const toggleSelect = useCallback((id: string) => {
     setSelectedIds((prev) => {
@@ -281,12 +290,11 @@ export default function CustomersPage() {
   const confirmHandler = dialogCustomerId ? handleDialogConfirm : handleBatchDialogConfirm;
 
   return (
-    <AppLayout>
-      <div className="max-w-7xl mx-auto space-y-4">
+      <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-[20px] font-bold text-[#0A0A0A]">客户管理</h1>
+            <h1 className="text-2xl font-bold text-[#0A0A0A]">客户管理</h1>
             <p className="text-[#5A5A5A] text-[13px]">管理所有企业客户信息，包括工商档案、半导体产业链定位和上下游关系</p>
           </div>
           <div className="flex items-center gap-2">
@@ -314,6 +322,14 @@ export default function CustomersPage() {
             </button>
           </div>
         </div>
+
+        {/* 分组标签栏 */}
+        <GroupTabs
+          groups={groupFilter.groups}
+          activeGroupId={groupFilter.activeGroupId}
+          onSelect={groupFilter.setActiveGroupId}
+          onManage={groupFilter.openCreateDialog}
+        />
 
         {/* Search & Filters */}
         <div className="bg-white rounded-2xl border border-[#EBEBEB] shadow-[0_2px_8px_rgba(0,0,0,0.06)] p-4">
@@ -743,7 +759,18 @@ export default function CustomersPage() {
           currentCollaboratorIds={dialogCollaboratorIds}
           onConfirm={confirmHandler}
         />
+
+        {/* 分组管理弹窗 */}
+        <GroupManageDialog
+          open={groupFilter.dialogOpen}
+          onClose={groupFilter.closeDialog}
+          groups={groupFilter.groups}
+          editingGroup={groupFilter.editingGroup}
+          fieldMeta={FIELD_META_MAP.customers}
+          onSave={groupFilter.createGroup}
+          onUpdate={groupFilter.updateGroup}
+          onDelete={groupFilter.deleteGroup}
+        />
       </div>
-    </AppLayout>
   );
 }

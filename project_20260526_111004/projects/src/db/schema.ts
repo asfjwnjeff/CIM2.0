@@ -5,8 +5,9 @@ export const customers = sqliteTable('customers', {
   id: text('id').primaryKey(),
   name: text('name').notNull(),
   customerCode: text('customer_code'),
-  signingEntity: text('signing_entity'),
-  serviceEntity: text('service_entity'),
+  signingEntityIds: text('signing_entity_ids'),
+  serviceEntityIds: text('service_entity_ids'),
+  settlementEntityIds: text('settlement_entity_ids'),
   status: text('status').default('active'),
   basicInfo: text('basic_info'),       // JSON
   businessInfo: text('business_info'),  // JSON

@@ -51,7 +51,7 @@ export default function ApprovalWorkflowDetailPage() {
   const functionalNode = (workflow.approvalNodes || []).find((n: ApprovalNode) => n.type === 'functional');
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="max-w-7xl mx-auto space-y-6">
       {/* 顶部操作栏 */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -59,7 +59,7 @@ export default function ApprovalWorkflowDetailPage() {
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div>
-            <h1 className="text-xl font-bold text-foreground">{workflow.name}</h1>
+            <h1 className="text-2xl font-bold text-[#0A0A0A]">{workflow.name}</h1>
             <p className="text-sm text-muted-foreground mt-0.5">
               服务产品：{workflow.serviceProduct}
               {workflow.isTradeAgency && (

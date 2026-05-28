@@ -2,7 +2,9 @@
 
 import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import AppLayout from '@/components/layout/AppLayout';
+import { useApp } from '@/lib/store';
+import { useGroupFilter, GroupTabs, GroupManageDialog } from '@/components/groups';
+import { FIELD_META_MAP } from '@/lib/group-utils';
 
 // 内联SVG图标
 const PlusIcon = ({ className = '' }: { className?: string }) => (
@@ -158,7 +160,14 @@ const customers = [
 
 export default function OpportunitiesPage() {
   const router = useRouter();
-  
+  const { currentUser } = useApp();
+
+  // ====== 分组功能 ======
+  const groupFilter = useGroupFilter<Opportunity>({
+    moduleKey: 'opportunities',
+    currentUserId: currentUser.id,
+  });
+
   const [searchKeyword, setSearchKeyword] = useState('');
   const [viewMode, setViewMode] = useState<'list' | 'kanban'>('list');
   const [showFilter, setShowFilter] = useState(false);
@@ -168,7 +177,9 @@ export default function OpportunitiesPage() {
   
   // 筛选数据
   const filteredOpportunities = useMemo(() => {
-    return mockOpportunities.filter(opportunity => {
+    // 第一步：应用分组筛选
+    let data = groupFilter.applyFilter(mockOpportunities);
+    return data.filter(opportunity => {
       // 关键词搜索
       const matchesKeyword = 
         !searchKeyword || 
@@ -187,7 +198,7 @@ export default function OpportunitiesPage() {
       
       return matchesKeyword && matchesCustomer && matchesServiceProduct && matchesSalesStage;
     }).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-  }, [searchKeyword, filterCustomer, filterServiceProduct, filterSalesStage]);
+  }, [groupFilter, searchKeyword, filterCustomer, filterServiceProduct, filterSalesStage]);
 
   // 获取状态徽章颜色（与看板视图颜色一致）
   const getStatusBadgeClass = (stage: string) => {
@@ -266,8 +277,7 @@ export default function OpportunitiesPage() {
   };
 
   return (
-    <AppLayout>
-      <div className="space-y-6">
+      <div className="max-w-7xl mx-auto space-y-6">
         {/* 页面标题和操作区 */}
         <div className="flex items-center justify-between">
           <div>
@@ -284,6 +294,14 @@ export default function OpportunitiesPage() {
             </button>
           </div>
         </div>
+
+        {/* 分组标签栏 */}
+        <GroupTabs
+          groups={groupFilter.groups}
+          activeGroupId={groupFilter.activeGroupId}
+          onSelect={groupFilter.setActiveGroupId}
+          onManage={groupFilter.openCreateDialog}
+        />
 
         {/* 顶部操作区 */}
         <div className="flex flex-col gap-4">
@@ -509,7 +527,18 @@ export default function OpportunitiesPage() {
             })}
           </div>
         )}
+
+        {/* 分组管理弹窗 */}
+        <GroupManageDialog
+          open={groupFilter.dialogOpen}
+          onClose={groupFilter.closeDialog}
+          groups={groupFilter.groups}
+          editingGroup={groupFilter.editingGroup}
+          fieldMeta={FIELD_META_MAP.opportunities}
+          onSave={groupFilter.createGroup}
+          onUpdate={groupFilter.updateGroup}
+          onDelete={groupFilter.deleteGroup}
+        />
       </div>
-    </AppLayout>
   );
 }

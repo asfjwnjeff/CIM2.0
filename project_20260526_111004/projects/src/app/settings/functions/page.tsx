@@ -65,11 +65,11 @@ export default function FunctionsPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-7xl mx-auto space-y-6">
       {/* 页面标题 */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[#1E2340]">功能管理</h1>
+          <h1 className="text-2xl font-bold text-[#0A0A0A]">功能管理</h1>
           <p className="text-sm text-[#5A5A5A] mt-1">管理系统功能菜单和操作权限</p>
         </div>
         <button
@@ -127,7 +127,7 @@ export default function FunctionsPage() {
             {filteredFunctions.map((func) => (
               <tr key={func.id} className="hover:bg-[#F5F5F5] transition-colors">
                 <td className="px-4 py-3">
-                  <div className="text-sm font-medium text-[#1E2340] whitespace-nowrap">{func.name}</div>
+                  <div className="text-sm font-medium text-[#0A0A0A] whitespace-nowrap">{func.name}</div>
                 </td>
                 <td className="px-4 py-3">
                   <div className="text-sm text-[#5A5A5A] whitespace-nowrap font-mono">{func.code}</div>
@@ -179,7 +179,7 @@ export default function FunctionsPage() {
       <div className="grid grid-cols-4 gap-4">
         <div className="bg-white rounded-xl shadow-sm border border-[#EBEBEB] p-4">
           <div className="text-sm text-[#5A5A5A]">总功能数</div>
-          <div className="text-2xl font-bold text-[#1E2340] mt-1">{functions.length}</div>
+          <div className="text-2xl font-bold text-[#0A0A0A] mt-1">{functions.length}</div>
         </div>
         <div className="bg-white rounded-xl shadow-sm border border-[#EBEBEB] p-4">
           <div className="text-sm text-[#5A5A5A]">菜单</div>
@@ -200,12 +200,12 @@ export default function FunctionsPage() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl shadow-xl w-[480px] max-h-[90vh] overflow-y-auto">
             <div className="px-6 py-4 border-b border-[#EBEBEB] flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-[#1E2340]">
+              <h2 className="text-lg font-semibold text-[#0A0A0A]">
                 {editingFunction ? '编辑功能' : '新增功能'}
               </h2>
               <button
                 onClick={() => { setShowAddModal(false); setEditingFunction(null); }}
-                className="text-[#5A5A5A] hover:text-[#1E2340]"
+                className="text-[#5A5A5A] hover:text-[#0A0A0A]"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
@@ -214,7 +214,7 @@ export default function FunctionsPage() {
             </div>
             <div className="p-6 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-[#1E2340] mb-1">
+                <label className="block text-sm font-medium text-[#0A0A0A] mb-1">
                   功能名称 <span className="text-[#EF4444]">*</span>
                 </label>
                 <input
@@ -225,7 +225,7 @@ export default function FunctionsPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-[#1E2340] mb-1">
+                <label className="block text-sm font-medium text-[#0A0A0A] mb-1">
                   功能代码 <span className="text-[#EF4444]">*</span>
                 </label>
                 <input
@@ -236,7 +236,7 @@ export default function FunctionsPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-[#1E2340] mb-1">
+                <label className="block text-sm font-medium text-[#0A0A0A] mb-1">
                   类型 <span className="text-[#EF4444]">*</span>
                 </label>
                 <select
@@ -249,7 +249,7 @@ export default function FunctionsPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-[#1E2340] mb-1">上级功能</label>
+                <label className="block text-sm font-medium text-[#0A0A0A] mb-1">上级功能</label>
                 <select
                   defaultValue={editingFunction?.parentName || '-'}
                   className="w-full px-4 py-2 border border-[#EBEBEB] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/20 focus:border-[#2D3BFF]"
@@ -262,7 +262,7 @@ export default function FunctionsPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-[#1E2340] mb-1">路径</label>
+                <label className="block text-sm font-medium text-[#0A0A0A] mb-1">路径</label>
                 <input
                   type="text"
                   defaultValue={editingFunction?.path}
@@ -271,7 +271,7 @@ export default function FunctionsPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-[#1E2340] mb-1">排序</label>
+                <label className="block text-sm font-medium text-[#0A0A0A] mb-1">排序</label>
                 <input
                   type="number"
                   defaultValue={editingFunction?.sort || 1}
@@ -280,7 +280,7 @@ export default function FunctionsPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-[#1E2340] mb-1">状态</label>
+                <label className="block text-sm font-medium text-[#0A0A0A] mb-1">状态</label>
                 <div className="flex items-center space-x-4">
                   <label className="flex items-center">
                     <input

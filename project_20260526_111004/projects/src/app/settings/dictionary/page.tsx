@@ -251,11 +251,11 @@ export default function DictionaryPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-7xl mx-auto space-y-6">
       {/* 页面标题 */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[#1E2340]">字典管理</h1>
+          <h1 className="text-2xl font-bold text-[#0A0A0A]">字典管理</h1>
           <p className="text-[#5A5A5A] mt-1">管理系统中所有字段的完整配置信息</p>
         </div>
         <button
@@ -277,7 +277,7 @@ export default function DictionaryPage() {
             activeCategory === 'all' ? 'border-[#3B82F6] shadow-md' : 'border-[#EBEBEB]'
           }`}
         >
-          <div className="text-2xl font-bold text-[#1E2340]">{stats.total}</div>
+          <div className="text-2xl font-bold text-[#0A0A0A]">{stats.total}</div>
           <div className="text-sm text-[#5A5A5A]">全部字段</div>
         </div>
         <div 
@@ -331,20 +331,20 @@ export default function DictionaryPage() {
           <table className="w-full">
             <thead>
               <tr className="bg-[#F5F5F5] border-b border-[#EBEBEB]">
-                <th className="text-left px-4 py-3 text-sm font-semibold text-[#1E2340] whitespace-nowrap">字段名称</th>
-                <th className="text-left px-4 py-3 text-sm font-semibold text-[#1E2340] whitespace-nowrap">字段标识</th>
-                <th className="text-left px-4 py-3 text-sm font-semibold text-[#1E2340] whitespace-nowrap">字段类型</th>
-                <th className="text-left px-4 py-3 text-sm font-semibold text-[#1E2340] whitespace-nowrap">字段分类</th>
-                <th className="text-left px-4 py-3 text-sm font-semibold text-[#1E2340] whitespace-nowrap">可选值</th>
-                <th className="text-center px-4 py-3 text-sm font-semibold text-[#1E2340] whitespace-nowrap">必填</th>
-                <th className="text-center px-4 py-3 text-sm font-semibold text-[#1E2340] whitespace-nowrap">操作</th>
+                <th className="text-left px-4 py-3 text-sm font-semibold text-[#0A0A0A] whitespace-nowrap">字段名称</th>
+                <th className="text-left px-4 py-3 text-sm font-semibold text-[#0A0A0A] whitespace-nowrap">字段标识</th>
+                <th className="text-left px-4 py-3 text-sm font-semibold text-[#0A0A0A] whitespace-nowrap">字段类型</th>
+                <th className="text-left px-4 py-3 text-sm font-semibold text-[#0A0A0A] whitespace-nowrap">字段分类</th>
+                <th className="text-left px-4 py-3 text-sm font-semibold text-[#0A0A0A] whitespace-nowrap">可选值</th>
+                <th className="text-center px-4 py-3 text-sm font-semibold text-[#0A0A0A] whitespace-nowrap">必填</th>
+                <th className="text-center px-4 py-3 text-sm font-semibold text-[#0A0A0A] whitespace-nowrap">操作</th>
               </tr>
             </thead>
             <tbody>
               {filteredFields.map((field) => (
                 <tr key={field.id} className="border-b border-[#EBEBEB] hover:bg-[#F5F5F5] transition-colors">
                   <td className="px-4 py-3">
-                    <span className="text-sm font-medium text-[#1E2340]">{field.name}</span>
+                    <span className="text-sm font-medium text-[#0A0A0A]">{field.name}</span>
                   </td>
                   <td className="px-4 py-3">
                     <code className="text-xs bg-[#EBEBEB] px-2 py-1 rounded text-[#5A5A5A]">{field.fieldKey}</code>
@@ -428,7 +428,7 @@ export default function DictionaryPage() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 overflow-y-auto">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl mx-4 my-8">
             <div className="px-6 py-4 border-b border-[#EBEBEB]">
-              <h3 className="text-lg font-semibold text-[#1E2340]">
+              <h3 className="text-lg font-semibold text-[#0A0A0A]">
                 {editingField ? '编辑字段' : '新增字段'}
               </h3>
             </div>
@@ -437,7 +437,7 @@ export default function DictionaryPage() {
               {/* 字段名称 */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-[#1E2340] mb-2">
+                  <label className="block text-sm font-medium text-[#0A0A0A] mb-2">
                     字段名称 <span className="text-[#EF4444]">*</span>
                   </label>
                   <input
@@ -449,7 +449,7 @@ export default function DictionaryPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-[#1E2340] mb-2">
+                  <label className="block text-sm font-medium text-[#0A0A0A] mb-2">
                     字段标识 <span className="text-[#EF4444]">*</span>
                   </label>
                   <input
@@ -465,7 +465,7 @@ export default function DictionaryPage() {
               {/* 字段类型和分类 */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-[#1E2340] mb-2">字段类型</label>
+                  <label className="block text-sm font-medium text-[#0A0A0A] mb-2">字段类型</label>
                   <SearchableSelect
                     value={formData.type}
                     onChange={(value) => setFormData(prev => ({ ...prev, type: value as FieldType }))}
@@ -480,7 +480,7 @@ export default function DictionaryPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-[#1E2340] mb-2">字段分类</label>
+                  <label className="block text-sm font-medium text-[#0A0A0A] mb-2">字段分类</label>
                   <SearchableSelect
                     value={formData.category}
                     onChange={(value) => setFormData(prev => ({ ...prev, category: value as FieldCategory }))}
@@ -496,7 +496,7 @@ export default function DictionaryPage() {
 
               {/* 可选值 */}
               <div>
-                <label className="block text-sm font-medium text-[#1E2340] mb-2">
+                <label className="block text-sm font-medium text-[#0A0A0A] mb-2">
                   可选值
                 </label>
                 
@@ -559,14 +559,14 @@ export default function DictionaryPage() {
                   onChange={(e) => setFormData(prev => ({ ...prev, required: e.target.checked }))}
                   className="w-4 h-4 text-[#3B82F6] border-[#EBEBEB] rounded focus:ring-[#3B82F6]"
                 />
-                <label htmlFor="required" className="text-sm text-[#1E2340]">
+                <label htmlFor="required" className="text-sm text-[#0A0A0A]">
                   设为必填字段
                 </label>
               </div>
 
               {/* 字段描述 */}
               <div>
-                <label className="block text-sm font-medium text-[#1E2340] mb-2">字段描述</label>
+                <label className="block text-sm font-medium text-[#0A0A0A] mb-2">字段描述</label>
                 <textarea
                   value={formData.description}
                   onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}

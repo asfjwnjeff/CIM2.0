@@ -3,7 +3,6 @@
 import React from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import AppLayout from '@/components/layout/AppLayout';
 import { useApp } from '@/lib/store';
 import type { Quote } from '@/lib/types';
 
@@ -16,7 +15,6 @@ export default function QuoteDetailPage() {
 
   if (!quote) {
     return (
-      <AppLayout>
         <div className="flex flex-col items-center justify-center h-full p-16">
           <div className="w-24 h-24 mx-auto mb-4 rounded-full bg-[#F5F5F5] flex items-center justify-center">
             <svg className="w-12 h-12 text-[#999999]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -35,13 +33,11 @@ export default function QuoteDetailPage() {
             返回列表
           </button>
         </div>
-      </AppLayout>
     );
   }
 
   return (
-    <AppLayout>
-      <div className="p-5">
+      <div className="max-w-7xl mx-auto space-y-6">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
             <button
@@ -90,6 +86,5 @@ export default function QuoteDetailPage() {
           </div>
         </div>
       </div>
-    </AppLayout>
   );
 }

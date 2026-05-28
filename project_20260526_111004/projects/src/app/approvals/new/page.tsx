@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import AppLayout from "@/components/layout/AppLayout";
 import { SearchableSelect } from '@/components/ui/searchable-select';
 import { FIELD_STYLES } from '@/lib/ui-constants';
 
@@ -223,8 +222,7 @@ export default function NewRiskControlPage() {
   const currentApproverConfig = formData.serviceProduct ? SERVICE_APPROVERS[formData.serviceProduct] : null;
 
   return (
-    <AppLayout>
-      <div className="p-6">
+      <div className="max-w-7xl mx-auto space-y-6">
         {/* 顶部导航 */}
         <div className="flex items-center gap-3 mb-2">
           <button onClick={handleCancel} className="p-2 rounded-lg hover:bg-gray-100 transition-colors">
@@ -577,6 +575,5 @@ export default function NewRiskControlPage() {
           </div>
         )}
       </div>
-    </AppLayout>
   );
 }

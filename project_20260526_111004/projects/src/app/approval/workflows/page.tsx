@@ -2,7 +2,6 @@
 
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
-import AppLayout from '@/components/layout/AppLayout';
 import { useApp } from '@/lib/store';
 import { ApprovalWorkflow } from '@/lib/types';
 
@@ -88,8 +87,7 @@ export default function ApprovalWorkflowsPage() {
   };
 
   return (
-    <AppLayout>
-      <div className="max-w-6xl mx-auto space-y-6 -mx-2">
+      <div className="max-w-7xl mx-auto space-y-6">
         {/* 页面头部 */}
         <div className="flex items-center justify-between">
           <div>
@@ -297,6 +295,5 @@ export default function ApprovalWorkflowsPage() {
           </div>
         )}
       </div>
-    </AppLayout>
   );
 }

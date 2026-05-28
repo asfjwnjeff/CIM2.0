@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import AppLayout from '@/components/layout/AppLayout';
 import { useApp } from '@/lib/store';
 import type { Quote, QuoteItem } from '@/lib/types';
 
@@ -139,44 +138,27 @@ const Page: React.FC = () => {
 
   if (!quote) {
     return (
-      <AppLayout>
         <div className="p-5 min-h-screen" style={{ background: 'linear-gradient(135deg, #F5F5F5 0%, #EBEBEB 50%, #EBEBEB 100%)' }}>
           <div className="max-w-7xl mx-auto">
             <p className="text-[#5A5A5A]">加载中...</p>
           </div>
         </div>
-      </AppLayout>
     );
   }
 
   return (
-    <AppLayout>
-      <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #F5F5F5 0%, #EBEBEB 50%, #EBEBEB 100%)' }}>
-        {/* 页面头部 */}
-        <div className="bg-white border-b border-[#EBEBEB] h-16 flex items-center justify-between px-6">
-          <div className="flex items-center gap-4">
-            <button 
-              onClick={() => router.push(`/quotes/${id}`)}
-              className="flex items-center gap-2 text-[#5A5A5A] hover:text-[#0A0A0A] transition-colors"
-            >
-              <span dangerouslySetInnerHTML={{ __html: icons.arrowLeft }} />
-              <span className="text-sm">返回</span>
-            </button>
-            <h1 className="text-xl font-semibold text-[#0A0A0A]">编辑报价单</h1>
-            <span className="inline-flex items-center px-2.5 py-1 rounded-sm text-xs font-medium bg-[#F59E0B]/15 text-[#F59E0B]">编辑中</span>
-          </div>
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-[#2D3BFF] text-white flex items-center justify-center text-sm font-medium">
-                初
-              </div>
-              <span className="text-sm text-[#0A0A0A]">小初</span>
-            </div>
-          </div>
+      <div className="max-w-7xl mx-auto space-y-6">
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => router.push(`/quotes/${id}`)}
+            className="flex items-center gap-2 text-[#5A5A5A] hover:text-[#0A0A0A] transition-colors"
+          >
+            <span dangerouslySetInnerHTML={{ __html: icons.arrowLeft }} />
+            <span className="text-sm">返回</span>
+          </button>
+          <h1 className="text-2xl font-bold text-[#0A0A0A]">编辑报价单</h1>
+          <span className="inline-flex items-center px-2.5 py-1 rounded-sm text-xs font-medium bg-[#F59E0B]/15 text-[#F59E0B]">编辑中</span>
         </div>
-
-        <main className="p-6">
-          <div className="max-w-7xl mx-auto space-y-6">
             
             {/* 区块一：报价单头信息 */}
             <div className="bg-white rounded-xl shadow-sm border border-[#EBEBEB] p-5 hover:shadow-md hover:border-[#2D3BFF]/30 transition-all">
@@ -478,10 +460,7 @@ const Page: React.FC = () => {
               </div>
             </div>
 
-          </div>
-        </main>
       </div>
-    </AppLayout>
   );
 };
 

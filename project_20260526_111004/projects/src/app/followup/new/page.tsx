@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import AppLayout from '@/components/layout/AppLayout';
 import { SearchableSelect } from '@/components/ui/searchable-select';
 import type { SelectOption } from '@/components/ui/searchable-select';
 
@@ -153,8 +152,7 @@ export default function NewFollowupPage() {
   };
 
   return (
-    <AppLayout>
-      <div className="p-6 space-y-6">
+      <div className="max-w-7xl mx-auto space-y-6">
         {/* 顶部 */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -404,6 +402,5 @@ export default function NewFollowupPage() {
           </div>
         </div>
       </div>
-    </AppLayout>
   );
 }
