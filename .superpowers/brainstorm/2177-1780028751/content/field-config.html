@@ -1,0 +1,192 @@
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+<div style="max-width: 960px; margin: 0 auto; font-family: 'Noto Sans SC', sans-serif;">
+  <h2>模块一：审批字段配置</h2>
+  <p class="subtitle">新增独立配置页，位于 /approval/fields</p>
+
+  <!-- Page Layout -->
+  <div class="mockup">
+    <div class="mockup-header">页面布局：字段列表 + 新增/编辑弹窗</div>
+    <div class="mockup-body" style="padding:0;">
+
+      <!-- Toolbar -->
+      <div style="background:#FAFAFA;border-bottom:1.5px solid #EBEBEB;padding:16px 24px;display:flex;gap:12px;align-items:center;justify-content:space-between;">
+        <div style="display:flex;gap:12px;">
+          <div class="mock-input" style="width:200px;margin:0;">搜索字段名称...</div>
+          <div class="mock-input" style="width:160px;margin:0;">按服务产品筛选</div>
+        </div>
+        <button class="mock-button" style="background:#2D3BFF;color:#fff;">+ 新增字段</button>
+      </div>
+
+      <!-- Table -->
+      <table style="width:100%;border-collapse:collapse;font-size:13px;">
+        <thead>
+          <tr style="background:#FAFAFA;border-bottom:1.5px solid #EBEBEB;">
+            <th style="text-align:left;padding:12px 24px;color:#5A5A5A;font-weight:500;">字段名称</th>
+            <th style="text-align:left;padding:12px 16px;color:#5A5A5A;font-weight:500;">字段Key</th>
+            <th style="text-align:left;padding:12px 16px;color:#5A5A5A;font-weight:500;">字段类型</th>
+            <th style="text-align:left;padding:12px 16px;color:#5A5A5A;font-weight:500;">绑定服务产品</th>
+            <th style="text-align:left;padding:12px 16px;color:#5A5A5A;font-weight:500;">状态</th>
+            <th style="text-align:left;padding:12px 24px;color:#5A5A5A;font-weight:500;">操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom:1px solid #F5F5F5;">
+            <td style="padding:14px 24px;font-weight:600;">月订单数</td>
+            <td style="padding:14px 16px;color:#5A5A5A;"><code style="background:#F5F5F5;padding:2px 6px;border-radius:4px;">monthly_orders</code></td>
+            <td style="padding:14px 16px;"><span style="background:#E8EBFF;color:#2D3BFF;padding:2px 8px;border-radius:4px;font-size:12px;">数值（下拉）</span></td>
+            <td style="padding:14px 16px;"><span style="background:#ECFDF5;color:#0D8A5E;padding:2px 8px;border-radius:4px;font-size:12px;">运输</span></td>
+            <td style="padding:14px 16px;"><span style="color:#0D8A5E;font-size:12px;">● 启用</span></td>
+            <td style="padding:14px 24px;color:#2D3BFF;font-size:12px;">编辑 | 停用</td>
+          </tr>
+          <tr style="border-bottom:1px solid #F5F5F5;">
+            <td style="padding:14px 24px;font-weight:600;">运输及时率</td>
+            <td style="padding:14px 16px;color:#5A5A5A;"><code style="background:#F5F5F5;padding:2px 6px;border-radius:4px;">on_time_rate</code></td>
+            <td style="padding:14px 16px;"><span style="background:#E8EBFF;color:#2D3BFF;padding:2px 8px;border-radius:4px;font-size:12px;">百分比</span></td>
+            <td style="padding:14px 16px;"><span style="background:#ECFDF5;color:#0D8A5E;padding:2px 8px;border-radius:4px;font-size:12px;">运输</span></td>
+            <td style="padding:14px 16px;"><span style="color:#0D8A5E;font-size:12px;">● 启用</span></td>
+            <td style="padding:14px 24px;color:#2D3BFF;font-size:12px;">编辑 | 停用</td>
+          </tr>
+          <tr style="border-bottom:1px solid #F5F5F5;">
+            <td style="padding:14px 24px;font-weight:600;">是否贸易代理</td>
+            <td style="padding:14px 16px;color:#5A5A5A;"><code style="background:#F5F5F5;padding:2px 6px;border-radius:4px;">is_trade_agent</code></td>
+            <td style="padding:14px 16px;"><span style="background:#E8EBFF;color:#2D3BFF;padding:2px 8px;border-radius:4px;font-size:12px;">布尔/单选</span></td>
+            <td style="padding:14px 16px;">
+              <span style="background:#ECFDF5;color:#0D8A5E;padding:2px 8px;border-radius:4px;font-size:12px;">运输</span>
+              <span style="background:#ECFDF5;color:#0D8A5E;padding:2px 8px;border-radius:4px;font-size:12px;margin-left:4px;">货代</span>
+              <span style="background:#ECFDF5;color:#0D8A5E;padding:2px 8px;border-radius:4px;font-size:12px;margin-left:4px;">仓库</span>
+            </td>
+            <td style="padding:14px 16px;"><span style="color:#0D8A5E;font-size:12px;">● 启用</span></td>
+            <td style="padding:14px 24px;color:#2D3BFF;font-size:12px;">编辑 | 停用</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Add/Edit Dialog -->
+  <div style="margin-top: 28px;">
+    <h3>新增/编辑字段弹窗</h3>
+    <div class="mockup">
+      <div class="mockup-header">新增审批字段</div>
+      <div class="mockup-body">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+          <div>
+            <div style="font-size:12px;font-weight:600;margin-bottom:4px;">字段名称 <span style="color:#D63031;">*</span></div>
+            <div class="mock-input" style="margin:0;">月订单数</div>
+          </div>
+          <div>
+            <div style="font-size:12px;font-weight:600;margin-bottom:4px;">字段Key <span style="color:#D63031;">*</span></div>
+            <div class="mock-input" style="margin:0;">monthly_orders</div>
+          </div>
+          <div>
+            <div style="font-size:12px;font-weight:600;margin-bottom:4px;">字段类型 <span style="color:#D63031;">*</span></div>
+            <div class="mock-input" style="margin:0;">数值（下拉选项）</div>
+          </div>
+          <div>
+            <div style="font-size:12px;font-weight:600;margin-bottom:4px;">绑定服务产品 <span style="color:#D63031;">*</span></div>
+            <div class="mock-input" style="margin:0;">运输</div>
+          </div>
+        </div>
+
+        <!-- Configurable value options -->
+        <div style="margin-top:16px;">
+          <div style="font-size:12px;font-weight:600;margin-bottom:4px;">可选值配置</div>
+          <div style="background:#FAFAFA;border:1.5px solid #EBEBEB;border-radius:8px;padding:16px;">
+            <table style="width:100%;font-size:12px;border-collapse:collapse;">
+              <thead>
+                <tr style="color:#5A5A5A;">
+                  <th style="text-align:left;padding:4px;">选项标签</th>
+                  <th style="text-align:left;padding:4px;">选项值</th>
+                  <th style="text-align:left;padding:4px;">排序</th>
+                  <th style="text-align:center;padding:4px;">操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="padding:4px;"><div class="mock-input" style="margin:0;width:120px;font-size:11px;">0-5单</div></td>
+                  <td style="padding:4px;"><div class="mock-input" style="margin:0;width:80px;font-size:11px;">0-5</div></td>
+                  <td style="padding:4px;color:#5A5A5A;">1</td>
+                  <td style="padding:4px;text-align:center;color:#D63031;font-size:11px;">删除</td>
+                </tr>
+                <tr>
+                  <td style="padding:4px;"><div class="mock-input" style="margin:0;width:120px;font-size:11px;">6-10单</div></td>
+                  <td style="padding:4px;"><div class="mock-input" style="margin:0;width:80px;font-size:11px;">6-10</div></td>
+                  <td style="padding:4px;color:#5A5A5A;">2</td>
+                  <td style="padding:4px;text-align:center;color:#D63031;font-size:11px;">删除</td>
+                </tr>
+                <tr>
+                  <td style="padding:4px;"><div class="mock-input" style="margin:0;width:120px;font-size:11px;">11-20单</div></td>
+                  <td style="padding:4px;"><div class="mock-input" style="margin:0;width:80px;font-size:11px;">11-20</div></td>
+                  <td style="padding:4px;color:#5A5A5A;">3</td>
+                  <td style="padding:4px;text-align:center;color:#D63031;font-size:11px;">删除</td>
+                </tr>
+              </tbody>
+            </table>
+            <button class="mock-button" style="margin-top:8px;font-size:11px;">+ 添加选项</button>
+          </div>
+        </div>
+
+        <!-- Validation config -->
+        <div style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+          <div>
+            <div style="font-size:12px;font-weight:600;margin-bottom:4px;">是否必填</div>
+            <div class="mock-input" style="margin:0;">是</div>
+          </div>
+          <div>
+            <div style="font-size:12px;font-weight:600;margin-bottom:4px;">状态</div>
+            <div class="mock-input" style="margin:0;">启用</div>
+          </div>
+        </div>
+
+        <div style="margin-top:16px;">
+          <div style="font-size:12px;font-weight:600;margin-bottom:4px;">备注说明</div>
+          <div class="mock-input" style="margin:0;width:100%;">用于评估运输业务订单量是否达到基本业务规模门槛</div>
+        </div>
+
+        <div style="display:flex;gap:12px;justify-content:flex-end;margin-top:24px;padding-top:16px;border-top:1.5px solid #EBEBEB;">
+          <button class="mock-button">取消</button>
+          <button class="mock-button" style="background:#2D3BFF;color:#fff;">保存</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Field Type Options -->
+  <div style="margin-top: 28px;">
+    <h3>支持的字段类型</h3>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;">
+      <div style="background:#fff;border:1.5px solid #EBEBEB;border-radius:8px;padding:16px;">
+        <div style="font-weight:700;font-size:13px;margin-bottom:4px;">数值（下拉）</div>
+        <div style="font-size:12px;color:#5A5A5A;">预设数值范围选项，如 0-5、6-10、11-20</div>
+      </div>
+      <div style="background:#fff;border:1.5px solid #EBEBEB;border-radius:8px;padding:16px;">
+        <div style="font-weight:700;font-size:13px;margin-bottom:4px;">百分比</div>
+        <div style="font-size:12px;color:#5A5A5A;">手动输入百分比，如 99%</div>
+      </div>
+      <div style="background:#fff;border:1.5px solid #EBEBEB;border-radius:8px;padding:16px;">
+        <div style="font-weight:700;font-size:13px;margin-bottom:4px;">单选</div>
+        <div style="font-size:12px;color:#5A5A5A;">预设选项列表，选择其一，如恒温恒湿/常温</div>
+      </div>
+      <div style="background:#fff;border:1.5px solid #EBEBEB;border-radius:8px;padding:16px;">
+        <div style="font-weight:700;font-size:13px;margin-bottom:4px;">多选</div>
+        <div style="font-size:12px;color:#5A5A5A;">预设选项列表，可选多个，如意向服务城市</div>
+      </div>
+      <div style="background:#fff;border:1.5px solid #EBEBEB;border-radius:8px;padding:16px;">
+        <div style="font-weight:700;font-size:13px;margin-bottom:4px;">单选+其他</div>
+        <div style="font-size:12px;color:#5A5A5A;">标准选项+其他(手工填写)，如运输产品种类</div>
+      </div>
+      <div style="background:#fff;border:1.5px solid #EBEBEB;border-radius:8px;padding:16px;">
+        <div style="font-weight:700;font-size:13px;margin-bottom:4px;">布尔</div>
+        <div style="font-size:12px;color:#5A5A5A;">是/否切换，如是否贸易代理</div>
+      </div>
+      <div style="background:#fff;border:1.5px solid #EBEBEB;border-radius:8px;padding:16px;">
+        <div style="font-weight:700;font-size:13px;margin-bottom:4px;">接口查询</div>
+        <div style="font-size:12px;color:#5A5A5A;">调用外部接口自动获取，如企查查-注册资本</div>
+      </div>
+      <div style="background:#fff;border:1.5px solid #EBEBEB;border-radius:8px;padding:16px;">
+        <div style="font-weight:700;font-size:13px;margin-bottom:4px;">文本输入</div>
+        <div style="font-size:12px;color:#5A5A5A;">自由文本，如备注说明</div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -145,87 +145,71 @@ export default function ApprovalWorkflowDetailPage() {
 
       {/* 审批流程可视化 */}
       {activeTab === 'flow' && (
-        <div className="bg-card border border-border rounded-xl p-6">
-          <h3 className="text-base font-semibold text-foreground mb-6">审批流程</h3>
+        <div className="bg-white rounded-xl shadow-sm border border-[#EBEBEB] p-6">
+          <h3 className="text-base font-semibold text-[#0A0A0A] mb-6">审批流程</h3>
           <div className="space-y-0">
-            {(workflow.approvalNodes || []).map((node: ApprovalNode, index: number) => (
-              <div key={node.level} className="relative">
-                {/* 连接线 */}
-                {index > 0 && (
-                  <div className="absolute left-6 top-0 w-0.5 h-6 bg-border -translate-x-1/2" />
-                )}
-                <div className="flex items-start gap-4 pb-6">
-                  {/* 节点图标 */}
-                  <div className={`relative z-10 flex items-center justify-center w-12 h-12 rounded-full border-2 ${
-                    node.type === 'functional' ? 'bg-blue-50 border-blue-300 text-blue-600' :
-                    node.type === 'finance' ? 'bg-orange-50 border-orange-300 text-orange-600' :
-                    node.type === 'it_ops' ? 'bg-purple-50 border-purple-300 text-purple-600' :
-                    'bg-green-50 border-green-300 text-green-600'
-                  }`}>
-                    {nodeTypeIcons[node.type || node.nodeType || 'initiator']}
+            {(workflow.approvalNodes || []).map((node: ApprovalNode, index: number) => {
+              const isFunctional = (node.type || node.nodeType) === 'functional';
+              const isLast = index === (workflow.approvalNodes || []).length - 1;
+              return (
+                <div key={node.level} className="flex gap-3">
+                  {/* Timeline */}
+                  <div className="flex flex-col items-center flex-shrink-0 pt-1">
+                    <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${
+                      isFunctional
+                        ? 'bg-[#2D3BFF] text-white shadow-[0_0_0_3px_rgba(45,59,255,0.15)]'
+                        : 'bg-[#D5D5D5] text-white'
+                    }`}>
+                      {node.level || index + 1}
+                    </div>
+                    {!isLast && (
+                      <div className={`w-0.5 flex-1 min-h-[28px] ${
+                        isFunctional ? 'bg-[#2D3BFF]/30' : 'bg-[#EBEBEB]'
+                      }`} />
+                    )}
                   </div>
-                  {/* 节点内容 */}
-                  <div className="flex-1">
+                  {/* Content card */}
+                  <div className={`flex-1 pb-4 ${
+                    isFunctional
+                      ? 'bg-[#F0F1FF] border border-[#C7CAFF] rounded-lg p-3'
+                      : 'bg-[#FAFAFA] border border-[#EBEBEB] rounded-lg p-3'
+                  }`}>
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="text-xs text-muted-foreground">第{node.level}级</span>
-                      <h4 className="text-sm font-semibold text-foreground">{node.name}</h4>
-                      {node.isCountersign && (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-orange-100 text-orange-700">
-                          会签
-                        </span>
+                      <span className="text-sm font-semibold text-[#0A0A0A]">{node.name}</span>
+                      {isFunctional && (
+                        <span className="inline-flex items-center px-1.5 py-0.5 text-[10px] font-medium bg-[#2D3BFF] text-white rounded">动态</span>
                       )}
-                      {node.isRequired && (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-700">
-                          必填
-                        </span>
+                      {node.isCountersign && (
+                        <span className="inline-flex items-center px-1.5 py-0.5 text-[10px] font-medium bg-[#FFF9EB] text-[#E8850C] rounded border border-[#FDE68A]">会签</span>
                       )}
                     </div>
-                    <p className="text-xs text-muted-foreground mb-2">{node.description}</p>
-                    <div className="flex flex-wrap gap-2">
+                    <p className="text-xs text-[#5A5A5A] mb-2">{node.description}</p>
+                    <div className="flex flex-wrap gap-1.5">
                       {node.approvers.map((approver) => (
-                        <div
-                          key={approver.id}
-                          className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium ${
-                            approver.name === '白沥'
-                              ? 'bg-blue-100 text-blue-800 border border-blue-200'
-                              : 'bg-muted text-foreground'
-                          }`}
-                        >
-                          <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
-                            approver.name === '白沥'
-                              ? 'bg-blue-500 text-white'
-                              : 'bg-primary text-primary-foreground'
-                          }`}>
-                            {approver.name.charAt(0)}
-                          </div>
+                        <span key={approver.id} className={`inline-flex items-center px-2 py-0.5 text-xs rounded-full ${
+                          isFunctional
+                            ? 'bg-[#E8EBFF] text-[#2D3BFF] border border-[#2D3BFF]/20'
+                            : 'bg-white border border-[#D5D5D5]'
+                        }`}>
                           {approver.name}
-                          {approver.name === '白沥' && (
-                            <span className="text-blue-500 text-[10px]">贸易代理</span>
-                          )}
-                        </div>
+                        </span>
                       ))}
                     </div>
+                    {/* Conditional branch info */}
+                    {isFunctional && workflow.isTradeAgency && (
+                      <div className="mt-3 pt-3 border-t border-dashed border-[#E8850C]">
+                        <span className="text-[10px] text-[#E8850C] font-medium">规则触发追加</span>
+                        <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs bg-[#FFF9EB] border border-[#FDE68A] ml-2">
+                          <span className="text-[#E8850C] font-medium">+ 白沥</span>
+                          <span className="text-[10px] text-[#E8850C]">涉及贸易代理</span>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
-
-          {/* 贸易代理提示 */}
-          {workflow.isTradeAgency && (
-            <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-              <div className="flex items-start gap-2">
-                <AlertCircle className="w-4 h-4 text-blue-600 mt-0.5" />
-                <div>
-                  <p className="text-sm font-medium text-blue-800">贸易代理自动审批规则</p>
-                  <p className="text-xs text-blue-600 mt-1">
-                    因该流程涉及贸易代理业务，已自动将 <strong>白沥</strong> 添加至职能审批人列表。
-                    此规则由系统自动触发，条件为"是否贸易代理 = 是"。
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
       )}
 

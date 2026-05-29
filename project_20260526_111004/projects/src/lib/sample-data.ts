@@ -1,6 +1,6 @@
-import { 
-  Customer, 
-  BillingEntity, 
+import {
+  Customer,
+  BillingEntity,
   SplitField,
   Quote,
   QuoteItem,
@@ -15,6 +15,7 @@ import {
   AutoApprovalOperator,
   AutoApprovalActionType,
   BillingRule,
+  ApprovalField,
 } from './types';
 
 // 报价单状态标签
@@ -1018,6 +1019,7 @@ export const serviceProductApprovalMap: Record<string, { approver: string; isCou
   '进出口': { approver: '张洁', isCountersign: false },
   '维修': { approver: '蒋总', isCountersign: false },
   '合同物流': { approver: '张洁/蒋总/吴总/朱弢', isCountersign: true },
+  '一体化供应链': { approver: '张洁', isCountersign: false },
 };
 
 export const initialApprovalWorkflows: ApprovalWorkflow[] = [
@@ -1159,6 +1161,25 @@ export const initialApprovalWorkflows: ApprovalWorkflow[] = [
     createdBy: 'admin',
     createdAt: '2024-02-10T08:00:00Z',
     updatedAt: '2024-02-10T08:00:00Z',
+  },
+  {
+    id: 'aw-008',
+    name: '一体化供应链标准审批流',
+    serviceProduct: '一体化供应链',
+    isTradeAgency: false,
+    status: 'active',
+    approvalNodes: [
+      { level: 1, type: 'initiator', name: '发起人', approvers: [], isCountersign: false, isRequired: true, description: '申请人提交审批申请' },
+      { level: 2, type: 'department_manager', name: '部门经理', approvers: [{ id: 'u-dept1', name: '部门经理', role: '部门经理' }], isCountersign: false, isRequired: true, description: '部门经理审批' },
+      { level: 3, type: 'functional', name: '职能审批人', approvers: [{ id: 'u-zhangjie', name: '张洁', role: '一体化供应链职能审批人' }], isCountersign: false, isRequired: true, description: '一体化供应链-张洁' },
+      { level: 4, type: 'finance', name: '财务审批（会签）', approvers: [{ id: 'u-fin1', name: '财务部', role: '财务' }, { id: 'u-center1', name: '中心总经理', role: '中心总经理' }], isCountersign: true, isRequired: true, description: '财务及中心总经理会签' },
+      { level: 5, type: 'general_manager', name: '总经理', approvers: [{ id: 'u-gm1', name: '各中心负责人', role: '总经理' }], isCountersign: false, isRequired: true, description: '各中心负责人/总经理审批' },
+      { level: 6, type: 'it_ops', name: 'IT运维确认', approvers: [{ id: 'u-it1', name: 'IT运维', role: 'IT运维' }], isCountersign: false, isRequired: true, description: '确认后提供客户的系统代码' },
+    ],
+    remark: '一体化供应链标准审批流程',
+    createdBy: 'admin',
+    createdAt: '2024-03-01T08:00:00Z',
+    updatedAt: '2024-03-01T08:00:00Z',
   },
 ];
 
@@ -2442,5 +2463,160 @@ export const initialQuoteTemplates: QuoteTemplate[] = [
     remark: '全链路供应链服务',
     createdAt: '2024-01-05',
     updatedAt: '2024-01-05',
+  },
+];
+
+/** 初始审批结构化字段 */
+export const initialApprovalFields: ApprovalField[] = [
+  // ===== 运输 =====
+  {
+    id: 'af-001', name: '月订单数', fieldKey: 'monthly_orders', fieldType: 'number_select',
+    serviceProducts: ['运输', '一体化供应链'], approvalPoint: '业务量',
+    options: [
+      { id: 'opt-001', label: '0-5单', order: 1 },
+      { id: 'opt-002', label: '6-10单', order: 2 },
+      { id: 'opt-003', label: '11-20单', order: 3 },
+      { id: 'opt-004', label: '21-50单', order: 4 },
+      { id: 'opt-005', label: '50单以上', order: 5 },
+    ],
+    isRequired: true, status: 'active',
+    remark: '评估运输业务订单量是否达到基本业务规模门槛',
+    createdBy: 'system', createdAt: '2026-05-29T00:00:00Z',
+  },
+  {
+    id: 'af-002', name: '月开票额', fieldKey: 'monthly_invoice_amount', fieldType: 'number_select',
+    serviceProducts: ['运输', '一体化供应链'], approvalPoint: '业务量',
+    options: [
+      { id: 'opt-006', label: '0-5000元', order: 1 },
+      { id: 'opt-007', label: '5000-20000元', order: 2 },
+      { id: 'opt-008', label: '20000-100000元', order: 3 },
+      { id: 'opt-009', label: '100000元以上', order: 4 },
+    ],
+    isRequired: true, status: 'active',
+    createdBy: 'system', createdAt: '2026-05-29T00:00:00Z',
+  },
+  {
+    id: 'af-003', name: '运输及时率', fieldKey: 'on_time_rate', fieldType: 'percentage',
+    serviceProducts: ['运输', '一体化供应链'], approvalPoint: 'KPI时效考核要求',
+    options: [],
+    isRequired: false, status: 'active',
+    createdBy: 'system', createdAt: '2026-05-29T00:00:00Z',
+  },
+  {
+    id: 'af-004', name: '意向服务地区', fieldKey: 'service_regions', fieldType: 'multi_select',
+    serviceProducts: ['运输', '一体化供应链'], approvalPoint: '业务分布',
+    options: [
+      { id: 'opt-010', label: '上海', order: 1 }, { id: 'opt-011', label: '无锡', order: 2 },
+      { id: 'opt-012', label: '南京', order: 3 }, { id: 'opt-013', label: '合肥', order: 4 },
+      { id: 'opt-014', label: '杭州', order: 5 }, { id: 'opt-015', label: '武汉', order: 6 },
+      { id: 'opt-016', label: '成都', order: 7 }, { id: 'opt-017', label: '西安', order: 8 },
+      { id: 'opt-018', label: '北京', order: 9 }, { id: 'opt-019', label: '大连', order: 10 },
+      { id: 'opt-020', label: '厦门', order: 11 }, { id: 'opt-021', label: '深圳', order: 12 },
+      { id: 'opt-022', label: '广州', order: 13 },
+    ],
+    isRequired: true, status: 'active',
+    createdBy: 'system', createdAt: '2026-05-29T00:00:00Z',
+  },
+
+  // ===== 货代 =====
+  {
+    id: 'af-005', name: '运输产品种类', fieldKey: 'transport_product_type', fieldType: 'single_other',
+    serviceProducts: ['货代', '一体化供应链'], approvalPoint: '运输产品种类',
+    options: [
+      { id: 'opt-023', label: '空运进口', order: 1 },
+      { id: 'opt-024', label: '海运进口', order: 2 },
+      { id: 'opt-025', label: '公路进口', order: 3 },
+      { id: 'opt-026', label: '海运一贯式运输', order: 4 },
+      { id: 'opt-027', label: '空运出口', order: 5 },
+      { id: 'opt-028', label: '海运出口', order: 6 },
+      { id: 'opt-029', label: '公路出口', order: 7 },
+      { id: 'opt-030', label: '其他', order: 8 },
+    ],
+    isRequired: true, status: 'active',
+    createdBy: 'system', createdAt: '2026-05-29T00:00:00Z',
+  },
+  {
+    id: 'af-006', name: '出货国家/地区', fieldKey: 'shipping_country', fieldType: 'single_select',
+    serviceProducts: ['货代', '一体化供应链'], approvalPoint: '出货地区',
+    options: [
+      { id: 'opt-031', label: '中国', order: 1 },
+      { id: 'opt-032', label: '美国', order: 2 },
+      { id: 'opt-033', label: '越南', order: 3 },
+      { id: 'opt-034', label: '以色列', order: 4 },
+      { id: 'opt-035', label: '伊朗', order: 5 },
+    ],
+    isRequired: true, status: 'active',
+    createdBy: 'system', createdAt: '2026-05-29T00:00:00Z',
+  },
+  {
+    id: 'af-007', name: '注册资本', fieldKey: 'registered_capital', fieldType: 'text',
+    serviceProducts: ['货代', '仓库', '运输', '一体化供应链'], approvalPoint: '企业规模',
+    options: [],
+    isRequired: true, status: 'active',
+    remark: '可通过企查查接口自动获取',
+    createdBy: 'system', createdAt: '2026-05-29T00:00:00Z',
+  },
+  {
+    id: 'af-008', name: '社保人数', fieldKey: 'social_insurance_count', fieldType: 'text',
+    serviceProducts: ['货代', '仓库', '运输', '一体化供应链'], approvalPoint: '企业规模',
+    options: [],
+    isRequired: true, status: 'active',
+    remark: '可通过企查查接口自动获取',
+    createdBy: 'system', createdAt: '2026-05-29T00:00:00Z',
+  },
+  {
+    id: 'af-009', name: '是否贸易代理', fieldKey: 'is_trade_agent', fieldType: 'boolean',
+    serviceProducts: ['运输', '货代', '仓库', '关务', '进出口', '维修', '合同物流', '一体化供应链'],
+    approvalPoint: '业务类型',
+    options: [],
+    isRequired: true, status: 'active',
+    createdBy: 'system', createdAt: '2026-05-29T00:00:00Z',
+  },
+
+  // ===== 仓库 =====
+  {
+    id: 'af-010', name: '面积需求', fieldKey: 'area_requirement', fieldType: 'number_select',
+    serviceProducts: ['仓库', '一体化供应链'], approvalPoint: '业务量',
+    options: [
+      { id: 'opt-036', label: '0-100㎡', order: 1 },
+      { id: 'opt-037', label: '100-500㎡', order: 2 },
+      { id: 'opt-038', label: '500-1000㎡', order: 3 },
+      { id: 'opt-039', label: '1000㎡以上', order: 4 },
+    ],
+    isRequired: true, status: 'active',
+    createdBy: 'system', createdAt: '2026-05-29T00:00:00Z',
+  },
+  {
+    id: 'af-011', name: '货量需求', fieldKey: 'cargo_volume', fieldType: 'number_select',
+    serviceProducts: ['仓库', '一体化供应链'], approvalPoint: '业务量',
+    options: [
+      { id: 'opt-040', label: '0-100吨/月', order: 1 },
+      { id: 'opt-041', label: '100-500吨/月', order: 2 },
+      { id: 'opt-042', label: '500吨以上/月', order: 3 },
+    ],
+    isRequired: true, status: 'active',
+    createdBy: 'system', createdAt: '2026-05-29T00:00:00Z',
+  },
+  {
+    id: 'af-012', name: '地域需求', fieldKey: 'warehouse_region', fieldType: 'single_select',
+    serviceProducts: ['仓库', '一体化供应链'], approvalPoint: '业务量',
+    options: [
+      { id: 'opt-043', label: '上海', order: 1 },
+      { id: 'opt-044', label: '武汉', order: 2 },
+      { id: 'opt-045', label: '成都', order: 3 },
+      { id: 'opt-046', label: '其他', order: 4 },
+    ],
+    isRequired: true, status: 'active',
+    createdBy: 'system', createdAt: '2026-05-29T00:00:00Z',
+  },
+  {
+    id: 'af-013', name: '存储类型', fieldKey: 'storage_type', fieldType: 'single_select',
+    serviceProducts: ['仓库', '一体化供应链'], approvalPoint: '存储类型',
+    options: [
+      { id: 'opt-047', label: '恒温恒湿', order: 1 },
+      { id: 'opt-048', label: '常温', order: 2 },
+    ],
+    isRequired: true, status: 'active',
+    createdBy: 'system', createdAt: '2026-05-29T00:00:00Z',
   },
 ];

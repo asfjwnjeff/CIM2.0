@@ -1,25 +1,30 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { SearchableSelect } from '@/components/ui/searchable-select';
 import { FIELD_STYLES } from '@/lib/ui-constants';
+import { useApp } from '@/lib/store';
+import { ApprovalField, ApprovalWorkflow, RuleTriggeredApprover, ServiceProduct } from '@/lib/types';
+import ApprovalFlowVisual from '@/components/ApprovalFlowVisual';
 
-const SERVICE_PRODUCTS = ['货代', '关务', '仓储', '运输', '进出口', '维修', '合同物流', '其他'];
+const SERVICE_PRODUCTS = ['货代', '关务', '仓库', '运输', '进出口', '维修', '合同物流', '一体化供应链', '其他'];
 const BUSINESS_TYPES = ['保税', '口岸完税', '免税', '试单', '其他'];
 const MONTHLY_VOLUMES = ['0-50', '51-100', '101-500', '500以上'];
-const CUSTOM_SERVICE_OPTIONS = ['信息系统', '运输', '仓储', '财务', '仅涉及标准服务内容'];
+const CUSTOM_SERVICE_OPTIONS = ['信息系统', '运输', '仓库', '财务', '仅涉及标准服务内容'];
 const RISK_PURPOSES = ['业务可行性评审', '仅增加结算单位', '仅增加境外收发货人'];
 const HMG_RELATIONS = ['客户', '供应商', '最终用户', '结算单位', '内部用户'];
 
 const SERVICE_APPROVERS: Record<string, { approvers: string[]; isPickOne?: boolean }> = {
   '货代': { approvers: ['张洁'] },
   '关务': { approvers: ['蒋总'] },
-  '仓储': { approvers: ['吴总'] },
+  '仓库': { approvers: ['吴总'] },
   '运输': { approvers: ['朱弢'] },
   '进出口': { approvers: ['张洁'] },
   '维修': { approvers: ['蒋总'] },
   '合同物流': { approvers: ['张洁', '蒋总', '吴总', '朱弢'], isPickOne: true },
+  '一体化供应链': { approvers: ['张洁'] },
+  '其他': { approvers: ['张洁'] },
 };
 
 const mockBusinessCustomers = [
@@ -96,8 +101,40 @@ export default function ApprovalEditPage() {
   const id = params.id as string;
 
   const approval = mockApprovals.find((a) => a.id === id) || mockApprovals[0];
+  const { approvalFields, approvalWorkflows } = useApp();
 
   const [formData, setFormData] = useState(approval);
+  const [dynamicFieldValues, setDynamicFieldValues] = useState<Record<string, string>>({});
+
+  const dynamicFields = useMemo(() => {
+    if (!formData.serviceProduct) return [];
+    return approvalFields.filter(
+      f => f.status === 'active' && f.serviceProducts.includes(formData.serviceProduct as ServiceProduct)
+    );
+  }, [approvalFields, formData.serviceProduct]);
+
+  const matchedWorkflow = useMemo(() => {
+    if (!formData.serviceProduct) return null;
+    return approvalWorkflows.find(
+      w => w.status === 'active' && w.serviceProduct === formData.serviceProduct
+    ) || null;
+  }, [approvalWorkflows, formData.serviceProduct]);
+
+  const ruleTriggeredApprovers: RuleTriggeredApprover[] = useMemo(() => {
+    const result: RuleTriggeredApprover[] = [];
+    if (formData.isTradeAgent === '是') {
+      result.push({
+        approver: { id: 'baili', name: '白沥', role: '贸易代理职能审批人' },
+        reason: '涉及贸易代理',
+        ruleId: 'rule-trade-agent',
+      });
+    }
+    return result;
+  }, [formData.isTradeAgent]);
+
+  const handleDynamicFieldChange = (fieldKey: string, value: string) => {
+    setDynamicFieldValues(prev => ({ ...prev, [fieldKey]: value }));
+  };
   const [selectorOpen, setSelectorOpen] = useState<"businessCustomer" | "invoiceInfo" | "">("");
   const [searchTerm, setSearchTerm] = useState("");
   const [opportunitySearch, setOpportunitySearch] = useState("");
@@ -130,26 +167,13 @@ export default function ApprovalEditPage() {
 
   const currentApproverConfig = formData.serviceProduct ? SERVICE_APPROVERS[formData.serviceProduct] : null;
 
-  const approvalSteps = [
-    { id: 'init', name: '发起审批', role: '申请人', status: 'completed', approver: '当前用户' },
-    ...(formData.isTradeAgent === '是' ? [{ id: 'baili', name: '白沥审批', role: '贸易代理专员', status: 'pending', approver: '白沥', isAutoAdded: true, autoAddReason: '贸易代理自动添加' as const }] : []),
-    ...(currentApproverConfig ? [{
-      id: 'func',
-      name: '职能审批',
-      role: `${formData.serviceProduct}职能审批人${currentApproverConfig.isPickOne ? '（四选一）' : currentApproverConfig.approvers.length > 1 ? '（会签）' : ''}`,
-      status: 'pending' as const,
-      ...(currentApproverConfig.isPickOne
-        ? pickedApprover ? { approver: pickedApprover } : { approvers: currentApproverConfig.approvers }
-        : currentApproverConfig.approvers.length > 1
-          ? { approvers: currentApproverConfig.approvers, isCountersign: true }
-          : { approver: currentApproverConfig.approvers[0] }),
-    }] : []),
-    { id: 'mgmt', name: '管理层审批', role: '部门经理', status: 'pending', approver: '陈总' },
-    { id: 'fin', name: '财务确认', role: '财务部', status: 'pending', approver: '赵总监' },
-  ];
-
   const handlePickApprover = (approver: string) => {
     setPickedApprover(approver);
+  };
+
+  const handleSave = () => {
+    alert('保存成功！');
+    router.push('/approvals');
   };
 
   return (
@@ -164,11 +188,11 @@ export default function ApprovalEditPage() {
           </div>
           <div className="flex-1" />
           <button onClick={() => router.push('/approvals')} className="px-6 py-2 border border-[#EBEBEB] text-[#666] rounded-lg hover:bg-gray-50 transition-colors">取消</button>
-          <button onClick={() => router.push('/approvals')} className="px-6 py-2 bg-[#2D3BFF] text-white rounded-lg hover:shadow-lg hover:shadow-[#2D3BFF]/20 transition-all">保存</button>
+          <button onClick={handleSave} className="px-6 py-2 bg-[#2D3BFF] text-white rounded-lg hover:shadow-lg hover:shadow-[#2D3BFF]/20 transition-all">保存</button>
         </div>
 
         <div className="mt-6">
-          <form onSubmit={(e) => { e.preventDefault(); router.push('/approvals'); }}>
+          <form onSubmit={(e) => { e.preventDefault(); handleSave(); }}>
             <div className="grid grid-cols-12 gap-6">
               <div className="col-span-7 space-y-6">
                 {/* 公司信息 */}
@@ -203,14 +227,14 @@ export default function ApprovalEditPage() {
                             <span key={i} className="inline-flex items-center gap-1 px-3 py-1 bg-[#E8F4FF] text-[#2D3BFF] rounded-full text-xs">{name}<button type="button" onClick={() => toggleMultiSelect('businessCustomerIds', formData.businessCustomerIds[i])} className="hover:text-red-500">×</button></span>
                           ))}
                         </div>
-                        <button type="button" onClick={() => { setSearchTerm(''); setSelectorOpen('businessCustomer'); }} className="w-full bg-[#F5F5F5] border border-dashed border-[#D0D5DD] rounded-xl px-4 py-3 text-sm text-[#999] hover:bg-[#EEF0F4] transition-colors">+ 选择业务主客户</button>
+                        <button type="button" onClick={() => { setSearchTerm(''); setSelectorOpen('businessCustomer'); }} className="w-full bg-white border border-dashed border-[#D5D5D5] rounded-xl px-4 py-3 text-sm text-[#999] hover:border-[#2D3BFF] hover:text-[#2D3BFF] transition-colors">+ 选择业务主客户</button>
                       </div>
                     </div>
                     <div><label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">建议系统代码 <span className="text-red-500">*</span></label><input type="text" value={formData.suggestedSystemCode} onChange={(e) => handleChange('suggestedSystemCode', e.target.value)} placeholder="请输入建议系统代码" className="w-full bg-[#F5F5F5] border-none rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30" /></div>
                     <div>
                       <label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">商机 <span className="text-red-500">*</span></label>
                       <div className="relative" ref={opportunityRef}>
-                        <input type="text" value={opportunitySearch} onChange={(e) => { setOpportunitySearch(e.target.value); setShowOpportunityDropdown(true); }} onFocus={() => setShowOpportunityDropdown(true)} placeholder="搜索并选择商机" className="w-full bg-[#F5F5F5] border-none rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30" />
+                        <input type="text" value={opportunitySearch} onChange={(e) => { setOpportunitySearch(e.target.value); setShowOpportunityDropdown(true); }} onFocus={() => setShowOpportunityDropdown(true)} placeholder="搜索并选择商机" className="w-full bg-white border border-[#D5D5D5] rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30 focus:border-[#2D3BFF]" />
                         {formData.opportunityId && (
                           <div className="absolute right-10 top-1/2 -translate-y-1/2">
                             <span className="text-xs text-[#2D3BFF] bg-[#E8F4FF] px-2 py-0.5 rounded-full">{mockOpportunities.find((o) => o.id === formData.opportunityId)?.title}</span>
@@ -241,7 +265,7 @@ export default function ApprovalEditPage() {
                             <span key={i} className="inline-flex items-center gap-1 px-3 py-1 bg-[#FFF7ED] text-[#EA580C] rounded-full text-xs">{name}<button type="button" onClick={() => toggleMultiSelect('invoiceInfoIds', formData.invoiceInfoIds[i])} className="hover:text-red-500">×</button></span>
                           ))}
                         </div>
-                        <button type="button" onClick={() => { setSearchTerm(''); setSelectorOpen('invoiceInfo'); }} className="w-full bg-[#F5F5F5] border border-dashed border-[#D0D5DD] rounded-xl px-4 py-3 text-sm text-[#999] hover:bg-[#EEF0F4] transition-colors">+ 选择客户开票信息</button>
+                        <button type="button" onClick={() => { setSearchTerm(''); setSelectorOpen('invoiceInfo'); }} className="w-full bg-white border border-dashed border-[#D5D5D5] rounded-xl px-4 py-3 text-sm text-[#999] hover:border-[#2D3BFF] hover:text-[#2D3BFF] transition-colors">+ 选择客户开票信息</button>
                       </div>
                     </div>
                     <div><label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">结算账期 <span className="text-red-500">*</span></label><input type="text" value={formData.settlementPeriod} onChange={(e) => handleChange('settlementPeriod', e.target.value)} placeholder="请输入结算账期" className="w-full bg-[#F5F5F5] border-none rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30" /></div>
@@ -268,58 +292,121 @@ export default function ApprovalEditPage() {
                     <div><label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">定制化需求描述 <span className="text-red-500">*</span></label><textarea value={formData.customRequirementDescription} onChange={(e) => handleChange('customRequirementDescription', e.target.value)} placeholder="请输入定制化需求描述" rows={3} className="w-full bg-[#F5F5F5] border-none rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30 resize-none" /></div>
                   </div>
                 </div>
+              {/* 合规审核 — 动态结构化字段 */}
+              {dynamicFields.length > 0 && (
+                <div className="bg-white rounded-2xl shadow-sm p-6">
+                  <div className="flex items-center gap-2 mb-4 pb-3 border-b border-[#EBEBEB]">
+                    <div className="w-1 h-4 bg-[#0D8A5E] rounded-full" />
+                    <h3 className="text-sm font-semibold text-[#0A0A0A]">合规审核</h3>
+                    <span className="text-[10px] text-[#999]">不满足条件将触发追加审批人</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    {dynamicFields.map((field) => {
+                      const isTradeAgentField = field.fieldKey === 'is_trade_agent';
+                      const isTradeAgentYes = isTradeAgentField && dynamicFieldValues[field.fieldKey] === '是';
+                      const inputBg = isTradeAgentYes
+                        ? 'bg-[#FFF9EB] border border-[#E8850C]'
+                        : 'bg-[#F0F1FF] border border-[#C7CAFF]';
+
+                      return (
+                        <div key={field.id}>
+                          <label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">
+                            {field.name}
+                            {field.isRequired && <span className="text-red-500 ml-0.5">*</span>}
+                          </label>
+
+                          {field.fieldType === 'boolean' ? (
+                            <SearchableSelect
+                              value={dynamicFieldValues[field.fieldKey] || ''}
+                              onChange={(v) => handleDynamicFieldChange(field.fieldKey, v)}
+                              options={[{ value: '是', label: '是' }, { value: '否', label: '否' }]}
+                              placeholder={`请选择${field.name}`}
+                            />
+                          ) : field.fieldType === 'single_select' || field.fieldType === 'number_select' ? (
+                            <SearchableSelect
+                              value={dynamicFieldValues[field.fieldKey] || ''}
+                              onChange={(v) => handleDynamicFieldChange(field.fieldKey, v)}
+                              options={field.options.map(o => ({ value: o.label, label: o.label }))}
+                              placeholder={`请选择${field.name}`}
+                            />
+                          ) : field.fieldType === 'multi_select' ? (
+                            <div className="flex flex-wrap gap-1.5">
+                              {(dynamicFieldValues[field.fieldKey] || '').split(',').filter(Boolean).map((v, i) => (
+                                <span key={i} className="inline-flex items-center gap-1 px-2 py-0.5 bg-[#E8EBFF] text-[#2D3BFF] rounded-full text-xs">
+                                  {v}
+                                  <button type="button" onClick={() => {
+                                    const vals = (dynamicFieldValues[field.fieldKey] || '').split(',').filter(Boolean);
+                                    vals.splice(i, 1);
+                                    handleDynamicFieldChange(field.fieldKey, vals.join(','));
+                                  }} className="hover:text-red-500">×</button>
+                                </span>
+                              ))}
+                              <div className="relative w-full">
+                                <select
+                                  value=""
+                                  onChange={(e) => {
+                                    if (!e.target.value) return;
+                                    const vals = (dynamicFieldValues[field.fieldKey] || '').split(',').filter(Boolean);
+                                    if (!vals.includes(e.target.value)) vals.push(e.target.value);
+                                    handleDynamicFieldChange(field.fieldKey, vals.join(','));
+                                  }}
+                                  className={`w-full rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30 ${inputBg}`}
+                                >
+                                  <option value="">{`请选择${field.name}`}</option>
+                                  {field.options.filter(o => !(dynamicFieldValues[field.fieldKey] || '').includes(o.label)).map(o => (
+                                    <option key={o.id} value={o.label}>{o.label}</option>
+                                  ))}
+                                </select>
+                              </div>
+                            </div>
+                          ) : (
+                            <input
+                              type="text"
+                              value={dynamicFieldValues[field.fieldKey] || ''}
+                              onChange={(e) => handleDynamicFieldChange(field.fieldKey, e.target.value)}
+                              placeholder={`请输入${field.name}`}
+                              className={`w-full rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30 ${inputBg}`}
+                            />
+                          )}
+
+                          {isTradeAgentYes && (
+                            <p className="text-[10px] text-[#E8850C] mt-1">触发追加审批人</p>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
               </div>
 
               {/* 右侧审批流 */}
               <div className="col-span-5 space-y-6">
                 <div className="bg-white rounded-2xl shadow-sm p-6 sticky top-6">
-                  <h3 className="text-sm font-semibold text-[#0A0A0A] mb-4 pb-3 border-b border-[#EBEBEB]">审批流程</h3>
-                  <div className="space-y-0">
-                    {approvalSteps.map((step, index) => (
-                      <div key={step.id} className="flex items-start gap-3">
-                        <div className="flex flex-col items-center">
-                          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium ${step.status === 'completed' ? 'bg-[#16A34A] text-white' : step.status === 'current' ? 'bg-[#2D3BFF] text-white' : 'bg-[#EBEBEB] text-[#999]'}`}>{index + 1}</div>
-                          {index < approvalSteps.length - 1 && <div className="w-0.5 h-12 bg-[#EBEBEB]" />}
-                        </div>
-                        <div className="pb-8 flex-1">
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm font-medium text-[#0A0A0A]">{step.name}</span>
-                            {'isCountersign' in step && step.isCountersign && <span className="inline-flex items-center px-2 py-0.5 bg-[#FEFCE8] text-[#CA8A04] text-xs rounded-full font-medium">会签</span>}
-                          </div>
-                          <div className="text-xs text-[#999] mt-0.5">{step.role}</div>
-                          {'approver' in step && step.approver && !('isCountersign' in step && step.isCountersign) && (
-                            <div className="mt-1.5 flex items-center gap-2">
-                              <div className="w-5 h-5 rounded-full bg-[#E8F4FF] flex items-center justify-center text-[10px] font-medium text-[#2D3BFF]">{step.approver.charAt(0)}</div>
-                              <span className="text-xs text-[#666]">{step.approver}</span>
-                            </div>
-                          )}
-                          {'approvers' in step && step.approvers && (step.approvers as string[]).length > 1 && !('isCountersign' in step && step.isCountersign) && (
-                            <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
-                              {(step.approvers as string[]).map((a: string) => (
-                                <div key={a} className="flex items-center gap-1 px-2 py-0.5 bg-[#E8F4FF] rounded-full">
-                                  <div className="w-4 h-4 rounded-full bg-[#2D3BFF] flex items-center justify-center text-[9px] text-white">{a.charAt(0)}</div>
-                                  <span className="text-xs text-[#2D3BFF]">{a}</span>
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                          {'isCountersign' in step && step.isCountersign && 'approvers' in step && step.approvers && (
-                            <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
-                              {(step.approvers as string[]).map((a: string) => (
-                                <div key={a} className="flex items-center gap-1 px-2 py-0.5 bg-[#E8F4FF] rounded-full">
-                                  <div className="w-4 h-4 rounded-full bg-[#2D3BFF] flex items-center justify-center text-[9px] text-white">{a.charAt(0)}</div>
-                                  <span className="text-xs text-[#2D3BFF]">{a}</span>
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                          {'isAutoAdded' in step && step.isAutoAdded && 'autoAddReason' in step && step.autoAddReason && (
-                            <span className="inline-block mt-1 px-2 py-0.5 bg-[#FEFCE8] text-[#CA8A04] text-xs rounded-full">{step.autoAddReason}</span>
-                          )}
-                        </div>
-                      </div>
-                    ))}
+                  {/* 匹配的审批流模板 */}
+                  <div className="mb-4 pb-3 border-b border-[#EBEBEB]">
+                    <div className="text-[11px] font-bold text-[#999] uppercase tracking-wider mb-2">匹配的审批流</div>
+                    <div className={`flex items-center justify-between p-2.5 rounded-lg border ${
+                      matchedWorkflow
+                        ? 'bg-white border-[#EBEBEB]'
+                        : 'bg-[#FFF9EB] border-[#FDE68A]'
+                    }`}>
+                      <span className="font-semibold text-sm">
+                        {matchedWorkflow ? matchedWorkflow.name : '未匹配到模板'}
+                      </span>
+                      <span className={`text-xs font-medium ${matchedWorkflow ? 'text-[#0D8A5E]' : 'text-[#E8850C]'}`}>
+                        {matchedWorkflow ? '已匹配' : '待选择服务产品'}
+                      </span>
+                    </div>
                   </div>
+
+                  <h3 className="text-sm font-semibold text-[#0A0A0A] mb-4">审批流程</h3>
+
+                  <ApprovalFlowVisual
+                    workflow={matchedWorkflow}
+                    ruleTriggeredApprovers={ruleTriggeredApprovers}
+                    mode="preview"
+                  />
 
                   {currentApproverConfig?.isPickOne && (
                     <div className="mt-4 p-4 bg-[#F5F5F5] rounded-xl">
@@ -354,7 +441,7 @@ export default function ApprovalEditPage() {
                 <h3 className="text-lg font-semibold text-[#0A0A0A]">{selectorOpen === 'businessCustomer' ? '选择业务主客户' : '选择客户开票信息'}</h3>
                 <div className="mt-3 relative">
                   <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#999]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-                  <input type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="搜索..." className="w-full bg-[#F5F5F5] border-none rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30" />
+                  <input type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="搜索..." className="w-full bg-white border border-[#D5D5D5] rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30 focus:border-[#2D3BFF]" />
                 </div>
               </div>
               <div className="p-4 max-h-[400px] overflow-y-auto space-y-2">

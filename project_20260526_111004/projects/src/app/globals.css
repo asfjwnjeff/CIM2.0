@@ -206,3 +206,8 @@
 .animate-spin {
   animation: spin 1s linear infinite;
 }
+
+@keyframes approval-pulse {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(45, 59, 255, 0.15); }
+  50% { box-shadow: 0 0 0 6px rgba(45, 59, 255, 0.08); }
+}

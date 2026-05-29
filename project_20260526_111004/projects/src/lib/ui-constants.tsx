@@ -75,3 +75,21 @@ export const RADIUS = {
   xl: '24px',
   full: '9999px',
 } as const;
+
+/** 服务产品选项（全站统一） */
+export const SERVICE_PRODUCT_OPTIONS = [
+  '货代', '关务', '仓库', '运输', '进出口', '维修', '合同物流', '一体化供应链', '其他',
+] as const;
+
+/** 服务产品 → 颜色映射（用于标签/徽章） */
+export const SERVICE_PRODUCT_COLORS: Record<string, { bg: string; text: string }> = {
+  '货代': { bg: '#E8F4FF', text: '#2D3BFF' },
+  '关务': { bg: '#E6F7F0', text: '#0D8A5E' },
+  '仓库': { bg: '#FFF4E8', text: '#E8850C' },
+  '运输': { bg: '#F3E8FF', text: '#7C3AED' },
+  '进出口': { bg: '#FCE7F3', text: '#DB2777' },
+  '维修': { bg: '#E8F4FF', text: '#0369A1' },
+  '合同物流': { bg: '#F0FDF4', text: '#16A34A' },
+  '一体化供应链': { bg: '#FFF7ED', text: '#EA580C' },
+  '其他': { bg: '#F5F5F5', text: '#5A5A5A' },
+};

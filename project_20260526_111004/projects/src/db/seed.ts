@@ -8,6 +8,7 @@ import {
   splitFields,
   approvalWorkflows,
   autoApprovalRules,
+  approvalFields,
 } from './schema';
 import {
   initialCustomers,
@@ -17,6 +18,7 @@ import {
   initialSplitFields,
   initialApprovalWorkflows,
   initialAutoApprovalRules,
+  initialApprovalFields,
 } from '@/lib/sample-data';
 
 const CREATE_TABLES = [
@@ -64,6 +66,13 @@ const CREATE_TABLES = [
     failure_message TEXT, priority INTEGER DEFAULT 99,
     created_by TEXT, created_at TEXT, updated_at TEXT
   )`,
+  `CREATE TABLE IF NOT EXISTS approval_fields (
+    id TEXT PRIMARY KEY, name TEXT NOT NULL, field_key TEXT NOT NULL,
+    field_type TEXT DEFAULT 'text', service_products TEXT DEFAULT '[]',
+    options TEXT DEFAULT '[]', is_required INTEGER DEFAULT 0,
+    approval_point TEXT, status TEXT DEFAULT 'active',
+    remark TEXT, created_by TEXT, created_at TEXT NOT NULL, updated_at TEXT
+  )`,
 ];
 
 async function seed() {
@@ -84,6 +93,23 @@ async function seed() {
   db.delete(splitFields).run();
   db.delete(approvalWorkflows).run();
   db.delete(autoApprovalRules).run();
+  db.delete(approvalFields).run();
+
+  // 插入审批字段
+  for (const f of initialApprovalFields) {
+    db.insert(approvalFields).values({
+      id: f.id, name: f.name, fieldKey: f.fieldKey, fieldType: f.fieldType,
+      serviceProducts: JSON.stringify(f.serviceProducts),
+      options: JSON.stringify(f.options),
+      isRequired: f.isRequired ? 1 : 0,
+      approvalPoint: f.approvalPoint ?? null,
+      status: f.status, remark: f.remark ?? null,
+      createdBy: f.createdBy ?? null, createdAt: f.createdAt,
+      updatedAt: f.updatedAt ?? null,
+    }).run();
+  }
+  console.log(`  审批字段: ${initialApprovalFields.length} 条`);
+  saveDb();
 
   // 插入拆分字段
   for (const f of initialSplitFields) {

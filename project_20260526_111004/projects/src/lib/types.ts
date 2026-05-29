@@ -554,7 +554,7 @@ export interface ApprovalNode {
   approvers: ApprovalNodeApprover[];
 }
 
-export type ServiceProduct = '货代' | '关务' | '仓库' | '运输' | '进出口' | '维修' | '合同物流';
+export type ServiceProduct = '货代' | '关务' | '仓库' | '运输' | '进出口' | '维修' | '合同物流' | '一体化供应链';
 
 export interface RiskApproval {
   id: string;
@@ -647,6 +647,50 @@ export interface AutoApprovalRule {
   createdBy?: string;
   createdAt: string;
   updatedAt?: string;
+}
+
+// ========== 审批字段配置 ==========
+
+/** 审批字段类型 */
+export type ApprovalFieldType =
+  | 'number_select'    // 数值（下拉）
+  | 'percentage'       // 百分比
+  | 'single_select'    // 单选
+  | 'multi_select'     // 多选
+  | 'single_other'     // 单选+其他
+  | 'boolean'          // 布尔
+  | 'api_query'        // 接口查询
+  | 'text';            // 文本输入
+
+/** 审批字段选项 */
+export interface ApprovalFieldOption {
+  id: string;
+  label: string;
+  order: number;
+}
+
+/** 审批结构化字段 */
+export interface ApprovalField {
+  id: string;
+  name: string;
+  fieldKey: string;
+  fieldType: ApprovalFieldType;
+  serviceProducts: ServiceProduct[];
+  options: ApprovalFieldOption[];
+  isRequired: boolean;
+  approvalPoint?: string;
+  status: Status;
+  remark?: string;
+  createdBy?: string;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+/** 规则触发的追加审批人 */
+export interface RuleTriggeredApprover {
+  approver: ApprovalNodeApprover;
+  reason: string;
+  ruleId: string;
 }
 
 // ==================== 可配置拆分字段 ====================

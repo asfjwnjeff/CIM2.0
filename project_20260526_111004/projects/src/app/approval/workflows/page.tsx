@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useApp } from '@/lib/store';
 import { ApprovalWorkflow } from '@/lib/types';
 
@@ -51,7 +52,8 @@ const SearchIcon = ({ className }: { className?: string }) => (
 );
 
 export default function ApprovalWorkflowsPage() {
-  const { approvalWorkflows, deleteApprovalWorkflow } = useApp();
+  const { approvalWorkflows, deleteApprovalWorkflow, addApprovalWorkflow } = useApp();
+  const router = useRouter();
   const [searchKeyword, setSearchKeyword] = useState('');
   const [filterProduct, setFilterProduct] = useState('全部');
   const [filterStatus, setFilterStatus] = useState('全部');
@@ -74,6 +76,24 @@ export default function ApprovalWorkflowsPage() {
     const funcNode = (w.approvalNodes || []).find(n => n.type === 'functional');
     return funcNode ? funcNode.approvers.map(a => a.name).join('、') : '-';
   };
+
+  const handleCopy = (workflow: ApprovalWorkflow) => {
+    addApprovalWorkflow({
+      name: `${workflow.name} (副本)`,
+      serviceProduct: workflow.serviceProduct || '',
+      serviceProducts: workflow.serviceProducts || [],
+      isTradeAgency: workflow.isTradeAgency ?? false,
+      status: 'active',
+      remark: workflow.remark,
+      approvalNodes: workflow.approvalNodes,
+    });
+  };
+
+  const CopyIcon = ({ className }: { className?: string }) => (
+    <svg className={`w-4 h-4 ${className}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+    </svg>
+  );
 
   const getTradeAgencyBadge = (w: ApprovalWorkflow) => {
     if (w.isTradeAgency) {
@@ -196,14 +216,8 @@ export default function ApprovalWorkflowsPage() {
                       </p>
                     </div>
                     <div>
-                      <span className="text-[#5A5A5A]">贸易代理</span>
-                      <p className="text-[#0A0A0A] mt-0.5">
-                        {workflow.isTradeAgency ? (
-                          <span className="text-[#2D3BFF] font-medium">是 (含白沥)</span>
-                        ) : (
-                          <span className="text-[#5A5A5A]">否</span>
-                        )}
-                      </p>
+                      <span className="text-[#5A5A5A]">节点数</span>
+                      <p className="text-[#0A0A0A] mt-0.5">{(workflow.approvalNodes || []).length} 个节点</p>
                     </div>
                     <div>
                       <span className="text-[#5A5A5A]">更新时间</span>
@@ -222,6 +236,13 @@ export default function ApprovalWorkflowsPage() {
                   </span>
                   
                   <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => handleCopy(workflow)}
+                      className="p-1.5 rounded-lg hover:bg-[#F5F5F5] text-[#5A5A5A] hover:text-green-600 transition-colors"
+                      title="复制模板"
+                    >
+                      <CopyIcon />
+                    </button>
                     <Link
                       href={`/approval/workflows/${workflow.id}`}
                       className="p-1.5 rounded-lg hover:bg-[#F5F5F5] text-[#5A5A5A] hover:text-[#2D3BFF] transition-colors"

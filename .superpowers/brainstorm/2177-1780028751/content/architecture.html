@@ -1,0 +1,75 @@
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+<div style="max-width: 960px; margin: 0 auto; font-family: 'Noto Sans SC', sans-serif;">
+  <h2>风控审批升级 — 整体架构</h2>
+  <p class="subtitle">三模块独立配置 + 审批辅助报告</p>
+
+  <div style="background: #f8f9ff; border: 2px solid #2D3BFF; border-radius: 16px; padding: 32px; margin: 24px 0;">
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 32px;">
+      <!-- Module 1 -->
+      <div style="background: #fff; border: 1.5px solid #D5D5D5; border-radius: 12px; padding: 20px; text-align: center;">
+        <div style="font-size:32px; margin-bottom:8px;">&#x1F4CB;</div>
+        <h3 style="margin:0 0 8px;font-size:15px;font-weight:700;">审批字段配置</h3>
+        <p style="font-size:13px;color:#5A5A5A;margin:0;">定义结构化字段池<br/>绑定到服务产品<br/>配置可选值 & 校验</p>
+      </div>
+
+      <!-- Module 2 -->
+      <div style="background: #fff; border: 1.5px solid #D5D5D5; border-radius: 12px; padding: 20px; text-align: center;">
+        <div style="font-size:32px; margin-bottom:8px;">⚙️</div>
+        <h3 style="margin:0 0 8px;font-size:15px;font-weight:700;">自动审批规则</h3>
+        <p style="font-size:13px;color:#5A5A5A;margin:0;">引用字段做条件<br/>产出通过/提醒/拒绝<br/>可修改审批流</p>
+      </div>
+
+      <!-- Module 3 -->
+      <div style="background: #fff; border: 1.5px solid #D5D5D5; border-radius: 12px; padding: 20px; text-align: center;">
+        <div style="font-size:32px; margin-bottom:8px;">🔄</div>
+        <h3 style="margin:0 0 8px;font-size:15px;font-weight:700;">审批流模板</h3>
+        <p style="font-size:13px;color:#5A5A5A;margin:0;">6级默认节点<br/>按服务产品匹配<br/>条件分支动态调整</p>
+      </div>
+    </div>
+
+    <!-- Flow -->
+    <div style="display: flex; align-items: center; justify-content: center; gap: 24px; margin-bottom: 24px;">
+      <div style="background:#2D3BFF; color:#fff; font-size:13px; font-weight:600; padding:8px 20px; border-radius:20px;">
+        提交审批
+      </div>
+      <span style="font-size:20px;color:#2D3BFF;">→</span>
+      <div style="background:#2D3BFF; color:#fff; font-size:13px; font-weight:600; padding:8px 20px; border-radius:20px;">
+        规则引擎
+      </div>
+      <span style="font-size:20px;color:#2D3BFF;">→</span>
+      <div style="background:#2D3BFF; color:#fff; font-size:13px; font-weight:600; padding:8px 20px; border-radius:20px;">
+        推送钉钉
+      </div>
+    </div>
+
+    <!-- Outputs -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+      <div style="background: #ECFDF5; border: 1.5px solid #0D8A5E; border-radius: 12px; padding: 20px; text-align: center;">
+        <h3 style="margin:0 0 8px;font-size:14px;font-weight:700;color:#0D8A5E;">审批辅助报告</h3>
+        <p style="font-size:13px;color:#5A5A5A;margin:0;">推送到钉钉附件<br/>CIM 中可独立查看<br/>逐字段颜色标注</p>
+      </div>
+      <div style="background: #FFF9EB; border: 1.5px solid #E8850C; border-radius: 12px; padding: 20px; text-align: center;">
+        <h3 style="margin:0 0 8px;font-size:14px;font-weight:700;color:#E8850C;">审批流调整</h3>
+        <p style="font-size:13px;color:#5A5A5A;margin:0;">动态增加审批人<br/>（如贸易代理→白沥）<br/>后续可扩展跳过节点</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h3>数据关系</h3>
+    <div style="background:#fff;border:1.5px solid #EBEBEB;border-radius:12px;padding:20px;">
+      <pre style="font-size:13px;color:#5A5A5A;line-height:2;margin:0;">
+  审批字段配置 ──(定义字段)──→ 字段池
+       ↓
+  服务产品 ←──(绑定字段)────── 字段池
+       ↓
+  自动审批规则 ──(引用字段)──→ 条件匹配 ──→ 通过/提醒/拒绝
+       ↓                                    ↓
+  审批流模板 ←──(规则可动态加入审批人)────────┘
+       ↓
+  最终审批链 → 钉钉审批实例 + 审批辅助报告
+      </pre>
+    </div>
+  </div>
+</div>

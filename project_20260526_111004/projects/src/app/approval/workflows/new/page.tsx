@@ -286,33 +286,79 @@ export default function ApprovalWorkflowEditPage() {
           <div className="col-span-8">
             <div className="bg-white rounded-xl shadow-sm border border-[#EBEBEB] p-5">
               <h3 className="text-sm font-semibold text-[#0A0A0A] mb-4">审批流程节点</h3>
-              <div className="space-y-3">
-                {approvalNodes.map((node, index) => (
-                  <div key={node.id} className="flex items-start gap-4 p-4 bg-[#F5F5F5] rounded-lg border border-[#D5D5D5]">
-                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[#E8EBFF] flex items-center justify-center">
-                      <span className="text-[#2D3BFF]">{nodeTypeIcons[(node.type || node.nodeType) as keyof typeof nodeTypeIcons]}</span>
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-semibold text-[#0A0A0A]">{node.name}</span>
-                        {node.isCountersign && (
-                          <span className="px-2 py-0.5 text-xs bg-orange-100 text-orange-800 rounded-full">会签</span>
+              <div className="space-y-0">
+                {approvalNodes.map((node, index) => {
+                  const isFunctional = (node.type || node.nodeType) === 'functional';
+                  const isLast = index === approvalNodes.length - 1;
+                  return (
+                    <div key={node.id} className="flex gap-3">
+                      {/* Timeline */}
+                      <div className="flex flex-col items-center flex-shrink-0 pt-1">
+                        <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${
+                          isFunctional
+                            ? 'bg-[#2D3BFF] text-white shadow-[0_0_0_3px_rgba(45,59,255,0.15)]'
+                            : 'bg-[#D5D5D5] text-white'
+                        }`}>
+                          {node.level || index + 1}
+                        </div>
+                        {!isLast && (
+                          <div className={`w-0.5 flex-1 min-h-[28px] ${
+                            isFunctional ? 'bg-[#2D3BFF]/30' : 'bg-[#EBEBEB]'
+                          }`} />
                         )}
                       </div>
-                      <p className="text-xs text-[#5A5A5A] mt-0.5">{node.description}</p>
-                      {node.approvers.length > 0 && (
-                        <div className="mt-2 flex flex-wrap gap-1.5">
-                          {node.approvers.map((approver) => (
-                            <span key={approver.id} className="inline-flex items-center px-2 py-0.5 text-xs bg-white border border-[#D5D5D5] rounded-full">
-                              {approver.name}
-                              {approver.role && <span className="text-[#5A5A5A] ml-1">({approver.role})</span>}
-                            </span>
-                          ))}
+                      {/* Content */}
+                      <div className={`flex-1 pb-4 ${
+                        isFunctional
+                          ? 'bg-[#F0F1FF] border border-[#C7CAFF] rounded-lg p-3'
+                          : 'bg-[#FAFAFA] border border-[#EBEBEB] rounded-lg p-3'
+                      }`}>
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-sm font-semibold text-[#0A0A0A]">{node.name}</span>
+                          {isFunctional && (
+                            <span className="inline-flex items-center px-1.5 py-0.5 text-[10px] font-medium bg-[#2D3BFF] text-white rounded">动态</span>
+                          )}
+                          {node.isCountersign && (
+                            <span className="inline-flex items-center px-1.5 py-0.5 text-[10px] font-medium bg-[#FFF9EB] text-[#E8850C] rounded border border-[#FDE68A]">会签</span>
+                          )}
                         </div>
-                      )}
+                        <p className="text-xs text-[#5A5A5A] mb-2">{node.description}</p>
+                        {/* Default approvers */}
+                        {node.approvers.length > 0 && (
+                          <div className="flex flex-wrap gap-1.5">
+                            {node.approvers.map((approver) => (
+                              <span key={approver.id} className={`inline-flex items-center px-2 py-0.5 text-xs rounded-full ${
+                                isFunctional
+                                  ? 'bg-[#E8EBFF] text-[#2D3BFF] border border-[#2D3BFF]/20'
+                                  : 'bg-white border border-[#D5D5D5]'
+                              }`}>
+                                {approver.name}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                        {/* Conditional branch area (functional only) */}
+                        {isFunctional && (
+                          <div className="mt-3 pt-3 border-t border-dashed border-[#E8850C]">
+                            <div className="flex items-center gap-1.5 mb-2">
+                              <span className="text-[10px] text-[#E8850C] font-medium">规则触发追加</span>
+                              <span className="text-[10px] text-[#999]">由自动审批规则动态追加审批人</span>
+                            </div>
+                            {isTradeAgency && (
+                              <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs bg-[#FFF9EB] border border-[#FDE68A]">
+                                <span className="text-[#E8850C] font-medium">+ 白沥</span>
+                                <span className="text-[10px] text-[#E8850C]">涉及贸易代理</span>
+                              </div>
+                            )}
+                            {!isTradeAgency && (
+                              <p className="text-xs text-[#C0C0C0] italic">暂无规则触发</p>
+                            )}
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </div>

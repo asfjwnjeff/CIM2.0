@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useReducer, useCallback, ReactNode } from 'react';
-import { initialSplitFields, initialBillingEntities, initialBillingRules, initialCustomers, initialQuotes, initialApprovalWorkflows, initialAutoApprovalRules, initialQuoteTemplates, initialSigningEntities, initialServiceEntities, initialSettlementEntities } from './sample-data';
+import { initialSplitFields, initialBillingEntities, initialBillingRules, initialCustomers, initialQuotes, initialApprovalWorkflows, initialAutoApprovalRules, initialQuoteTemplates, initialSigningEntities, initialServiceEntities, initialSettlementEntities, initialApprovalFields } from './sample-data';
 import type {
   RuleGroup,
   SplitField,
@@ -26,11 +26,12 @@ import type {
   AutoApprovalRule,
   AITranscription,
   ProgressStatus,
+  ApprovalField,
 } from './types';
 import { currentUser } from './types';
 
 // 导出类型
-export type { RuleGroup, SplitField, BillingEntity, BillingRule, RuleCondition, Customer, OperationLog, User, FollowUpRecord, Opportunity, Contact, Contract, RiskApproval, ServiceEntity, SigningEntity, SettlementEntity, QuoteTemplate, ApprovalWorkflow, ApprovalWorkflowHistory, AutoApprovalRule, AITranscription };
+export type { RuleGroup, SplitField, BillingEntity, BillingRule, RuleCondition, Customer, OperationLog, User, FollowUpRecord, Opportunity, Contact, Contract, RiskApproval, ServiceEntity, SigningEntity, SettlementEntity, QuoteTemplate, ApprovalWorkflow, ApprovalWorkflowHistory, AutoApprovalRule, AITranscription, ApprovalField };
 
 // ==================== 应用上下文类型 ====================
 
@@ -57,6 +58,7 @@ export interface AppContextType {
   autoApprovalRules: AutoApprovalRule[];
   aiTranscriptions: AITranscription[];
   quoteTemplates: QuoteTemplate[];
+  approvalFields: ApprovalField[];
 
   // 字段管理
   addSplitField: (field: Omit<SplitField, 'id'>) => void;
@@ -111,6 +113,11 @@ export interface AppContextType {
   updateAutoApprovalRule: (id: string, updates: Partial<AutoApprovalRule>) => void;
   deleteAutoApprovalRule: (id: string) => void;
 
+  // 审批字段配置管理
+  addApprovalField: (field: Omit<ApprovalField, 'id' | 'createdAt'>) => void;
+  updateApprovalField: (id: string, updates: Partial<ApprovalField>) => void;
+  deleteApprovalField: (id: string) => void;
+
   // 跟进记录管理
   addFollowUp: (followUp: Omit<FollowUpRecord, 'id' | 'createdAt'>) => void;
   updateFollowUp: (id: string, updates: Partial<FollowUpRecord>) => void;
@@ -152,6 +159,7 @@ const defaultState = {
   autoApprovalRules: initialAutoApprovalRules as AutoApprovalRule[],
   aiTranscriptions: [] as AITranscription[],
   quoteTemplates: initialQuoteTemplates as QuoteTemplate[],
+  approvalFields: initialApprovalFields as ApprovalField[],
 };
 
 // ==================== Reducer ====================
@@ -178,6 +186,7 @@ interface AppState {
   autoApprovalRules: AutoApprovalRule[];
   aiTranscriptions: AITranscription[];
   quoteTemplates: QuoteTemplate[];
+  approvalFields: ApprovalField[];
 }
 
 type Action =
@@ -220,7 +229,10 @@ type Action =
   | { type: 'DELETE_SERVICE_ENTITY'; payload: string }
   | { type: 'ADD_SETTLEMENT_ENTITY'; payload: Omit<SettlementEntity, 'id' | 'createdAt'> }
   | { type: 'UPDATE_SETTLEMENT_ENTITY'; payload: { id: string; updates: Partial<SettlementEntity> } }
-  | { type: 'DELETE_SETTLEMENT_ENTITY'; payload: string };
+  | { type: 'DELETE_SETTLEMENT_ENTITY'; payload: string }
+  | { type: 'ADD_APPROVAL_FIELD'; payload: Omit<ApprovalField, 'id' | 'createdAt'> }
+  | { type: 'UPDATE_APPROVAL_FIELD'; payload: { id: string; updates: Partial<ApprovalField> } }
+  | { type: 'DELETE_APPROVAL_FIELD'; payload: string };
 
 function reducer(state: AppState, action: Action): AppState {
   switch (action.type) {
@@ -509,6 +521,23 @@ function reducer(state: AppState, action: Action): AppState {
         ...state,
         settlementEntities: state.settlementEntities.filter((e) => e.id !== action.payload),
       };
+    case 'ADD_APPROVAL_FIELD':
+      return {
+        ...state,
+        approvalFields: [...state.approvalFields, { ...action.payload, id: `af-${Date.now()}`, createdAt: new Date().toISOString() }],
+      };
+    case 'UPDATE_APPROVAL_FIELD':
+      return {
+        ...state,
+        approvalFields: state.approvalFields.map((f) =>
+          f.id === action.payload.id ? { ...f, ...action.payload.updates } : f
+        ),
+      };
+    case 'DELETE_APPROVAL_FIELD':
+      return {
+        ...state,
+        approvalFields: state.approvalFields.filter((f) => f.id !== action.payload),
+      };
     default:
       return state;
   }
@@ -686,6 +715,19 @@ export function AppProvider({ children }: { children: ReactNode }) {
     dispatch({ type: 'BATCH_TRANSFER', payload: { ids, newResponsiblePerson, reason } });
   }, []);
 
+  // 审批字段配置管理
+  const addApprovalField = useCallback((field: Omit<ApprovalField, 'id' | 'createdAt'>) => {
+    dispatch({ type: 'ADD_APPROVAL_FIELD', payload: field });
+  }, []);
+
+  const updateApprovalField = useCallback((id: string, updates: Partial<ApprovalField>) => {
+    dispatch({ type: 'UPDATE_APPROVAL_FIELD', payload: { id, updates } });
+  }, []);
+
+  const deleteApprovalField = useCallback((id: string) => {
+    dispatch({ type: 'DELETE_APPROVAL_FIELD', payload: id });
+  }, []);
+
   // 规则匹配逻辑
   const matchBillingEntity = useCallback((params: Record<string, string>) => {
     const { billingRules, billingEntities } = state;
@@ -763,6 +805,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
         addAutoApprovalRule,
         updateAutoApprovalRule,
         deleteAutoApprovalRule,
+        approvalFields: state.approvalFields,
+        addApprovalField,
+        updateApprovalField,
+        deleteApprovalField,
         addFollowUp,
         updateFollowUp,
         updateCustomerProgress,
@@ -844,4 +890,103 @@ function evaluateCondition(condition: RuleCondition, actualValue: string): boole
     default:
       return false;
   }
+}
+
+// ==================== 规则引擎 ====================
+
+import type { RuleTriggeredApprover } from './types';
+
+/** 评估自动审批规则，返回每个审批点的结果 */
+export function evaluateApprovalRules(
+  fieldValues: Record<string, string>,
+): Map<string, { result: 'pass' | 'warn' | 'reject'; suggestion?: string; triggeredRules: string[] }> {
+  const results = new Map<string, { result: 'pass' | 'warn' | 'reject'; suggestion?: string; triggeredRules: string[] }>();
+
+  // 注册资本检查
+  const registeredCapital = fieldValues['registered_capital'] || '';
+  if (registeredCapital) {
+    const capitalNum = parseFloat(registeredCapital.replace(/[^0-9.]/g, ''));
+    if (!isNaN(capitalNum) && capitalNum < 100) {
+      results.set('企业规模-注册资本', { result: 'warn', suggestion: '注册资本不足100万，建议人工审核', triggeredRules: ['rule-capital-low'] });
+    } else {
+      results.set('企业规模-注册资本', { result: 'pass', triggeredRules: [] });
+    }
+  }
+
+  // 社保人数检查
+  const socialInsurance = fieldValues['social_insurance_count'] || '';
+  if (socialInsurance) {
+    const siNum = parseInt(socialInsurance.replace(/[^0-9]/g, ''));
+    if (!isNaN(siNum) && siNum < 10) {
+      results.set('企业规模-社保人数', { result: 'warn', suggestion: '社保人数不足10人，建议人工审核', triggeredRules: ['rule-si-low'] });
+    } else {
+      results.set('企业规模-社保人数', { result: 'pass', triggeredRules: [] });
+    }
+  }
+
+  // 贸易代理检查
+  const isTradeAgent = fieldValues['is_trade_agent'] || '';
+  if (isTradeAgent === '是') {
+    results.set('业务类型-贸易代理', { result: 'warn', suggestion: '涉及贸易代理业务，已追加审批人白沥', triggeredRules: ['rule-trade-agent'] });
+  } else if (isTradeAgent === '否') {
+    results.set('业务类型-贸易代理', { result: 'pass', triggeredRules: [] });
+  }
+
+  // 出货地区检查
+  const shippingCountry = fieldValues['shipping_country'] || '';
+  if (shippingCountry === '以色列' || shippingCountry === '伊朗') {
+    results.set('出货地区', { result: 'warn', suggestion: `${shippingCountry}为战争地区，建议人工审核`, triggeredRules: ['rule-war-zone'] });
+  } else if (shippingCountry) {
+    results.set('出货地区', { result: 'pass', triggeredRules: [] });
+  }
+
+  // 运输及时率
+  const onTimeRate = fieldValues['on_time_rate'] || '';
+  if (onTimeRate) {
+    const rate = parseFloat(onTimeRate.replace('%', ''));
+    if (!isNaN(rate) && rate < 99) {
+      results.set('KPI-运输及时率', { result: 'warn', suggestion: `运输及时率${onTimeRate}低于99%标准`, triggeredRules: ['rule-on-time-low'] });
+    } else {
+      results.set('KPI-运输及时率', { result: 'pass', triggeredRules: [] });
+    }
+  }
+
+  return results;
+}
+
+/** 根据规则评估结果，计算需要追加的审批人（去重） */
+export function computeTriggeredApprovers(
+  fieldValues: Record<string, string>,
+): RuleTriggeredApprover[] {
+  const approvers: RuleTriggeredApprover[] = [];
+  const seenNames = new Set<string>();
+
+  // 贸易代理 → 白沥
+  if (fieldValues['is_trade_agent'] === '是' && !seenNames.has('白沥')) {
+    approvers.push({
+      approver: { id: 'baili', name: '白沥', role: '贸易代理职能审批人' },
+      reason: '涉及贸易代理',
+      ruleId: 'rule-trade-agent',
+    });
+    seenNames.add('白沥');
+  }
+
+  // 企业规模不达标 → 追加对应审批人
+  const capital = fieldValues['registered_capital'] || '';
+  const si = fieldValues['social_insurance_count'] || '';
+  const capitalNum = parseFloat(capital.replace(/[^0-9.]/g, ''));
+  const siNum = parseInt(si.replace(/[^0-9]/g, ''));
+
+  if ((!isNaN(capitalNum) && capitalNum < 100) || (!isNaN(siNum) && siNum < 10)) {
+    const reasons: string[] = [];
+    if (!isNaN(capitalNum) && capitalNum < 100) reasons.push('企业规模未达标');
+    if (!isNaN(siNum) && siNum < 10) reasons.push('企业规模未达标');
+
+    // 去重：企业规模不达标可能追加多个审批人，但白沥已打过
+    if (reasons.length > 0 && !seenNames.has('白沥')) {
+      // 已在贸易代理检查中添加白沥，此处不再重复
+    }
+  }
+
+  return approvers;
 }

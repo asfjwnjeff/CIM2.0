@@ -87,6 +87,7 @@ export const NAV_ITEMS: NavItem[] = [
       { label: '审批列表', href: '/approvals', icon: <NavIcons.ShieldCheck /> },
       { label: '流程配置', href: '/approval/workflows', icon: <NavIcons.Settings /> },
       { label: '自动规则', href: '/approval/auto-rules', icon: <NavIcons.Settings /> },
+      { label: '字段配置', href: '/approval/fields', icon: <NavIcons.Settings /> },
     ],
   },
   {

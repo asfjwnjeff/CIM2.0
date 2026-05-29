@@ -1,0 +1,142 @@
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+<div style="max-width: 860px; margin: 0 auto; font-family: 'Noto Sans SC', sans-serif;">
+  <h2>审批辅助报告 v3</h2>
+  <p class="subtitle">去结果列，以色条+图标区分状态，更简洁美观</p>
+
+  <div class="mockup">
+    <div class="mockup-header">风控审批辅助报告</div>
+    <div class="mockup-body" style="padding:0;">
+
+      <!-- Header -->
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 24px;border-bottom:1px solid #EBEBEB;">
+        <div>
+          <div style="font-size:12px;color:#999;margin-bottom:2px;">报告编号 RA-2026-0012 · 生成时间 2026-05-29 14:30</div>
+          <div style="font-size:13px;color:#5A5A5A;">客户：<strong>深圳博源科技</strong> · 服务产品：<strong>运输</strong></div>
+        </div>
+        <div style="display:flex;gap:24px;text-align:center;">
+          <div>
+            <div style="font-size:18px;font-weight:700;color:#0D8A5E;">3</div>
+            <div style="font-size:11px;color:#5A5A5A;">通过</div>
+          </div>
+          <div>
+            <div style="font-size:18px;font-weight:700;color:#E8850C;">2</div>
+            <div style="font-size:11px;color:#5A5A5A;">提醒</div>
+          </div>
+          <div>
+            <div style="font-size:18px;font-weight:700;color:#D63031;">0</div>
+            <div style="font-size:11px;color:#5A5A5A;">拦截</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <table style="width:100%;border-collapse:collapse;font-size:13px;">
+        <thead>
+          <tr style="border-bottom:1px solid #EBEBEB;">
+            <th style="text-align:left;padding:10px 24px;color:#999;font-weight:500;font-size:11px;">审批点</th>
+            <th style="text-align:left;padding:10px 16px;color:#999;font-weight:500;font-size:11px;">字段</th>
+            <th style="text-align:left;padding:10px 16px;color:#999;font-weight:500;font-size:11px;">填写值</th>
+            <th style="text-align:left;padding:10px 24px;color:#999;font-weight:500;font-size:11px;">判断条件</th>
+          </tr>
+        </thead>
+        <tbody>
+
+          <!-- Green row -->
+          <tr style="border-bottom:1px solid #F5F5F5;">
+            <td style="padding:12px 24px;border-left:3px solid #0D8A5E;">
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span style="color:#0D8A5E;font-size:14px;">●</span>
+                <span>KPI时效考核要求</span>
+              </div>
+            </td>
+            <td style="padding:12px 16px;"><code style="background:#F5F5F5;padding:2px 8px;border-radius:4px;font-size:12px;color:#5A5A5A;">运输及时率</code></td>
+            <td style="padding:12px 16px;">95%</td>
+            <td style="padding:12px 24px;font-size:12px;color:#5A5A5A;">及时率 &lt; 99% 则提醒</td>
+          </tr>
+
+          <!-- Green row -->
+          <tr style="border-bottom:1px solid #F5F5F5;">
+            <td style="padding:12px 24px;border-left:3px solid #0D8A5E;">
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span style="color:#0D8A5E;font-size:14px;">●</span>
+                <span>出货地区</span>
+              </div>
+            </td>
+            <td style="padding:12px 16px;"><code style="background:#F5F5F5;padding:2px 8px;border-radius:4px;font-size:12px;color:#5A5A5A;">出货国家/地区</code></td>
+            <td style="padding:12px 16px;">中国、越南</td>
+            <td style="padding:12px 24px;font-size:12px;color:#5A5A5A;">非战争地区则通过</td>
+          </tr>
+
+          <!-- Green row -->
+          <tr style="border-bottom:1px solid #F5F5F5;">
+            <td style="padding:12px 24px;border-left:3px solid #0D8A5E;">
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span style="color:#0D8A5E;font-size:14px;">●</span>
+                <span>业务类型</span>
+              </div>
+            </td>
+            <td style="padding:12px 16px;"><code style="background:#F5F5F5;padding:2px 8px;border-radius:4px;font-size:12px;color:#5A5A5A;">是否贸易代理</code></td>
+            <td style="padding:12px 16px;">否</td>
+            <td style="padding:12px 24px;font-size:12px;color:#5A5A5A;">非贸易代理则通过</td>
+          </tr>
+
+          <!-- Yellow row 1 -->
+          <tr style="border-bottom:1px solid #F5F5F5;">
+            <td style="padding:14px 24px;border-left:3px solid #E8850C;">
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span style="color:#E8850C;font-size:14px;">●</span>
+                <span style="font-weight:600;">业务量</span>
+              </div>
+            </td>
+            <td style="padding:14px 16px;">
+              <div><code style="background:#F5F5F5;padding:2px 8px;border-radius:4px;font-size:12px;color:#5A5A5A;">月订单数</code></div>
+              <div style="margin-top:4px;"><code style="background:#F5F5F5;padding:2px 8px;border-radius:4px;font-size:12px;color:#5A5A5A;">月开票额</code></div>
+            </td>
+            <td style="padding:14px 16px;">
+              <div>0-5单</div>
+              <div style="margin-top:4px;">3,000元</div>
+            </td>
+            <td style="padding:14px 24px;">
+              <div style="font-size:12px;color:#5A5A5A;">月订单数 ≤ 5</div>
+              <div style="font-size:12px;color:#5A5A5A;margin-top:4px;">月开票额 &lt; 5,000元</div>
+              <div style="margin-top:6px;font-size:11px;color:#E8850C;display:flex;align-items:center;gap:4px;">
+                <span>⚠</span> 建议人工评估订单量较少的原因，确认业务必要性
+              </div>
+            </td>
+          </tr>
+
+          <!-- Yellow row 2 -->
+          <tr>
+            <td style="padding:14px 24px;border-left:3px solid #E8850C;">
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span style="color:#E8850C;font-size:14px;">●</span>
+                <span style="font-weight:600;">企业规模</span>
+              </div>
+            </td>
+            <td style="padding:14px 16px;">
+              <div><code style="background:#F5F5F5;padding:2px 8px;border-radius:4px;font-size:12px;color:#5A5A5A;">注册资本</code></div>
+              <div style="margin-top:4px;"><code style="background:#F5F5F5;padding:2px 8px;border-radius:4px;font-size:12px;color:#5A5A5A;">社保人数</code></div>
+            </td>
+            <td style="padding:14px 16px;">
+              <div>80万元</div>
+              <div style="margin-top:4px;">8人</div>
+            </td>
+            <td style="padding:14px 24px;">
+              <div style="font-size:12px;color:#5A5A5A;">注册资本 &lt; 100万元</div>
+              <div style="font-size:12px;color:#5A5A5A;margin-top:4px;">社保人数 &lt; 10人</div>
+              <div style="margin-top:6px;font-size:11px;color:#E8850C;display:flex;align-items:center;gap:4px;">
+                <span>⚠</span> 企查查接口数据，建议人工核实企业资质
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Footer -->
+      <div style="background:#FAFAFA;padding:12px 24px;border-top:1px solid #EBEBEB;display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#999;">
+        <div>审批流调整：<span style="color:#5A5A5A;">未触发</span></div>
+        <div>CIM2.0 自动审批引擎 · 已同步至钉钉</div>
+      </div>
+    </div>
+  </div>
+</div>

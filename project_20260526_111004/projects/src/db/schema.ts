@@ -96,6 +96,23 @@ export const approvalWorkflows = sqliteTable('approval_workflows', {
   updatedAt: text('updated_at'),
 });
 
+// 审批字段配置表
+export const approvalFields = sqliteTable('approval_fields', {
+  id: text('id').primaryKey(),
+  name: text('name').notNull(),
+  fieldKey: text('field_key').notNull(),
+  fieldType: text('field_type').notNull().default('text'),
+  serviceProducts: text('service_products').notNull().default('[]'),
+  options: text('options').notNull().default('[]'),
+  isRequired: integer('is_required').notNull().default(0),
+  approvalPoint: text('approval_point'),
+  status: text('status').notNull().default('active'),
+  remark: text('remark'),
+  createdBy: text('created_by'),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at'),
+});
+
 // 自动审批规则
 export const autoApprovalRules = sqliteTable('auto_approval_rules', {
   id: text('id').primaryKey(),

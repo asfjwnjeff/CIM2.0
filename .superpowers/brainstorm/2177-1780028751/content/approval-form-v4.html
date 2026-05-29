@@ -1,0 +1,333 @@
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+<div style="max-width: 1000px; margin: 0 auto; font-family: 'Noto Sans SC', sans-serif;">
+  <h2>审批申请页 v4 — 新建页（贸易代理=是）</h2>
+  <p class="subtitle">动态字段微标识 + 贸易代理分支效果</p>
+
+  <div class="mockup">
+    <div class="mockup-header">新建风控审批</div>
+    <div class="mockup-body" style="padding:0;">
+      <div style="display:flex;min-height:600px;">
+
+        <!-- LEFT: Form -->
+        <div style="flex:1;padding:24px;border-right:1px solid #EBEBEB;overflow-y:auto;max-height:600px;">
+
+          <!-- Group 1: 基础信息 -->
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
+            <div style="width:4px;height:16px;background:#2D3BFF;border-radius:2px;"></div>
+            <span style="font-weight:700;font-size:13px;">基础信息</span>
+            <span style="font-size:10px;color:#999;">客户、商机、服务产品等</span>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:24px;">
+            <div>
+              <div style="font-size:12px;font-weight:600;margin-bottom:3px;">公司全称 <span style="color:#D63031;">*</span></div>
+              <div class="mock-input" style="margin:0;font-size:12px;">深圳博源科技有限公司</div>
+            </div>
+            <div>
+              <div style="font-size:12px;font-weight:600;margin-bottom:3px;">英文名称</div>
+              <div class="mock-input" style="margin:0;font-size:12px;">Shenzhen Boyuan Tech</div>
+            </div>
+            <div>
+              <div style="font-size:12px;font-weight:600;margin-bottom:3px;">商机 <span style="color:#D63031;">*</span></div>
+              <div class="mock-input" style="margin:0;font-size:12px;">OPP-2026-0032</div>
+            </div>
+            <div>
+              <div style="font-size:12px;font-weight:600;margin-bottom:3px;">服务产品 <span style="color:#D63031;">*</span></div>
+              <div class="mock-input" style="margin:0;font-size:12px;background:#E8EBFF;border-color:#2D3BFF;">货代</div>
+            </div>
+            <div>
+              <div style="font-size:12px;font-weight:600;margin-bottom:3px;">业务类型 <span style="color:#D63031;">*</span></div>
+              <div class="mock-input" style="margin:0;font-size:12px;">保税</div>
+            </div>
+            <div>
+              <div style="font-size:12px;font-weight:600;margin-bottom:3px;">风险控制目的 <span style="color:#D63031;">*</span></div>
+              <div class="mock-input" style="margin:0;font-size:12px;">业务可行性评审</div>
+            </div>
+          </div>
+
+          <!-- Group 2: 业务评估 -->
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
+            <div style="width:4px;height:16px;background:#E8850C;border-radius:2px;"></div>
+            <span style="font-weight:700;font-size:13px;">业务评估</span>
+            <span style="font-size:10px;color:#999;">业务量、KPI要求、定制化需求</span>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:24px;">
+            <!-- Fixed fields -->
+            <div>
+              <div style="font-size:12px;font-weight:600;margin-bottom:3px;">货物类型 <span style="color:#D63031;">*</span></div>
+              <div class="mock-input" style="margin:0;font-size:12px;">集成电路</div>
+            </div>
+            <div>
+              <div style="font-size:12px;font-weight:600;margin-bottom:3px;">月均业务量 <span style="color:#D63031;">*</span></div>
+              <div class="mock-input" style="margin:0;font-size:12px;">0-50</div>
+            </div>
+            <div>
+              <div style="font-size:12px;font-weight:600;margin-bottom:3px;">每月开票金额 <span style="color:#D63031;">*</span></div>
+              <div class="mock-input" style="margin:0;font-size:12px;">30,000</div>
+            </div>
+            <!-- Dynamic field - subtle indicator -->
+            <div>
+              <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">
+                <span style="font-size:12px;font-weight:600;">运输产品种类</span>
+                <span style="color:#D63031;font-size:11px;">*</span>
+                <div style="width:6px;height:6px;background:#2D3BFF;border-radius:50%;" title="动态字段"></div>
+              </div>
+              <div class="mock-input" style="margin:0;font-size:12px;">空运进口</div>
+            </div>
+            <!-- Dynamic field -->
+            <div>
+              <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">
+                <span style="font-size:12px;font-weight:600;">出货国家/地区</span>
+                <span style="color:#D63031;font-size:11px;">*</span>
+                <div style="width:6px;height:6px;background:#2D3BFF;border-radius:50%;" title="动态字段"></div>
+              </div>
+              <div class="mock-input" style="margin:0;font-size:12px;">中国</div>
+            </div>
+            <div style="grid-column:1/-1;">
+              <div style="font-size:12px;font-weight:600;margin-bottom:3px;">通关KPI要求 <span style="color:#D63031;">*</span></div>
+              <div class="mock-input" style="margin:0;font-size:12px;width:100%;">24小时内通关率≥98%</div>
+            </div>
+            <div style="grid-column:1/-1;">
+              <div style="font-size:12px;font-weight:600;margin-bottom:3px;">运输KPI要求 <span style="color:#D63031;">*</span></div>
+              <div class="mock-input" style="margin:0;font-size:12px;width:100%;">运输及时率≥95%</div>
+            </div>
+            <div style="grid-column:1/-1;">
+              <div style="font-size:12px;font-weight:600;margin-bottom:3px;">仓库租赁要求 <span style="color:#D63031;">*</span></div>
+              <div class="mock-input" style="margin:0;font-size:12px;width:100%;">恒温仓库，面积≥200㎡</div>
+            </div>
+          </div>
+
+          <!-- Group 3: 合规审核 -->
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
+            <div style="width:4px;height:16px;background:#0D8A5E;border-radius:2px;"></div>
+            <span style="font-weight:700;font-size:13px;">合规审核</span>
+            <span style="font-size:10px;color:#999;">资质、规模、贸易代理</span>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:24px;">
+            <!-- Dynamic field -->
+            <div>
+              <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">
+                <span style="font-size:12px;font-weight:600;">注册资本</span>
+                <span style="color:#D63031;font-size:11px;">*</span>
+                <div style="width:6px;height:6px;background:#2D3BFF;border-radius:50%;" title="动态字段"></div>
+              </div>
+              <div class="mock-input" style="margin:0;font-size:12px;">200万元 <span style="font-size:10px;color:#0D8A5E;">企查查</span></div>
+            </div>
+            <div>
+              <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">
+                <span style="font-size:12px;font-weight:600;">社保人数</span>
+                <span style="color:#D63031;font-size:11px;">*</span>
+                <div style="width:6px;height:6px;background:#2D3BFF;border-radius:50%;" title="动态字段"></div>
+              </div>
+              <div class="mock-input" style="margin:0;font-size:12px;">25人 <span style="font-size:10px;color:#0D8A5E;">企查查</span></div>
+            </div>
+            <!-- Dynamic field - trade agent -->
+            <div style="grid-column:1/-1;">
+              <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">
+                <span style="font-size:12px;font-weight:600;">是否贸易代理</span>
+                <span style="color:#D63031;font-size:11px;">*</span>
+                <div style="width:6px;height:6px;background:#2D3BFF;border-radius:50%;" title="动态字段"></div>
+              </div>
+              <div class="mock-input" style="margin:0;font-size:12px;background:#FFF9EB;border-color:#E8850C;">是</div>
+            </div>
+          </div>
+
+          <!-- Group 4: 结算与合同 -->
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
+            <div style="width:4px;height:16px;background:#999;border-radius:2px;"></div>
+            <span style="font-weight:700;font-size:13px;">结算与合同</span>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:24px;">
+            <div>
+              <div style="font-size:12px;font-weight:600;margin-bottom:3px;">此公司与HMG的关系 <span style="color:#D63031;">*</span></div>
+              <div class="mock-input" style="margin:0;font-size:12px;">客户</div>
+            </div>
+            <div>
+              <div style="font-size:12px;font-weight:600;margin-bottom:3px;">业务主客户 <span style="color:#D63031;">*</span></div>
+              <div class="mock-input" style="margin:0;font-size:12px;">深圳博源科技</div>
+            </div>
+            <div>
+              <div style="font-size:12px;font-weight:600;margin-bottom:3px;">客户开票信息 <span style="color:#D63031;">*</span></div>
+              <div class="mock-input" style="margin:0;font-size:12px;">深圳博源科技</div>
+            </div>
+            <div>
+              <div style="font-size:12px;font-weight:600;margin-bottom:3px;">结算账期 <span style="color:#D63031;">*</span></div>
+              <div class="mock-input" style="margin:0;font-size:12px;">月结60天</div>
+            </div>
+            <div>
+              <div style="font-size:12px;font-weight:600;margin-bottom:3px;">建议系统代码 <span style="color:#D63031;">*</span></div>
+              <div class="mock-input" style="margin:0;font-size:12px;">SZBY001</div>
+            </div>
+            <div>
+              <div style="font-size:12px;font-weight:600;margin-bottom:3px;">联系人 <span style="color:#D63031;">*</span></div>
+              <div class="mock-input" style="margin:0;font-size:12px;">张三 13800138000</div>
+            </div>
+            <div style="grid-column:1/-1;">
+              <div style="font-size:12px;font-weight:600;margin-bottom:3px;">集团（母）公司名称</div>
+              <div class="mock-input" style="margin:0;font-size:12px;width:100%;">-</div>
+            </div>
+            <div style="grid-column:1/-1;">
+              <div style="font-size:12px;font-weight:600;margin-bottom:3px;">分（子）公司名称</div>
+              <div class="mock-input" style="margin:0;font-size:12px;width:100%;">-</div>
+            </div>
+            <div style="grid-column:1/-1;">
+              <div style="font-size:12px;font-weight:600;margin-bottom:3px;">定制化服务需求 <span style="color:#D63031;">*</span></div>
+              <div class="mock-input" style="margin:0;font-size:12px;width:100%;">仅涉及标准服务内容</div>
+            </div>
+            <div style="grid-column:1/-1;">
+              <div style="font-size:12px;font-weight:600;margin-bottom:3px;">定制化需求描述 <span style="color:#D63031;">*</span></div>
+              <div class="mock-input" style="margin:0;font-size:12px;width:100%;">无</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT: Flow (Trade Agent = YES) -->
+        <div style="width:360px;flex-shrink:0;background:#FAFAFA;padding:24px;display:flex;flex-direction:column;">
+
+          <div style="margin-bottom:20px;">
+            <div style="font-size:11px;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px;">匹配的审批流</div>
+            <div style="background:#fff;border:1.5px solid #EBEBEB;border-radius:8px;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;">
+              <span style="font-weight:600;font-size:13px;">货代审批流程</span>
+              <span style="font-size:11px;color:#0D8A5E;font-weight:500;">● 已匹配</span>
+            </div>
+          </div>
+
+          <div style="flex:1;">
+            <!-- Node 1 -->
+            <div style="display:flex;gap:10px;margin-bottom:0;">
+              <div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;">
+                <div style="width:26px;height:26px;background:#D5D5D5;color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;">1</div>
+                <div style="width:1.5px;flex:1;background:#EBEBEB;min-height:36px;"></div>
+              </div>
+              <div style="padding-bottom:12px;">
+                <div style="font-weight:600;font-size:12px;">发起人</div>
+                <div style="font-size:11px;color:#999;">当前用户</div>
+              </div>
+            </div>
+
+            <!-- Node 2 -->
+            <div style="display:flex;gap:10px;margin-bottom:0;">
+              <div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;">
+                <div style="width:26px;height:26px;background:#D5D5D5;color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;">2</div>
+                <div style="width:1.5px;flex:1;background:#EBEBEB;min-height:36px;"></div>
+              </div>
+              <div style="padding-bottom:12px;">
+                <div style="font-weight:600;font-size:12px;">部门经理</div>
+                <div style="font-size:11px;color:#5A5A5A;">张洁</div>
+              </div>
+            </div>
+
+            <!-- Node 3: DYNAMIC + Trade Agent Branch -->
+            <div style="display:flex;gap:10px;margin-bottom:0;">
+              <div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;">
+                <div style="width:26px;height:26px;background:#2D3BFF;color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;box-shadow:0 0 0 3px rgba(45,59,255,0.15);">3</div>
+                <div style="width:1.5px;flex:1;background:#EBEBEB;min-height:36px;"></div>
+              </div>
+              <div style="padding-bottom:12px;flex:1;">
+                <div style="background:#F0F1FF;border:1px solid #C7CAFF;border-radius:8px;padding:10px 12px;">
+                  <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+                    <span style="font-weight:600;font-size:12px;">职能审批人</span>
+                    <span style="background:#2D3BFF;color:#fff;font-size:9px;padding:1px 5px;border-radius:3px;">动态</span>
+                  </div>
+                  <div style="font-size:11px;color:#999;margin-bottom:6px;">根据服务产品自动匹配</div>
+                  <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+                    <span style="background:#E8EBFF;color:#2D3BFF;font-size:10px;padding:1px 6px;border-radius:3px;">货代</span>
+                    <span style="font-size:10px;color:#999;">→</span>
+                    <span style="font-weight:600;font-size:12px;color:#2D3BFF;">张洁</span>
+                  </div>
+                  <!-- Trade Agent Branch -->
+                  <div style="margin-top:6px;padding-top:6px;border-top:1px dashed #E8850C;">
+                    <div style="display:flex;align-items:center;gap:6px;">
+                      <span style="background:#FFF9EB;color:#E8850C;font-size:9px;padding:1px 5px;border-radius:3px;border:1px solid #FDE68A;">+</span>
+                      <span style="font-weight:600;font-size:12px;color:#E8850C;">白沥</span>
+                    </div>
+                    <div style="font-size:10px;color:#E8850C;margin-top:2px;">涉及贸易代理，自动增加审批人</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Node 4 -->
+            <div style="display:flex;gap:10px;margin-bottom:0;">
+              <div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;">
+                <div style="width:26px;height:26px;background:#D5D5D5;color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;">4</div>
+                <div style="width:1.5px;flex:1;background:#EBEBEB;min-height:36px;"></div>
+              </div>
+              <div style="padding-bottom:12px;">
+                <div style="font-weight:600;font-size:12px;">财务会签</div>
+                <div style="font-size:11px;color:#5A5A5A;">财务部 + 中心总经理</div>
+              </div>
+            </div>
+
+            <!-- Node 5 -->
+            <div style="display:flex;gap:10px;margin-bottom:0;">
+              <div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;">
+                <div style="width:26px;height:26px;background:#D5D5D5;color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;">5</div>
+                <div style="width:1.5px;flex:1;background:#EBEBEB;min-height:36px;"></div>
+              </div>
+              <div style="padding-bottom:12px;">
+                <div style="font-weight:600;font-size:12px;">总经理</div>
+                <div style="font-size:11px;color:#5A5A5A;">中心负责人</div>
+              </div>
+            </div>
+
+            <!-- Node 6 -->
+            <div style="display:flex;gap:10px;">
+              <div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;">
+                <div style="width:26px;height:26px;background:#D5D5D5;color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;">6</div>
+              </div>
+              <div>
+                <div style="font-weight:600;font-size:12px;">IT运维确认</div>
+                <div style="font-size:11px;color:#5A5A5A;">IT运维组</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom -->
+      <div style="display:flex;gap:12px;justify-content:flex-end;padding:16px 24px;border-top:1px solid #EBEBEB;background:#FAFAFA;">
+        <button class="mock-button">清空</button>
+        <button class="mock-button">暂存</button>
+        <button class="mock-button">预览报告</button>
+        <button class="mock-button" style="background:#2D3BFF;color:#fff;">提交审批</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Design Notes -->
+  <div style="margin-top: 28px;">
+    <h3>设计说明</h3>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
+      <div style="background:#fff;border:1.5px solid #EBEBEB;border-radius:10px;padding:16px;">
+        <div style="font-weight:700;font-size:13px;margin-bottom:8px;">字段分组</div>
+        <div style="font-size:12px;color:#5A5A5A;line-height:1.6;">
+          4 组，按业务逻辑分：<br/>
+          <span style="color:#2D3BFF;">▌</span> 基础信息<br/>
+          <span style="color:#E8850C;">▌</span> 业务评估<br/>
+          <span style="color:#0D8A5E;">▌</span> 合规审核<br/>
+          <span style="color:#999;">▌</span> 结算与合同<br/>
+          每组左侧有色标区分
+        </div>
+      </div>
+      <div style="background:#fff;border:1.5px solid #EBEBEB;border-radius:10px;padding:16px;">
+        <div style="font-weight:700;font-size:13px;margin-bottom:8px;">动态字段标识</div>
+        <div style="font-size:12px;color:#5A5A5A;line-height:1.6;">
+          字段名右侧加蓝色小圆点（6px）<br/>
+          <div style="display:flex;align-items:center;gap:4px;margin-top:4px;">
+            <span style="font-size:12px;">运输产品种类</span>
+            <div style="width:6px;height:6px;background:#2D3BFF;border-radius:50%;"></div>
+          </div>
+          不喧宾夺主，但一瞥可知哪些字段<br/>会随服务产品变化
+        </div>
+      </div>
+      <div style="background:#fff;border:1.5px solid #EBEBEB;border-radius:10px;padding:16px;">
+        <div style="font-weight:700;font-size:13px;margin-bottom:8px;">贸易代理效果</div>
+        <div style="font-size:12px;color:#5A5A5A;line-height:1.6;">
+          选择"是"时：<br/>
+          ① 字段底色变浅黄提醒<br/>
+          ② 审批流职能节点下出现<br/>+白沥 分支，标注具体原因
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

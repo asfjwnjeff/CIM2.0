@@ -1,7 +1,11 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useRouter, useParams } from 'next/navigation';
+import { useApp } from '@/lib/store';
+import { RuleTriggeredApprover } from '@/lib/types';
+import ApprovalFlowVisual from '@/components/ApprovalFlowVisual';
+import ApprovalReport from '@/components/ApprovalReport';
 
 // 常量定义（与新增页面一致）
 const SERVICE_PRODUCTS = ['货代', '关务', '仓储', '运输', '进出口', '维修', '合同物流', '其他'];
@@ -232,6 +236,67 @@ export default function ApprovalDetailPage() {
 
   const approval = mockApprovals.find((a) => a.id === id) || mockApprovals[0];
   const statusInfo = STATUS_MAP[approval.status] || STATUS_MAP.draft;
+  const { approvalWorkflows } = useApp();
+  const [activeTab, setActiveTab] = useState<'detail' | 'report'>('detail');
+
+  const matchedWorkflow = useMemo(() => {
+    if (!approval.serviceProduct) return null;
+    return approvalWorkflows.find(
+      w => w.status === 'active' && w.serviceProduct === approval.serviceProduct
+    ) || null;
+  }, [approvalWorkflows, approval.serviceProduct]);
+
+  const ruleTriggeredApprovers: RuleTriggeredApprover[] = useMemo(() => {
+    const result: RuleTriggeredApprover[] = [];
+    if (approval.isTradeAgent === '是') {
+      result.push({
+        approver: { id: 'baili', name: '白沥', role: '贸易代理职能审批人' },
+        reason: '涉及贸易代理',
+        ruleId: 'rule-trade-agent',
+      });
+    }
+    return result;
+  }, [approval.isTradeAgent]);
+
+  const progressData = useMemo(() => {
+    const steps = approval.approvalSteps;
+    const currentIdx = steps.findIndex(s => s.status === 'current');
+    const completedIdxs = steps
+      .filter(s => s.status === 'completed')
+      .map(s => steps.indexOf(s));
+    return {
+      currentNodeIndex: currentIdx >= 0 ? currentIdx : 0,
+      completedNodes: completedIdxs,
+    };
+  }, [approval.approvalSteps]);
+
+  const reportItems = useMemo(() => [
+    { approvalPoint: '业务可行性审核', fieldName: '风险控制目的', fieldKey: 'risk_purpose', fieldValue: approval.riskControlPurpose, condition: '业务可行性评审/仅增加结算单位', result: 'pass' as const, suggestion: '风控目的明确' },
+    { approvalPoint: '业务可行性审核', fieldName: '与HMG关系', fieldKey: 'hmg_relation', fieldValue: approval.relationshipWithHMG, condition: '非"内部用户"即合规', result: 'pass' as const },
+    { approvalPoint: '业务可行性审核', fieldName: '服务产品', fieldKey: 'service_product', fieldValue: approval.serviceProduct, condition: '已匹配审批流模板', result: 'pass' as const },
+    { approvalPoint: '业务可行性审核', fieldName: '货物类型', fieldKey: 'goods_type', fieldValue: approval.goodsType, condition: '已填写', result: 'pass' as const },
+    { approvalPoint: '业务可行性审核', fieldName: '月均业务量', fieldKey: 'monthly_volume', fieldValue: approval.monthlyBusinessVolume, condition: approval.monthlyBusinessVolume === '500以上' ? '超高业务量提醒' : '正常范围', result: approval.monthlyBusinessVolume === '500以上' ? 'warn' as const : 'pass' as const },
+    { approvalPoint: '贸易合规审核', fieldName: '贸易代理', fieldKey: 'is_trade_agent', fieldValue: approval.isTradeAgent, condition: '涉及贸易代理需追加审批', result: approval.isTradeAgent === '是' ? 'warn' as const : 'pass' as const, suggestion: approval.isTradeAgent === '是' ? '已触发白沥审批追加' : undefined },
+    { approvalPoint: 'KPI能力审核', fieldName: '通关KPI', fieldKey: 'customs_kpi', fieldValue: approval.customsKpiRequirement.substring(0, 20) + '...', condition: '通关时效要求评估', result: 'pass' as const },
+    { approvalPoint: 'KPI能力审核', fieldName: '运输KPI', fieldKey: 'transport_kpi', fieldValue: approval.transportKpiRequirement.substring(0, 20) + '...', condition: '运输时效/货损率评估', result: approval.transportKpiRequirement.includes('危化品') ? 'warn' as const : 'pass' as const, suggestion: approval.transportKpiRequirement.includes('危化品') ? '危化品运输需专项资质，请确认' : undefined },
+    { approvalPoint: '资源能力审核', fieldName: '仓库要求', fieldKey: 'warehouse', fieldValue: approval.warehouseLeaseRequirement.substring(0, 20) + '...', condition: '仓储面积和条件评估', result: 'pass' as const },
+    ...(approval.status === 'rejected' ? [{ approvalPoint: '财务确认', fieldName: '财务审批', fieldKey: 'finance', fieldValue: '已拒绝', condition: '财务确认节点被拒绝', result: 'reject' as const, suggestion: '请重新提交审批' }] : []),
+  ], [approval]);
+
+  const passCount = reportItems.filter(i => i.result === 'pass').length;
+  const warnCount = reportItems.filter(i => i.result === 'warn').length;
+  const rejectCount = reportItems.filter(i => i.result === 'reject').length;
+
+  const flowChanges = useMemo(() => {
+    const changes: string[] = [];
+    const steps = approval.approvalSteps;
+    const completed = steps.filter(s => s.status === 'completed').length;
+    const total = steps.length;
+    changes.push(`${completed}/${total} 节点已完成`);
+    if (approval.isTradeAgent === '是') changes.push('追加审批人：白沥（贸易代理）');
+    if (approval.status === 'rejected') changes.push('财务确认节点已拒绝');
+    return changes.join('；');
+  }, [approval]);
 
   const getSelectedNames = (ids: string[], list: { id: string; name?: string; title?: string }[]) => {
     return ids.map((itemId: string) => list.find((item) => item.id === itemId)?.name || list.find((item) => item.id === itemId)?.title || itemId);
@@ -325,62 +390,103 @@ export default function ApprovalDetailPage() {
                   <div><label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">定制化需求描述 <span className="text-red-500">*</span></label><div className="w-full bg-[#F5F5F5] rounded-xl px-4 py-3 text-sm text-[#0A0A0A] whitespace-pre-wrap">{approval.customRequirementDescription}</div></div>
                 </div>
               </div>
+
+              {/* 合规审核 — 只读动态字段 */}
+              <div className="bg-white rounded-2xl shadow-sm p-6">
+                <div className="flex items-center gap-2 mb-4 pb-3 border-b border-[#EBEBEB]">
+                  <div className="w-1 h-4 bg-[#0D8A5E] rounded-full" />
+                  <h3 className="text-sm font-semibold text-[#0A0A0A]">合规审核</h3>
+                  <span className="text-[10px] text-[#999]">审批辅助报告数据来源</span>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="flex justify-between items-center p-2.5 rounded-lg bg-[#F0F1FF] border border-[#C7CAFF]">
+                    <span className="text-xs text-[#5A5A5A]">月订单数</span>
+                    <span className="text-xs font-medium text-[#2D3BFF]">21-50单</span>
+                  </div>
+                  <div className="flex justify-between items-center p-2.5 rounded-lg bg-[#F0F1FF] border border-[#C7CAFF]">
+                    <span className="text-xs text-[#5A5A5A]">月开票额</span>
+                    <span className="text-xs font-medium text-[#2D3BFF]">50-100万</span>
+                  </div>
+                  <div className="flex justify-between items-center p-2.5 rounded-lg bg-[#F0F1FF] border border-[#C7CAFF]">
+                    <span className="text-xs text-[#5A5A5A]">出货国家/地区</span>
+                    <span className="text-xs font-medium text-[#2D3BFF]">中国</span>
+                  </div>
+                  <div className="flex justify-between items-center p-2.5 rounded-lg bg-[#F0F1FF] border border-[#C7CAFF]">
+                    <span className="text-xs text-[#5A5A5A]">注册资本</span>
+                    <span className="text-xs font-medium text-[#2D3BFF]">5000万</span>
+                  </div>
+                  {approval.isTradeAgent === '是' && (
+                    <div className="col-span-2 flex justify-between items-center p-2.5 rounded-lg bg-[#FFF9EB] border border-[#E8850C]">
+                      <span className="text-xs text-[#5A5A5A]">是否贸易代理</span>
+                      <span className="inline-flex items-center gap-1.5">
+                        <span className="text-xs font-medium text-[#E8850C]">是 — 触发追加审批人（白沥）</span>
+                      </span>
+                    </div>
+                  )}
+                  <div className="flex justify-between items-center p-2.5 rounded-lg bg-[#F0F1FF] border border-[#C7CAFF]">
+                    <span className="text-xs text-[#5A5A5A]">社保人数</span>
+                    <span className="text-xs font-medium text-[#2D3BFF]">200人</span>
+                  </div>
+                  <div className="flex justify-between items-center p-2.5 rounded-lg bg-[#F0F1FF] border border-[#C7CAFF]">
+                    <span className="text-xs text-[#5A5A5A]">运输及时率</span>
+                    <span className="text-xs font-medium text-[#2D3BFF]">98%</span>
+                  </div>
+                </div>
+              </div>
             </div>
 
-            {/* 右侧审批流 */}
+            {/* 右侧审批流 + 报告 */}
             <div className="col-span-5 space-y-6">
               <div className="bg-white rounded-2xl shadow-sm p-6 sticky top-6">
-                <h3 className="text-sm font-semibold text-[#0A0A0A] mb-4 pb-3 border-b border-[#EBEBEB]">审批流程</h3>
-                <div className="space-y-0">
-                  {approval.approvalSteps.map((step, index) => (
-                    <div key={step.id} className="flex items-start gap-3">
-                      <div className="flex flex-col items-center">
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium ${
-                          step.status === 'completed' ? 'bg-[#16A34A] text-white' :
-                          step.status === 'current' ? 'bg-[#2D3BFF] text-white' :
-                          'bg-[#EBEBEB] text-[#999]'
-                        }`}>
-                          {'rejected' in step && step.rejected ? '✕' : index + 1}
-                        </div>
-                        {index < approval.approvalSteps.length - 1 && <div className="w-0.5 h-12 bg-[#EBEBEB]" />}
-                      </div>
-                      <div className="pb-8 flex-1">
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-medium text-[#0A0A0A]">{step.name}</span>
-                          {'rejected' in step && step.rejected && (
-                            <span className="inline-flex items-center px-2 py-0.5 bg-[#FEF2F2] text-[#DC2626] text-xs rounded-full font-medium">已拒绝</span>
-                          )}
-                        </div>
-                        <div className="text-xs text-[#999] mt-0.5">{step.role}</div>
-                        {step.approver && (
-                          <div className="mt-1.5 flex items-center gap-2">
-                            <div className="w-5 h-5 rounded-full bg-[#E8F4FF] flex items-center justify-center text-[10px] font-medium text-[#2D3BFF]">
-                              {step.approver.charAt(0)}
-                            </div>
-                            <span className="text-xs text-[#666]">{step.approver}</span>
-                          </div>
-                        )}
-                        {'approvers' in step && step.approvers && step.approvers.length > 1 && (
-                          <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
-                            {step.approvers.map((a: string) => (
-                              <div key={a} className={`flex items-center gap-1 px-2 py-0.5 rounded-full ${a === step.approver ? 'bg-[#2D3BFF]' : 'bg-[#E8F4FF]'}`}>
-                                <div className={`w-4 h-4 rounded-full flex items-center justify-center text-[9px] ${a === step.approver ? 'bg-white text-[#2D3BFF]' : 'bg-[#2D3BFF] text-white'}`}>{a.charAt(0)}</div>
-                                <span className={`text-xs ${a === step.approver ? 'text-white' : 'text-[#2D3BFF]'}`}>{a}</span>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                        {'isAutoAdded' in step && step.isAutoAdded && 'autoAddReason' in step && step.autoAddReason && (
-                          <span className="inline-block mt-1 px-2 py-0.5 bg-[#FEFCE8] text-[#CA8A04] text-xs rounded-full">{step.autoAddReason}</span>
-                        )}
-                      </div>
-                    </div>
-                  ))}
+                {/* Tab 切换 */}
+                <div className="flex gap-1 mb-4 bg-[#F5F5F5] rounded-lg p-1">
+                  <button
+                    onClick={() => setActiveTab('detail')}
+                    className={`flex-1 py-2 text-xs font-semibold rounded-md transition-all ${
+                      activeTab === 'detail' ? 'bg-white text-[#0A0A0A] shadow-sm' : 'text-[#999] hover:text-[#5A5A5A]'
+                    }`}
+                  >
+                    审批流程
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('report')}
+                    className={`flex-1 py-2 text-xs font-semibold rounded-md transition-all ${
+                      activeTab === 'report' ? 'bg-white text-[#0A0A0A] shadow-sm' : 'text-[#999] hover:text-[#5A5A5A]'
+                    }`}
+                  >
+                    审批辅助报告
+                  </button>
                 </div>
 
-                <div className="mt-4 p-3 bg-[#F5F5F5] rounded-xl">
-                  <p className="text-xs text-[#999]">注意: 风控审批中填写的所有字段均不受角色权限限制，所有审批人均可查看全部字段内容。</p>
-                </div>
+                {activeTab === 'detail' ? (
+                  <>
+                    <ApprovalFlowVisual
+                      workflow={matchedWorkflow}
+                      ruleTriggeredApprovers={ruleTriggeredApprovers}
+                      mode="progress"
+                      progress={{
+                        currentNodeIndex: progressData.currentNodeIndex,
+                        completedNodes: progressData.completedNodes,
+                      }}
+                    />
+
+                    <div className="mt-4 p-3 bg-[#F5F5F5] rounded-xl">
+                      <p className="text-xs text-[#999]">注意: 风控审批中填写的所有字段均不受角色权限限制，所有审批人均可查看全部字段内容。</p>
+                    </div>
+                  </>
+                ) : (
+                  <ApprovalReport
+                    reportId={`CIM-AR-${approval.id.padStart(4, '0')}`}
+                    customerName={approval.companyName}
+                    serviceProduct={approval.serviceProduct}
+                    generatedAt={new Date().toISOString()}
+                    items={reportItems}
+                    flowChanges={flowChanges}
+                    passCount={passCount}
+                    warnCount={warnCount}
+                    rejectCount={rejectCount}
+                  />
+                )}
               </div>
             </div>
           </div>
