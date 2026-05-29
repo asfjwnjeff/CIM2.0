@@ -8,21 +8,23 @@ import ApprovalFlowVisual from '@/components/ApprovalFlowVisual';
 import ApprovalReport from '@/components/ApprovalReport';
 
 // 常量定义（与新增页面一致）
-const SERVICE_PRODUCTS = ['货代', '关务', '仓储', '运输', '进出口', '维修', '合同物流', '其他'];
+const SERVICE_PRODUCTS = ['货代', '关务', '仓库', '运输', '进出口', '维修', '合同物流', '一体化供应链', '其他'];
 const BUSINESS_TYPES = ['保税', '口岸完税', '免税', '试单', '其他'];
 const MONTHLY_VOLUMES = ['0-50', '51-100', '101-500', '500以上'];
-const CUSTOM_SERVICE_OPTIONS = ['信息系统', '运输', '仓储', '财务', '仅涉及标准服务内容'];
+const CUSTOM_SERVICE_OPTIONS = ['信息系统', '运输', '仓库', '财务', '仅涉及标准服务内容'];
 const RISK_PURPOSES = ['业务可行性评审', '仅增加结算单位', '仅增加境外收发货人'];
 const HMG_RELATIONS = ['客户', '供应商', '最终用户', '结算单位', '内部用户'];
 
 const SERVICE_APPROVERS: Record<string, { approvers: string[]; isPickOne?: boolean }> = {
   '货代': { approvers: ['张洁'] },
   '关务': { approvers: ['蒋总'] },
-  '仓储': { approvers: ['吴总'] },
+  '仓库': { approvers: ['吴总'] },
   '运输': { approvers: ['朱弢'] },
   '进出口': { approvers: ['张洁'] },
   '维修': { approvers: ['蒋总'] },
   '合同物流': { approvers: ['张洁', '蒋总', '吴总', '朱弢'], isPickOne: true },
+  '一体化供应链': { approvers: ['张洁'] },
+  '其他': { approvers: ['张洁'] },
 };
 
 const mockBusinessCustomers = [
@@ -44,7 +46,7 @@ const mockInvoiceInfos = [
 
 const mockOpportunities = [
   { id: 'opp1', title: '应用材料-货代服务', customer: '应用材料(中国)有限公司', serviceProduct: '货代' },
-  { id: 'opp2', title: '飞雅贸易-仓储服务', customer: '飞雅贸易(上海)有限公司', serviceProduct: '仓储' },
+  { id: 'opp2', title: '飞雅贸易-仓储服务', customer: '飞雅贸易(上海)有限公司', serviceProduct: '仓库' },
   { id: 'opp3', title: '荏原机械-运输服务', customer: '荏原机械(中国)有限公司', serviceProduct: '运输' },
   { id: 'opp4', title: '昇先创-进出口服务', customer: '昇先创国际贸易(上海)有限公司', serviceProduct: '进出口' },
   { id: 'opp5', title: '上海华力-一体化供应链', customer: '上海华力集成电路制造有限公司', serviceProduct: '合同物流' },
@@ -90,7 +92,7 @@ const mockApprovals = [
     id: '2',
     status: 'approved',
     isTradeAgent: '否',
-    serviceProduct: '仓储',
+    serviceProduct: '仓库',
     businessType: '口岸完税',
     goodsType: '电子元器件',
     monthlyBusinessVolume: '51-100',
@@ -352,7 +354,7 @@ export default function ApprovalDetailPage() {
                     <label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">业务主客户 <span className="text-red-500">*</span></label>
                     <div className="flex flex-wrap gap-2">
                       {getSelectedNames(approval.businessCustomerIds, mockBusinessCustomers.map((c) => ({ id: c.id, name: c.name }))).map((name, i) => (
-                        <span key={i} className="inline-flex items-center px-3 py-1 bg-[#E8F4FF] text-[#2D3BFF] rounded-full text-xs">{name}</span>
+                        <span key={i} className="inline-flex items-center px-3 py-1.5 bg-[#E8F4FF] text-[#2D3BFF] rounded-lg text-sm">{name}</span>
                       ))}
                     </div>
                   </div>
@@ -362,7 +364,7 @@ export default function ApprovalDetailPage() {
                     <label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">客户开票信息 <span className="text-red-500">*</span></label>
                     <div className="flex flex-wrap gap-2">
                       {getSelectedNames(approval.invoiceInfoIds, mockInvoiceInfos.map((inv) => ({ id: inv.id, name: inv.title }))).map((name, i) => (
-                        <span key={i} className="inline-flex items-center px-3 py-1 bg-[#FFF7ED] text-[#EA580C] rounded-full text-xs">{name}</span>
+                        <span key={i} className="inline-flex items-center px-3 py-1.5 bg-[#FFF7ED] text-[#EA580C] rounded-lg text-sm">{name}</span>
                       ))}
                     </div>
                   </div>

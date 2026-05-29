@@ -4,7 +4,7 @@ import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { SearchableSelect } from '@/components/ui/searchable-select';
 import { useApp } from '@/lib/store';
-import { ApprovalField, ApprovalWorkflow, RuleTriggeredApprover, ServiceProduct } from '@/lib/types';
+import { RuleTriggeredApprover, ServiceProduct } from '@/lib/types';
 import ApprovalFlowVisual from '@/components/ApprovalFlowVisual';
 
 // 选项配置
@@ -14,19 +14,6 @@ const MONTHLY_VOLUMES = ["0-50", "51-100", "101-500", "500以上"];
 const CUSTOM_SERVICE_OPTIONS = ["信息系统", "运输", "仓储", "财务", "仅涉及标准服务内容"];
 const RISK_PURPOSES = ["业务可行性评审", "仅增加结算单位", "仅增加境外收发货人"];
 const HMG_RELATIONS = ["客户", "供应商", "最终用户", "结算单位", "内部用户"];
-
-// 服务产品→审批人映射
-const SERVICE_APPROVERS: Record<string, { approvers: string[]; isCountersign: boolean; isPickOne: boolean }> = {
-  "货代": { approvers: ["张洁"], isCountersign: false, isPickOne: false },
-  "关务": { approvers: ["蒋总"], isCountersign: false, isPickOne: false },
-  "仓库": { approvers: ["吴总"], isCountersign: false, isPickOne: false },
-  "运输": { approvers: ["朱弢"], isCountersign: false, isPickOne: false },
-  "进出口": { approvers: ["张洁"], isCountersign: false, isPickOne: false },
-  "维修": { approvers: ["蒋总"], isCountersign: false, isPickOne: false },
-  "合同物流": { approvers: ["张洁", "蒋总", "吴总", "朱弢"], isCountersign: false, isPickOne: true },
-  "一体化供应链": { approvers: ["张洁"], isCountersign: false, isPickOne: false },
-  "其他": { approvers: ["张洁"], isCountersign: false, isPickOne: false },
-};
 
 // 模拟数据
 const mockBusinessCustomers = [
@@ -49,28 +36,6 @@ const mockInvoiceInfos = [
   { id: "1", title: "武汉光库科技有限公司", taxNumber: "914201007713589677" },
   { id: "2", title: "江苏鑫华半导体科技股份有限公司", taxNumber: "91320301MA1MCPLL8F" },
   { id: "3", title: "上海裘瑞经贸有限公司", taxNumber: "91310118738523211W" },
-];
-
-// 审批流节点类型
-interface ApprovalStep {
-  id: string;
-  name: string;
-  role: string;
-  status: string;
-  approver: string;
-  approvers?: string[];
-  isCountersign?: boolean;
-  isAutoAdded?: boolean;
-  autoAddReason?: string;
-}
-
-const defaultApprovalSteps: ApprovalStep[] = [
-  { id: "1", name: "提交申请", role: "申请人", status: "pending", approver: "" },
-  { id: "2", name: "业务部门审批", role: "业务部门经理", status: "pending", approver: "" },
-  { id: "3", name: "职能审批", role: "职能审批人", status: "pending", approver: "", approvers: [], isCountersign: false },
-  { id: "4", name: "风控部门审批", role: "风控部门经理", status: "pending", approver: "" },
-  { id: "5", name: "财务部门审批", role: "财务部门经理", status: "pending", approver: "" },
-  { id: "6", name: "审批完成", role: "", status: "pending", approver: "" },
 ];
 
 export default function NewRiskControlPage() {
@@ -103,21 +68,19 @@ export default function NewRiskControlPage() {
     contactName: "",
   });
 
-  const [approvalSteps, setApprovalSteps] = useState(defaultApprovalSteps);
   const [selectorOpen, setSelectorOpen] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
-  const [pickedApprover, setPickedApprover] = useState("");
   const [opportunitySearch, setOpportunitySearch] = useState("");
   const [showOpportunityDropdown, setShowOpportunityDropdown] = useState(false);
 
   // 动态字段值存储
   const [dynamicFieldValues, setDynamicFieldValues] = useState<Record<string, string>>({});
 
-  // 根据服务产品获取动态字段
+  // 根据服务产品获取动态字段（排除\"是否贸易代理\"，它是固定字段）
   const dynamicFields = useMemo(() => {
     if (!formData.serviceProduct) return [];
     return approvalFields.filter(
-      f => f.status === 'active' && f.serviceProducts.includes(formData.serviceProduct as ServiceProduct)
+      f => f.status === 'active' && f.serviceProducts.includes(formData.serviceProduct as ServiceProduct) && f.fieldKey !== 'is_trade_agent'
     );
   }, [approvalFields, formData.serviceProduct]);
 
@@ -146,93 +109,8 @@ export default function NewRiskControlPage() {
     setDynamicFieldValues(prev => ({ ...prev, [fieldKey]: value }));
   };
 
-  // 更新职能审批节点
-  const updateFunctionalApproval = (serviceProduct: string, isTradeAgent: string) => {
-    setApprovalSteps((prev) => {
-      let newSteps = prev.map((s) => ({ ...s }));
-
-      // 处理贸易代理 - 白沥节点
-      const bailiIndex = newSteps.findIndex((s) => s.name.includes("白沥"));
-      if (isTradeAgent === "是") {
-        if (bailiIndex === -1) {
-          const funcIndex = newSteps.findIndex((s) => s.name === "职能审批");
-          const insertAfter = funcIndex >= 0 ? funcIndex + 1 : 2;
-          newSteps.splice(insertAfter, 0, {
-            id: "baili",
-            name: "白沥审批",
-            role: "贸易代理专员",
-            status: "pending",
-            approver: "白沥",
-            isAutoAdded: true,
-            autoAddReason: "贸易代理自动添加",
-          });
-        }
-      } else if (bailiIndex >= 0) {
-        newSteps = newSteps.filter((s) => !s.name.includes("白沥"));
-      }
-
-      // 处理职能审批节点
-      const funcStep = newSteps.find((s) => s.name === "职能审批");
-      if (funcStep) {
-        const approverConfig = SERVICE_APPROVERS[serviceProduct];
-        if (approverConfig) {
-          if (approverConfig.isPickOne) {
-            funcStep.approvers = approverConfig.approvers;
-            funcStep.isCountersign = false;
-            funcStep.approver = "";
-            funcStep.role = `${serviceProduct}职能审批人（四选一）`;
-          } else if (approverConfig.approvers.length > 1) {
-            funcStep.approvers = approverConfig.approvers;
-            funcStep.isCountersign = true;
-            funcStep.approver = approverConfig.approvers.join("、");
-            funcStep.role = `${serviceProduct}职能审批人`;
-          } else {
-            funcStep.approvers = approverConfig.approvers;
-            funcStep.isCountersign = false;
-            funcStep.approver = approverConfig.approvers[0];
-            funcStep.role = `${serviceProduct}职能审批人`;
-          }
-        } else {
-          funcStep.approvers = [];
-          funcStep.isCountersign = false;
-          funcStep.approver = "";
-          funcStep.role = "职能审批人";
-        }
-      }
-
-      return newSteps;
-    });
-  };
-
   const handleChange = (name: string, value: string) => {
-    setFormData((prev) => {
-      const newData = { ...prev, [name]: value };
-      if (name === "serviceProduct" || name === "isTradeAgent") {
-        setTimeout(() => {
-          updateFunctionalApproval(
-            name === "serviceProduct" ? value : prev.serviceProduct,
-            name === "isTradeAgent" ? value : prev.isTradeAgent
-          );
-        }, 0);
-        if (name === "serviceProduct") {
-          setPickedApprover("");
-        }
-      }
-      return newData;
-    });
-  };
-
-  // 合同物流四选一
-  const handlePickApprover = (approver: string) => {
-    setPickedApprover(approver);
-    setApprovalSteps((prev) =>
-      prev.map((s) => {
-        if (s.name === "职能审批") {
-          return { ...s, approver, role: "合同物流职能审批人" };
-        }
-        return s;
-      })
-    );
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const toggleMultiSelect = (name: "businessCustomerIds" | "invoiceInfoIds", id: string) => {
@@ -260,8 +138,6 @@ export default function NewRiskControlPage() {
   const getSelectedNames = (name: "businessCustomerIds" | "invoiceInfoIds", list: { id: string; name?: string; title?: string }[]) => {
     return formData[name].map((id: string) => list.find((item) => item.id === id)?.name || list.find((item) => item.id === id)?.title || id);
   };
-
-  const currentApproverConfig = formData.serviceProduct ? SERVICE_APPROVERS[formData.serviceProduct] : null;
 
   return (
       <div className="max-w-7xl mx-auto space-y-6">
@@ -340,9 +216,9 @@ export default function NewRiskControlPage() {
                     <div className="space-y-2">
                       <div className="flex flex-wrap gap-2">
                         {getSelectedNames("businessCustomerIds", mockBusinessCustomers.map((c) => ({ id: c.id, name: c.name }))).map((name, i) => (
-                          <span key={i} className="inline-flex items-center gap-1 px-3 py-1 bg-[#E8F4FF] text-[#2D3BFF] rounded-full text-xs">
+                          <span key={i} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#E8F4FF] text-[#2D3BFF] rounded-lg text-sm">
                             {name}
-                            <button type="button" onClick={() => toggleMultiSelect("businessCustomerIds", formData.businessCustomerIds[i])} className="hover:text-red-500">×</button>
+                            <button type="button" onClick={() => toggleMultiSelect("businessCustomerIds", formData.businessCustomerIds[i])} className="hover:text-red-500 text-base">×</button>
                           </span>
                         ))}
                       </div>
@@ -359,7 +235,7 @@ export default function NewRiskControlPage() {
                       <input type="text" value={opportunitySearch} onChange={(e) => { setOpportunitySearch(e.target.value); setShowOpportunityDropdown(true); }} onFocus={() => setShowOpportunityDropdown(true)} placeholder="搜索并选择商机" className="w-full bg-white border border-[#D5D5D5] rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30 focus:border-[#2D3BFF]" />
                       {formData.opportunityId && (
                         <div className="absolute right-10 top-1/2 -translate-y-1/2">
-                          <span className="text-xs text-[#2D3BFF] bg-[#E8F4FF] px-2 py-0.5 rounded-full">
+                          <span className="text-sm text-[#2D3BFF] bg-[#E8F4FF] px-3 py-1 rounded-lg">
                             {mockOpportunities.find((o) => o.id === formData.opportunityId)?.title}
                           </span>
                         </div>
@@ -388,9 +264,9 @@ export default function NewRiskControlPage() {
                     <div className="space-y-2">
                       <div className="flex flex-wrap gap-2">
                         {getSelectedNames("invoiceInfoIds", mockInvoiceInfos.map((inv) => ({ id: inv.id, name: inv.title }))).map((name, i) => (
-                          <span key={i} className="inline-flex items-center gap-1 px-3 py-1 bg-[#FFF7ED] text-[#EA580C] rounded-full text-xs">
+                          <span key={i} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#FFF7ED] text-[#EA580C] rounded-lg text-sm">
                             {name}
-                            <button type="button" onClick={() => toggleMultiSelect("invoiceInfoIds", formData.invoiceInfoIds[i])} className="hover:text-red-500">×</button>
+                            <button type="button" onClick={() => toggleMultiSelect("invoiceInfoIds", formData.invoiceInfoIds[i])} className="hover:text-red-500 text-base">×</button>
                           </span>
                         ))}
                       </div>
@@ -526,13 +402,13 @@ export default function NewRiskControlPage() {
                           ) : field.fieldType === 'multi_select' ? (
                             <div className="flex flex-wrap gap-1.5">
                               {(dynamicFieldValues[field.fieldKey] || '').split(',').filter(Boolean).map((v, i) => (
-                                <span key={i} className="inline-flex items-center gap-1 px-2 py-0.5 bg-[#E8EBFF] text-[#2D3BFF] rounded-full text-xs">
+                                <span key={i} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#E8EBFF] text-[#2D3BFF] rounded-lg text-sm">
                                   {v}
                                   <button type="button" onClick={() => {
                                     const vals = (dynamicFieldValues[field.fieldKey] || '').split(',').filter(Boolean);
                                     vals.splice(i, 1);
                                     handleDynamicFieldChange(field.fieldKey, vals.join(','));
-                                  }} className="hover:text-red-500">×</button>
+                                  }} className="hover:text-red-500 text-base">×</button>
                                 </span>
                               ))}
                               <div className="relative w-full">

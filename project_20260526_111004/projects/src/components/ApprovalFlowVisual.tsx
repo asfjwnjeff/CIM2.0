@@ -91,6 +91,9 @@ export default function ApprovalFlowVisual({
                 {isCurrent && (
                   <span className="inline-flex items-center px-1.5 py-0.5 text-[10px] font-medium bg-[#2D3BFF] text-white rounded">审批中</span>
                 )}
+                {mode === 'preview' && index === 0 && (
+                  <span className="inline-flex items-center px-1.5 py-0.5 text-[10px] font-medium bg-[#F5F5F5] text-[#999] rounded border border-[#D5D5D5]">草稿</span>
+                )}
                 {showCountersignNote && (
                   <span className="inline-flex items-center px-1.5 py-0.5 text-[10px] font-medium bg-[#FFF9EB] text-[#E8850C] rounded border border-[#FDE68A]">会签</span>
                 )}

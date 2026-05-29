@@ -3,9 +3,8 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { SearchableSelect } from '@/components/ui/searchable-select';
-import { FIELD_STYLES } from '@/lib/ui-constants';
 import { useApp } from '@/lib/store';
-import { ApprovalField, ApprovalWorkflow, RuleTriggeredApprover, ServiceProduct } from '@/lib/types';
+import { RuleTriggeredApprover, ServiceProduct } from '@/lib/types';
 import ApprovalFlowVisual from '@/components/ApprovalFlowVisual';
 
 const SERVICE_PRODUCTS = ['货代', '关务', '仓库', '运输', '进出口', '维修', '合同物流', '一体化供应链', '其他'];
@@ -109,7 +108,7 @@ export default function ApprovalEditPage() {
   const dynamicFields = useMemo(() => {
     if (!formData.serviceProduct) return [];
     return approvalFields.filter(
-      f => f.status === 'active' && f.serviceProducts.includes(formData.serviceProduct as ServiceProduct)
+      f => f.status === 'active' && f.serviceProducts.includes(formData.serviceProduct as ServiceProduct) && f.fieldKey !== 'is_trade_agent'
     );
   }, [approvalFields, formData.serviceProduct]);
 
@@ -224,7 +223,7 @@ export default function ApprovalEditPage() {
                       <div className="space-y-2">
                         <div className="flex flex-wrap gap-2">
                           {getSelectedNames(formData.businessCustomerIds, mockBusinessCustomers.map((c) => ({ id: c.id, name: c.name }))).map((name, i) => (
-                            <span key={i} className="inline-flex items-center gap-1 px-3 py-1 bg-[#E8F4FF] text-[#2D3BFF] rounded-full text-xs">{name}<button type="button" onClick={() => toggleMultiSelect('businessCustomerIds', formData.businessCustomerIds[i])} className="hover:text-red-500">×</button></span>
+                            <span key={i} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#E8F4FF] text-[#2D3BFF] rounded-lg text-sm">{name}<button type="button" onClick={() => toggleMultiSelect('businessCustomerIds', formData.businessCustomerIds[i])} className="hover:text-red-500 text-base">×</button></span>
                           ))}
                         </div>
                         <button type="button" onClick={() => { setSearchTerm(''); setSelectorOpen('businessCustomer'); }} className="w-full bg-white border border-dashed border-[#D5D5D5] rounded-xl px-4 py-3 text-sm text-[#999] hover:border-[#2D3BFF] hover:text-[#2D3BFF] transition-colors">+ 选择业务主客户</button>
@@ -237,7 +236,7 @@ export default function ApprovalEditPage() {
                         <input type="text" value={opportunitySearch} onChange={(e) => { setOpportunitySearch(e.target.value); setShowOpportunityDropdown(true); }} onFocus={() => setShowOpportunityDropdown(true)} placeholder="搜索并选择商机" className="w-full bg-white border border-[#D5D5D5] rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30 focus:border-[#2D3BFF]" />
                         {formData.opportunityId && (
                           <div className="absolute right-10 top-1/2 -translate-y-1/2">
-                            <span className="text-xs text-[#2D3BFF] bg-[#E8F4FF] px-2 py-0.5 rounded-full">{mockOpportunities.find((o) => o.id === formData.opportunityId)?.title}</span>
+                            <span className="text-sm text-[#2D3BFF] bg-[#E8F4FF] px-3 py-1 rounded-lg">{mockOpportunities.find((o) => o.id === formData.opportunityId)?.title}</span>
                           </div>
                         )}
                         <button type="button" onClick={() => setShowOpportunityDropdown(!showOpportunityDropdown)} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#999999]"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 12 15 18 9"/></svg></button>
@@ -262,7 +261,7 @@ export default function ApprovalEditPage() {
                       <div className="space-y-2">
                         <div className="flex flex-wrap gap-2">
                           {getSelectedNames(formData.invoiceInfoIds, mockInvoiceInfos.map((inv) => ({ id: inv.id, name: inv.title }))).map((name, i) => (
-                            <span key={i} className="inline-flex items-center gap-1 px-3 py-1 bg-[#FFF7ED] text-[#EA580C] rounded-full text-xs">{name}<button type="button" onClick={() => toggleMultiSelect('invoiceInfoIds', formData.invoiceInfoIds[i])} className="hover:text-red-500">×</button></span>
+                            <span key={i} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#FFF7ED] text-[#EA580C] rounded-lg text-sm">{name}<button type="button" onClick={() => toggleMultiSelect('invoiceInfoIds', formData.invoiceInfoIds[i])} className="hover:text-red-500 text-base">×</button></span>
                           ))}
                         </div>
                         <button type="button" onClick={() => { setSearchTerm(''); setSelectorOpen('invoiceInfo'); }} className="w-full bg-white border border-dashed border-[#D5D5D5] rounded-xl px-4 py-3 text-sm text-[#999] hover:border-[#2D3BFF] hover:text-[#2D3BFF] transition-colors">+ 选择客户开票信息</button>
@@ -332,13 +331,13 @@ export default function ApprovalEditPage() {
                           ) : field.fieldType === 'multi_select' ? (
                             <div className="flex flex-wrap gap-1.5">
                               {(dynamicFieldValues[field.fieldKey] || '').split(',').filter(Boolean).map((v, i) => (
-                                <span key={i} className="inline-flex items-center gap-1 px-2 py-0.5 bg-[#E8EBFF] text-[#2D3BFF] rounded-full text-xs">
+                                <span key={i} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#E8EBFF] text-[#2D3BFF] rounded-lg text-sm">
                                   {v}
                                   <button type="button" onClick={() => {
                                     const vals = (dynamicFieldValues[field.fieldKey] || '').split(',').filter(Boolean);
                                     vals.splice(i, 1);
                                     handleDynamicFieldChange(field.fieldKey, vals.join(','));
-                                  }} className="hover:text-red-500">×</button>
+                                  }} className="hover:text-red-500 text-base">×</button>
                                 </span>
                               ))}
                               <div className="relative w-full">

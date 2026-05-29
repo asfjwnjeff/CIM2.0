@@ -563,11 +563,13 @@ export default function ApprovalsPage() {
                 <option value="all">服务产品</option>
                 <option value="货代">货代</option>
                 <option value="关务">关务</option>
-                <option value="仓储">仓储</option>
+                <option value="仓库">仓库</option>
                 <option value="运输">运输</option>
                 <option value="进出口">进出口</option>
                 <option value="维修">维修</option>
                 <option value="合同物流">合同物流</option>
+                <option value="一体化供应链">一体化供应链</option>
+                <option value="其他">其他</option>
               </select>
               <select
                 value={tradeAgentFilter}
