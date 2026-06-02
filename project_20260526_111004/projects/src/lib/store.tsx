@@ -670,26 +670,46 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const addApprovalWorkflow = useCallback((workflow: Omit<ApprovalWorkflow, 'id' | 'createdAt' | 'updatedAt'>) => {
     dispatch({ type: 'ADD_APPROVAL_WORKFLOW', payload: workflow });
+    fetch('/api/approval-workflows', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(workflow),
+    }).catch((e: unknown) => { console.error('[API] POST approval-workflows 失败:', e); });
   }, []);
 
   const updateApprovalWorkflow = useCallback((id: string, updates: Partial<ApprovalWorkflow>) => {
     dispatch({ type: 'UPDATE_APPROVAL_WORKFLOW', payload: { id, updates } });
+    fetch('/api/approval-workflows', {
+      method: 'PUT', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, ...updates }),
+    }).catch((e: unknown) => { console.error('[API] PUT approval-workflows 失败:', e); });
   }, []);
 
   const deleteApprovalWorkflow = useCallback((id: string) => {
     dispatch({ type: 'DELETE_APPROVAL_WORKFLOW', payload: id });
+    fetch(`/api/approval-workflows?id=${encodeURIComponent(id)}`, { method: 'DELETE' })
+      .catch((e: unknown) => { console.error('[API] DELETE approval-workflows 失败:', e); });
   }, []);
 
   const addAutoApprovalRule = useCallback((rule: Omit<AutoApprovalRule, 'id' | 'createdAt' | 'updatedAt'>) => {
     dispatch({ type: 'ADD_AUTO_APPROVAL_RULE', payload: rule });
+    fetch('/api/auto-approval-rules', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(rule),
+    }).catch((e: unknown) => { console.error('[API] POST auto-approval-rules 失败:', e); });
   }, []);
 
   const updateAutoApprovalRule = useCallback((id: string, updates: Partial<AutoApprovalRule>) => {
     dispatch({ type: 'UPDATE_AUTO_APPROVAL_RULE', payload: { id, updates } });
+    fetch('/api/auto-approval-rules', {
+      method: 'PUT', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, ...updates }),
+    }).catch((e: unknown) => { console.error('[API] PUT auto-approval-rules 失败:', e); });
   }, []);
 
   const deleteAutoApprovalRule = useCallback((id: string) => {
     dispatch({ type: 'DELETE_AUTO_APPROVAL_RULE', payload: id });
+    fetch(`/api/auto-approval-rules?id=${encodeURIComponent(id)}`, { method: 'DELETE' })
+      .catch((e: unknown) => { console.error('[API] DELETE auto-approval-rules 失败:', e); });
   }, []);
 
   // 跟进记录管理
@@ -794,6 +814,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
   // 风控审批管理
   const addRiskApproval = useCallback((approval: Omit<RiskApproval, 'id' | 'createdAt'>) => {
     dispatch({ type: 'ADD_RISK_APPROVAL', payload: approval });
+    fetch('/api/risk-approvals', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(approval),
+    }).catch((e: unknown) => { console.error('[API] POST risk-approvals 失败:', e); });
   }, []);
 
   const updateRiskApproval = useCallback((id: string, updates: Partial<RiskApproval>) => {
@@ -814,14 +839,24 @@ export function AppProvider({ children }: { children: ReactNode }) {
   // 审批字段配置管理
   const addApprovalField = useCallback((field: Omit<ApprovalField, 'id' | 'createdAt'>) => {
     dispatch({ type: 'ADD_APPROVAL_FIELD', payload: field });
+    fetch('/api/approval-fields', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(field),
+    }).catch((e: unknown) => { console.error('[API] POST approval-fields 失败:', e); });
   }, []);
 
   const updateApprovalField = useCallback((id: string, updates: Partial<ApprovalField>) => {
     dispatch({ type: 'UPDATE_APPROVAL_FIELD', payload: { id, updates } });
+    fetch('/api/approval-fields', {
+      method: 'PUT', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, ...updates }),
+    }).catch((e: unknown) => { console.error('[API] PUT approval-fields 失败:', e); });
   }, []);
 
   const deleteApprovalField = useCallback((id: string) => {
     dispatch({ type: 'DELETE_APPROVAL_FIELD', payload: id });
+    fetch(`/api/approval-fields?id=${encodeURIComponent(id)}`, { method: 'DELETE' })
+      .catch((e: unknown) => { console.error('[API] DELETE approval-fields 失败:', e); });
   }, []);
 
   // 规则匹配逻辑
