@@ -7,8 +7,13 @@ const JSON_FIELDS = ['approvalSteps', 'businessCustomerIds', 'invoiceInfoIds', '
 function parseRecord(record: Record<string, unknown>) {
   const parsed = { ...record };
   for (const f of JSON_FIELDS) {
-    if (parsed[f]) parsed[f] = JSON.parse(parsed[f] as string);
-    else parsed[f] = f === 'approvalSteps' ? [] : [];
+    if (parsed[f]) {
+      parsed[f] = JSON.parse(parsed[f] as string);
+    } else {
+      // approvalSteps, businessCustomerIds, invoiceInfoIds → []
+      // dynamicFieldValues → {}
+      parsed[f] = f === 'dynamicFieldValues' ? {} : [];
+    }
   }
   return parsed;
 }

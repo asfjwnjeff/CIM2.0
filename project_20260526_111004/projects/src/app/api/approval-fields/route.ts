@@ -51,23 +51,25 @@ export async function PUT(req: Request) {
   try {
     const db = await getDb();
     const body = await req.json();
+    if (!body.id) return Response.json({ error: 'Missing id' }, { status: 400 });
     const now = new Date().toISOString();
 
-    db.update(approvalFields)
-      .set({
-        name: body.name,
-        fieldKey: body.fieldKey,
-        fieldType: body.fieldType,
-        serviceProducts: JSON.stringify(body.serviceProducts),
-        options: JSON.stringify(body.options),
-        isRequired: body.isRequired ? 1 : 0,
-        approvalPoint: body.approvalPoint ?? null,
-        status: body.status,
-        remark: body.remark ?? null,
-        updatedAt: now,
-      })
-      .where(eq(approvalFields.id, body.id))
-      .run();
+    const updateData: Record<string, unknown> = { updatedAt: now };
+
+    const STRING_FIELDS = ['name', 'fieldKey', 'fieldType', 'approvalPoint', 'status', 'remark', 'createdBy'];
+    for (const field of STRING_FIELDS) {
+      if (body[field] !== undefined) updateData[field] = body[field];
+    }
+
+    // JSON fields
+    if (body.serviceProducts !== undefined) updateData.serviceProducts = JSON.stringify(body.serviceProducts);
+    if (body.options !== undefined) updateData.options = JSON.stringify(body.options);
+
+    // Boolean
+    if (body.isRequired !== undefined) updateData.isRequired = body.isRequired ? 1 : 0;
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (db.update(approvalFields) as any).set(updateData).where(eq(approvalFields.id, body.id)).run();
     return Response.json({ success: true });
   } catch (e) {
     return Response.json({ error: String(e) }, { status: 500 });
