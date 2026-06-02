@@ -44,6 +44,9 @@ export async function getDb() {
     sqlDb = new SQL.Database();
   }
 
+  // 显式设置 UTF-8 编码，防止中文乱码
+  sqlDb.run('PRAGMA encoding = "UTF-8"');
+
   dbInstance = drizzle(sqlDb, { schema });
   return dbInstance;
 }
