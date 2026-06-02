@@ -33,6 +33,11 @@ const mockBusinessCustomers = [
   { id: 'bc4', name: '昇先创国际贸易(上海)有限公司' },
   { id: 'bc5', name: '上海华力集成电路制造有限公司' },
   { id: 'bc6', name: '苏斯贸易(上海)有限公司' },
+  { id: 'bc7', name: '武汉光库科技有限公司' },
+  { id: 'bc8', name: '江苏鑫华半导体科技股份有限公司' },
+  { id: 'bc9', name: '上海裘瑞经贸有限公司' },
+  { id: 'bc10', name: '中芯国际集成电路制造有限公司' },
+  { id: 'bc11', name: '长江存储科技有限责任公司' },
 ];
 
 const mockInvoiceInfos = [
@@ -41,6 +46,11 @@ const mockInvoiceInfos = [
   { id: 'inv3', title: '8641 - 荏原机械(中国)有限公司', taxNumber: '91310000607239090Z' },
   { id: 'inv4', title: '8644 - 昇先创国际贸易(上海)有限公司', taxNumber: '91310000607239091A' },
   { id: 'inv5', title: '8603 - 上海华力集成电路制造有限公司', taxNumber: '91310000607239092B' },
+  { id: 'inv6', title: '8612 - 武汉光库科技有限公司', taxNumber: '914201007713589677' },
+  { id: 'inv7', title: '8625 - 江苏鑫华半导体科技股份有限公司', taxNumber: '91320301MA1MCPLL8F' },
+  { id: 'inv8', title: '8630 - 上海裘瑞经贸有限公司', taxNumber: '91310118738523211W' },
+  { id: 'inv9', title: '8648 - 中芯国际集成电路制造有限公司', taxNumber: '91310000MA1FL5N06M' },
+  { id: 'inv10', title: '8655 - 长江存储科技有限责任公司', taxNumber: '91420100MA4KN4K47W' },
 ];
 
 const mockOpportunities = [
