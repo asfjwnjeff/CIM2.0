@@ -224,16 +224,17 @@ export default function CustomersPage() {
         });
       }
     } else if (result.type === 'transfer') {
-      if (dialogCustomerId && result.newResponsiblePersonId) {
-        transferCustomer(dialogCustomerId, result.newResponsiblePersonId, result.reason);
-        const user = getUserById(result.newResponsiblePersonId);
+      if (dialogCustomerId && result.newResponsiblePersonId && result.transferFromId) {
+        transferCustomer(dialogCustomerId, result.transferFromId, result.newResponsiblePersonId, result.reason);
+        const fromUser = getUserById(result.transferFromId);
+        const toUser = getUserById(result.newResponsiblePersonId);
         addLog({
           action: 'transfer',
           operator: '系统管理员',
           targetType: 'customer',
           targetId: dialogCustomerId,
           targetName: dialogCustomerName,
-          details: `移交负责人为 ${user?.name || result.newResponsiblePersonId}${result.reason ? `，原因: ${result.reason}` : ''}`,
+          details: `将负责人 ${fromUser?.name || result.transferFromId} 移交给 ${toUser?.name || result.newResponsiblePersonId}${result.reason ? `，原因: ${result.reason}` : ''}`,
         });
       }
     }
@@ -276,14 +277,15 @@ export default function CustomersPage() {
         targetType: 'customer',
         details: `批量分配 ${ids.length} 个客户负责人为 ${userNames || result.responsiblePersonIds.join('、')}: ${names}`,
       });
-    } else if (result.type === 'transfer' && result.newResponsiblePersonId) {
-      batchTransfer(ids, result.newResponsiblePersonId, result.reason);
-      const user = getUserById(result.newResponsiblePersonId);
+    } else if (result.type === 'transfer' && result.newResponsiblePersonId && result.transferFromId) {
+      batchTransfer(ids, result.transferFromId, result.newResponsiblePersonId, result.reason);
+      const fromUser = getUserById(result.transferFromId);
+      const toUser = getUserById(result.newResponsiblePersonId);
       addLog({
         action: 'transfer',
         operator: '系统管理员',
         targetType: 'customer',
-        details: `批量移交 ${ids.length} 个客户负责人为 ${user?.name || result.newResponsiblePersonId}: ${names}`,
+        details: `批量移交 ${ids.length} 个客户负责人：${fromUser?.name || result.transferFromId} → ${toUser?.name || result.newResponsiblePersonId}: ${names}`,
       });
     }
     setDialogOpen(false);
@@ -421,6 +423,7 @@ export default function CustomersPage() {
               const chainLevel = customer.semiconductorInfo?.industryChainLevel || 'upstream';
               const levelColors = INDUSTRY_CHAIN_LEVEL_COLORS[chainLevel];
               const ownerUsers = customer.responsiblePersons.map((id) => getUserById(id)).filter(Boolean);
+              const collabUsers = customer.collaborators.map((id) => getUserById(id)).filter(Boolean);
               const createdByUser = getUserById(customer.createdBy);
               const contact = customer.businessInfo?.phone || customer.businessInfo?.email || '';
               const isSelected = selectedIds.has(customer.id);
@@ -479,20 +482,33 @@ export default function CustomersPage() {
                           <span className="truncate">{contact}</span>
                         </div>
                       )}
-                      <div className="flex items-center gap-1.5 text-[#5A5A5A]">
-                        <User className="w-3.5 h-3.5 text-[#999999]" />
-                        {ownerUsers.length > 0 ? (
-                          <div className="flex items-center gap-1">
-                            {ownerUsers.map((u) => (
-                              <UserAvatar key={u!.id} userId={u!.id} size="sm" />
-                            ))}
-                          </div>
-                        ) : (
-                          <span className="text-xs text-[#999999]">未分配</span>
-                        )}
-                        {customer.collaborators.length > 0 && (
-                          <span className="text-xs text-[#999999]">+{customer.collaborators.length} 协同</span>
-                        )}
+                      <div className="space-y-1.5">
+                        {/* 负责人 */}
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-xs text-[#999999] shrink-0">负责人</span>
+                          {ownerUsers.length > 0 ? (
+                            <div className="flex flex-wrap gap-1">
+                              {ownerUsers.map((u) => (
+                                <span key={u!.id} className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-[#E6F7F0] text-[#0D8A5E] border border-[#B8E8D4]">{u!.name}</span>
+                              ))}
+                            </div>
+                          ) : (
+                            <span className="text-xs text-[#999999]">未分配</span>
+                          )}
+                        </div>
+                        {/* 协同人 */}
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-xs text-[#999999] shrink-0">协同人</span>
+                          {collabUsers.length > 0 ? (
+                            <div className="flex flex-wrap gap-1">
+                              {collabUsers.map((u) => (
+                                <span key={u!.id} className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-[#E8EBFF] text-[#2D3BFF] border border-[#C7CCFF]">{u!.name}</span>
+                              ))}
+                            </div>
+                          ) : (
+                            <span className="text-xs text-[#999999]">无</span>
+                          )}
+                        </div>
                       </div>
                     </div>
 
@@ -633,9 +649,9 @@ export default function CustomersPage() {
                         </td>
                         <td className="px-3 py-3">
                           {ownerUsers.length > 0 ? (
-                            <div className="flex items-center gap-1">
+                            <div className="flex flex-wrap gap-1">
                               {ownerUsers.map((u) => (
-                                <UserAvatar key={u!.id} userId={u!.id} size="sm" />
+                                <span key={u!.id} className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-[#E6F7F0] text-[#0D8A5E] border border-[#B8E8D4]">{u!.name}</span>
                               ))}
                             </div>
                           ) : (
@@ -643,23 +659,15 @@ export default function CustomersPage() {
                           )}
                         </td>
                         <td className="px-3 py-3">
-                          <div className="flex items-center">
-                            {collabUsers.slice(0, 3).map((u) => (
-                              <div
-                                key={u!.id}
-                                className="w-6 h-6 rounded-full bg-[#2D3BFF] text-white text-[10px] flex items-center justify-center -ml-1 first:ml-0 border-2 border-white"
-                                title={u!.name}
-                              >
-                                {u!.name.charAt(0)}
-                              </div>
-                            ))}
-                            {customer.collaborators.length > 3 && (
-                              <span className="text-xs text-[#999999] ml-1">+{customer.collaborators.length - 3}</span>
-                            )}
-                            {customer.collaborators.length === 0 && (
-                              <span className="text-sm text-[#999999]">-</span>
-                            )}
-                          </div>
+                          {collabUsers.length > 0 ? (
+                            <div className="flex flex-wrap gap-1">
+                              {collabUsers.map((u) => (
+                                <span key={u!.id} className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-[#E8EBFF] text-[#2D3BFF] border border-[#C7CCFF]">{u!.name}</span>
+                              ))}
+                            </div>
+                          ) : (
+                            <span className="text-sm text-[#999999]">-</span>
+                          )}
                         </td>
                         <td className="px-3 py-3">
                           <ProgressBadge status={customer.progressStatus} />
@@ -767,7 +775,7 @@ export default function CustomersPage() {
           }}
           type={dialogType}
           customerName={dialogCustomerName}
-          currentOwnerId={dialogOwnerIds[0] || ''}
+          currentOwnerIds={dialogOwnerIds}
           currentCollaboratorIds={dialogCollaboratorIds}
           onConfirm={confirmHandler}
         />

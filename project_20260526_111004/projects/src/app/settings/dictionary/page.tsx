@@ -6,7 +6,7 @@ import { SearchableSelect } from '@/components/ui/searchable-select';
 import { FIELD_STYLES } from '@/lib/ui-constants';
 
 type FieldType = 'text' | 'select' | 'multiselect' | 'number' | 'date';
-type FieldCategory = 'billing' | 'business' | 'semiconductor';
+type FieldCategory = 'billing' | 'basic' | 'business' | 'semiconductor' | 'relations' | 'products';
 
 interface DictionaryField {
   id: string;
@@ -31,62 +31,77 @@ const FIELD_TYPE_LABELS: Record<FieldType, string> = {
 // 字段分类标签
 const CATEGORY_LABELS: Record<FieldCategory, string> = {
   billing: '账单拆分字段',
-  business: '工商档案字段',
-  semiconductor: '半导体产业链字段'
+  basic: '企业基本信息',
+  business: '工商资质全景',
+  semiconductor: '半导体产业链定位',
+  relations: '上下游关联关系',
+  products: '经营商品档案'
 };
 
 // 初始字典数据
 const initialDictionaryFields: DictionaryField[] = [
-  // 账单拆分字段（可选值在客户信息配置管理中按客户配置）
   { id: 'd-1', name: '客户部门', fieldKey: 'department', type: 'select', category: 'billing', options: [], required: false },
   { id: 'd-2', name: 'Plant', fieldKey: 'plant', type: 'select', category: 'billing', options: [], required: false },
   { id: 'd-3', name: 'Location', fieldKey: 'location', type: 'select', category: 'billing', options: [], required: false },
   { id: 'd-4', name: '报价单', fieldKey: 'quotation', type: 'text', category: 'billing', options: [], required: false },
-  { id: 'd-5', name: '账单维度', fieldKey: 'billingDimension', type: 'select', category: 'billing', options: [], required: false },
-  { id: 'd-6', name: '结算方式', fieldKey: 'settlementMethod', type: 'select', category: 'billing', options: [], required: false },
-  
-  // 工商档案字段
-  { id: 'd-101', name: '统一社会信用代码', fieldKey: 'unifiedSocialCreditCode', type: 'text', category: 'business', options: [], required: false },
-  { id: 'd-102', name: '电话', fieldKey: 'phone', type: 'text', category: 'business', options: [], required: false },
-  { id: 'd-103', name: '登记状态', fieldKey: 'registrationStatus', type: 'select', category: 'business', options: ['存续', '在业', '吊销', '注销', '停业', '清算'], required: false },
-  { id: 'd-104', name: '法定代表人', fieldKey: 'legalRepresentative', type: 'text', category: 'business', options: [], required: false },
-  { id: 'd-105', name: '邮箱', fieldKey: 'email', type: 'text', category: 'business', options: [], required: false },
-  { id: 'd-106', name: '企业规模', fieldKey: 'enterpriseScale', type: 'select', category: 'business', options: ['微型', '小型', '中型', '大型', '超大型'], required: false },
-  { id: 'd-107', name: '注册资本', fieldKey: 'registeredCapital', type: 'text', category: 'business', options: [], required: false },
-  { id: 'd-108', name: '官网', fieldKey: 'website', type: 'text', category: 'business', options: [], required: false },
-  { id: 'd-109', name: '成立日期', fieldKey: 'establishmentDate', type: 'date', category: 'business', options: [], required: false },
-  { id: 'd-110', name: '国家（地区）', fieldKey: 'countryRegion', type: 'text', category: 'business', options: [], required: false },
-  { id: 'd-111', name: '实缴资本', fieldKey: 'paidInCapital', type: 'text', category: 'business', options: [], required: false },
-  { id: 'd-112', name: '组织机构代码', fieldKey: 'organizationCode', type: 'text', category: 'business', options: [], required: false },
-  { id: 'd-113', name: '工商注册号', fieldKey: 'businessRegistrationNumber', type: 'text', category: 'business', options: [], required: false },
-  { id: 'd-114', name: '纳税人识别号', fieldKey: 'taxpayerIdentificationNumber', type: 'text', category: 'business', options: [], required: false },
-  { id: 'd-115', name: '企业类型', fieldKey: 'enterpriseType', type: 'select', category: 'business', options: ['有限责任公司', '股份有限公司', '合伙企业', '个人独资企业', '外商投资企业', '国有企业', '集体企业'], required: false },
-  { id: 'd-116', name: '营业期限', fieldKey: 'businessTerm', type: 'text', category: 'business', options: [], required: false },
-  { id: 'd-117', name: '纳税人资质', fieldKey: 'taxpayerQualification', type: 'select', category: 'business', options: ['一般纳税人', '小规模纳税人', '简易征收'], required: false },
-  { id: 'd-118', name: '人员规模', fieldKey: 'staffSize', type: 'text', category: 'business', options: [], required: false },
-  { id: 'd-119', name: '参保人数', fieldKey: 'insuredNumber', type: 'number', category: 'business', options: [], required: false },
-  { id: 'd-120', name: '核准日期', fieldKey: 'approvalDate', type: 'date', category: 'business', options: [], required: false },
-  { id: 'd-121', name: '所属地区', fieldKey: 'region', type: 'text', category: 'business', options: [], required: false },
-  { id: 'd-122', name: '登记机关', fieldKey: 'registrationAuthority', type: 'text', category: 'business', options: [], required: false },
-  { id: 'd-123', name: '英文名', fieldKey: 'englishName', type: 'text', category: 'business', options: [], required: false },
-  { id: 'd-124', name: '注册地址', fieldKey: 'registeredAddress', type: 'text', category: 'business', options: [], required: false },
-  { id: 'd-125', name: '通信地址', fieldKey: 'correspondenceAddress', type: 'text', category: 'business', options: [], required: false },
-  { id: 'd-126', name: '经营范围', fieldKey: 'businessScope', type: 'text', category: 'business', options: [], required: false },
-  
-  // 半导体产业链字段
-  { id: 'd-201', name: '产业链层级', fieldKey: 'industryChainLevel', type: 'select', category: 'semiconductor', options: ['上游', '中游', '下游'], required: false },
-  { id: 'd-202', name: '产业链角色', fieldKey: 'industryChainRole', type: 'select', category: 'semiconductor', options: [
-    'EDA 企业', 'IP 企业', '材料供应商', '掩膜版厂商', '硅片厂商', '零部件厂商', '设备供应商',
-    '芯片设计企业', '晶圆厂（IDM）', '晶圆代工', '封测厂（IDM）', '封测代工',
-    '分销代理商', '终端应用厂商'
-  ], required: false },
-  { id: 'd-203', name: '行业标签', fieldKey: 'industryTags', type: 'multiselect', category: 'semiconductor', options: [
-    '半导体', '集成电路', '芯片设计', '晶圆制造', '封装测试', 'EDA', 'IP',
-    '半导体材料', '半导体设备', '新能源', '汽车电子', '消费电子', '工业控制',
-    '通信', '计算机', '医疗电子', '国防科技'
-  ], required: false },
-  { id: 'd-204', name: '上下游关系', fieldKey: 'upstreamDownstreamRelation', type: 'select', category: 'semiconductor', options: ['供应商', '代工', '采购商', '合作伙伴'], required: false },
-];
+  { id: 'd-5', name: '结算方式', fieldKey: 'settlementMethod', type: 'select', category: 'billing', options: [], required: false },
+  { id: 'd-6', name: '账单主体', fieldKey: 'billingEntity', type: 'multiselect', category: 'billing', options: [], required: false },
+  { id: 'd-101', name: '客户名称', fieldKey: 'customerName', type: 'text', category: 'basic', options: [], required: true },
+  { id: 'd-102', name: '客户代码', fieldKey: 'erpCustomerId', type: 'text', category: 'basic', options: [], required: false },
+  { id: 'd-103', name: '统一社会信用代码', fieldKey: 'unifiedSocialCreditCode', type: 'text', category: 'basic', options: [], required: false },
+  { id: 'd-104', name: '法定代表人', fieldKey: 'legalRepresentative', type: 'text', category: 'basic', options: [], required: false },
+  { id: 'd-105', name: '联系人', fieldKey: 'contactPerson', type: 'text', category: 'basic', options: [], required: true },
+  { id: 'd-106', name: '联系人电话', fieldKey: 'contactPhone', type: 'text', category: 'basic', options: [], required: true },
+  { id: 'd-107', name: '电话', fieldKey: 'phone', type: 'text', category: 'basic', options: [], required: false },
+  { id: 'd-108', name: '邮箱', fieldKey: 'email', type: 'text', category: 'basic', options: [], required: false },
+  { id: 'd-109', name: '官网', fieldKey: 'website', type: 'text', category: 'basic', options: [], required: false },
+  { id: 'd-110', name: '国家', fieldKey: 'countryRegion', type: 'text', category: 'basic', options: [], required: false },
+  { id: 'd-111', name: '成立日期', fieldKey: 'establishmentDate', type: 'date', category: 'basic', options: [], required: false },
+  { id: 'd-112', name: '客户状态', fieldKey: 'customerStatus', type: 'select', category: 'basic', options: ['正常', '停用'], required: true },
+  { id: 'd-113', name: '登记状态', fieldKey: 'registrationStatus', type: 'select', category: 'basic', options: ['存续', '在业', '吊销', '注销', '停业', '清算'], required: false },
+  { id: 'd-114', name: '企业规模', fieldKey: 'enterpriseScale', type: 'select', category: 'basic', options: ['微型', '小型', '中型', '大型', '超大型'], required: false },
+  { id: 'd-115', name: '注册资本', fieldKey: 'registeredCapital', type: 'text', category: 'basic', options: [], required: false },
+  { id: 'd-116', name: '签约主体', fieldKey: 'signingEntities', type: 'multiselect', category: 'basic', options: [], required: false },
+  { id: 'd-117', name: '服务主体', fieldKey: 'serviceEntities', type: 'multiselect', category: 'basic', options: [], required: false },
+  { id: 'd-118', name: '结算主体', fieldKey: 'settlementEntities', type: 'multiselect', category: 'basic', options: [], required: false },
+  { id: 'd-119', name: '创建人', fieldKey: 'createdBy', type: 'text', category: 'basic', options: [], required: true },
+  { id: 'd-120', name: '负责人', fieldKey: 'responsiblePersons', type: 'multiselect', category: 'basic', options: [], required: true },
+  { id: 'd-121', name: '协同人', fieldKey: 'collaborators', type: 'multiselect', category: 'basic', options: [], required: false },
+
+  { id: "d-201", name: "工商注册号", fieldKey: "businessRegistrationNumber", type: "text", category: "business", options: [], required: false },
+  { id: "d-202", name: "组织机构代码", fieldKey: "organizationCode", type: "text", category: "business", options: [], required: false },
+  { id: "d-203", name: "登记机关", fieldKey: "registrationAuthority", type: "text", category: "business", options: [], required: false },
+  { id: "d-204", name: "核准日期", fieldKey: "approvalDate", type: "date", category: "business", options: [], required: false },
+  { id: "d-205", name: "营业期限", fieldKey: "businessTerm", type: "text", category: "business", options: [], required: false },
+  { id: "d-206", name: "企业类型", fieldKey: "enterpriseType", type: "select", category: "business", options: ["有限责任公司","股份有限公司","合伙企业","个人独资企业","外商投资企业","国有企业","集体企业"], required: false },
+  { id: "d-207", name: "注册地址", fieldKey: "registeredAddress", type: "text", category: "business", options: [], required: false },
+  { id: "d-208", name: "纳税人识别号", fieldKey: "taxpayerIdentificationNumber", type: "text", category: "business", options: [], required: false },
+  { id: "d-209", name: "纳税人资质", fieldKey: "taxpayerQualification", type: "select", category: "business", options: ["一般纳税人","小规模纳税人","简易征收"], required: false },
+  { id: "d-210", name: "实缴资本", fieldKey: "paidInCapital", type: "text", category: "business", options: [], required: false },
+  { id: "d-211", name: "人员规模", fieldKey: "staffSize", type: "text", category: "business", options: [], required: false },
+  { id: "d-212", name: "参保人数", fieldKey: "insuredNumber", type: "number", category: "business", options: [], required: false },
+  { id: "d-213", name: "英文名", fieldKey: "englishName", type: "text", category: "business", options: [], required: false },
+  { id: "d-214", name: "所属地区", fieldKey: "region", type: "text", category: "business", options: [], required: false },
+  { id: "d-215", name: "通信地址", fieldKey: "correspondenceAddress", type: "text", category: "business", options: [], required: false },
+  { id: "d-216", name: "经营范围", fieldKey: "businessScope", type: "text", category: "business", options: [], required: false },
+
+  { id: "d-301", name: "产业链层级", fieldKey: "industryChainLevel", type: "select", category: "semiconductor", options: ["上游","中游","下游"], required: false },
+  { id: "d-302", name: "细分产业链角色", fieldKey: "industryChainRole", type: "select", category: "semiconductor", options: ["EDA企业","IP企业","材料供应商","掩膜版厂商","硅片厂商","零部件厂商","设备供应商","芯片设计企业","晶圆厂(IDM)","晶圆代工","封测厂(IDM)","封测代工","分销代理商","终端应用厂商"], required: false },
+  { id: "d-303", name: "行业标签", fieldKey: "industryTags", type: "multiselect", category: "semiconductor", options: ["半导体","集成电路","芯片设计","晶圆制造","封装测试","EDA","IP","半导体材料","半导体设备","新能源","汽车电子","消费电子","工业控制","通信","计算机","医疗电子","国防科技"], required: false },
+
+  { id: "d-401", name: "关联企业名称", fieldKey: "relatedCompanyName", type: "text", category: "relations", options: [], required: true },
+  { id: "d-402", name: "与本企业关系", fieldKey: "relationType", type: "select", category: "relations", options: ["供应商","代工厂","采购商","合作伙伴"], required: true },
+  { id: "d-403", name: "对方产业链层级", fieldKey: "relatedChainLevel", type: "select", category: "relations", options: ["上游","中游","下游"], required: true },
+  { id: "d-404", name: "关联有效期起", fieldKey: "relationValidFrom", type: "date", category: "relations", options: [], required: true },
+  { id: "d-405", name: "关联有效期止", fieldKey: "relationValidTo", type: "date", category: "relations", options: [], required: false },
+  { id: "d-406", name: "长期有效", fieldKey: "isLongTerm", type: "select", category: "relations", options: ["是","否"], required: false },
+
+  { id: "d-501", name: "商品名称", fieldKey: "productName", type: "text", category: "products", options: [], required: false },
+  { id: "d-502", name: "商品编码", fieldKey: "productCode", type: "text", category: "products", options: [], required: false },
+  { id: "d-503", name: "海关申报要素", fieldKey: "customsDeclaration", type: "text", category: "products", options: [], required: false },
+  { id: "d-504", name: "原产地", fieldKey: "originCountry", type: "text", category: "products", options: [], required: false },
+  { id: "d-505", name: "商品所属产业链品类", fieldKey: "productCategory", type: "select", category: "products", options: ["EDA工具","晶圆","封装材料","光刻胶","硅片","靶材","电子气体","CMP材料"], required: false },
+  { id: "d-506", name: "关联账单主体", fieldKey: "relatedBillingEntity", type: "text", category: "products", options: [], required: false },];
 
 export default function DictionaryPage() {
   const { addLog } = useApp();

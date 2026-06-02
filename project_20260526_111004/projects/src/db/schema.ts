@@ -113,6 +113,52 @@ export const approvalFields = sqliteTable('approval_fields', {
   updatedAt: text('updated_at'),
 });
 
+// 风控审批记录
+export const riskApprovals = sqliteTable('risk_approvals', {
+  id: text('id').primaryKey(),
+  companyName: text('company_name').notNull(),
+  serviceProduct: text('service_product'),
+  isTradeAgent: text('is_trade_agent').default('否'),
+  businessType: text('business_type'),
+  approvalStatus: text('approval_status').default('草稿'),
+  status: text('status'),                        // RiskApprovalStatus: draft/pending/in_review/approved/rejected
+  approvalSteps: text('approval_steps'),          // JSON
+  pickedApprover: text('picked_approver'),
+  dynamicFieldValues: text('dynamic_field_values'),  // JSON { fieldKey: value }
+  submitter: text('submitter'),
+  remark: text('remark'),
+  // 公司扩展信息
+  englishName: text('english_name'),
+  parentCompany: text('parent_company'),
+  subsidiaryCompany: text('subsidiary_company'),
+  // 业务信息
+  goodsType: text('goods_type'),
+  monthlyBusinessVolume: text('monthly_business_volume'),
+  monthlyInvoiceAmount: text('monthly_invoice_amount'),
+  customsKpiRequirement: text('customs_kpi_requirement'),
+  transportKpiRequirement: text('transport_kpi_requirement'),
+  warehouseLeaseRequirement: text('warehouse_lease_requirement'),
+  customServiceRequirement: text('custom_service_requirement'),
+  customRequirementDescription: text('custom_requirement_description'),
+  // 风控信息
+  riskControlPurpose: text('risk_control_purpose'),
+  relationshipWithHMG: text('relationship_with_hmg'),
+  settlementPeriod: text('settlement_period'),
+  contactName: text('contact_name'),
+  suggestedSystemCode: text('suggested_system_code'),
+  opportunityId: text('opportunity_id'),
+  // JSON 数组字段
+  businessCustomerIds: text('business_customer_ids'),
+  invoiceInfoIds: text('invoice_info_ids'),
+  // 审批元数据
+  submitTime: text('submit_time'),
+  approvedBy: text('approved_by'),
+  approvedAt: text('approved_at'),
+  rejectReason: text('reject_reason'),
+  createdAt: text('created_at'),
+  updatedAt: text('updated_at'),
+});
+
 // 自动审批规则
 export const autoApprovalRules = sqliteTable('auto_approval_rules', {
   id: text('id').primaryKey(),

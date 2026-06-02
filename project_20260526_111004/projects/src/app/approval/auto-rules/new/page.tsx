@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useApp } from '@/lib/store';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { SearchableSelect } from '@/components/ui/searchable-select';
@@ -64,6 +65,9 @@ export default function NewAutoRulePage() {
   ]);
   const [implementationMethod, setImplementationMethod] = useState('');
 
+  const { addAutoApprovalRule } = useApp();
+  const formData = { name, approvalPoint, serviceProduct, status, remark, conditionLogic, conditions, actions, implementationMethod };
+
   const addCondition = () => {
     setConditions([...conditions, { field: '', operator: '', value: '' }]);
   };
@@ -101,7 +105,7 @@ export default function NewAutoRulePage() {
   };
 
   const handleSave = () => {
-    alert('规则已保存！');
+    addAutoApprovalRule({ ...formData, id: 'ar-' + Date.now(), createdAt: new Date().toISOString(), status: 'active' } as any);
     router.push('/approval/auto-rules');
   };
 

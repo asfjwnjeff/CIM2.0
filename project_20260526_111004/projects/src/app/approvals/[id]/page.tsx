@@ -5,7 +5,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { useApp } from '@/lib/store';
 import { RuleTriggeredApprover } from '@/lib/types';
 import ApprovalFlowVisual from '@/components/ApprovalFlowVisual';
-import ApprovalReport from '@/components/ApprovalReport';
+import ApprovalReport, { ReportItem } from '@/components/ApprovalReport';
 
 // 常量定义（与新增页面一致）
 const SERVICE_PRODUCTS = ['货代', '关务', '仓库', '运输', '进出口', '维修', '合同物流', '一体化供应链', '其他'];
@@ -34,6 +34,11 @@ const mockBusinessCustomers = [
   { id: 'bc4', name: '昇先创国际贸易(上海)有限公司' },
   { id: 'bc5', name: '上海华力集成电路制造有限公司' },
   { id: 'bc6', name: '苏斯贸易(上海)有限公司' },
+  { id: 'bc7', name: '武汉光库科技有限公司' },
+  { id: 'bc8', name: '江苏鑫华半导体科技股份有限公司' },
+  { id: 'bc9', name: '上海裘瑞经贸有限公司' },
+  { id: 'bc10', name: '中芯国际集成电路制造有限公司' },
+  { id: 'bc11', name: '长江存储科技有限责任公司' },
 ];
 
 const mockInvoiceInfos = [
@@ -42,6 +47,11 @@ const mockInvoiceInfos = [
   { id: 'inv3', title: '8641 - 荏原机械(中国)有限公司', taxNumber: '91310000607239090Z' },
   { id: 'inv4', title: '8644 - 昇先创国际贸易(上海)有限公司', taxNumber: '91310000607239091A' },
   { id: 'inv5', title: '8603 - 上海华力集成电路制造有限公司', taxNumber: '91310000607239092B' },
+  { id: 'inv6', title: '8612 - 武汉光库科技有限公司', taxNumber: '914201007713589677' },
+  { id: 'inv7', title: '8625 - 江苏鑫华半导体科技股份有限公司', taxNumber: '91320301MA1MCPLL8F' },
+  { id: 'inv8', title: '8630 - 上海裘瑞经贸有限公司', taxNumber: '91310118738523211W' },
+  { id: 'inv9', title: '8648 - 中芯国际集成电路制造有限公司', taxNumber: '91310000MA1FL5N06M' },
+  { id: 'inv10', title: '8655 - 长江存储科技有限责任公司', taxNumber: '91420100MA4KN4K47W' },
 ];
 
 const mockOpportunities = [
@@ -49,15 +59,20 @@ const mockOpportunities = [
   { id: 'opp2', title: '飞雅贸易-仓储服务', customer: '飞雅贸易(上海)有限公司', serviceProduct: '仓库' },
   { id: 'opp3', title: '荏原机械-运输服务', customer: '荏原机械(中国)有限公司', serviceProduct: '运输' },
   { id: 'opp4', title: '昇先创-进出口服务', customer: '昇先创国际贸易(上海)有限公司', serviceProduct: '进出口' },
-  { id: 'opp5', title: '上海华力-一体化供应链', customer: '上海华力集成电路制造有限公司', serviceProduct: '合同物流' },
+  { id: 'opp5', title: '上海华力-合同物流', customer: '上海华力集成电路制造有限公司', serviceProduct: '合同物流' },
+  { id: 'opp6', title: '武汉光库-归类服务', customer: '武汉光库科技有限公司', serviceProduct: '关务' },
+  { id: 'opp7', title: '江苏鑫华-仓储业务', customer: '江苏鑫华半导体科技股份有限公司', serviceProduct: '一体化供应链' },
+  { id: 'opp8', title: '上海裘瑞-贸易代理', customer: '上海裘瑞经贸有限公司', serviceProduct: '货代' },
+  { id: 'opp9', title: '中芯国际-维修服务', customer: '中芯国际集成电路制造有限公司', serviceProduct: '维修' },
+  { id: 'opp10', title: '长江存储-运输服务', customer: '长江存储科技有限责任公司', serviceProduct: '运输' },
 ];
 
 // 5条示例数据
 const mockApprovals = [
   {
+    // ID 1: 货代 - 否 - 草稿（发起人current）
     id: '1',
-    status: 'pending',
-    isTradeAgent: '是',
+    isTradeAgent: '否',
     serviceProduct: '货代',
     businessType: '保税',
     goodsType: '半导体设备',
@@ -81,16 +96,17 @@ const mockApprovals = [
     settlementPeriod: '月结30天',
     contactName: '李总',
     approvalSteps: [
-      { id: 'init', name: '发起审批', role: '申请人', status: 'completed', approver: '王明' },
-      { id: 'func', name: '职能审批', role: '货代职能审批人', status: 'current', approver: '张洁' },
-      { id: 'baili', name: '白沥审批', role: '贸易代理专员', status: 'pending', approver: '白沥', isAutoAdded: true, autoAddReason: '贸易代理自动添加' },
-      { id: 'mgmt', name: '管理层审批', role: '部门经理', status: 'pending', approver: '陈总' },
-      { id: 'fin', name: '财务确认', role: '财务部', status: 'pending', approver: '赵总监' },
+      { id: 'init', name: '发起审批', role: '申请人', status: 'current', approver: '王明', level: 1 },
+      { id: 'mgmt', name: '部门经理审批', role: '部门经理', status: 'pending', approver: '陈总', level: 2 },
+      { id: 'func', name: '职能审批', role: '货代职能审批人', status: 'pending', approver: '张洁', level: 3 },
+      { id: 'fin', name: '财务审批', role: '财务部+中心总经理（会签）', status: 'pending', approver: '赵总监、中心总经理', level: 4 },
+      { id: 'gm', name: '总经理审批', role: '各中心负责人', status: 'pending', approver: '各中心负责人', level: 5 },
+      { id: 'it', name: 'IT运维确认', role: 'IT运维', status: 'pending', approver: 'IT运维', level: 6 },
     ],
   },
   {
+    // ID 2: 仓库 - 否 - 审批中（走到节点3职能审批）
     id: '2',
-    status: 'approved',
     isTradeAgent: '否',
     serviceProduct: '仓库',
     businessType: '口岸完税',
@@ -115,15 +131,17 @@ const mockApprovals = [
     settlementPeriod: '月结45天',
     contactName: '王经理',
     approvalSteps: [
-      { id: 'init', name: '发起审批', role: '申请人', status: 'completed', approver: '王明' },
-      { id: 'func', name: '职能审批', role: '仓储职能审批人', status: 'completed', approver: '吴总' },
-      { id: 'mgmt', name: '管理层审批', role: '部门经理', status: 'completed', approver: '陈总' },
-      { id: 'fin', name: '财务确认', role: '财务部', status: 'completed', approver: '赵总监' },
+      { id: 'init', name: '发起审批', role: '申请人', status: 'completed', approver: '王明', level: 1 },
+      { id: 'mgmt', name: '部门经理审批', role: '部门经理', status: 'completed', approver: '陈总', level: 2 },
+      { id: 'func', name: '职能审批', role: '仓储职能审批人', status: 'current', approver: '吴总', level: 3 },
+      { id: 'fin', name: '财务审批', role: '财务部+中心总经理（会签）', status: 'pending', approver: '赵总监、中心总经理', level: 4 },
+      { id: 'gm', name: '总经理审批', role: '各中心负责人', status: 'pending', approver: '各中心负责人', level: 5 },
+      { id: 'it', name: 'IT运维确认', role: 'IT运维', status: 'pending', approver: 'IT运维', level: 6 },
     ],
   },
   {
+    // ID 3: 运输 - 是 - 审批中（走到节点4财务审批，贸易代理触发白沥追加）
     id: '3',
-    status: 'in_review',
     isTradeAgent: '是',
     serviceProduct: '运输',
     businessType: '免税',
@@ -148,16 +166,17 @@ const mockApprovals = [
     settlementPeriod: '月结60天',
     contactName: '张总监',
     approvalSteps: [
-      { id: 'init', name: '发起审批', role: '申请人', status: 'completed', approver: '刘芳' },
-      { id: 'func', name: '职能审批', role: '运输职能审批人', status: 'completed', approver: '朱弢' },
-      { id: 'baili', name: '白沥审批', role: '贸易代理专员', status: 'current', approver: '白沥', isAutoAdded: true, autoAddReason: '贸易代理自动添加' },
-      { id: 'mgmt', name: '管理层审批', role: '部门经理', status: 'pending', approver: '陈总' },
-      { id: 'fin', name: '财务确认', role: '财务部', status: 'pending', approver: '赵总监' },
+      { id: 'init', name: '发起审批', role: '申请人', status: 'completed', approver: '刘芳', level: 1 },
+      { id: 'mgmt', name: '部门经理审批', role: '部门经理', status: 'completed', approver: '陈总', level: 2 },
+      { id: 'func', name: '职能审批', role: '运输职能审批人', status: 'completed', approver: '朱弢', level: 3 },
+      { id: 'fin', name: '财务审批', role: '财务部+中心总经理（会签）', status: 'current', approver: '赵总监、中心总经理', level: 4 },
+      { id: 'gm', name: '总经理审批', role: '各中心负责人', status: 'pending', approver: '各中心负责人', level: 5 },
+      { id: 'it', name: 'IT运维确认', role: 'IT运维', status: 'pending', approver: 'IT运维', level: 6 },
     ],
   },
   {
+    // ID 4: 进出口 - 否 - 审批中（走到节点5总经理）
     id: '4',
-    status: 'draft',
     isTradeAgent: '否',
     serviceProduct: '进出口',
     businessType: '试单',
@@ -182,15 +201,17 @@ const mockApprovals = [
     settlementPeriod: '月结30天',
     contactName: '陈主管',
     approvalSteps: [
-      { id: 'init', name: '发起审批', role: '申请人', status: 'current', approver: '李强' },
-      { id: 'func', name: '职能审批', role: '进出口职能审批人', status: 'pending', approver: '张洁' },
-      { id: 'mgmt', name: '管理层审批', role: '部门经理', status: 'pending', approver: '陈总' },
-      { id: 'fin', name: '财务确认', role: '财务部', status: 'pending', approver: '赵总监' },
+      { id: 'init', name: '发起审批', role: '申请人', status: 'completed', approver: '李强', level: 1 },
+      { id: 'mgmt', name: '部门经理审批', role: '部门经理', status: 'completed', approver: '陈总', level: 2 },
+      { id: 'func', name: '职能审批', role: '进出口职能审批人', status: 'completed', approver: '张洁', level: 3 },
+      { id: 'fin', name: '财务审批', role: '财务部+中心总经理（会签）', status: 'completed', approver: '赵总监、中心总经理', level: 4 },
+      { id: 'gm', name: '总经理审批', role: '各中心负责人', status: 'current', approver: '各中心负责人', level: 5 },
+      { id: 'it', name: 'IT运维确认', role: 'IT运维', status: 'pending', approver: 'IT运维', level: 6 },
     ],
   },
   {
+    // ID 5: 合同物流 - 否 - 审批中（走到节点3职能审批，四选一选了蒋总）
     id: '5',
-    status: 'rejected',
     isTradeAgent: '否',
     serviceProduct: '合同物流',
     businessType: '保税',
@@ -215,10 +236,187 @@ const mockApprovals = [
     settlementPeriod: '月结15天',
     contactName: '赵副总',
     approvalSteps: [
-      { id: 'init', name: '发起审批', role: '申请人', status: 'completed', approver: '周华' },
-      { id: 'func', name: '职能审批', role: '合同物流职能审批人（四选一）', status: 'completed', approver: '蒋总', approvers: ['张洁', '蒋总', '吴总', '朱弢'] },
-      { id: 'mgmt', name: '管理层审批', role: '部门经理', status: 'completed', approver: '陈总' },
-      { id: 'fin', name: '财务确认', role: '财务部', status: 'completed', approver: '赵总监', rejected: true },
+      { id: 'init', name: '发起审批', role: '申请人', status: 'completed', approver: '周华', level: 1 },
+      { id: 'mgmt', name: '部门经理审批', role: '部门经理', status: 'completed', approver: '陈总', level: 2 },
+      { id: 'func', name: '职能审批', role: '合同物流职能审批人（四选一）', status: 'current', approver: '蒋总', approvers: ['张洁', '蒋总', '吴总', '朱弢'], level: 3 },
+      { id: 'fin', name: '财务审批', role: '财务部+中心总经理（会签）', status: 'pending', approver: '赵总监、中心总经理', level: 4 },
+      { id: 'gm', name: '总经理审批', role: '各中心负责人', status: 'pending', approver: '各中心负责人', level: 5 },
+      { id: 'it', name: 'IT运维确认', role: 'IT运维', status: 'pending', approver: 'IT运维', level: 6 },
+    ],
+  },
+  {
+    // ID 6: 关务 - 否 - 审批完成（全部6个节点绿色✓）
+    id: '6',
+    isTradeAgent: '否',
+    serviceProduct: '关务',
+    businessType: '保税',
+    goodsType: '光电子元器件、光模块',
+    monthlyBusinessVolume: '0-50',
+    monthlyInvoiceAmount: '约5万/月',
+    customsKpiRequirement: '两周内完成1200个物料的归类梳理',
+    transportKpiRequirement: '合同不涉及',
+    warehouseLeaseRequirement: '暂时不涉及',
+    customServiceRequirement: '仅涉及标准服务内容',
+    customRequirementDescription: '暂时不涉及',
+    companyName: '武汉光库科技有限公司',
+    englishName: 'Wuhan Fiber Resources Co., Ltd.',
+    parentCompany: '',
+    subsidiaryCompany: '',
+    riskControlPurpose: '业务可行性评审',
+    relationshipWithHMG: '客户',
+    businessCustomerIds: ['bc7'],
+    suggestedSystemCode: 'WHGK-2026-006',
+    opportunityId: 'opp6',
+    invoiceInfoIds: ['inv6'],
+    settlementPeriod: '月结60天',
+    contactName: '高燕',
+    approvalSteps: [
+      { id: 'init', name: '发起审批', role: '申请人', status: 'completed', approver: '王健', level: 1 },
+      { id: 'mgmt', name: '部门经理审批', role: '部门经理', status: 'completed', approver: '陈总', level: 2 },
+      { id: 'func', name: '职能审批', role: '关务职能审批人', status: 'completed', approver: '蒋总', level: 3 },
+      { id: 'fin', name: '财务审批', role: '财务部+中心总经理（会签）', status: 'completed', approver: '赵总监、中心总经理', level: 4 },
+      { id: 'gm', name: '总经理审批', role: '各中心负责人', status: 'completed', approver: '各中心负责人', level: 5 },
+      { id: 'it', name: 'IT运维确认', role: 'IT运维', status: 'completed', approver: 'IT运维', level: 6 },
+    ],
+  },
+  {
+    // ID 7: 一体化供应链 - 是 - 审批完成（含贸易代理白沥追加）
+    id: '7',
+    isTradeAgent: '是',
+    serviceProduct: '一体化供应链',
+    businessType: '保税',
+    goodsType: '多晶硅',
+    monthlyBusinessVolume: '51-100',
+    monthlyInvoiceAmount: '约8万/月',
+    customsKpiRequirement: '标准通关流程',
+    transportKpiRequirement: '标准运输流程',
+    warehouseLeaseRequirement: '临港600平常温库区存储，一周2次进出库操作',
+    customServiceRequirement: '仅涉及标准服务内容',
+    customRequirementDescription: '标准服务即可满足需求',
+    companyName: '江苏鑫华半导体科技股份有限公司',
+    englishName: 'Jiangsu Xinhua Semiconductor Technology Co., Ltd.',
+    parentCompany: '',
+    subsidiaryCompany: '',
+    riskControlPurpose: '业务可行性评审',
+    relationshipWithHMG: '客户',
+    businessCustomerIds: ['bc8'],
+    suggestedSystemCode: 'XHBDT-2026-007',
+    opportunityId: 'opp7',
+    invoiceInfoIds: ['inv7'],
+    settlementPeriod: '月结30天',
+    contactName: '张正阳',
+    approvalSteps: [
+      { id: 'init', name: '发起审批', role: '申请人', status: 'completed', approver: '倪萍', level: 1 },
+      { id: 'mgmt', name: '部门经理审批', role: '部门经理', status: 'completed', approver: '陈总', level: 2 },
+      { id: 'func', name: '职能审批', role: '一体化供应链职能审批人', status: 'completed', approver: '张洁', level: 3 },
+      { id: 'fin', name: '财务审批', role: '财务部+中心总经理（会签）', status: 'completed', approver: '赵总监、中心总经理', level: 4 },
+      { id: 'gm', name: '总经理审批', role: '各中心负责人', status: 'completed', approver: '各中心负责人', level: 5 },
+      { id: 'it', name: 'IT运维确认', role: 'IT运维', status: 'completed', approver: 'IT运维', level: 6 },
+    ],
+  },
+  {
+    // ID 8: 货代 - 是 - 已拒绝（财务审批节点被拒绝）
+    id: '8',
+    isTradeAgent: '是',
+    serviceProduct: '货代',
+    businessType: '口岸完税',
+    goodsType: '文具',
+    monthlyBusinessVolume: '0-50',
+    monthlyInvoiceAmount: '约12万/月',
+    customsKpiRequirement: '无特殊要求',
+    transportKpiRequirement: '无特殊要求',
+    warehouseLeaseRequirement: '无',
+    customServiceRequirement: '仅涉及标准服务内容',
+    customRequirementDescription: '无',
+    companyName: '上海裘瑞经贸有限公司',
+    englishName: 'Shanghai Qurui Trading Co., Ltd.',
+    parentCompany: '',
+    subsidiaryCompany: '',
+    riskControlPurpose: '仅增加结算单位',
+    relationshipWithHMG: '客户',
+    businessCustomerIds: ['bc9'],
+    suggestedSystemCode: 'QRJM-2026-008',
+    opportunityId: 'opp8',
+    invoiceInfoIds: ['inv8'],
+    settlementPeriod: '月结60天',
+    contactName: '丁慧',
+    approvalSteps: [
+      { id: 'init', name: '发起审批', role: '申请人', status: 'completed', approver: '夏赟帆', level: 1 },
+      { id: 'mgmt', name: '部门经理审批', role: '部门经理', status: 'completed', approver: '陈总', level: 2 },
+      { id: 'func', name: '职能审批', role: '货代职能审批人', status: 'completed', approver: '张洁', level: 3 },
+      { id: 'fin', name: '财务审批', role: '财务部+中心总经理（会签）', status: 'completed', approver: '赵总监、中心总经理', rejected: true, level: 4 },
+      { id: 'gm', name: '总经理审批', role: '各中心负责人', status: 'pending', approver: '各中心负责人', level: 5 },
+      { id: 'it', name: 'IT运维确认', role: 'IT运维', status: 'pending', approver: 'IT运维', level: 6 },
+    ],
+  },
+  {
+    // ID 9: 维修 - 否 - 草稿（发起人current，刚创建）
+    id: '9',
+    isTradeAgent: '否',
+    serviceProduct: '维修',
+    businessType: '保税',
+    goodsType: '晶圆/芯片',
+    monthlyBusinessVolume: '101-500',
+    monthlyInvoiceAmount: '约500万/月',
+    customsKpiRequirement: '需AEO高级认证，48小时内完成报关',
+    transportKpiRequirement: '每日一班固定班次，需全程RFID追踪',
+    warehouseLeaseRequirement: '需要洁净仓库5000平米，含自动化分拣系统',
+    customServiceRequirement: '信息系统',
+    customRequirementDescription: '需对接SAP系统，实现WMS/TMS全链路数据同步，支持VMI库存管理',
+    companyName: '中芯国际集成电路制造有限公司',
+    englishName: 'SMIC Co., Ltd.',
+    parentCompany: '',
+    subsidiaryCompany: '',
+    riskControlPurpose: '业务可行性评审',
+    relationshipWithHMG: '客户',
+    businessCustomerIds: ['bc10'],
+    suggestedSystemCode: 'SMIC-2026-009',
+    opportunityId: 'opp9',
+    invoiceInfoIds: ['inv9'],
+    settlementPeriod: '月结30天',
+    contactName: '王总监',
+    approvalSteps: [
+      { id: 'init', name: '发起审批', role: '申请人', status: 'current', approver: '张明', level: 1 },
+      { id: 'mgmt', name: '部门经理审批', role: '部门经理', status: 'pending', approver: '陈总', level: 2 },
+      { id: 'func', name: '职能审批', role: '维修职能审批人', status: 'pending', approver: '蒋总', level: 3 },
+      { id: 'fin', name: '财务审批', role: '财务部+中心总经理（会签）', status: 'pending', approver: '赵总监、中心总经理', level: 4 },
+      { id: 'gm', name: '总经理审批', role: '各中心负责人', status: 'pending', approver: '各中心负责人', level: 5 },
+      { id: 'it', name: 'IT运维确认', role: 'IT运维', status: 'pending', approver: 'IT运维', level: 6 },
+    ],
+  },
+  {
+    // ID 10: 运输 - 是 - 已拒绝（职能审批节点被拒绝）
+    id: '10',
+    isTradeAgent: '是',
+    serviceProduct: '运输',
+    businessType: '保税',
+    goodsType: '存储芯片/模组',
+    monthlyBusinessVolume: '51-100',
+    monthlyInvoiceAmount: '约300万/月',
+    customsKpiRequirement: '24小时内完成报关',
+    transportKpiRequirement: '每周3班固定班次，需恒温运输',
+    warehouseLeaseRequirement: '需要恒温恒湿仓库2000平米',
+    customServiceRequirement: '仓储',
+    customRequirementDescription: '需要专业半导体材料存储，温湿度实时监控',
+    companyName: '长江存储科技有限责任公司',
+    englishName: 'Yangtze Memory Technologies Co., Ltd.',
+    parentCompany: '',
+    subsidiaryCompany: '',
+    riskControlPurpose: '业务可行性评审',
+    relationshipWithHMG: '客户',
+    businessCustomerIds: ['bc11'],
+    suggestedSystemCode: 'YMTC-2026-010',
+    opportunityId: 'opp10',
+    invoiceInfoIds: ['inv10'],
+    settlementPeriod: '月结45天',
+    contactName: '陈经理',
+    approvalSteps: [
+      { id: 'init', name: '发起审批', role: '申请人', status: 'completed', approver: '李华', level: 1 },
+      { id: 'mgmt', name: '部门经理审批', role: '部门经理', status: 'completed', approver: '陈总', level: 2 },
+      { id: 'func', name: '职能审批', role: '运输职能审批人', status: 'completed', approver: '朱弢', rejected: true, level: 3 },
+      { id: 'fin', name: '财务审批', role: '财务部+中心总经理（会签）', status: 'pending', approver: '赵总监、中心总经理', level: 4 },
+      { id: 'gm', name: '总经理审批', role: '各中心负责人', status: 'pending', approver: '各中心负责人', level: 5 },
+      { id: 'it', name: 'IT运维确认', role: 'IT运维', status: 'pending', approver: 'IT运维', level: 6 },
     ],
   },
 ];
@@ -236,9 +434,11 @@ export default function ApprovalDetailPage() {
   const params = useParams();
   const id = params.id as string;
 
-  const approval = mockApprovals.find((a) => a.id === id) || mockApprovals[0];
-  const statusInfo = STATUS_MAP[approval.status] || STATUS_MAP.draft;
-  const { approvalWorkflows } = useApp();
+  const { approvalWorkflows, riskApprovals, updateRiskApproval } = useApp();
+  const approval = riskApprovals.find((a) => a.id === id) || riskApprovals[0];
+  if (!approval) {
+    return <div className="max-w-7xl mx-auto p-12 text-center"><h2 className="text-lg font-semibold text-[#0A0A0A] mb-2">审批数据加载中...</h2><p className="text-[#999]">正在从数据库加载审批记录</p></div>;
+  }
   const [activeTab, setActiveTab] = useState<'detail' | 'report'>('detail');
 
   const matchedWorkflow = useMemo(() => {
@@ -260,30 +460,89 @@ export default function ApprovalDetailPage() {
     return result;
   }, [approval.isTradeAgent]);
 
-  const progressData = useMemo(() => {
-    const steps = approval.approvalSteps;
-    const currentIdx = steps.findIndex(s => s.status === 'current');
-    const completedIdxs = steps
-      .filter(s => s.status === 'completed')
-      .map(s => steps.indexOf(s));
+  const handleSubmitApproval = () => {
+    const steps = (approval.approvalSteps || []).map((s: Record<string, unknown>) => {
+      if (s.level === 1 && s.status === 'current') return { ...s, status: 'completed' };
+      if (s.level === 2 && s.status === 'pending') return { ...s, status: 'current' };
+      return s;
+    });
+    updateRiskApproval(approval.id, { approvalSteps: steps, approvalStatus: '审批中', status: 'in_review' });
+    router.push('/approvals');
+  };
+
+  const handleRevokeApproval = () => {
+    const steps = (approval.approvalSteps || []).map((s: Record<string, unknown>) => {
+      if (s.level === 1) return { ...s, status: 'current' };
+      return { ...s, status: 'pending', rejected: false };
+    });
+    updateRiskApproval(approval.id, { approvalSteps: steps, approvalStatus: '草稿', status: 'draft' });
+    router.push('/approvals');
+  };
+
+  const progressData = useMemo((): { currentNodeIndex: number; completedNodes: number[]; rejectedNodes: number[] } => {
+    const steps = approval.approvalSteps || [];
+    if (steps.length === 0) return { currentNodeIndex: -1, completedNodes: [], rejectedNodes: [] };
+    const currentStep = steps.find(s => s.status === 'current');
+    const completedLevels = steps
+      .filter(s => s.status === 'completed' && (s as Record<string, unknown>).rejected !== true)
+      .map(s => s.level)
+      .filter((l): l is number => l !== undefined);
+    const rejectedLevels = steps
+      .filter(s => (s as Record<string, unknown>).rejected === true)
+      .map(s => s.level)
+      .filter((l): l is number => l !== undefined);
     return {
-      currentNodeIndex: currentIdx >= 0 ? currentIdx : 0,
-      completedNodes: completedIdxs,
+      currentNodeIndex: Number(currentStep?.level ?? -1),
+      completedNodes: completedLevels,
+      rejectedNodes: rejectedLevels,
     };
   }, [approval.approvalSteps]);
 
-  const reportItems = useMemo(() => [
-    { approvalPoint: '业务可行性审核', fieldName: '风险控制目的', fieldKey: 'risk_purpose', fieldValue: approval.riskControlPurpose, condition: '业务可行性评审/仅增加结算单位', result: 'pass' as const, suggestion: '风控目的明确' },
-    { approvalPoint: '业务可行性审核', fieldName: '与HMG关系', fieldKey: 'hmg_relation', fieldValue: approval.relationshipWithHMG, condition: '非"内部用户"即合规', result: 'pass' as const },
-    { approvalPoint: '业务可行性审核', fieldName: '服务产品', fieldKey: 'service_product', fieldValue: approval.serviceProduct, condition: '已匹配审批流模板', result: 'pass' as const },
-    { approvalPoint: '业务可行性审核', fieldName: '货物类型', fieldKey: 'goods_type', fieldValue: approval.goodsType, condition: '已填写', result: 'pass' as const },
-    { approvalPoint: '业务可行性审核', fieldName: '月均业务量', fieldKey: 'monthly_volume', fieldValue: approval.monthlyBusinessVolume, condition: approval.monthlyBusinessVolume === '500以上' ? '超高业务量提醒' : '正常范围', result: approval.monthlyBusinessVolume === '500以上' ? 'warn' as const : 'pass' as const },
-    { approvalPoint: '贸易合规审核', fieldName: '贸易代理', fieldKey: 'is_trade_agent', fieldValue: approval.isTradeAgent, condition: '涉及贸易代理需追加审批', result: approval.isTradeAgent === '是' ? 'warn' as const : 'pass' as const, suggestion: approval.isTradeAgent === '是' ? '已触发白沥审批追加' : undefined },
-    { approvalPoint: 'KPI能力审核', fieldName: '通关KPI', fieldKey: 'customs_kpi', fieldValue: approval.customsKpiRequirement.substring(0, 20) + '...', condition: '通关时效要求评估', result: 'pass' as const },
-    { approvalPoint: 'KPI能力审核', fieldName: '运输KPI', fieldKey: 'transport_kpi', fieldValue: approval.transportKpiRequirement.substring(0, 20) + '...', condition: '运输时效/货损率评估', result: approval.transportKpiRequirement.includes('危化品') ? 'warn' as const : 'pass' as const, suggestion: approval.transportKpiRequirement.includes('危化品') ? '危化品运输需专项资质，请确认' : undefined },
-    { approvalPoint: '资源能力审核', fieldName: '仓库要求', fieldKey: 'warehouse', fieldValue: approval.warehouseLeaseRequirement.substring(0, 20) + '...', condition: '仓储面积和条件评估', result: 'pass' as const },
-    ...(approval.status === 'rejected' ? [{ approvalPoint: '财务确认', fieldName: '财务审批', fieldKey: 'finance', fieldValue: '已拒绝', condition: '财务确认节点被拒绝', result: 'reject' as const, suggestion: '请重新提交审批' }] : []),
-  ], [approval]);
+  const derivedStatus = useMemo(() => {
+    const steps = approval.approvalSteps || [];
+    if (steps.length === 0) return 'draft';
+    const anyRejected = steps.some(s => (s as Record<string, unknown>).rejected === true);
+    if (anyRejected) return 'rejected';
+    const allCompleted = steps.every(s => s.status === 'completed');
+    if (allCompleted) return 'approved';
+    const initiatorStep = steps.find(s => s.level === 1);
+    if (initiatorStep?.status === 'current') return 'draft';
+    const hasCurrent = steps.some(s => s.status === 'current');
+    if (hasCurrent) return 'in_review';
+    return 'pending';
+  }, [approval.approvalSteps]);
+
+  const statusInfo = STATUS_MAP[derivedStatus] || STATUS_MAP.draft;
+
+  const reportItems = useMemo(() => {
+    const dv = (approval as any).dynamicFieldValues as Record<string, string> || {};
+    const capital = dv.registered_capital || '';
+    const capitalNum = parseInt(capital.replace(/[^0-9]/g, ''));
+    const si = dv.social_insurance_count || '';
+    const siNum = parseInt(si.replace(/[^0-9]/g, ''));
+    const shipping = dv.shipping_country || '';
+    const onTime = dv.on_time_rate || '';
+    const onTimeNum = parseFloat(onTime.replace('%', ''));
+
+    return [
+    { approvalPoint: '业务可行性审核', fieldName: '风险控制目的', fieldKey: 'risk_purpose', fieldValue: approval.riskControlPurpose || '未填写', condition: '业务可行性评审/仅增加结算单位', result: 'pass' as const, suggestion: '风控目的明确' },
+    { approvalPoint: '业务可行性审核', fieldName: '与HMG关系', fieldKey: 'hmg_relation', fieldValue: approval.relationshipWithHMG || '未填写', condition: '非"内部用户"即合规', result: 'pass' as const },
+    { approvalPoint: '业务可行性审核', fieldName: '服务产品', fieldKey: 'service_product', fieldValue: approval.serviceProduct || '', condition: '已匹配审批流模板', result: 'pass' as const },
+    { approvalPoint: '业务可行性审核', fieldName: '货物类型', fieldKey: 'goods_type', fieldValue: approval.goodsType || '未填写', condition: '已填写', result: 'pass' as const },
+    { approvalPoint: '业务可行性审核', fieldName: '月均业务量', fieldKey: 'monthly_volume', fieldValue: approval.monthlyBusinessVolume || '未填写', condition: (approval.monthlyBusinessVolume || '') === '500以上' ? '超高业务量提醒' : '正常范围', result: (approval.monthlyBusinessVolume || '') === '500以上' ? 'warn' as const : 'pass' as const },
+    { approvalPoint: '贸易合规审核', fieldName: '贸易代理', fieldKey: 'is_trade_agent', fieldValue: approval.isTradeAgent || '', condition: '涉及贸易代理需追加审批', result: approval.isTradeAgent === '是' ? 'warn' as const : 'pass' as const, suggestion: approval.isTradeAgent === '是' ? '已触发白沥审批追加' : undefined },
+    { approvalPoint: 'KPI能力审核', fieldName: '通关KPI', fieldKey: 'customs_kpi', fieldValue: (approval.customsKpiRequirement || '').substring(0, 20) + '...', condition: '通关时效要求评估', result: 'pass' as const },
+    { approvalPoint: 'KPI能力审核', fieldName: '运输KPI', fieldKey: 'transport_kpi', fieldValue: (approval.transportKpiRequirement || '').substring(0, 20) + '...', condition: '运输时效/货损率评估', result: (approval.transportKpiRequirement || '').includes('危化品') ? 'warn' as const : 'pass' as const, suggestion: (approval.transportKpiRequirement || '').includes('危化品') ? '危化品运输需专项资质，请确认' : undefined },
+    { approvalPoint: '资源能力审核', fieldName: '仓库要求', fieldKey: 'warehouse', fieldValue: (approval.warehouseLeaseRequirement || '').substring(0, 20) + '...', condition: '仓储面积和条件评估', result: 'pass' as const },
+    // 动态字段：企业规模
+    ...(capital ? [{ approvalPoint: '企业规模审核', fieldName: '注册资本', fieldKey: 'registered_capital', fieldValue: capital + '万', condition: '≥ 100万为正常', result: (!isNaN(capitalNum) && capitalNum < 100 ? 'warn' : 'pass') as 'pass' | 'warn', suggestion: !isNaN(capitalNum) && capitalNum < 100 ? '注册资本不足100万，建议人工审核' : undefined }] : []),
+    ...(si ? [{ approvalPoint: '企业规模审核', fieldName: '社保人数', fieldKey: 'social_insurance_count', fieldValue: si + '人', condition: '≥ 10人为正常', result: (!isNaN(siNum) && siNum < 10 ? 'warn' : 'pass') as 'pass' | 'warn', suggestion: !isNaN(siNum) && siNum < 10 ? '社保人数不足10人，建议人工审核' : undefined }] : []),
+    // 动态字段：出货地区
+    ...(shipping ? [{ approvalPoint: '贸易合规审核', fieldName: '出货国家/地区', fieldKey: 'shipping_country', fieldValue: shipping, condition: '非战争地区为正常', result: (shipping === '以色列' || shipping === '伊朗' ? 'warn' : 'pass') as 'pass' | 'warn', suggestion: shipping === '以色列' || shipping === '伊朗' ? `${shipping}为战争地区，建议人工审核` : undefined }] : []),
+    // 动态字段：运输及时率
+    ...(onTime ? [{ approvalPoint: 'KPI能力审核', fieldName: '运输及时率', fieldKey: 'on_time_rate', fieldValue: onTime + '%', condition: '≤ 99%为正常（作为供应商，>99%过严）', result: (!isNaN(onTimeNum) && onTimeNum > 99 ? 'warn' : 'pass') as 'pass' | 'warn', suggestion: !isNaN(onTimeNum) && onTimeNum > 99 ? `客户要求的运输及时率${onTime}%过于严苛，CIM作为供应商可能无法达到` : undefined }] : []),
+    ...(derivedStatus === 'rejected' ? [{ approvalPoint: '财务确认', fieldName: '财务审批', fieldKey: 'finance', fieldValue: '已拒绝', condition: '财务确认节点被拒绝', result: 'reject' as const, suggestion: '请重新提交审批' }] : []),
+  ];}, [approval]);
 
   const passCount = reportItems.filter(i => i.result === 'pass').length;
   const warnCount = reportItems.filter(i => i.result === 'warn').length;
@@ -291,14 +550,18 @@ export default function ApprovalDetailPage() {
 
   const flowChanges = useMemo(() => {
     const changes: string[] = [];
-    const steps = approval.approvalSteps;
+    const steps = approval.approvalSteps || [];
+    if (steps.length === 0) return '暂无审批流数据';
     const completed = steps.filter(s => s.status === 'completed').length;
     const total = steps.length;
     changes.push(`${completed}/${total} 节点已完成`);
     if (approval.isTradeAgent === '是') changes.push('追加审批人：白沥（贸易代理）');
-    if (approval.status === 'rejected') changes.push('财务确认节点已拒绝');
+    if (derivedStatus === 'rejected') {
+      const rejectedStep = steps.find(s => (s as Record<string, unknown>).rejected === true);
+      if (rejectedStep) changes.push(`${rejectedStep.name}节点已拒绝`);
+    }
     return changes.join('；');
-  }, [approval]);
+  }, [approval, derivedStatus]);
 
   const getSelectedNames = (ids: string[], list: { id: string; name?: string; title?: string }[]) => {
     return ids.map((itemId: string) => list.find((item) => item.id === itemId)?.name || list.find((item) => item.id === itemId)?.title || itemId);
@@ -319,7 +582,27 @@ export default function ApprovalDetailPage() {
           </div>
           <div className="flex-1" />
           <span className={`px-3 py-1 rounded-full text-xs font-medium ${statusInfo.bg} ${statusInfo.text}`}>{statusInfo.label}</span>
-          <button onClick={() => router.push(`/approvals/${id}/edit`)} className="px-6 py-2 bg-[#2D3BFF] text-white rounded-lg hover:shadow-lg hover:shadow-[#2D3BFF]/20 transition-all">编辑</button>
+          {(derivedStatus === 'draft' || derivedStatus === 'rejected') && (
+            <>
+              <button onClick={handleSubmitApproval} className="px-5 py-2 bg-[#0D8A5E] text-white rounded-lg hover:shadow-lg hover:shadow-[#0D8A5E]/20 transition-all text-sm font-medium">发起审批</button>
+              <button onClick={() => router.push(`/approvals/${id}/edit`)} className="px-5 py-2 bg-[#2D3BFF] text-white rounded-lg hover:shadow-lg hover:shadow-[#2D3BFF]/20 transition-all text-sm font-medium">编辑</button>
+            </>
+          )}
+          {derivedStatus === 'in_review' && (
+            <>
+              <button onClick={handleRevokeApproval} className="px-5 py-2 border border-[#E8850C] text-[#E8850C] rounded-lg hover:bg-[#FFF9EB] transition-all text-sm font-medium">撤销审批</button>
+              <button disabled className="px-5 py-2 bg-[#D5D5D5] text-[#999] rounded-lg cursor-not-allowed text-sm font-medium">编辑</button>
+            </>
+          )}
+          {derivedStatus === 'pending' && (
+            <>
+              <button onClick={handleRevokeApproval} className="px-5 py-2 border border-[#E8850C] text-[#E8850C] rounded-lg hover:bg-[#FFF9EB] transition-all text-sm font-medium">撤销审批</button>
+              <button disabled className="px-5 py-2 bg-[#D5D5D5] text-[#999] rounded-lg cursor-not-allowed text-sm font-medium">编辑</button>
+            </>
+          )}
+          {derivedStatus === 'approved' && (
+            <button disabled className="px-5 py-2 bg-[#D5D5D5] text-[#999] rounded-lg cursor-not-allowed text-sm font-medium">编辑</button>
+          )}
         </div>
 
         <div className="mt-6">
@@ -353,7 +636,7 @@ export default function ApprovalDetailPage() {
                   <div>
                     <label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">业务主客户 <span className="text-red-500">*</span></label>
                     <div className="flex flex-wrap gap-2">
-                      {getSelectedNames(approval.businessCustomerIds, mockBusinessCustomers.map((c) => ({ id: c.id, name: c.name }))).map((name, i) => (
+                      {getSelectedNames(approval.businessCustomerIds || [], mockBusinessCustomers.map((c) => ({ id: c.id, name: c.name }))).map((name, i) => (
                         <span key={i} className="inline-flex items-center px-3 py-1.5 bg-[#E8F4FF] text-[#2D3BFF] rounded-lg text-sm">{name}</span>
                       ))}
                     </div>
@@ -363,7 +646,7 @@ export default function ApprovalDetailPage() {
                   <div>
                     <label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">客户开票信息 <span className="text-red-500">*</span></label>
                     <div className="flex flex-wrap gap-2">
-                      {getSelectedNames(approval.invoiceInfoIds, mockInvoiceInfos.map((inv) => ({ id: inv.id, name: inv.title }))).map((name, i) => (
+                      {getSelectedNames(approval.invoiceInfoIds || [], mockInvoiceInfos.map((inv) => ({ id: inv.id, name: inv.title }))).map((name, i) => (
                         <span key={i} className="inline-flex items-center px-3 py-1.5 bg-[#FFF7ED] text-[#EA580C] rounded-lg text-sm">{name}</span>
                       ))}
                     </div>
@@ -469,6 +752,7 @@ export default function ApprovalDetailPage() {
                       progress={{
                         currentNodeIndex: progressData.currentNodeIndex,
                         completedNodes: progressData.completedNodes,
+                        rejectedNodes: progressData.rejectedNodes,
                       }}
                     />
 
@@ -479,10 +763,10 @@ export default function ApprovalDetailPage() {
                 ) : (
                   <ApprovalReport
                     reportId={`CIM-AR-${approval.id.padStart(4, '0')}`}
-                    customerName={approval.companyName}
-                    serviceProduct={approval.serviceProduct}
+                    customerName={approval.companyName || ''}
+                    serviceProduct={approval.serviceProduct || ''}
                     generatedAt={new Date().toISOString()}
-                    items={reportItems}
+                    items={reportItems as ReportItem[]}
                     flowChanges={flowChanges}
                     passCount={passCount}
                     warnCount={warnCount}

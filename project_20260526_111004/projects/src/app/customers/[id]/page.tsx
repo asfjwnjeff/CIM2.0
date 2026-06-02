@@ -159,16 +159,17 @@ export default function CustomerDetailPage() {
         targetName: customer.name,
         details: `分配负责人为 ${user?.name || result.responsiblePersonIds.join(', ')}`,
       });
-    } else if (result.type === 'transfer' && result.newResponsiblePersonId) {
-      transferCustomer(customer.id, result.newResponsiblePersonId, result.reason);
-      const user = getUserById(result.newResponsiblePersonId);
+    } else if (result.type === 'transfer' && result.newResponsiblePersonId && result.transferFromId) {
+      transferCustomer(customer.id, result.transferFromId, result.newResponsiblePersonId, result.reason);
+      const fromUser = getUserById(result.transferFromId);
+      const toUser = getUserById(result.newResponsiblePersonId);
       addLog({
         action: 'transfer',
         operator: '系统管理员',
         targetType: 'customer',
         targetId: customer.id,
         targetName: customer.name,
-        details: `移交负责人为 ${user?.name || result.newResponsiblePersonId}${result.reason ? `，原因: ${result.reason}` : ''}`,
+        details: `将负责人 ${fromUser?.name || result.transferFromId} 移交给 ${toUser?.name || result.newResponsiblePersonId}${result.reason ? `，原因: ${result.reason}` : ''}`,
       });
     }
     setDialogOpen(false);
@@ -669,7 +670,7 @@ export default function CustomerDetailPage() {
           onOpenChange={setDialogOpen}
           type={dialogType}
           customerName={customer.name}
-          currentOwnerId={customer.responsiblePersons[0] || ''}
+          currentOwnerIds={customer.responsiblePersons}
           currentCollaboratorIds={customer.collaborators}
           onConfirm={handleDialogConfirm}
         />

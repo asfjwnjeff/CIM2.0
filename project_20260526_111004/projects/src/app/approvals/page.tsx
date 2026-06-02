@@ -63,307 +63,8 @@ interface RiskControl {
   updatedBy: string;
 }
 
-// 示例数据 - 5条
-const mockRiskControls: RiskControl[] = [
-  {
-    id: '1',
-    companyName: '武汉光库科技有限公司',
-    riskControlPurpose: '业务可行性评审',
-    relationshipWithHMG: '客户',
-    businessCustomerName: '武汉光库科技有限公司',
-    businessCustomerCountry: '中企',
-    industryChainType: '设计研发',
-    supplyChainRole: '供应商',
-    crossBorderMode: '其他',
-    customerChannel: '直客',
-    unifiedSocialCreditCode: '914201007713589677',
-    suggestedSystemCode: 'WHGK',
-    opportunityName: '武汉光库科技有限公司+武汉+归类服务',
-    opportunityTitle: '武汉光库科技有限公司+武汉+归类服务',
-    invoiceTitle: '武汉光库科技有限公司',
-    taxId: '914201007713589677',
-    rmbBank: '中国工商银行武汉光谷大道支行',
-    rmbAccount: '3202223519100166124',
-    settlementPeriod: '60天',
-    contactName: '高燕',
-    contactPhone: '+86-15914106411',
-    isKeyDecisionMaker: true,
-    contactEmail: 'Ella.Gao@fiber-resources.com',
-    contactDepartment: '关务',
-    contactPosition: '主管',
-    involvesTradeAgent: false,
-    serviceProduct: '关务',
-    businessType: '保税',
-    ourEntity: '光电子元器件、光模块',
-    goodsType: '光电子元器件、光模块',
-    monthlyBusinessVolume: '0-50',
-    monthlyInvoiceAmount: '50000',
-    customsKpiRequirement: '两周内完成1200个物料的归类梳理',
-    transportKpiRequirement: '合同不涉及',
-    warehouseRentalRequirement: '暂时不涉及',
-    customizedServiceRequirement: '仅涉及标准服务内容',
-    customizedRequirementDescription: '暂时不涉及',
-    approvalStatus: '审批中',
-    currentNode: '职能审批',
-    currentApprover: '蒋总',
-    createdAt: '2026-04-30 15:34',
-    updatedAt: '2026-04-30 16:45',
-    createdBy: '王健',
-    updatedBy: '吴佳敏',
-  },
-  {
-    id: '2',
-    companyName: '江苏鑫华半导体科技股份有限公司',
-    riskControlPurpose: '业务可行性评审',
-    relationshipWithHMG: '客户',
-    businessCustomerName: '江苏鑫华半导体科技股份有限公司',
-    businessCustomerCountry: '中企',
-    industryChainType: '设计研发',
-    supplyChainRole: '供应商',
-    crossBorderMode: '普通仓库',
-    customerChannel: '直客',
-    unifiedSocialCreditCode: '91320301MA1MCPLL8F',
-    suggestedSystemCode: 'XHBDT',
-    opportunityName: '江苏鑫华半导体科技股份有限公司临港常温仓储业务',
-    opportunityTitle: '临港常温仓储业务',
-    invoiceTitle: '江苏鑫华半导体科技股份有限公司',
-    taxId: '91320301MA1MCPLL8F',
-    rmbBank: '江苏银行徐州宣武支行',
-    rmbAccount: '60250188000089526',
-    settlementPeriod: '30天',
-    contactName: '张正阳',
-    contactPhone: '+86-18168762777',
-    isKeyDecisionMaker: false,
-    contactPosition: '经理',
-    involvesTradeAgent: false,
-    serviceProduct: '仓储',
-    businessType: '保税',
-    ourEntity: '多晶硅',
-    goodsType: '多晶硅',
-    monthlyBusinessVolume: '51-100',
-    monthlyInvoiceAmount: '80000',
-    customsKpiRequirement: '/',
-    transportKpiRequirement: '/',
-    warehouseRentalRequirement: '临港600平常温库区存储，一周2次，每次36托进出库操作服务。',
-    customizedServiceRequirement: '仅涉及标准服务内容',
-    customizedRequirementDescription: '/',
-    approvalStatus: '审批中',
-    currentNode: '职能审批',
-    currentApprover: '吴总',
-    createdAt: '2026-04-29 16:05',
-    updatedAt: '2026-04-30 13:59',
-    createdBy: '倪萍',
-    updatedBy: '吴佳敏',
-  },
-  {
-    id: '3',
-    companyName: '上海裘瑞经贸有限公司',
-    riskControlPurpose: '仅增加结算单位',
-    relationshipWithHMG: '客户',
-    businessCustomerName: '上海裘瑞经贸有限公司',
-    businessCustomerCountry: '中企',
-    industryChainType: '商贸服务',
-    supplyChainRole: '中间商',
-    crossBorderMode: '口岸',
-    customerChannel: '直客',
-    unifiedSocialCreditCode: '91310118738523211W',
-    suggestedSystemCode: 'QRJM',
-    opportunityName: '上海裘瑞经贸有限公司贸易代理',
-    opportunityTitle: '贸易代理',
-    invoiceTitle: '上海裘瑞经贸有限公司',
-    taxId: '91310118738523211W',
-    settlementPeriod: '60天',
-    contactName: '丁慧',
-    isKeyDecisionMaker: false,
-    contactDepartment: '商务部',
-    contactPosition: '经理',
-    involvesTradeAgent: true,
-    serviceProduct: '货代',
-    businessType: '口岸完税',
-    goodsType: '文具',
-    monthlyBusinessVolume: '0-50',
-    monthlyInvoiceAmount: '120000',
-    customsKpiRequirement: '无',
-    transportKpiRequirement: '无',
-    warehouseRentalRequirement: '无',
-    customizedServiceRequirement: '仅涉及标准服务内容',
-    customizedRequirementDescription: '无',
-    approvalStatus: '审批完成',
-    approvalResult: '已同意',
-    historicalApprovers: '陆静娥,龚重濛,白沥,吴佳敏',
-    createdAt: '2026-04-29 09:18',
-    updatedAt: '2026-05-06 14:04',
-    createdBy: '夏赟帆',
-    updatedBy: '龚重濛',
-  },
-  {
-    id: '4',
-    companyName: '应用材料(中国)有限公司',
-    englishName: 'Applied Materials China Co., Ltd.',
-    riskControlPurpose: '业务可行性评审',
-    relationshipWithHMG: '客户',
-    businessCustomerName: '应用材料(中国)有限公司',
-    businessCustomerCountry: '外企',
-    industryChainType: '设计研发',
-    supplyChainRole: '最终用户',
-    crossBorderMode: '保税',
-    customerChannel: '直客',
-    unifiedSocialCreditCode: '9131011560723902XM',
-    suggestedSystemCode: 'AMC',
-    opportunityName: '应用材料半导体设备进口运输项目',
-    opportunityTitle: '半导体设备进口运输项目',
-    invoiceTitle: '应用材料(中国)有限公司',
-    taxId: '9131011560723902XM',
-    settlementPeriod: '45天',
-    contactName: '李总',
-    contactPhone: '+86-13800138001',
-    isKeyDecisionMaker: true,
-    contactEmail: 'li@appliedmaterials.com',
-    contactDepartment: '采购部',
-    contactPosition: '总监',
-    involvesTradeAgent: true,
-    serviceProduct: '运输',
-    businessType: '保税',
-    goodsType: '半导体设备',
-    monthlyBusinessVolume: '101-500',
-    monthlyInvoiceAmount: '500000',
-    customsKpiRequirement: '48小时内完成清关',
-    transportKpiRequirement: '门到门运输，温控车辆，实时GPS追踪',
-    warehouseRentalRequirement: '暂不涉及',
-    customizedServiceRequirement: '运输',
-    customizedRequirementDescription: '需要恒温恒湿运输车辆，配备防震装置',
-    approvalStatus: '审批中',
-    currentNode: '职能审批',
-    currentApprover: '朱弢',
-    createdAt: '2026-05-10 10:30',
-    updatedAt: '2026-05-10 14:20',
-    createdBy: '张洁',
-    updatedBy: '张洁',
-  },
-  {
-    id: '5',
-    companyName: '飞雅贸易(上海)有限公司',
-    englishName: 'Fiya Trading (Shanghai) Co., Ltd.',
-    riskControlPurpose: '仅增加境外收发货人',
-    relationshipWithHMG: '供应商',
-    businessCustomerName: '飞雅贸易(上海)有限公司',
-    businessCustomerCountry: '外企',
-    industryChainType: '商贸服务',
-    supplyChainRole: '中间商',
-    crossBorderMode: '口岸',
-    customerChannel: '代理',
-    unifiedSocialCreditCode: '91310115MA1K4L2X8P',
-    suggestedSystemCode: 'FYMY',
-    opportunityName: '飞雅贸易电子产品进出口服务',
-    opportunityTitle: '电子产品进出口服务',
-    invoiceTitle: '飞雅贸易(上海)有限公司',
-    taxId: '91310115MA1K4L2X8P',
-    settlementPeriod: '30天',
-    contactName: '王经理',
-    contactPhone: '+86-13912345678',
-    isKeyDecisionMaker: false,
-    contactDepartment: '业务部',
-    contactPosition: '经理',
-    involvesTradeAgent: false,
-    serviceProduct: '进出口',
-    businessType: '免税',
-    goodsType: '电子元器件',
-    monthlyBusinessVolume: '500以上',
-    monthlyInvoiceAmount: '2000000',
-    customsKpiRequirement: '24小时内完成报关',
-    transportKpiRequirement: '每周2次固定班次',
-    warehouseRentalRequirement: '需要100平米恒温仓',
-    customizedServiceRequirement: '信息系统',
-    customizedRequirementDescription: '需要对接客户ERP系统，实现订单自动同步',
-    approvalStatus: '已驳回',
-    approvalResult: '已驳回',
-    currentNode: '结束',
-    createdAt: '2026-05-08 09:15',
-    updatedAt: '2026-05-09 16:30',
-    createdBy: '夏赟帆',
-    updatedBy: '陆静娥',
-  },
-  {
-    id: '6',
-    companyName: '中芯国际集成电路制造有限公司',
-    involvesTradeAgent: false,
-    serviceProduct: '一体化供应链',
-    businessType: '保税',
-    goodsType: '晶圆/芯片',
-    monthlyBusinessVolume: '101-500',
-    monthlyInvoiceAmount: '5000000',
-    customsKpiRequirement: '48小时内完成报关，需AEO高级认证',
-    transportKpiRequirement: '每日一班固定班次，需全程RFID追踪',
-    warehouseRentalRequirement: '需要洁净仓库5000平米，含自动化分拣系统',
-    customizedServiceRequirement: '信息系统',
-    customizedRequirementDescription: '需对接SAP系统，实现WMS/TMS全链路数据同步，支持VMI库存管理',
-    riskControlPurpose: '业务可行性评审',
-    relationshipWithHMG: '客户',
-    businessCustomerName: '中芯国际',
-    businessCustomerCountry: '中国',
-    industryChainType: '半导体/集成电路',
-    supplyChainRole: '芯片制造',
-    crossBorderMode: '保税区域',
-    customerChannel: '直客',
-    unifiedSocialCreditCode: '91310000MA1FL5N06M',
-    suggestedSystemCode: 'SMIC-2026-001',
-    opportunityName: '中芯国际-一体化供应链',
-    opportunityTitle: '中芯国际-保税区一体化供应链服务',
-    invoiceTitle: '中芯国际集成电路制造有限公司',
-    taxId: '91310000MA1FL5N06M',
-    settlementPeriod: '月结30天',
-    contactName: '王总监',
-    isKeyDecisionMaker: true,
-    contactDepartment: '供应链部',
-    contactPosition: '总监',
-    approvalStatus: '草稿',
-    currentNode: '发起人',
-    createdAt: '2026-05-28 14:30',
-    updatedAt: '2026-05-28 14:30',
-    createdBy: '张明',
-    updatedBy: '张明',
-  },
-  {
-    id: '7',
-    companyName: '长江存储科技有限责任公司',
-    involvesTradeAgent: true,
-    serviceProduct: '仓库',
-    businessType: '保税',
-    goodsType: '存储芯片/模组',
-    monthlyBusinessVolume: '51-100',
-    monthlyInvoiceAmount: '3000000',
-    customsKpiRequirement: '24小时内完成报关',
-    transportKpiRequirement: '每周3班固定班次，需恒温运输',
-    warehouseRentalRequirement: '需要恒温恒湿仓库2000平米',
-    customizedServiceRequirement: '仓储',
-    customizedRequirementDescription: '需要专业半导体材料存储，温湿度实时监控',
-    riskControlPurpose: '业务可行性评审',
-    relationshipWithHMG: '客户',
-    businessCustomerName: '长江存储',
-    businessCustomerCountry: '中国',
-    industryChainType: '半导体/存储',
-    supplyChainRole: '存储芯片制造',
-    crossBorderMode: '保税仓库',
-    customerChannel: '直客',
-    unifiedSocialCreditCode: '91420100MA4KN4K47W',
-    suggestedSystemCode: 'YMTC-2026-001',
-    opportunityName: '长江存储-仓储服务',
-    opportunityTitle: '长江存储-保税仓储及物流服务',
-    invoiceTitle: '长江存储科技有限责任公司',
-    taxId: '91420100MA4KN4K47W',
-    settlementPeriod: '月结45天',
-    contactName: '陈经理',
-    isKeyDecisionMaker: false,
-    contactDepartment: '采购部',
-    contactPosition: '高级经理',
-    approvalStatus: '草稿',
-    currentNode: '发起人',
-    createdAt: '2026-05-29 09:20',
-    updatedAt: '2026-05-29 09:20',
-    createdBy: '李华',
-    updatedBy: '李华',
-  },
-];
+
+
 
 // 图标组件
 const PlusIcon = ({ className }: { className?: string }) => (
@@ -413,7 +114,26 @@ const ChevronRightIcon = ({ className }: { className?: string }) => (
 );
 
 export default function ApprovalsPage() {
-  const { currentUser } = useApp();
+  const { currentUser, riskApprovals, deleteRiskApproval } = useApp();
+
+  // 从 Store 读取风控审批数据，映射为列表显示格式
+  const mockRiskControls = useMemo(() => riskApprovals.map((ra: any) => ({
+    id: ra.id,
+    companyName: ra.companyName || '',
+    businessCustomerName: ra.companyName || '',
+    businessCustomerCountry: '',
+    riskControlPurpose: ra.riskControlPurpose || '',
+    relationshipWithHMG: ra.relationshipWithHMG || '',
+    involvesTradeAgent: ra.isTradeAgent === '是',
+    serviceProduct: ra.serviceProduct || '',
+    businessType: ra.businessType || '',
+    goodsType: ra.goodsType || '',
+    contactName: ra.contactName || '',
+    approvalStatus: ra.approvalStatus || '草稿',
+    currentApprover: (ra.approvalSteps || []).find((s: any) => s.status === 'current')?.approver || '',
+    currentNode: '',
+    createdAt: ra.createdAt || '',
+  })) as RiskControl[], [riskApprovals]);
 
   // ====== 分组功能 ======
   const groupFilter = useGroupFilter<RiskControl>({
@@ -544,42 +264,51 @@ export default function ApprovalsPage() {
             </div>
             <div className="flex items-center gap-2">
               <FilterIcon className="w-5 h-5 text-[#5A5A5A]" />
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="px-4 py-3 bg-[#F5F5F5] border border-[#D5D5D5] rounded-lg text-[#0A0A0A] focus:outline-none focus:border-[#2D3BFF] focus:ring-2 focus:ring-[#2D3BFF]/10 transition-all"
-              >
-                <option value="all">审批状态</option>
-                <option value="审批中">审批中</option>
-                <option value="审批完成">审批完成</option>
-                <option value="已驳回">已驳回</option>
-                <option value="草稿">草稿</option>
-              </select>
-              <select
-                value={serviceProductFilter}
-                onChange={(e) => setServiceProductFilter(e.target.value)}
-                className="px-4 py-3 bg-[#F5F5F5] border border-[#D5D5D5] rounded-lg text-[#0A0A0A] focus:outline-none focus:border-[#2D3BFF] focus:ring-2 focus:ring-[#2D3BFF]/10 transition-all"
-              >
-                <option value="all">服务产品</option>
-                <option value="货代">货代</option>
-                <option value="关务">关务</option>
-                <option value="仓库">仓库</option>
-                <option value="运输">运输</option>
-                <option value="进出口">进出口</option>
-                <option value="维修">维修</option>
-                <option value="合同物流">合同物流</option>
-                <option value="一体化供应链">一体化供应链</option>
-                <option value="其他">其他</option>
-              </select>
-              <select
-                value={tradeAgentFilter}
-                onChange={(e) => setTradeAgentFilter(e.target.value)}
-                className="px-4 py-3 bg-[#F5F5F5] border border-[#D5D5D5] rounded-lg text-[#0A0A0A] focus:outline-none focus:border-[#2D3BFF] focus:ring-2 focus:ring-[#2D3BFF]/10 transition-all"
-              >
-                <option value="all">贸易代理</option>
-                <option value="yes">涉及贸易代理</option>
-                <option value="no">不涉及贸易代理</option>
-              </select>
+              <div>
+                <label className="block text-xs font-medium text-[#5A5A5A] mb-1">审批状态</label>
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  className="px-4 py-2.5 bg-[#F5F5F5] border border-[#D5D5D5] rounded-lg text-[#0A0A0A] focus:outline-none focus:border-[#2D3BFF] focus:ring-2 focus:ring-[#2D3BFF]/10 transition-all"
+                >
+                  <option value="all">全部</option>
+                  <option value="审批中">审批中</option>
+                  <option value="审批完成">审批完成</option>
+                  <option value="已驳回">已驳回</option>
+                  <option value="草稿">草稿</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-[#5A5A5A] mb-1">服务产品</label>
+                <select
+                  value={serviceProductFilter}
+                  onChange={(e) => setServiceProductFilter(e.target.value)}
+                  className="px-4 py-2.5 bg-[#F5F5F5] border border-[#D5D5D5] rounded-lg text-[#0A0A0A] focus:outline-none focus:border-[#2D3BFF] focus:ring-2 focus:ring-[#2D3BFF]/10 transition-all"
+                >
+                  <option value="all">全部</option>
+                  <option value="货代">货代</option>
+                  <option value="关务">关务</option>
+                  <option value="仓库">仓库</option>
+                  <option value="运输">运输</option>
+                  <option value="进出口">进出口</option>
+                  <option value="维修">维修</option>
+                  <option value="合同物流">合同物流</option>
+                  <option value="一体化供应链">一体化供应链</option>
+                  <option value="其他">其他</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-[#5A5A5A] mb-1">是否贸易代理</label>
+                <select
+                  value={tradeAgentFilter}
+                  onChange={(e) => setTradeAgentFilter(e.target.value)}
+                  className="px-4 py-2.5 bg-[#F5F5F5] border border-[#D5D5D5] rounded-lg text-[#0A0A0A] focus:outline-none focus:border-[#2D3BFF] focus:ring-2 focus:ring-[#2D3BFF]/10 transition-all"
+                >
+                  <option value="all">不限</option>
+                  <option value="yes">涉及贸易代理</option>
+                  <option value="no">不涉及贸易代理</option>
+                </select>
+              </div>
             </div>
           </div>
         </div>
@@ -701,11 +430,23 @@ export default function ApprovalsPage() {
                               查看
                             </button>
                           </Link>
-                          <Link href={`/approvals/${rc.id}/edit`}>
-                            <button className="px-3 py-1.5 text-sm text-[#5A5A5A] hover:bg-[#F5F5F5] rounded-lg transition-all font-medium">
-                              编辑
-                            </button>
-                          </Link>
+                          {(rc.approvalStatus === '草稿' || rc.approvalStatus === '已驳回') ? (
+                            <>
+                              <Link href={`/approvals/${rc.id}/edit`}>
+                                <button className="px-3 py-1.5 text-sm text-[#5A5A5A] hover:bg-[#F5F5F5] rounded-lg transition-all font-medium">
+                                  编辑
+                                </button>
+                              </Link>
+                              <button
+                                onClick={() => { if (confirm('确定要删除该审批记录吗？')) deleteRiskApproval(rc.id); }}
+                                className="px-3 py-1.5 text-sm text-[#D63031] hover:bg-[#FFEBEE] rounded-lg transition-all font-medium"
+                              >
+                                删除
+                              </button>
+                            </>
+                          ) : (
+                            <span className="px-3 py-1.5 text-sm text-[#D5D5D5] cursor-not-allowed">编辑</span>
+                          )}
                         </div>
                       </td>
                     </tr>

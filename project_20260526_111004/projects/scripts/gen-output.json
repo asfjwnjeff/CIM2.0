@@ -1,0 +1,1115 @@
+{
+  "entities": [
+    {
+      "id": "be-30",
+      "name": "FWD-8635",
+      "code": "FWD-8635",
+      "status": "active",
+      "createdAt": "2026-05-15T08:00:00Z"
+    },
+    {
+      "id": "be-31",
+      "name": "FWD-8639&8641",
+      "code": "FWD-8639&8",
+      "status": "active",
+      "createdAt": "2026-05-15T08:00:00Z"
+    },
+    {
+      "id": "be-32",
+      "name": "FWD-8644",
+      "code": "FWD-8644",
+      "status": "active",
+      "createdAt": "2026-05-15T08:00:00Z"
+    },
+    {
+      "id": "be-33",
+      "name": "TKM-8603",
+      "code": "TKM-8603",
+      "status": "active",
+      "createdAt": "2026-05-15T08:00:00Z"
+    },
+    {
+      "id": "be-34",
+      "name": "RVC-35830",
+      "code": "RVC-35830",
+      "status": "active",
+      "createdAt": "2026-05-15T08:00:00Z"
+    },
+    {
+      "id": "be-35",
+      "name": "RVC-340453",
+      "code": "RVC-340453",
+      "status": "active",
+      "createdAt": "2026-05-15T08:00:00Z"
+    },
+    {
+      "id": "be-36",
+      "name": "FWD",
+      "code": "FWD",
+      "status": "active",
+      "createdAt": "2026-05-15T08:00:00Z"
+    },
+    {
+      "id": "be-37",
+      "name": "NON-SAP",
+      "code": "NON-SAP",
+      "status": "active",
+      "createdAt": "2026-05-15T08:00:00Z"
+    },
+    {
+      "id": "be-38",
+      "name": "物流部",
+      "code": "物流部",
+      "status": "active",
+      "createdAt": "2026-05-15T08:00:00Z"
+    },
+    {
+      "id": "be-39",
+      "name": "Sales Operations Analyst部门",
+      "code": "Sales Oper",
+      "status": "active",
+      "createdAt": "2026-05-15T08:00:00Z"
+    },
+    {
+      "id": "be-40",
+      "name": "工程师部门",
+      "code": "工程师部门",
+      "status": "active",
+      "createdAt": "2026-05-15T08:00:00Z"
+    },
+    {
+      "id": "be-41",
+      "name": "NNP 实验室部门",
+      "code": "NNP 实验室部门",
+      "status": "active",
+      "createdAt": "2026-05-15T08:00:00Z"
+    },
+    {
+      "id": "be-42",
+      "name": "TMF部门",
+      "code": "TMF部门",
+      "status": "active",
+      "createdAt": "2026-05-15T08:00:00Z"
+    },
+    {
+      "id": "be-43",
+      "name": "CMP部门",
+      "code": "CMP部门",
+      "status": "active",
+      "createdAt": "2026-05-15T08:00:00Z"
+    },
+    {
+      "id": "be-44",
+      "name": "COMP部门",
+      "code": "COMP部门",
+      "status": "active",
+      "createdAt": "2026-05-15T08:00:00Z"
+    },
+    {
+      "id": "be-45",
+      "name": "账单1",
+      "code": "账单1",
+      "status": "active",
+      "createdAt": "2026-05-15T08:00:00Z"
+    },
+    {
+      "id": "be-46",
+      "name": "账单2",
+      "code": "账单2",
+      "status": "active",
+      "createdAt": "2026-05-15T08:00:00Z"
+    },
+    {
+      "id": "be-47",
+      "name": "上海部",
+      "code": "上海部",
+      "status": "active",
+      "createdAt": "2026-05-15T08:00:00Z"
+    },
+    {
+      "id": "be-48",
+      "name": "德国部",
+      "code": "德国部",
+      "status": "active",
+      "createdAt": "2026-05-15T08:00:00Z"
+    },
+    {
+      "id": "be-49",
+      "name": "设备类",
+      "code": "设备类",
+      "status": "active",
+      "createdAt": "2026-05-15T08:00:00Z"
+    },
+    {
+      "id": "be-50",
+      "name": "备件类",
+      "code": "备件类",
+      "status": "active",
+      "createdAt": "2026-05-15T08:00:00Z"
+    },
+    {
+      "id": "be-51",
+      "name": "备件货",
+      "code": "备件货",
+      "status": "active",
+      "createdAt": "2026-05-15T08:00:00Z"
+    },
+    {
+      "id": "be-52",
+      "name": "闲置品",
+      "code": "闲置品",
+      "status": "active",
+      "createdAt": "2026-05-15T08:00:00Z"
+    },
+    {
+      "id": "be-53",
+      "name": "分子泵",
+      "code": "分子泵",
+      "status": "active",
+      "createdAt": "2026-05-15T08:00:00Z"
+    }
+  ],
+  "fields": [
+    [
+      100,
+      "cust-001",
+      "应用材料（中国）有限公司",
+      "DN",
+      []
+    ],
+    [
+      101,
+      "cust-001",
+      "应用材料（中国）有限公司",
+      "Plant",
+      [
+        "8635",
+        "8639",
+        "8641",
+        "8644",
+        "8603",
+        "8642",
+        "8646",
+        "8645",
+        "8634",
+        "8655",
+        "8601",
+        "8661",
+        "8693"
+      ]
+    ],
+    [
+      102,
+      "cust-001",
+      "应用材料（中国）有限公司",
+      "Location",
+      []
+    ],
+    [
+      103,
+      "cust-001",
+      "应用材料（中国）有限公司",
+      "账单主体",
+      [
+        "FWD-8635",
+        "FWD-8639&8641",
+        "FWD-8644",
+        "TKM-8603",
+        "RVC-35830",
+        "RVC-340453",
+        "FWD",
+        "NON-SAP"
+      ]
+    ],
+    [
+      104,
+      "cust-002",
+      "飞雅贸易（上海）有限公司",
+      "客户部门",
+      [
+        "物流部",
+        "Sales Operations Analyst部门",
+        "工程师部门",
+        "NNP 实验室部门",
+        "TMF部门"
+      ]
+    ],
+    [
+      105,
+      "cust-002",
+      "飞雅贸易（上海）有限公司",
+      "账单主体",
+      [
+        "物流部",
+        "Sales Operations Analyst部门",
+        "工程师部门",
+        "NNP 实验室部门",
+        "TMF部门"
+      ]
+    ],
+    [
+      106,
+      "cust-008",
+      "上海荏原精密机械有限公司",
+      "客户部门",
+      [
+        "CMP部门",
+        "COMP部门"
+      ]
+    ],
+    [
+      107,
+      "cust-008",
+      "上海荏原精密机械有限公司",
+      "账单主体",
+      [
+        "CMP部门",
+        "COMP部门"
+      ]
+    ],
+    [
+      108,
+      "cust-005",
+      "苏斯贸易（上海）有限公司",
+      "客户部门",
+      [
+        "维保库",
+        "寄售库",
+        "公用库",
+        "销售库",
+        "PE-保内库",
+        "PE-Consignment Stock",
+        "PE-销售库",
+        "PE-公用库"
+      ]
+    ],
+    [
+      109,
+      "cust-005",
+      "苏斯贸易（上海）有限公司",
+      "账单主体",
+      [
+        "账单1",
+        "账单2"
+      ]
+    ],
+    [
+      110,
+      "cust-006",
+      "昇先创科技(上海)有限公司",
+      "客户部门",
+      [
+        "STR-51",
+        "STR-52",
+        "WTR-51",
+        "WTR-52"
+      ]
+    ],
+    [
+      111,
+      "cust-006",
+      "昇先创科技(上海)有限公司",
+      "账单主体",
+      [
+        "上海部",
+        "德国部"
+      ]
+    ],
+    [
+      112,
+      "cust-007",
+      "上海华力集成电路制造有限公司",
+      "货物属性",
+      [
+        "设备",
+        "资材",
+        "循环品",
+        "返片"
+      ]
+    ],
+    [
+      113,
+      "cust-007",
+      "上海华力集成电路制造有限公司",
+      "账单主体",
+      [
+        "设备类",
+        "备件类"
+      ]
+    ],
+    [
+      114,
+      "cust-009",
+      "岛津企业管理（中国）有限公司",
+      "货物属性",
+      [
+        "备件货",
+        "闲置品",
+        "分子泵"
+      ]
+    ],
+    [
+      115,
+      "cust-009",
+      "岛津企业管理（中国）有限公司",
+      "账单主体",
+      [
+        "备件货",
+        "闲置品",
+        "分子泵"
+      ]
+    ]
+  ],
+  "rules": [
+    {
+      "id": "rule-001",
+      "name": "应用材料（中国）有限公司-FWD-8635",
+      "customerId": "cust-001",
+      "customerName": "应用材料（中国）有限公司",
+      "targetBillingEntity": "FWD-8635",
+      "priority": 11,
+      "status": "active",
+      "conditionGroup": {
+        "id": "cg-001",
+        "logic": "AND",
+        "items": [
+          {
+            "id": "ci-001-1",
+            "type": "condition",
+            "condition": {
+              "field": "DN",
+              "operator": "not_empty",
+              "value": ""
+            }
+          },
+          {
+            "id": "ci-001-2",
+            "type": "condition",
+            "condition": {
+              "field": "Plant",
+              "operator": "equals",
+              "value": "8635"
+            }
+          },
+          {
+            "id": "ci-001-3",
+            "type": "condition",
+            "condition": {
+              "field": "Location",
+              "operator": "not_in_list",
+              "value": "0002,0004"
+            }
+          }
+        ]
+      },
+      "createdAt": "2026-06-02T08:00:00Z",
+      "createdBy": "system"
+    },
+    {
+      "id": "rule-002",
+      "name": "应用材料（中国）有限公司-FWD-8639&8641",
+      "customerId": "cust-001",
+      "customerName": "应用材料（中国）有限公司",
+      "targetBillingEntity": "FWD-8639&8641",
+      "priority": 12,
+      "status": "active",
+      "conditionGroup": {
+        "id": "cg-002",
+        "logic": "AND",
+        "items": [
+          {
+            "id": "ci-002-1",
+            "type": "condition",
+            "condition": {
+              "field": "DN",
+              "operator": "not_empty",
+              "value": ""
+            }
+          },
+          {
+            "id": "ci-002-2",
+            "type": "condition",
+            "condition": {
+              "field": "Plant",
+              "operator": "in_list",
+              "value": "8639,8641"
+            }
+          },
+          {
+            "id": "ci-002-3",
+            "type": "condition",
+            "condition": {
+              "field": "Location",
+              "operator": "not_in_list",
+              "value": "0002,0004"
+            }
+          }
+        ]
+      },
+      "createdAt": "2026-06-02T08:00:00Z",
+      "createdBy": "system"
+    },
+    {
+      "id": "rule-003",
+      "name": "应用材料（中国）有限公司-FWD-8644",
+      "customerId": "cust-001",
+      "customerName": "应用材料（中国）有限公司",
+      "targetBillingEntity": "FWD-8644",
+      "priority": 13,
+      "status": "active",
+      "conditionGroup": {
+        "id": "cg-003",
+        "logic": "AND",
+        "items": [
+          {
+            "id": "ci-003-1",
+            "type": "condition",
+            "condition": {
+              "field": "DN",
+              "operator": "not_empty",
+              "value": ""
+            }
+          },
+          {
+            "id": "ci-003-2",
+            "type": "condition",
+            "condition": {
+              "field": "Plant",
+              "operator": "equals",
+              "value": "8644"
+            }
+          },
+          {
+            "id": "ci-003-3",
+            "type": "condition",
+            "condition": {
+              "field": "Location",
+              "operator": "not_in_list",
+              "value": "0002,0004"
+            }
+          }
+        ]
+      },
+      "createdAt": "2026-06-02T08:00:00Z",
+      "createdBy": "system"
+    },
+    {
+      "id": "rule-004",
+      "name": "应用材料（中国）有限公司-TKM-8603",
+      "customerId": "cust-001",
+      "customerName": "应用材料（中国）有限公司",
+      "targetBillingEntity": "TKM-8603",
+      "priority": 14,
+      "status": "active",
+      "conditionGroup": {
+        "id": "cg-004",
+        "logic": "AND",
+        "items": [
+          {
+            "id": "ci-004-1",
+            "type": "condition",
+            "condition": {
+              "field": "DN",
+              "operator": "not_empty",
+              "value": ""
+            }
+          },
+          {
+            "id": "ci-004-2",
+            "type": "condition",
+            "condition": {
+              "field": "Plant",
+              "operator": "in_list",
+              "value": "8603,8642"
+            }
+          },
+          {
+            "id": "ci-004-3",
+            "type": "condition",
+            "condition": {
+              "field": "Location",
+              "operator": "not_empty",
+              "value": ""
+            }
+          }
+        ]
+      },
+      "createdAt": "2026-06-02T08:00:00Z",
+      "createdBy": "system"
+    },
+    {
+      "id": "rule-005",
+      "name": "应用材料（中国）有限公司-RVC-35830",
+      "customerId": "cust-001",
+      "customerName": "应用材料（中国）有限公司",
+      "targetBillingEntity": "RVC-35830",
+      "priority": 15,
+      "status": "active",
+      "conditionGroup": {
+        "id": "cg-005",
+        "logic": "AND",
+        "items": [
+          {
+            "id": "ci-005-1",
+            "type": "condition",
+            "condition": {
+              "field": "DN",
+              "operator": "not_empty",
+              "value": ""
+            }
+          },
+          {
+            "id": "ci-005-2",
+            "type": "condition",
+            "condition": {
+              "field": "Plant",
+              "operator": "in_list",
+              "value": "8639,8644,8635,8646,8645,8655,8601,8661"
+            }
+          },
+          {
+            "id": "ci-005-3",
+            "type": "condition",
+            "condition": {
+              "field": "Location",
+              "operator": "in_list",
+              "value": "0002,0004"
+            }
+          }
+        ]
+      },
+      "createdAt": "2026-06-02T08:00:00Z",
+      "createdBy": "system"
+    },
+    {
+      "id": "rule-006",
+      "name": "应用材料（中国）有限公司-RVC-340453",
+      "customerId": "cust-001",
+      "customerName": "应用材料（中国）有限公司",
+      "targetBillingEntity": "RVC-340453",
+      "priority": 16,
+      "status": "active",
+      "conditionGroup": {
+        "id": "cg-006",
+        "logic": "AND",
+        "items": [
+          {
+            "id": "ci-006-1",
+            "type": "condition",
+            "condition": {
+              "field": "DN",
+              "operator": "not_empty",
+              "value": ""
+            }
+          },
+          {
+            "id": "ci-006-2",
+            "type": "condition",
+            "condition": {
+              "field": "Plant",
+              "operator": "equals",
+              "value": "8641"
+            }
+          },
+          {
+            "id": "ci-006-3",
+            "type": "condition",
+            "condition": {
+              "field": "Location",
+              "operator": "in_list",
+              "value": "0002,0004"
+            }
+          }
+        ]
+      },
+      "createdAt": "2026-06-02T08:00:00Z",
+      "createdBy": "system"
+    },
+    {
+      "id": "rule-007",
+      "name": "应用材料（中国）有限公司-FWD",
+      "customerId": "cust-001",
+      "customerName": "应用材料（中国）有限公司",
+      "targetBillingEntity": "FWD",
+      "priority": 17,
+      "status": "active",
+      "conditionGroup": {
+        "id": "cg-007",
+        "logic": "AND",
+        "items": [
+          {
+            "id": "ci-007-1",
+            "type": "condition",
+            "condition": {
+              "field": "DN",
+              "operator": "not_empty",
+              "value": ""
+            }
+          },
+          {
+            "id": "ci-007-2",
+            "type": "condition",
+            "condition": {
+              "field": "Plant",
+              "operator": "in_list",
+              "value": "8646,8645,8634,8655,8601,8661,8693"
+            }
+          },
+          {
+            "id": "ci-007-3",
+            "type": "condition",
+            "condition": {
+              "field": "Location",
+              "operator": "not_in_list",
+              "value": "0002,0004"
+            }
+          }
+        ]
+      },
+      "createdAt": "2026-06-02T08:00:00Z",
+      "createdBy": "system"
+    },
+    {
+      "id": "rule-008",
+      "name": "应用材料（中国）有限公司-NON-SAP",
+      "customerId": "cust-001",
+      "customerName": "应用材料（中国）有限公司",
+      "targetBillingEntity": "NON-SAP",
+      "priority": 18,
+      "status": "active",
+      "conditionGroup": {
+        "id": "cg-008",
+        "logic": "AND",
+        "items": [
+          {
+            "id": "ci-008-1",
+            "type": "condition",
+            "condition": {
+              "field": "DN",
+              "operator": "equals",
+              "value": "空"
+            }
+          }
+        ]
+      },
+      "createdAt": "2026-06-02T08:00:00Z",
+      "createdBy": "system"
+    },
+    {
+      "id": "rule-009",
+      "name": "飞雅贸易（上海）有限公司-物流部",
+      "customerId": "cust-002",
+      "customerName": "飞雅贸易（上海）有限公司",
+      "targetBillingEntity": "物流部",
+      "priority": 19,
+      "status": "active",
+      "conditionGroup": {
+        "id": "cg-009",
+        "logic": "AND",
+        "items": [
+          {
+            "id": "ci-009-1",
+            "type": "condition",
+            "condition": {
+              "field": "客户部门",
+              "operator": "equals",
+              "value": "物流部"
+            }
+          }
+        ]
+      },
+      "createdAt": "2026-06-02T08:00:00Z",
+      "createdBy": "system"
+    },
+    {
+      "id": "rule-010",
+      "name": "飞雅贸易（上海）有限公司-Sales Operations Analyst部门",
+      "customerId": "cust-002",
+      "customerName": "飞雅贸易（上海）有限公司",
+      "targetBillingEntity": "Sales Operations Analyst部门",
+      "priority": 20,
+      "status": "active",
+      "conditionGroup": {
+        "id": "cg-010",
+        "logic": "AND",
+        "items": [
+          {
+            "id": "ci-010-1",
+            "type": "condition",
+            "condition": {
+              "field": "客户部门",
+              "operator": "equals",
+              "value": "Sales Operations Analyst部门"
+            }
+          }
+        ]
+      },
+      "createdAt": "2026-06-02T08:00:00Z",
+      "createdBy": "system"
+    },
+    {
+      "id": "rule-011",
+      "name": "飞雅贸易（上海）有限公司-工程师部门",
+      "customerId": "cust-002",
+      "customerName": "飞雅贸易（上海）有限公司",
+      "targetBillingEntity": "工程师部门",
+      "priority": 21,
+      "status": "active",
+      "conditionGroup": {
+        "id": "cg-011",
+        "logic": "AND",
+        "items": [
+          {
+            "id": "ci-011-1",
+            "type": "condition",
+            "condition": {
+              "field": "客户部门",
+              "operator": "equals",
+              "value": "工程师部门"
+            }
+          }
+        ]
+      },
+      "createdAt": "2026-06-02T08:00:00Z",
+      "createdBy": "system"
+    },
+    {
+      "id": "rule-012",
+      "name": "飞雅贸易（上海）有限公司-NNP 实验室部门",
+      "customerId": "cust-002",
+      "customerName": "飞雅贸易（上海）有限公司",
+      "targetBillingEntity": "NNP 实验室部门",
+      "priority": 22,
+      "status": "active",
+      "conditionGroup": {
+        "id": "cg-012",
+        "logic": "AND",
+        "items": [
+          {
+            "id": "ci-012-1",
+            "type": "condition",
+            "condition": {
+              "field": "客户部门",
+              "operator": "equals",
+              "value": "NNP 实验室部门"
+            }
+          }
+        ]
+      },
+      "createdAt": "2026-06-02T08:00:00Z",
+      "createdBy": "system"
+    },
+    {
+      "id": "rule-013",
+      "name": "飞雅贸易（上海）有限公司-TMF部门",
+      "customerId": "cust-002",
+      "customerName": "飞雅贸易（上海）有限公司",
+      "targetBillingEntity": "TMF部门",
+      "priority": 23,
+      "status": "active",
+      "conditionGroup": {
+        "id": "cg-013",
+        "logic": "AND",
+        "items": [
+          {
+            "id": "ci-013-1",
+            "type": "condition",
+            "condition": {
+              "field": "客户部门",
+              "operator": "equals",
+              "value": "TMF部门"
+            }
+          }
+        ]
+      },
+      "createdAt": "2026-06-02T08:00:00Z",
+      "createdBy": "system"
+    },
+    {
+      "id": "rule-014",
+      "name": "上海荏原精密机械有限公司-CMP部门",
+      "customerId": "cust-008",
+      "customerName": "上海荏原精密机械有限公司",
+      "targetBillingEntity": "CMP部门",
+      "priority": 24,
+      "status": "active",
+      "conditionGroup": {
+        "id": "cg-014",
+        "logic": "AND",
+        "items": [
+          {
+            "id": "ci-014-1",
+            "type": "condition",
+            "condition": {
+              "field": "客户部门",
+              "operator": "equals",
+              "value": "CMP部门"
+            }
+          }
+        ]
+      },
+      "createdAt": "2026-06-02T08:00:00Z",
+      "createdBy": "system"
+    },
+    {
+      "id": "rule-015",
+      "name": "上海荏原精密机械有限公司-COMP部门",
+      "customerId": "cust-008",
+      "customerName": "上海荏原精密机械有限公司",
+      "targetBillingEntity": "COMP部门",
+      "priority": 25,
+      "status": "active",
+      "conditionGroup": {
+        "id": "cg-015",
+        "logic": "AND",
+        "items": [
+          {
+            "id": "ci-015-1",
+            "type": "condition",
+            "condition": {
+              "field": "客户部门",
+              "operator": "equals",
+              "value": "COMP部门"
+            }
+          }
+        ]
+      },
+      "createdAt": "2026-06-02T08:00:00Z",
+      "createdBy": "system"
+    },
+    {
+      "id": "rule-016",
+      "name": "苏斯贸易（上海）有限公司-账单1",
+      "customerId": "cust-005",
+      "customerName": "苏斯贸易（上海）有限公司",
+      "targetBillingEntity": "账单1",
+      "priority": 26,
+      "status": "active",
+      "conditionGroup": {
+        "id": "cg-016",
+        "logic": "AND",
+        "items": [
+          {
+            "id": "ci-016-1",
+            "type": "condition",
+            "condition": {
+              "field": "客户部门",
+              "operator": "equals",
+              "value": "维保库"
+            }
+          }
+        ]
+      },
+      "createdAt": "2026-06-02T08:00:00Z",
+      "createdBy": "system"
+    },
+    {
+      "id": "rule-017",
+      "name": "苏斯贸易（上海）有限公司-账单2",
+      "customerId": "cust-005",
+      "customerName": "苏斯贸易（上海）有限公司",
+      "targetBillingEntity": "账单2",
+      "priority": 27,
+      "status": "active",
+      "conditionGroup": {
+        "id": "cg-017",
+        "logic": "AND",
+        "items": [
+          {
+            "id": "ci-017-1",
+            "type": "condition",
+            "condition": {
+              "field": "客户部门",
+              "operator": "equals",
+              "value": "PE-保内库"
+            }
+          }
+        ]
+      },
+      "createdAt": "2026-06-02T08:00:00Z",
+      "createdBy": "system"
+    },
+    {
+      "id": "rule-018",
+      "name": "昇先创科技(上海)有限公司-上海部",
+      "customerId": "cust-006",
+      "customerName": "昇先创科技(上海)有限公司",
+      "targetBillingEntity": "上海部",
+      "priority": 28,
+      "status": "active",
+      "conditionGroup": {
+        "id": "cg-018",
+        "logic": "AND",
+        "items": [
+          {
+            "id": "ci-018-1",
+            "type": "condition",
+            "condition": {
+              "field": "客户部门",
+              "operator": "equals",
+              "value": "STR-51"
+            }
+          }
+        ]
+      },
+      "createdAt": "2026-06-02T08:00:00Z",
+      "createdBy": "system"
+    },
+    {
+      "id": "rule-019",
+      "name": "昇先创科技(上海)有限公司-德国部",
+      "customerId": "cust-006",
+      "customerName": "昇先创科技(上海)有限公司",
+      "targetBillingEntity": "德国部",
+      "priority": 29,
+      "status": "active",
+      "conditionGroup": {
+        "id": "cg-019",
+        "logic": "AND",
+        "items": [
+          {
+            "id": "ci-019-1",
+            "type": "condition",
+            "condition": {
+              "field": "客户部门",
+              "operator": "equals",
+              "value": "WTR-51"
+            }
+          }
+        ]
+      },
+      "createdAt": "2026-06-02T08:00:00Z",
+      "createdBy": "system"
+    },
+    {
+      "id": "rule-020",
+      "name": "上海华力集成电路制造有限公司-设备类",
+      "customerId": "cust-007",
+      "customerName": "上海华力集成电路制造有限公司",
+      "targetBillingEntity": "设备类",
+      "priority": 30,
+      "status": "active",
+      "conditionGroup": {
+        "id": "cg-020",
+        "logic": "AND",
+        "items": [
+          {
+            "id": "ci-020-1",
+            "type": "condition",
+            "condition": {
+              "field": "货物属性",
+              "operator": "equals",
+              "value": "设备"
+            }
+          }
+        ]
+      },
+      "createdAt": "2026-06-02T08:00:00Z",
+      "createdBy": "system"
+    },
+    {
+      "id": "rule-021",
+      "name": "上海华力集成电路制造有限公司-备件类",
+      "customerId": "cust-007",
+      "customerName": "上海华力集成电路制造有限公司",
+      "targetBillingEntity": "备件类",
+      "priority": 31,
+      "status": "active",
+      "conditionGroup": {
+        "id": "cg-021",
+        "logic": "AND",
+        "items": [
+          {
+            "id": "ci-021-1",
+            "type": "condition",
+            "condition": {
+              "field": "货物属性",
+              "operator": "equals",
+              "value": "资材"
+            }
+          }
+        ]
+      },
+      "createdAt": "2026-06-02T08:00:00Z",
+      "createdBy": "system"
+    },
+    {
+      "id": "rule-022",
+      "name": "岛津企业管理（中国）有限公司-备件货",
+      "customerId": "cust-009",
+      "customerName": "岛津企业管理（中国）有限公司",
+      "targetBillingEntity": "备件货",
+      "priority": 32,
+      "status": "active",
+      "conditionGroup": {
+        "id": "cg-022",
+        "logic": "AND",
+        "items": [
+          {
+            "id": "ci-022-1",
+            "type": "condition",
+            "condition": {
+              "field": "货物属性",
+              "operator": "equals",
+              "value": "备件货"
+            }
+          }
+        ]
+      },
+      "createdAt": "2026-06-02T08:00:00Z",
+      "createdBy": "system"
+    },
+    {
+      "id": "rule-023",
+      "name": "岛津企业管理（中国）有限公司-闲置品",
+      "customerId": "cust-009",
+      "customerName": "岛津企业管理（中国）有限公司",
+      "targetBillingEntity": "闲置品",
+      "priority": 33,
+      "status": "active",
+      "conditionGroup": {
+        "id": "cg-023",
+        "logic": "AND",
+        "items": [
+          {
+            "id": "ci-023-1",
+            "type": "condition",
+            "condition": {
+              "field": "货物属性",
+              "operator": "equals",
+              "value": "闲置品"
+            }
+          }
+        ]
+      },
+      "createdAt": "2026-06-02T08:00:00Z",
+      "createdBy": "system"
+    },
+    {
+      "id": "rule-024",
+      "name": "岛津企业管理（中国）有限公司-分子泵",
+      "customerId": "cust-009",
+      "customerName": "岛津企业管理（中国）有限公司",
+      "targetBillingEntity": "分子泵",
+      "priority": 34,
+      "status": "active",
+      "conditionGroup": {
+        "id": "cg-024",
+        "logic": "AND",
+        "items": [
+          {
+            "id": "ci-024-1",
+            "type": "condition",
+            "condition": {
+              "field": "货物属性",
+              "operator": "equals",
+              "value": "分子泵"
+            }
+          }
+        ]
+      },
+      "createdAt": "2026-06-02T08:00:00Z",
+      "createdBy": "system"
+    }
+  ]
+}

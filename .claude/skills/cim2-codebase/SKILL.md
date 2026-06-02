@@ -1,260 +1,151 @@
 # CIM2.0 代码库技术参考
 
-当修改或开发 CIM2.0 项目代码时使用此 skill。
+## 快速启动
+
+| 操作 | 命令（从 `project_20260526_111004/projects/` 执行） |
+|------|------|
+| 启动开发 | `pnpm dev`（Turbopack，端口见终端输出） |
+| 类型检查 | `pnpm ts-check` |
+| 重建数据库 | `rm -f data/cim.db && npx tsx src/db/seed.ts`，然后**重启 dev server** |
+| 生产构建 | `pnpm build`（sql.js 类型报错可忽略） |
 
 ## 技术栈
 
-- **项目路径**: `project_20260526_111004/projects/`
-- **框架**: Next.js 16.1 App Router + React 19 + TypeScript 5
-- **UI**: shadcn/ui + Tailwind CSS v4，品牌色 #2D3BFF → #4338CA（Swiss Modern 重设计）
-- **图标**: Lucide React
-- **数据层**: Drizzle ORM (SQLite) + 内存 store（useReducer + React Context）
-- **包管理**: pnpm（强制，preinstall hook 禁止 npm/yarn）
+- **框架**: Next.js 16 App Router + React 19 + TypeScript 5
+- **UI**: shadcn/ui + Tailwind CSS v4，品牌色 `#2D3BFF` / `#4338CA`
+- **状态管理**: React Context + useReducer，全局通过 `useApp()` 访问
+- **数据库**: sql.js（SQLite WASM）+ Drizzle ORM，文件 `data/cim.db`，每 5s 自动持久化
+- **包管理**: pnpm
 
-## 常用命令
+## 数据库注意事项 ⚠️
 
-| 命令 | 用途 |
-| ---- | ---- |
-| `cd project_20260526_111004/projects && pnpm dev` | 启动开发服务器 |
-| `cd project_20260526_111004/projects && pnpm ts-check` | TypeScript 类型检查 |
-| `cd project_20260526_111004/projects && pnpm build` | 生产构建 |
+### 核心约束
 
-## 设计系统 (Swiss Modern) **← 所有页面开发必须遵守**
+1. **修改 `src/db/schema.ts` 后必须同步更新 `src/db/seed.ts`** 的 CREATE TABLE 语句。列名不一致会导致 seed 静默失败，Drizzle INSERT 报 `no such column`。
+2. **DB 文件修改后必须重启 dev server**。`getDb()` 是内存单例，不会自动感知文件变更。
+3. **seed.ts 的原始 SQL 是 Drizzle ORM 的补充**，用于建表。Drizzle 不负责 CREATE TABLE，只负责 CRUD。
 
-全站基于 Swiss Modern 设计语言：95%黑白灰 + 5%强调色，1px细线分隔，字重驱动层级，无渐变。
+### 数据库重建步骤
 
-**设计令牌是唯一权威来源：** 开发任何新页面时必须从以下两个文件引用设计值，禁止自行发明颜色或样式：
-- `src/lib/ui-constants.tsx` — `FIELD_STYLES`、`BRAND_COLORS`、`SEMANTIC_COLORS`、`NEUTRAL_COLORS`、`TYPOGRAPHY`、`SHADOWS`、`RADIUS`
-- `src/app/globals.css` — CSS 自定义属性（`--color-*`、`--text-*`、`--shadow-*` 等）
-
-### 设计令牌表
-
-| 类别 | 变量/值 | 用途 |
-| ---- | ----- | ---- |
-| 强调色 | `#2D3BFF`（主）/ `#4338CA`（hover）/ `#E8EBFF`（浅底） | 按钮、链接、选中态、高亮区 |
-| 文字 | `#0A0A0A`（主）/ `#5A5A5A`（辅）/ `#999999`（占位） | 标题→正文→辅助信息 |
-| 背景 | `#FAFAFA`（页面）/ `#FFFFFF`（卡片）/ `#F5F5F5`（hover） | 页面底色→卡片→行悬停 |
-| 边框 | `#EBEBEB`（细线分隔）/ `#D5D5D5`（组件边框） | 表格线、卡片边←输入框、下拉框 |
-| 功能色 | 成功 `#0D8A5E`/`#E6F7F0` / 警告 `#E8850C`/`#FFF4E8` / 错误 `#D63031`/`#FFEBEE` | 状态标签背景/文字 |
-| 圆角 | 标签 `6px` / 按钮 `8px` / 卡片 `16px`（`rounded-2xl`） / 弹窗 `24px` | |
-| 阴影 | xs `0 1px 2px` / sm `0 2px 8px rgba(0,0,0,0.06)` / md `0 4px 16px` / lg `0 8px 32px` | 卡片默认用 sm |
-
-### 页面开发速查（务必遵守）
-
-开发或重设计任何页面时，必须使用以下样式值，禁止使用旧颜色：
-
-```text
-页面标题:     text-2xl font-bold text-[#0A0A0A]
-页面副标题:   text-[13px] text-[#5A5A5A]
-面包屑:       text-[13px] text-[#999999]（可点击项 hover:text-[#2D3BFF]）
-页面背景:     bg-[#FAFAFA]
-
-卡片容器:     bg-white rounded-2xl border border-[#EBEBEB] shadow-[0_2px_8px_rgba(0,0,0,0.06)]
-表单分区:     同上卡片样式 + p-6 内边距
-分区标题:     text-md font-semibold text-[#0A0A0A] mb-4
-
-表格容器:     bg-white rounded-2xl border border-[#EBEBEB] shadow-sm overflow-hidden
-表格表头:     border-b border-[#EBEBEB] bg-[#FAFAFA] h-[36px]
-表头文字:     text-left text-[11px] font-semibold uppercase text-[#5A5A5A]
-表格数据行:   border-b border-[#EBEBEB] h-[44px] hover:bg-[#F5F5F5] transition-colors
-表格数据:     text-[13px] text-[#5A5A5A]（名称列加 font-medium text-[#0A0A0A]）
-
-按钮主要:     bg-[#2D3BFF] text-white hover:bg-[#4338CA] rounded-lg
-按钮次要:     border border-[#D5D5D5] text-[#5A5A5A] hover:bg-[#F5F5F5] rounded-lg
-危险按钮:     text-[#D63031] hover:underline（文字链接形式）
-
-搜索输入框:   h-[38px] border border-[#D5D5D5] rounded-lg focus:outline-none focus:border-[#2D3BFF] focus:shadow-[0_0_0_2px_rgba(45,59,255,0.10)]
-筛选下拉框:   使用原生 select（仅简单 2-3 选项筛选），样式同上搜索框
-
-表单标签:     text-sm font-semibold text-[#0A0A0A]（即 FIELD_STYLES.label）
-表单输入:     h-[38px] border border-[#D5D5D5] rounded-lg（即 FIELD_STYLES.input）
-表单必填:     text-[#D63031]（即 FIELD_STYLES.requiredStar）
-
-启用标签:     bg-[#E6F7F0] text-[#0D8A5E]
-停用标签:     bg-[#EBEBEB] text-[#5A5A5A]
+```bash
+rm -f data/cim.db                          # 删除旧库
+npx tsx src/db/seed.ts                     # 建表 + 插入种子数据
+# 重启 dev server（ctrl+c 后重新 pnpm dev）
 ```
 
-### 组件规范
+### 种子数据架构
 
-- 所有下拉选择**必须**使用 `SearchableSelect` 或 `SearchableMultiSelect`，禁止在表单中使用原生 `<select>`
-- 筛选栏中简单的 2-3 选项下拉可用原生 `<select>`（使用上方筛选下拉框样式）
-- 表单样式必须从 `@/lib/ui-constants` 导入 `FIELD_STYLES`
-- 图标统一使用 Lucide React，禁止使用 emoji 作为图标
-- 用户选择器基于 `SearchableSelect`/`SearchableMultiSelect` 的 `renderOption`/`renderBadge` 自定义渲染
+- `src/lib/sample-data.ts` 导出所有 `initial*` 数组，同时被 store（内存初始化）和 seed（数据库初始化）引用
+- `store.tsx` 启动时从 API 加载 DB 数据覆盖默认值
+- 两层数据源：前端 store（交互即时） + DB 持久化（刷新保留）
 
-### 禁止使用的旧颜色（已废弃）
-
-| 旧颜色 | 替代色 |
-| ------ | ----- |
-| `#1C2550`（深蓝标题） | `#0A0A0A` |
-| `#1E2340`（深蓝文字） | `#0A0A0A` |
-| `#4B5563`（灰标题） | `#5A5A5A` |
-| `#F8FAFC`（表头背景） | `#FAFAFA` |
-| `#F8FAFF`（行悬停） | `#F5F5F5` |
-| `#0D904F`（绿色文字） | `#0D8A5E` |
-| `#E6F4EA`（绿色背景） | `#E6F7F0` |
-| `#F3F4F6`（灰色标签） | `#EBEBEB` |
-| `#6B7280`（灰色文字） | `#5A5A5A` |
-
-### 重设计新增文件
-
-| 文件 | 用途 |
-| ---- | ---- |
-| `src/components/ui/skeleton.tsx` | 骨架屏（表格/卡片/详情/列表等 7 种变体） |
-| `src/components/ui/empty-state.tsx` | 空状态（列表空/搜索无结果/详情无数据） |
-| `src/components/ui/page-transition.tsx` | 页面过渡动画（200ms 淡入+微上移） |
-| `src/components/ui/form-field.tsx` | 表单字段包装（Label-Top 布局 + 验证） |
-| `src/components/ui/form-section.tsx` | 表单分区包装 |
-| `src/components/ui/validation-message.tsx` | 字段验证错误/成功提示 |
-| `src/lib/form-rules.ts` | 声明式表单验证规则 |
-| `src/lib/form-utils.ts` | 脏检测、字数统计工具函数 |
-| `src/hooks/useUnsavedChanges.ts` | 未保存更改保护（beforeunload + 路由拦截） |
-| `src/hooks/useKeyboardShortcuts.ts` | 全局键盘快捷键（Cmd+K/Esc/↑↓/Tab） |
-
-### 重设计新增文件（第二轮 — 布局修复与搜索）
-
-| 文件 | 用途 |
-| ---- | ---- |
-| `src/lib/navigation.tsx` | 导航配置 — NAV_ITEMS、NavIcons、SearchItem、getSearchItems() |
-| `src/components/layout/GlobalSearchDialog.tsx` | 全局搜索对话框（Cmd+K / Ctrl+K 快捷键） |
-
-### 页面布局标准 **← 所有 page.tsx 必须遵守**
-
-经过全站 48 页统一标准化后，以下布局规范必须严格遵守：
-
-**AppLayout 间距（在 AppLayout.tsx `<main>` 元素统一处理）：**
-
-| 参数 | 数值 | 说明 |
-| ---- | ---- | ---- |
-| `pt-[87px]` | header 55px + 32px 顶部呼吸空间 | 页面标题与 header 的间距 |
-| `px-8` | 32px 水平内边距 | 替代各页面自带的 p-6/p-5，统一水平留白 |
-| `ml-[256px]` | 侧栏展开时 240px + 16px 间隙 | 内容区与侧栏之间留有间距 |
-| `ml-[72px]` | 侧栏折叠时 56px + 16px 间隙 | 折叠状态同样保留间距 |
-| `transition-[margin-left] duration-200 ease-out` | 200ms 缓出过渡 | 侧栏展开/折叠平滑动画 |
-
-**每个 page.tsx 最外层 wrapper 必须为：**
-
-```tsx
-<div className="max-w-7xl mx-auto space-y-6">
-  {/* 页面内容 */}
-</div>
-```
-
-**页面标题（h1）统一为：**
-
-```tsx
-<h1 className="text-2xl font-bold text-[#0A0A0A]">页面标题</h1>
-```
-
-**禁止的布局模式（已统一修复）：**
-
-| 禁止项 | 说明 |
-| ------ | ---- |
-| 外层 `p-6` / `p-5` | AppLayout px-8 已提供水平留白，页面不得重复加 padding |
-| 双层 wrapper（如 `min-h-screen` + `max-w-*`） | 必须合并为单一 wrapper |
-| `max-w-6xl` | 统一改为 `max-w-7xl` |
-| 自定义 CSS gradient 背景 | 统一使用 `bg-[#FAFAFA]` 页面底色 |
-| `-mx-2` 负边距 hack | 不再需要，移除 |
-| 内嵌 header（页面内重复顶栏） | AppLayout 统一提供 header，页面内不得重复 |
-| `space-y-4` / `space-y-5` | 统一改为 `space-y-6` |
-| h1 使用 `text-xl` / `text-[20px]` / `text-3xl` | 统一改为 `text-2xl` |
-| 标题颜色 `text-[#1E2340]` / `text-[#1C2550]` | 统一改为 `text-[#0A0A0A]` |
-
-**返回按钮规范（所有页面头部保持一致）：**
-
-```tsx
-<Button
-  variant="outline"
-  onClick={() => router.back()}
-  className="border border-[#EBEBEB] text-[#5A5A5A] hover:bg-[#FAFAFA] px-3 py-2"
->
-  <ArrowLeft className="w-4 h-4" />
-</Button>
-```
-
-**全局搜索对话框：**
-
-- 使用 `Cmd+K` / `Ctrl+K` 键盘快捷键打开
-- 搜索项从 `src/lib/navigation.tsx` 的 NAV_ITEMS 扁平化提取
-- 包含 "页面导航" 和 "快捷操作" 两个分组
-- 选中后通过 `router.push()` 跳转
-- 状态在 AppLayout 中管理，通过 `searchOpen` / `setSearchOpen` 控制
-
-## 项目架构
+## 数据流
 
 ```
-src/
-├── lib/
-│   ├── types.ts          # 所有类型定义（Customer, Quote, BillingRule 等）
-│   ├── store.tsx         # 全局状态 — useReducer + Context，通过 useApp() 访问
-│   ├── sample-data.ts    # 示例数据 + 常量（MOCK_USERS, PROGRESS_STEPS 等）
-│   ├── ui-constants.tsx  # UI 设计令牌常量（FIELD_STYLES, BRAND_COLORS 等）
-│   ├── form-rules.ts     # 声明式表单验证规则
-│   └── form-utils.ts     # 脏检测、字数统计等表单工具函数
-├── components/
-│   ├── ui/               # shadcn/ui 组件 + CIM 自定义组件（56 个）
-│   ├── layout/AppLayout.tsx
-│   ├── ProgressStepper.tsx   # 6 阶段跟进步骤条
-│   ├── CollaborationDialogs.tsx  # 协同/分配/移交弹窗
-│   └── RuleGroupEditor.tsx
-├── hooks/
-│   ├── useUnsavedChanges.ts    # 未保存更改保护
-│   ├── useKeyboardShortcuts.ts # 全局键盘快捷键
-│   └── use-mobile.ts
-├── app/
-│   ├── customers/        # 客户管理（列表/详情/新增/编辑 4 页）
-│   ├── quotes/           # 售前报价（含模板 5 页）
-│   ├── followup/         # 跟进记录（4 页）
-│   ├── opportunities/    # 商机管理（4 页）
-│   ├── approvals/        # 风控审批（4 页）
-│   ├── rules/            # 账单规则（1 页）
-│   ├── entities/         # 主体管理 — 签约/服务/结算（6 页）
-│   ├── approval/         # 审批流程配置 — 工作流/自动规则（6 页）
-│   ├── settings/         # 系统设置 — 用户/角色/权限/字典等（8 页）
-│   ├── contracts/        # 合同管理（1 页）
-│   ├── billing-fields/   # 结算字段配置（1 页）
-│   ├── orders/           # 订单管理（1 页）
-│   ├── test/             # 测试页面
-│   └── api/              # API 路由（9 个端点）
-└── db/schema.ts          # Drizzle 数据库 schema（8 表）
+用户操作 → dispatch(action) → reducer 更新 state → React 重渲染
+                └→ fetch('/api/...') → Drizzle ORM → sql.js → 每5s写 data/cim.db
 ```
 
-## 核心模式
+- 查询：API GET → Drizzle SELECT → JSON 响应 → store dispatch
+- 写入：dispatch + fetch 并行（store 即时生效，API 异步持久化）
+- `useEffect(() => {}, [])` 启动时从 DB 加载一次，通过 `RESET + 逐个 ADD` 替换初始数据
 
-### 数据流
+## 设计系统速查
 
-- 所有数据操作通过 `useApp()` hook 获取，dispatch action 到 reducer
-- 新增客户: `addCustomer(customer)` → reducer ADD_CUSTOMER → 自动生成 id + createdAt
-- 更新客户: `updateCustomer(id, updates)` → reducer UPDATE_CUSTOMER → 合并更新
-- 协同操作: `collaborateCustomer / assignCustomer / transferCustomer` + 对应的 batch 版本
-- 操作日志: `addLog(log)` → 记入 operationLogs 数组
+全站 Swiss Modern：95% 黑白灰 + 5% 强调色。
 
-### 组件约定
+| 类别 | 值 | 用途 |
+|------|-----|------|
+| 强调 | `#2D3BFF` / `#4338CA` / `#E8EBFF` | 按钮、链接 |
+| 文字 | `#0A0A0A` / `#5A5A5A` / `#999999` | 标题→正文→占位 |
+| 背景 | `#FAFAFA` / `#FFFFFF` / `#F5F5F5` | 页面→卡片→hover |
+| 边框 | `#EBEBEB` / `#D5D5D5` | 细线→组件 |
+| 状态色 | 成功 `#0D8A5E`/`#E6F7F0` / 警告 `#E8850C`/`#FFF4E8` / 错误 `#D63031`/`#FFEBEE` |
 
-- 所有页面均为 `'use client'`
-- 不可变更新 — 永远用 spread 创建新对象，不直接修改 state
-- 中文 UI 文案 — 所有面向用户的文字用中文
-- 文件大小 — 控制在 800 行以内，超出拆分子组件
-- 用户选择器 — 统一用 shadcn Popover + Command 实现
+- 页面容器：`<div className="max-w-7xl mx-auto space-y-6">`
+- 卡片：`bg-white rounded-2xl border border-[#EBEBEB] shadow-[0_2px_8px_rgba(0,0,0,0.06)] p-6`
+- 表单样式统一从 `@/lib/ui-constants` 的 `FIELD_STYLES` 引用
 
-### 自定义 checkbox 模式
+## 关键模块
 
-```tsx
-<label className="flex items-center gap-2 cursor-pointer">
-  <input type="checkbox" checked={checked} onChange={...} className="sr-only" />
-  <div className={`w-4 h-4 rounded border-2 ...`}>
-    {checked && <Check className="w-3 h-3" />}
-  </div>
-</label>
+```
+src/app/
+├── approvals/       # 风控审批申请（列表/详情/新建/编辑）
+├── approval/        # 审批配置
+│   ├── fields/      # 字段配置（13字段，store CRUD）
+│   ├── auto-rules/  # 自动规则（7条，store CRUD）
+│   └── workflows/   # 审批流模板
+├── customers/       # 客户管理
+└── api/             # 10 个 API 端点（含 risk-approvals 完整 CRUD）
 ```
 
-## 数据模型要点
+## 开发注意事项
 
-- 客户 `Customer`: `responsiblePersons: string[]`（多选负责人），`customerCode?: string`（客户代码）
-- 所有数据操作通过 `useApp()` hook → dispatch action → reducer 不可变更新
-- 协同操作: `assignCustomer(id, responsiblePersons[])`, `transferCustomer(id, newPerson, reason?)`
+### 重复结构页面
 
-## 已知问题
+客户列表页等存在卡片视图和表格视图两个渲染分支时：
+1. 修改前 `grep -n "变量名" page.tsx` 找全所有声明点
+2. 新增变量必须在每个作用域独立声明
+3. 改后立即 `pnpm ts-check`
 
-- `pnpm build` 因 `src/db/index.ts` 缺少 `@types/sql.js` 报错，前端修改可忽略此报错
-- 仅做前端修改时，用 `pnpm ts-check` 验证即可
+### useState 初始值
+
+`useState(value)` 仅在组件首次挂载时生效。如果数据是异步加载的（如 DB），需用 `useEffect` 同步：`useEffect(() => setFormData(data), [data])`。
+
+### 不可变更新
+
+所有 state 必须用 spread 创建新对象，禁止直接修改。
+
+## 禁止事项 / 反模式 ⛔
+
+### 数据层
+
+- **禁止 `sample-data.ts` 中的数据分散到各页面的局部常量**。
+  所有初始数据必须在 `sample-data.ts` 中统一导出。跨页面需要同一份数据时，各页面从 sample-data 导入，不允许各自维护一份副本。违反 → 数据不同步、改一处漏一处。
+
+- **禁止把 `sample-data.ts` 当成 mock 数据随意修改**。
+  它是**生产数据库种子文件**，store 用它初始化内存状态，seed 用它初始化 SQLite。改它 = 改生产数据。任何改动必须在 Plan Mode 中获用户确认。
+
+- **禁止修改 `src/db/schema.ts` 后不同步更新 `src/db/seed.ts`** 的 CREATE TABLE 语句。列名不一致 → seed 静默失败 → `no such column`。
+
+- **禁止 DB 文件修改后不重启 dev server**。`getDb()` 是内存单例。
+
+### 类型与属性
+
+- **禁止 `RuleCondition` 接口的 `field` 和 `fieldKey` 出现二义性**。
+  `field` 是主属性（必填），`fieldKey` 是可选冗余。UI 绑定必须 `field || fieldKey` 双保险，绝不能只绑一个。违反 → select 静默回退到第一项，全部条件显示同一个字段。
+
+- **禁止 onChange 更新条件时只写部分属性**。
+  修改字段必须同时更新 `{ field, fieldKey, fieldName }` 三个属性。只更新 `fieldKey` 而不更新 `field` → `renderConditionPreview` 读不到字段名 → 显示「未知字段」。
+
+- **禁止 `<select>` 元素不提供空选项兜底**。
+  当 `value` 在 options 中无匹配时，浏览器静默展示第一个 option，不会报错。始终确保有 `<option value="">` 或 value 必能匹配。
+
+### 业务逻辑
+
+- **禁止在规则编辑器中使用全局字段列表**。
+  条件字段下拉必须按**选中客户**过滤：应用材料 → DN/Plant/Location，华力 → 货物属性。用全局 `splitFields` 会导致错配。
+
+- **禁止操作符列表与数据不同步**。
+  数据中已有 `not_in_list` 操作符时，OPERATORS 常量也必须包含它。否则 `renderConditionPreview` 会显示原始英文 key 而非中文标签。
+
+- **禁止 equals/not_equals 操作符接受多值而不转换**。
+  `equals` 语义不支持多值。选了 ≥2 个值 → 必须自动转为 `in_list`。选了 1 个值 → 转回 `equals`。违反 → 规则引擎解析时逻辑错误。
+
+- **禁止账单主体下拉使用 `customer.billingEntities` ID 数组过滤**。
+  账单主体可选值应来自 `initialCustomerBillingFields` 中该客户「账单主体」字段的 `options`。
+
+### 组件设计
+
+- **禁止 RuleGroupEditor 和 rules/page.tsx 各自维护一份 OPERATORS**。
+  操作符列表必须在两处保持完全一致（名称、数量、value）。任何增删必须两处同步改。
+
+## 故障排查
+
+| 症状 | 可能原因 | 解决 |
+|------|---------|------|
+| 编辑保存后列表不变 | DB 未连接 / server 缓存旧 DB | 重建 DB + 重启 server |
+| seed 报 `no such column` | CREATE TABLE 列名与 Drizzle schema 不一致 | 对齐 seed.ts 的 SQL 列名 |
+| API 返回 `no such table` | seed 未运行或表被跳过 | 检查 seed 输出，确保所有表创建成功 |
+| 页面数据不更新 | store 与 API 不同步 | 检查 API 是否返回正确数据，store reducer 是否正确匹配 ID |
+| 修改 schema 后插入失败 | 未同步更新 seed.ts CREATE TABLE | schema.ts 和 seed.ts 必须同时修改 |

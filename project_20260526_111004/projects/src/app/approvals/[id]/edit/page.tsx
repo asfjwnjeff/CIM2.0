@@ -53,7 +53,7 @@ const mockOpportunities = [
 
 const mockApprovals = [
   {
-    id: '1', isTradeAgent: '是', serviceProduct: '货代', businessType: '保税', goodsType: '半导体设备', monthlyBusinessVolume: '101-500', monthlyInvoiceAmount: '约50万/月',
+    id: '1', status: 'pending', isTradeAgent: '是', serviceProduct: '货代', businessType: '保税', goodsType: '半导体设备', monthlyBusinessVolume: '101-500', monthlyInvoiceAmount: '约50万/月',
     customsKpiRequirement: '通关时效≤24小时，单证准确率≥99.5%', transportKpiRequirement: '运输时效≤48小时，货损率≤0.1%', warehouseLeaseRequirement: '需常温仓库2000㎡，位于浦东机场附近',
     customServiceRequirement: '信息系统', customRequirementDescription: '需要对接客户ERP系统，实现订单自动推送和状态回传',
     companyName: '应用材料(中国)有限公司', englishName: 'Applied Materials China Co., Ltd.', parentCompany: 'Applied Materials, Inc.', subsidiaryCompany: '',
@@ -61,7 +61,7 @@ const mockApprovals = [
     businessCustomerIds: ['bc1'], suggestedSystemCode: 'AMC-2026-001', opportunityId: 'opp1', invoiceInfoIds: ['inv1'], settlementPeriod: '月结30天', contactName: '李总',
   },
   {
-    id: '2', isTradeAgent: '否', serviceProduct: '仓储', businessType: '口岸完税', goodsType: '电子元器件', monthlyBusinessVolume: '51-100', monthlyInvoiceAmount: '约30万/月',
+    id: '2', status: 'approved', isTradeAgent: '否', serviceProduct: '仓储', businessType: '口岸完税', goodsType: '电子元器件', monthlyBusinessVolume: '51-100', monthlyInvoiceAmount: '约30万/月',
     customsKpiRequirement: '无特殊要求', transportKpiRequirement: '无特殊要求', warehouseLeaseRequirement: '需恒温恒湿仓库500㎡，位于外高桥保税区',
     customServiceRequirement: '仓储', customRequirementDescription: '需要VMI库存管理服务，支持按需出库',
     companyName: '飞雅贸易(上海)有限公司', englishName: 'Fiya Trading (Shanghai) Co., Ltd.', parentCompany: '', subsidiaryCompany: '飞雅贸易深圳分公司',
@@ -69,7 +69,7 @@ const mockApprovals = [
     businessCustomerIds: ['bc2'], suggestedSystemCode: 'FYC-2026-002', opportunityId: 'opp2', invoiceInfoIds: ['inv2'], settlementPeriod: '月结45天', contactName: '王经理',
   },
   {
-    id: '3', isTradeAgent: '是', serviceProduct: '运输', businessType: '免税', goodsType: '精密仪器', monthlyBusinessVolume: '0-50', monthlyInvoiceAmount: '约15万/月',
+    id: '3', status: 'in_review', isTradeAgent: '是', serviceProduct: '运输', businessType: '免税', goodsType: '精密仪器', monthlyBusinessVolume: '0-50', monthlyInvoiceAmount: '约15万/月',
     customsKpiRequirement: '通关时效≤12小时，需AEO认证通道', transportKpiRequirement: '运输时效≤24小时，需全程GPS跟踪，货损率≤0.05%', warehouseLeaseRequirement: '需临时中转仓300㎡，位于虹桥机场附近',
     customServiceRequirement: '运输', customRequirementDescription: '需要专车运输服务，配备防震设备和温控系统',
     companyName: '荏原机械(中国)有限公司', englishName: 'Ebara Machinery China Co., Ltd.', parentCompany: '荏原制作所', subsidiaryCompany: '',
@@ -77,7 +77,7 @@ const mockApprovals = [
     businessCustomerIds: ['bc3'], suggestedSystemCode: 'YBJ-2026-003', opportunityId: 'opp3', invoiceInfoIds: ['inv3'], settlementPeriod: '月结60天', contactName: '张总监',
   },
   {
-    id: '4', isTradeAgent: '否', serviceProduct: '进出口', businessType: '试单', goodsType: '化工原料', monthlyBusinessVolume: '500以上', monthlyInvoiceAmount: '约100万/月',
+    id: '4', status: 'draft', isTradeAgent: '否', serviceProduct: '进出口', businessType: '试单', goodsType: '化工原料', monthlyBusinessVolume: '500以上', monthlyInvoiceAmount: '约100万/月',
     customsKpiRequirement: '通关时效≤6小时，需危化品通关资质', transportKpiRequirement: '运输需危化品运输资质，全程温控监测', warehouseLeaseRequirement: '需危化品专用仓库1000㎡，甲类资质',
     customServiceRequirement: '仅涉及标准服务内容', customRequirementDescription: '无特殊定制化需求',
     companyName: '昇先创国际贸易(上海)有限公司', englishName: 'Sunson International Trading Co., Ltd.', parentCompany: '', subsidiaryCompany: '',
@@ -85,7 +85,7 @@ const mockApprovals = [
     businessCustomerIds: ['bc4', 'bc6'], suggestedSystemCode: 'SXC-2026-004', opportunityId: 'opp4', invoiceInfoIds: ['inv4'], settlementPeriod: '月结30天', contactName: '陈主管',
   },
   {
-    id: '5', isTradeAgent: '否', serviceProduct: '合同物流', businessType: '保税', goodsType: '集成电路芯片', monthlyBusinessVolume: '101-500', monthlyInvoiceAmount: '约80万/月',
+    id: '5', status: 'rejected', isTradeAgent: '否', serviceProduct: '合同物流', businessType: '保税', goodsType: '集成电路芯片', monthlyBusinessVolume: '101-500', monthlyInvoiceAmount: '约80万/月',
     customsKpiRequirement: '通关时效≤4小时，需无纸化通关', transportKpiRequirement: '运输时效≤12小时，需恒温运输', warehouseLeaseRequirement: '需洁净仓库3000㎡，无尘环境',
     customServiceRequirement: '信息系统', customRequirementDescription: '需要WMS/TMS系统对接，实现库存和运输全程可视化',
     companyName: '上海华力集成电路制造有限公司', englishName: 'Shanghai Huahong Grace Semiconductor Co., Ltd.', parentCompany: '华虹集团', subsidiaryCompany: '',
@@ -99,11 +99,38 @@ export default function ApprovalEditPage() {
   const params = useParams();
   const id = params.id as string;
 
-  const approval = mockApprovals.find((a) => a.id === id) || mockApprovals[0];
-  const { approvalFields, approvalWorkflows } = useApp();
+  const { approvalFields, approvalWorkflows, riskApprovals, updateRiskApproval } = useApp();
+  const approval = riskApprovals.find((a) => a.id === id) || riskApprovals[0];
+
+  const STATUS_MAP: Record<string, { label: string; bg: string; text: string }> = {
+    draft: { label: '草稿', bg: 'bg-[#EBEBEB]', text: 'text-[#999]' },
+    pending: { label: '待审批', bg: 'bg-[#FEFCE8]', text: 'text-[#CA8A04]' },
+    in_review: { label: '审批中', bg: 'bg-[#E8F4FF]', text: 'text-[#2D3BFF]' },
+    approved: { label: '已通过', bg: 'bg-[#F0FDF4]', text: 'text-[#16A34A]' },
+    rejected: { label: '已拒绝', bg: 'bg-[#FEF2F2]', text: 'text-[#DC2626]' },
+  };
+
+  const derivedStatus = useMemo(() => {
+    const steps = approval.approvalSteps || [];
+    if (steps.length === 0) return 'draft';
+    const anyRejected = steps.some((s: Record<string, unknown>) => s.rejected === true);
+    if (anyRejected) return 'rejected';
+    const initiatorStep = steps.find((s: Record<string, unknown>) => s.level === 1);
+    if (initiatorStep?.status === 'current') return 'draft';
+    const allCompleted = steps.every((s: Record<string, unknown>) => s.status === 'completed');
+    if (allCompleted) return 'approved';
+    const hasCurrent = steps.some((s: Record<string, unknown>) => s.status === 'current');
+    if (hasCurrent) return 'in_review';
+    return 'pending';
+  }, [approval.approvalSteps]);
+
+  const isEditable = derivedStatus === 'draft' || derivedStatus === 'rejected';
+  const statusLabel = STATUS_MAP[derivedStatus]?.label || derivedStatus;
 
   const [formData, setFormData] = useState(approval);
-  const [dynamicFieldValues, setDynamicFieldValues] = useState<Record<string, string>>({});
+  const [dynamicFieldValues, setDynamicFieldValues] = useState<Record<string, string>>(
+    ((approval as unknown as Record<string, unknown>).dynamicFieldValues as Record<string, string>) || {}
+  );
 
   const dynamicFields = useMemo(() => {
     if (!formData.serviceProduct) return [];
@@ -171,7 +198,16 @@ export default function ApprovalEditPage() {
   };
 
   const handleSave = () => {
-    alert('保存成功！');
+    if (currentApproverConfig?.isPickOne && !pickedApprover) {
+      alert('合同物流必须选择一位职能审批人');
+      return;
+    }
+    const { id: _fid, ...rest } = formData as any;
+    updateRiskApproval(id, {
+      ...rest,
+      pickedApprover: pickedApprover || (approval as any).pickedApprover,
+      dynamicFieldValues: { ...dynamicFieldValues },
+    } as any);
     router.push('/approvals');
   };
 
@@ -186,13 +222,30 @@ export default function ApprovalEditPage() {
             <p className="text-[#5A5A5A] mt-1">编辑客户风险控制审批申请</p>
           </div>
           <div className="flex-1" />
-          <button onClick={() => router.push('/approvals')} className="px-6 py-2 border border-[#EBEBEB] text-[#666] rounded-lg hover:bg-gray-50 transition-colors">取消</button>
-          <button onClick={handleSave} className="px-6 py-2 bg-[#2D3BFF] text-white rounded-lg hover:shadow-lg hover:shadow-[#2D3BFF]/20 transition-all">保存</button>
+          {isEditable ? (
+            <>
+              <button onClick={() => router.push('/approvals')} className="px-6 py-2 border border-[#EBEBEB] text-[#666] rounded-lg hover:bg-gray-50 transition-colors">取消</button>
+              <button onClick={handleSave} className="px-6 py-2 bg-[#2D3BFF] text-white rounded-lg hover:shadow-lg hover:shadow-[#2D3BFF]/20 transition-all">保存</button>
+            </>
+          ) : (
+            <button onClick={() => router.push(`/approvals/${id}`)} className="px-6 py-2 bg-[#2D3BFF] text-white rounded-lg hover:shadow-lg hover:shadow-[#2D3BFF]/20 transition-all">返回查看</button>
+          )}
         </div>
 
         <div className="mt-6">
+          {!isEditable && (
+            <div className="bg-[#FEFCE8] border border-[#FDE68A] rounded-xl p-4 mb-6 flex items-center gap-3">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#CA8A04" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              <div>
+                <p className="text-sm font-medium text-[#CA8A04]">无法编辑</p>
+                <p className="text-xs text-[#CA8A04]/70 mt-0.5">只有草稿或已拒绝状态的审批可以编辑，当前审批状态为「{statusLabel}」</p>
+              </div>
+              <div className="flex-1" />
+              <button onClick={() => router.push(`/approvals/${id}`)} className="text-sm text-[#2D3BFF] hover:underline">返回查看</button>
+            </div>
+          )}
           <form onSubmit={(e) => { e.preventDefault(); handleSave(); }}>
-            <div className="grid grid-cols-12 gap-6">
+            <div className={`grid grid-cols-12 gap-6 ${!isEditable ? 'pointer-events-none opacity-60' : ''}`}>
               <div className="col-span-7 space-y-6">
                 {/* 公司信息 */}
                 <div className="bg-white rounded-2xl shadow-sm p-6">
@@ -209,8 +262,8 @@ export default function ApprovalEditPage() {
                 <div className="bg-white rounded-2xl shadow-sm p-6">
                   <h3 className="text-sm font-semibold text-[#0A0A0A] mb-4 pb-3 border-b border-[#EBEBEB]">风控信息</h3>
                   <div className="grid grid-cols-2 gap-4">
-                    <div><label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">风险控制目的 <span className="text-red-500">*</span></label><SearchableSelect value={formData.riskControlPurpose} onChange={(value) => handleChange('riskControlPurpose', value)} options={RISK_PURPOSES.map((p) => ({ value: p, label: p }))} placeholder="请选择" /></div>
-                    <div><label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">此公司与HMG的关系 <span className="text-red-500">*</span></label><SearchableSelect value={formData.relationshipWithHMG} onChange={(value) => handleChange('relationshipWithHMG', value)} options={HMG_RELATIONS.map((r) => ({ value: r, label: r }))} placeholder="请选择" /></div>
+                    <div><label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">风险控制目的 <span className="text-red-500">*</span></label><SearchableSelect value={formData.riskControlPurpose || ''} onChange={(value) => handleChange('riskControlPurpose', value)} options={RISK_PURPOSES.map((p) => ({ value: p, label: p }))} placeholder="请选择" /></div>
+                    <div><label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">此公司与HMG的关系 <span className="text-red-500">*</span></label><SearchableSelect value={formData.relationshipWithHMG || ''} onChange={(value) => handleChange('relationshipWithHMG', value)} options={HMG_RELATIONS.map((r) => ({ value: r, label: r }))} placeholder="请选择" /></div>
                   </div>
                 </div>
 
@@ -222,8 +275,8 @@ export default function ApprovalEditPage() {
                       <label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">业务主客户 <span className="text-red-500">*</span></label>
                       <div className="space-y-2">
                         <div className="flex flex-wrap gap-2">
-                          {getSelectedNames(formData.businessCustomerIds, mockBusinessCustomers.map((c) => ({ id: c.id, name: c.name }))).map((name, i) => (
-                            <span key={i} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#E8F4FF] text-[#2D3BFF] rounded-lg text-sm">{name}<button type="button" onClick={() => toggleMultiSelect('businessCustomerIds', formData.businessCustomerIds[i])} className="hover:text-red-500 text-base">×</button></span>
+                          {getSelectedNames(formData.businessCustomerIds || [], mockBusinessCustomers.map((c) => ({ id: c.id, name: c.name }))).map((name, i) => (
+                            <span key={i} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#E8F4FF] text-[#2D3BFF] rounded-lg text-sm">{name}<button type="button" onClick={() => toggleMultiSelect('businessCustomerIds', (formData.businessCustomerIds || [])[i])} className="hover:text-red-500 text-base">×</button></span>
                           ))}
                         </div>
                         <button type="button" onClick={() => { setSearchTerm(''); setSelectorOpen('businessCustomer'); }} className="w-full bg-white border border-dashed border-[#D5D5D5] rounded-xl px-4 py-3 text-sm text-[#999] hover:border-[#2D3BFF] hover:text-[#2D3BFF] transition-colors">+ 选择业务主客户</button>
@@ -260,8 +313,8 @@ export default function ApprovalEditPage() {
                       <label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">客户开票信息 <span className="text-red-500">*</span></label>
                       <div className="space-y-2">
                         <div className="flex flex-wrap gap-2">
-                          {getSelectedNames(formData.invoiceInfoIds, mockInvoiceInfos.map((inv) => ({ id: inv.id, name: inv.title }))).map((name, i) => (
-                            <span key={i} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#FFF7ED] text-[#EA580C] rounded-lg text-sm">{name}<button type="button" onClick={() => toggleMultiSelect('invoiceInfoIds', formData.invoiceInfoIds[i])} className="hover:text-red-500 text-base">×</button></span>
+                          {getSelectedNames(formData.invoiceInfoIds || [], mockInvoiceInfos.map((inv) => ({ id: inv.id, name: inv.title }))).map((name, i) => (
+                            <span key={i} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#FFF7ED] text-[#EA580C] rounded-lg text-sm">{name}<button type="button" onClick={() => toggleMultiSelect('invoiceInfoIds', (formData.invoiceInfoIds || [])[i])} className="hover:text-red-500 text-base">×</button></span>
                           ))}
                         </div>
                         <button type="button" onClick={() => { setSearchTerm(''); setSelectorOpen('invoiceInfo'); }} className="w-full bg-white border border-dashed border-[#D5D5D5] rounded-xl px-4 py-3 text-sm text-[#999] hover:border-[#2D3BFF] hover:text-[#2D3BFF] transition-colors">+ 选择客户开票信息</button>
@@ -276,18 +329,18 @@ export default function ApprovalEditPage() {
                 <div className="bg-white rounded-2xl shadow-sm p-6">
                   <h3 className="text-sm font-semibold text-[#0A0A0A] mb-4 pb-3 border-b border-[#EBEBEB]">业务信息</h3>
                   <div className="grid grid-cols-2 gap-4">
-                    <div><label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">是否涉及贸易代理 <span className="text-red-500">*</span></label><SearchableSelect value={formData.isTradeAgent} onChange={(value) => handleChange('isTradeAgent', value)} options={[{ value: '是', label: '是' }, { value: '否', label: '否' }]} placeholder="请选择" /></div>
-                    <div><label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">服务产品 <span className="text-red-500">*</span></label><SearchableSelect value={formData.serviceProduct} onChange={(value) => handleChange('serviceProduct', value)} options={SERVICE_PRODUCTS.map((p) => ({ value: p, label: p }))} placeholder="请选择服务产品" /></div>
-                    <div><label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">业务类型 <span className="text-red-500">*</span></label><SearchableSelect value={formData.businessType} onChange={(value) => handleChange('businessType', value)} options={BUSINESS_TYPES.map((t) => ({ value: t, label: t }))} placeholder="请选择业务类型" /></div>
+                    <div><label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">是否涉及贸易代理 <span className="text-red-500">*</span></label><SearchableSelect value={formData.isTradeAgent || ''} onChange={(value) => handleChange('isTradeAgent', value)} options={[{ value: '是', label: '是' }, { value: '否', label: '否' }]} placeholder="请选择" /></div>
+                    <div><label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">服务产品 <span className="text-red-500">*</span></label><SearchableSelect value={formData.serviceProduct || ''} onChange={(value) => handleChange('serviceProduct', value)} options={SERVICE_PRODUCTS.map((p) => ({ value: p, label: p }))} placeholder="请选择服务产品" /></div>
+                    <div><label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">业务类型 <span className="text-red-500">*</span></label><SearchableSelect value={formData.businessType || ''} onChange={(value) => handleChange('businessType', value)} options={BUSINESS_TYPES.map((t) => ({ value: t, label: t }))} placeholder="请选择业务类型" /></div>
                     <div><label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">货物类型 <span className="text-red-500">*</span></label><input type="text" value={formData.goodsType} onChange={(e) => handleChange('goodsType', e.target.value)} placeholder="请输入货物类型" className="w-full bg-[#F5F5F5] border-none rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30" /></div>
-                    <div><label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">月均业务量 <span className="text-red-500">*</span></label><SearchableSelect value={formData.monthlyBusinessVolume} onChange={(value) => handleChange('monthlyBusinessVolume', value)} options={MONTHLY_VOLUMES.map((v) => ({ value: v, label: v }))} placeholder="请选择月均业务量" /></div>
+                    <div><label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">月均业务量 <span className="text-red-500">*</span></label><SearchableSelect value={formData.monthlyBusinessVolume || ''} onChange={(value) => handleChange('monthlyBusinessVolume', value)} options={MONTHLY_VOLUMES.map((v) => ({ value: v, label: v }))} placeholder="请选择月均业务量" /></div>
                     <div><label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">每月开票金额 <span className="text-red-500">*</span></label><input type="text" value={formData.monthlyInvoiceAmount} onChange={(e) => handleChange('monthlyInvoiceAmount', e.target.value)} placeholder="请输入每月开票金额" className="w-full bg-[#F5F5F5] border-none rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30" /></div>
                   </div>
                   <div className="mt-4 space-y-4">
                     <div><label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">通关KPI要求 <span className="text-red-500">*</span></label><textarea value={formData.customsKpiRequirement} onChange={(e) => handleChange('customsKpiRequirement', e.target.value)} placeholder="请输入通关KPI要求" rows={3} className="w-full bg-[#F5F5F5] border-none rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30 resize-none" /></div>
                     <div><label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">运输KPI要求 <span className="text-red-500">*</span></label><textarea value={formData.transportKpiRequirement} onChange={(e) => handleChange('transportKpiRequirement', e.target.value)} placeholder="请输入运输KPI要求" rows={3} className="w-full bg-[#F5F5F5] border-none rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30 resize-none" /></div>
                     <div><label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">仓库租赁要求 <span className="text-red-500">*</span></label><textarea value={formData.warehouseLeaseRequirement} onChange={(e) => handleChange('warehouseLeaseRequirement', e.target.value)} placeholder="请输入仓库租赁要求" rows={3} className="w-full bg-[#F5F5F5] border-none rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30 resize-none" /></div>
-                    <div><label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">定制化服务需求 <span className="text-red-500">*</span></label><SearchableSelect value={formData.customServiceRequirement} onChange={(value) => handleChange('customServiceRequirement', value)} options={CUSTOM_SERVICE_OPTIONS.map((o) => ({ value: o, label: o }))} placeholder="请选择定制化服务需求" /></div>
+                    <div><label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">定制化服务需求 <span className="text-red-500">*</span></label><SearchableSelect value={formData.customServiceRequirement || ''} onChange={(value) => handleChange('customServiceRequirement', value)} options={CUSTOM_SERVICE_OPTIONS.map((o) => ({ value: o, label: o }))} placeholder="请选择定制化服务需求" /></div>
                     <div><label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">定制化需求描述 <span className="text-red-500">*</span></label><textarea value={formData.customRequirementDescription} onChange={(e) => handleChange('customRequirementDescription', e.target.value)} placeholder="请输入定制化需求描述" rows={3} className="w-full bg-[#F5F5F5] border-none rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30 resize-none" /></div>
                   </div>
                 </div>
@@ -337,6 +390,7 @@ export default function ApprovalEditPage() {
                                     const vals = (dynamicFieldValues[field.fieldKey] || '').split(',').filter(Boolean);
                                     vals.splice(i, 1);
                                     handleDynamicFieldChange(field.fieldKey, vals.join(','));
+                                    if (v === '其他') handleDynamicFieldChange(field.fieldKey + '_other', '');
                                   }} className="hover:text-red-500 text-base">×</button>
                                 </span>
                               ))}
@@ -355,8 +409,49 @@ export default function ApprovalEditPage() {
                                   {field.options.filter(o => !(dynamicFieldValues[field.fieldKey] || '').includes(o.label)).map(o => (
                                     <option key={o.id} value={o.label}>{o.label}</option>
                                   ))}
+                                  {(dynamicFieldValues[field.fieldKey] || '').indexOf('其他') === -1 && (
+                                    <option value="其他">其他</option>
+                                  )}
                                 </select>
                               </div>
+                              {(dynamicFieldValues[field.fieldKey] || '').indexOf('其他') !== -1 && (
+                                <input
+                                  type="text"
+                                  value={dynamicFieldValues[field.fieldKey + '_other'] || ''}
+                                  onChange={(e) => handleDynamicFieldChange(field.fieldKey + '_other', e.target.value)}
+                                  placeholder="请输入其他地区"
+                                  className={`w-full rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30 ${inputBg}`}
+                                />
+                              )}
+                            </div>
+                          ) : field.fieldType === 'percentage' ? (
+                            <div className="relative">
+                              <input
+                                type="number"
+                                value={dynamicFieldValues[field.fieldKey] || ''}
+                                onChange={(e) => handleDynamicFieldChange(field.fieldKey, e.target.value)}
+                                placeholder={`请输入${field.name}`}
+                                className={`w-full rounded-xl px-4 py-3 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30 ${inputBg}`}
+                              />
+                              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-[#999]">%</span>
+                            </div>
+                          ) : field.fieldType === 'single_other' ? (
+                            <div className="space-y-2">
+                              <SearchableSelect
+                                value={dynamicFieldValues[field.fieldKey] || ''}
+                                onChange={(v) => handleDynamicFieldChange(field.fieldKey, v)}
+                                options={field.options.map(o => ({ value: o.label, label: o.label }))}
+                                placeholder={`请选择${field.name}`}
+                              />
+                              {dynamicFieldValues[field.fieldKey] === '其他' && (
+                                <input
+                                  type="text"
+                                  value={dynamicFieldValues[field.fieldKey + '_other'] || ''}
+                                  onChange={(e) => handleDynamicFieldChange(field.fieldKey + '_other', e.target.value)}
+                                  placeholder="请输入其他类型"
+                                  className={`w-full rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30 ${inputBg}`}
+                                />
+                              )}
                             </div>
                           ) : (
                             <input
@@ -405,6 +500,7 @@ export default function ApprovalEditPage() {
                     workflow={matchedWorkflow}
                     ruleTriggeredApprovers={ruleTriggeredApprovers}
                     mode="preview"
+                    pickedApprover={pickedApprover || undefined}
                   />
 
                   {currentApproverConfig?.isPickOne && (
@@ -449,7 +545,7 @@ export default function ApprovalEditPage() {
                   .map((item) => {
                     const itemId = item.id;
                     const label = 'name' in item ? item.name : 'title' in item ? item.title : '';
-                    const selected = selectorOpen === 'businessCustomer' ? formData.businessCustomerIds.includes(itemId) : formData.invoiceInfoIds.includes(itemId);
+                    const selected = selectorOpen === 'businessCustomer' ? (formData.businessCustomerIds || []).includes(itemId) : (formData.invoiceInfoIds || []).includes(itemId);
                     const fieldName = selectorOpen === 'businessCustomer' ? 'businessCustomerIds' as const : 'invoiceInfoIds' as const;
                     return (
                       <button key={itemId} type="button" onClick={() => toggleMultiSelect(fieldName, itemId)} className={`w-full text-left p-3 rounded-xl border transition-colors ${selected ? 'border-[#2D3BFF] bg-[#E8F4FF]' : 'border-[#EBEBEB] hover:bg-[#F5F5F5]'}`}>

@@ -98,7 +98,8 @@ export const NAV_ITEMS: NavItem[] = [
       { label: '结算主体', href: '/entities/settlement', icon: <NavIcons.Clipboard /> },
     ],
   },
-  { label: '规则配置', href: '/rules', icon: <NavIcons.Settings /> },
+  { label: '账单主体规则管理', href: '/rules', icon: <NavIcons.Settings /> },
+  { label: '账单拆分字段管理', href: '/customer-billing-fields', icon: <NavIcons.Clipboard /> },
   {
     label: '系统管理', href: '/settings', icon: <NavIcons.Settings />,
     children: [

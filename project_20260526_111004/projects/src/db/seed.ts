@@ -9,6 +9,7 @@ import {
   approvalWorkflows,
   autoApprovalRules,
   approvalFields,
+  riskApprovals,
 } from './schema';
 import {
   initialCustomers,
@@ -19,12 +20,14 @@ import {
   initialApprovalWorkflows,
   initialAutoApprovalRules,
   initialApprovalFields,
+  initialRiskApprovals,
 } from '@/lib/sample-data';
 
 const CREATE_TABLES = [
   `CREATE TABLE IF NOT EXISTS customers (
-    id TEXT PRIMARY KEY, name TEXT NOT NULL, erp_customer_id TEXT,
-    signing_entity TEXT, service_entity TEXT, status TEXT DEFAULT 'active',
+    id TEXT PRIMARY KEY, name TEXT NOT NULL, customer_code TEXT,
+    signing_entity_ids TEXT, service_entity_ids TEXT, settlement_entity_ids TEXT,
+    status TEXT DEFAULT 'active',
     basic_info TEXT, business_info TEXT, semiconductor_info TEXT,
     related_companies TEXT, products TEXT, billing_entities TEXT,
     rule_ids TEXT, audit_logs TEXT, created_at TEXT, updated_at TEXT
@@ -66,6 +69,23 @@ const CREATE_TABLES = [
     failure_message TEXT, priority INTEGER DEFAULT 99,
     created_by TEXT, created_at TEXT, updated_at TEXT
   )`,
+  `CREATE TABLE IF NOT EXISTS risk_approvals (
+    id TEXT PRIMARY KEY, company_name TEXT NOT NULL,
+    service_product TEXT, is_trade_agent TEXT DEFAULT '否',
+    business_type TEXT, approval_status TEXT DEFAULT '草稿',
+    status TEXT, approval_steps TEXT, picked_approver TEXT,
+    dynamic_field_values TEXT, submitter TEXT, remark TEXT,
+    english_name TEXT, parent_company TEXT, subsidiary_company TEXT,
+    goods_type TEXT, monthly_business_volume TEXT, monthly_invoice_amount TEXT,
+    customs_kpi_requirement TEXT, transport_kpi_requirement TEXT, warehouse_lease_requirement TEXT,
+    custom_service_requirement TEXT, custom_requirement_description TEXT,
+    risk_control_purpose TEXT, relationship_with_hmg TEXT,
+    settlement_period TEXT, contact_name TEXT,
+    suggested_system_code TEXT, opportunity_id TEXT,
+    business_customer_ids TEXT, invoice_info_ids TEXT,
+    submit_time TEXT, approved_by TEXT, approved_at TEXT, reject_reason TEXT,
+    created_at TEXT, updated_at TEXT
+  )`,
   `CREATE TABLE IF NOT EXISTS approval_fields (
     id TEXT PRIMARY KEY, name TEXT NOT NULL, field_key TEXT NOT NULL,
     field_type TEXT DEFAULT 'text', service_products TEXT DEFAULT '[]',
@@ -94,6 +114,7 @@ async function seed() {
   db.delete(approvalWorkflows).run();
   db.delete(autoApprovalRules).run();
   db.delete(approvalFields).run();
+  db.delete(riskApprovals).run();
 
   // 插入审批字段
   for (const f of initialApprovalFields) {
@@ -213,6 +234,45 @@ async function seed() {
     }).run();
   }
   console.log(`  自动审批规则: ${initialAutoApprovalRules.length} 条`);
+
+  // 插入风控审批记录
+  if (initialRiskApprovals && initialRiskApprovals.length > 0) {
+    const raAny = initialRiskApprovals as any[];
+    for (const ra of raAny) {
+      db.insert(riskApprovals).values({
+        id: ra.id, companyName: ra.companyName || '',
+        serviceProduct: ra.serviceProduct ?? null,
+        isTradeAgent: ra.isTradeAgent ?? '否',
+        businessType: ra.businessType ?? null,
+        approvalStatus: ra.approvalStatus ?? '草稿',
+        status: ra.status ?? null,
+        approvalSteps: ra.approvalSteps ? JSON.stringify(ra.approvalSteps) : null,
+        pickedApprover: ra.pickedApprover ?? null,
+        dynamicFieldValues: ra.dynamicFieldValues ? JSON.stringify(ra.dynamicFieldValues) : null,
+        submitter: ra.submitter ?? null, remark: ra.remark ?? null,
+        englishName: ra.englishName ?? null, parentCompany: ra.parentCompany ?? null,
+        subsidiaryCompany: ra.subsidiaryCompany ?? null, goodsType: ra.goodsType ?? null,
+        monthlyBusinessVolume: ra.monthlyBusinessVolume ?? null,
+        monthlyInvoiceAmount: ra.monthlyInvoiceAmount ?? null,
+        customsKpiRequirement: ra.customsKpiRequirement ?? null,
+        transportKpiRequirement: ra.transportKpiRequirement ?? null,
+        warehouseLeaseRequirement: ra.warehouseLeaseRequirement ?? null,
+        customServiceRequirement: ra.customServiceRequirement ?? null,
+        customRequirementDescription: ra.customRequirementDescription ?? null,
+        riskControlPurpose: ra.riskControlPurpose ?? null,
+        relationshipWithHMG: ra.relationshipWithHMG ?? null,
+        settlementPeriod: ra.settlementPeriod ?? null, contactName: ra.contactName ?? null,
+        suggestedSystemCode: ra.suggestedSystemCode ?? null, opportunityId: ra.opportunityId ?? null,
+        businessCustomerIds: ra.businessCustomerIds ? JSON.stringify(ra.businessCustomerIds) : null,
+        invoiceInfoIds: ra.invoiceInfoIds ? JSON.stringify(ra.invoiceInfoIds) : null,
+        submitTime: ra.submitTime ?? null, approvedBy: ra.approvedBy ?? null,
+        approvedAt: ra.approvedAt ?? null, rejectReason: ra.rejectReason ?? null,
+        createdAt: ra.createdAt ?? new Date().toISOString(),
+        updatedAt: ra.updatedAt ?? null,
+      }).run();
+    }
+  }
+  console.log(`  风控审批: ${initialRiskApprovals?.length ?? 0} 条`);
 
   saveDb();
   console.log('\n数据库初始化完成! data/cim.db');

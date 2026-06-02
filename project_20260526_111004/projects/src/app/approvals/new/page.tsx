@@ -40,7 +40,7 @@ const mockInvoiceInfos = [
 
 export default function NewRiskControlPage() {
   const router = useRouter();
-  const { approvalFields, approvalWorkflows } = useApp();
+  const { approvalFields, approvalWorkflows, addRiskApproval } = useApp();
 
   const [formData, setFormData] = useState({
     isTradeAgent: "",
@@ -69,10 +69,29 @@ export default function NewRiskControlPage() {
   });
 
   const [selectorOpen, setSelectorOpen] = useState("");
+  const [pickedApprover, setPickedApprover] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [opportunitySearch, setOpportunitySearch] = useState("");
   const [showOpportunityDropdown, setShowOpportunityDropdown] = useState(false);
 
+  // 服务产品 → 职能审批人映射
+  const SERVICE_APPROVERS: Record<string, { approvers: string[]; isPickOne?: boolean }> = {
+    '货代': { approvers: ['张洁'] },
+    '关务': { approvers: ['蒋总'] },
+    '仓库': { approvers: ['吴总'] },
+    '运输': { approvers: ['朱弢'] },
+    '进出口': { approvers: ['张洁'] },
+    '维修': { approvers: ['蒋总'] },
+    '合同物流': { approvers: ['张洁', '蒋总', '吴总', '朱弢'], isPickOne: true },
+    '一体化供应链': { approvers: ['张洁'] },
+    '其他': { approvers: ['张洁'] },
+  };
+
+  const currentApproverConfig = formData.serviceProduct ? SERVICE_APPROVERS[formData.serviceProduct] : null;
+
+  const handlePickApprover = (approver: string) => {
+    setPickedApprover(approver);
+  };
   // 动态字段值存储
   const [dynamicFieldValues, setDynamicFieldValues] = useState<Record<string, string>>({});
 
@@ -123,14 +142,61 @@ export default function NewRiskControlPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    alert("提交成功！");
+    if (!formData.companyName.trim()) { alert('请填写公司全称'); return; }
+    if (!formData.serviceProduct) { alert('请选择服务产品'); return; }
+    if (!formData.businessType) { alert('请选择业务类型'); return; }
+    if (currentApproverConfig?.isPickOne && !pickedApprover) {
+      alert("合同物流必须选择一位职能审批人");
+      return;
+    }
+    addRiskApproval(buildApprovalData('已驳回'));
     router.push("/approvals");
   };
 
   const handleSaveDraft = () => {
-    alert("暂存成功！");
+    if (!formData.companyName.trim()) { alert('请填写公司全称'); return; }
+    addRiskApproval(buildApprovalData('草稿'));
+    router.push("/approvals");
   };
 
+  const buildApprovalData = (approvalStatus: string) => ({
+    companyName: formData.companyName,
+    englishName: formData.englishName,
+    parentCompany: formData.parentCompany,
+    subsidiaryCompany: formData.subsidiaryCompany,
+    serviceProduct: formData.serviceProduct,
+    isTradeAgent: formData.isTradeAgent || '否',
+    businessType: formData.businessType,
+    goodsType: formData.goodsType,
+    monthlyBusinessVolume: formData.monthlyBusinessVolume,
+    monthlyInvoiceAmount: formData.monthlyInvoiceAmount,
+    customsKpiRequirement: formData.customsKpiRequirement,
+    transportKpiRequirement: formData.transportKpiRequirement,
+    warehouseLeaseRequirement: formData.warehouseLeaseRequirement,
+    customServiceRequirement: formData.customServiceRequirement,
+    customRequirementDescription: formData.customRequirementDescription,
+    riskControlPurpose: formData.riskControlPurpose,
+    relationshipWithHMG: formData.relationshipWithHMG,
+    businessCustomerIds: formData.businessCustomerIds,
+    suggestedSystemCode: formData.suggestedSystemCode,
+    opportunityId: formData.opportunityId,
+    invoiceInfoIds: formData.invoiceInfoIds,
+    settlementPeriod: formData.settlementPeriod,
+    contactName: formData.contactName,
+    approvalStatus,
+    status: approvalStatus === '草稿' ? 'draft' : 'rejected',
+    approvalSteps: [
+      { id: 'init', name: '发起审批', role: '申请人', status: 'current', approver: '当前用户', level: 1 },
+      { id: 'mgmt', name: '部门经理审批', role: '部门经理', status: 'pending', approver: '陈总', level: 2 },
+      { id: 'func', name: '职能审批', role: '职能审批人', status: 'pending', approver: pickedApprover || '待选择', level: 3 },
+      { id: 'fin', name: '财务审批', role: '财务部+中心总经理（会签）', status: 'pending', approver: '赵总监、中心总经理', level: 4 },
+      { id: 'gm', name: '总经理审批', role: '各中心负责人', status: 'pending', approver: '各中心负责人', level: 5 },
+      { id: 'it', name: 'IT运维确认', role: 'IT运维', status: 'pending', approver: 'IT运维', level: 6 },
+    ],
+    pickedApprover: pickedApprover || undefined,
+    dynamicFieldValues: { ...dynamicFieldValues },
+    createdAt: new Date().toISOString(),
+  });
   const handleCancel = () => {
     router.push("/approvals");
   };
@@ -307,6 +373,33 @@ export default function NewRiskControlPage() {
                     />
                   </div>
                   <div>
+                  {/* 合同物流四选一 */}
+                  {currentApproverConfig?.isPickOne && (
+                    <div className="col-span-2 mt-2 p-4 bg-[#F5F5F5] rounded-xl">
+                      <div className="text-sm font-medium text-[#0A0A0A] mb-2">选择职能审批人</div>
+                      <div className="text-xs text-[#999] mb-3">合同物流需要指定一位职能审批人，请从以下人员中选择：</div>
+                      <div className="grid grid-cols-2 gap-2">
+                        {currentApproverConfig.approvers.map((approver) => (
+                          <button key={approver} type="button" onClick={() => handlePickApprover(approver)}
+                            className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border-2 transition-all ${
+                              pickedApprover === approver
+                                ? 'border-[#2D3BFF] bg-[#E8F4FF]'
+                                : 'border-[#EBEBEB] bg-white hover:border-[#2D3BFF]/30'
+                            }`}>
+                            <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-medium ${
+                              pickedApprover === approver ? 'bg-[#2D3BFF] text-white' : 'bg-[#EBEBEB] text-[#999]'
+                            }`}>{approver.charAt(0)}</div>
+                            <span className={`text-sm font-medium ${
+                              pickedApprover === approver ? 'text-[#2D3BFF]' : 'text-[#0A0A0A]'
+                            }`}>{approver}</span>
+                            {pickedApprover === approver && (
+                              <svg className="ml-auto" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2D3BFF" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                     <label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">业务类型 <span className="text-red-500">*</span></label>
                     <SearchableSelect
                       value={formData.businessType}
@@ -408,6 +501,7 @@ export default function NewRiskControlPage() {
                                     const vals = (dynamicFieldValues[field.fieldKey] || '').split(',').filter(Boolean);
                                     vals.splice(i, 1);
                                     handleDynamicFieldChange(field.fieldKey, vals.join(','));
+                                    if (v === '其他') handleDynamicFieldChange(field.fieldKey + '_other', '');
                                   }} className="hover:text-red-500 text-base">×</button>
                                 </span>
                               ))}
@@ -426,8 +520,49 @@ export default function NewRiskControlPage() {
                                   {field.options.filter(o => !(dynamicFieldValues[field.fieldKey] || '').includes(o.label)).map(o => (
                                     <option key={o.id} value={o.label}>{o.label}</option>
                                   ))}
+                                  {(dynamicFieldValues[field.fieldKey] || '').indexOf('其他') === -1 && (
+                                    <option value="其他">其他</option>
+                                  )}
                                 </select>
                               </div>
+                              {(dynamicFieldValues[field.fieldKey] || '').indexOf('其他') !== -1 && (
+                                <input
+                                  type="text"
+                                  value={dynamicFieldValues[field.fieldKey + '_other'] || ''}
+                                  onChange={(e) => handleDynamicFieldChange(field.fieldKey + '_other', e.target.value)}
+                                  placeholder="请输入其他地区"
+                                  className={`w-full rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30 ${inputBg}`}
+                                />
+                              )}
+                            </div>
+                          ) : field.fieldType === 'percentage' ? (
+                            <div className="relative">
+                              <input
+                                type="number"
+                                value={dynamicFieldValues[field.fieldKey] || ''}
+                                onChange={(e) => handleDynamicFieldChange(field.fieldKey, e.target.value)}
+                                placeholder={`请输入${field.name}`}
+                                className={`w-full rounded-xl px-4 py-3 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30 ${inputBg}`}
+                              />
+                              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-[#999]">%</span>
+                            </div>
+                          ) : field.fieldType === 'single_other' ? (
+                            <div className="space-y-2">
+                              <SearchableSelect
+                                value={dynamicFieldValues[field.fieldKey] || ''}
+                                onChange={(v) => handleDynamicFieldChange(field.fieldKey, v)}
+                                options={field.options.map(o => ({ value: o.label, label: o.label }))}
+                                placeholder={`请选择${field.name}`}
+                              />
+                              {dynamicFieldValues[field.fieldKey] === '其他' && (
+                                <input
+                                  type="text"
+                                  value={dynamicFieldValues[field.fieldKey + '_other'] || ''}
+                                  onChange={(e) => handleDynamicFieldChange(field.fieldKey + '_other', e.target.value)}
+                                  placeholder="请输入其他类型"
+                                  className={`w-full rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30 ${inputBg}`}
+                                />
+                              )}
                             </div>
                           ) : (
                             <input
@@ -476,6 +611,7 @@ export default function NewRiskControlPage() {
                   workflow={matchedWorkflow}
                   ruleTriggeredApprovers={ruleTriggeredApprovers}
                   mode="preview"
+                  pickedApprover={pickedApprover || undefined}
                 />
 
                 <div className="mt-4 p-3 bg-[#F5F5F5] rounded-xl">

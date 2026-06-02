@@ -1,13 +1,20 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { SplitField, LogicType, RuleConditionItem, RuleCondition, RuleGroup as RuleGroupType, RuleGroupItem, Operator } from '@/lib/types';
+
+interface EditorField {
+  name: string;
+  fieldKey: string;
+  options?: string[];
+}
 
 interface RuleGroupEditorProps {
   group: RuleGroupType;
-  fields: SplitField[];
+  fields: EditorField[];
   onChange: (group: RuleGroupType) => void;
   depth?: number;
+  customerFieldOptions?: Record<string, string[]>;
 }
 
 const OPERATORS = [
@@ -15,15 +22,87 @@ const OPERATORS = [
   { value: 'not_equals', label: '不等于' },
   { value: 'contains', label: '包含' },
   { value: 'not_contains', label: '不包含' },
-  { value: 'in', label: '在列表中' },
-  { value: 'any', label: '任意值' },
-  { value: 'empty', label: '为空' },
+  { value: 'is_empty', label: '为空' },
   { value: 'not_empty', label: '不为空' },
+  { value: 'in_list', label: '在列表中' },
+  { value: 'not_in_list', label: '不在列表中' },
 ];
+
+// 不需要值输入的操作符
+const NO_VALUE_OPERATORS = ['is_empty', 'not_empty'];
+
+// 多选下拉组件
+function MultiSelectDropdown({
+  options,
+  selectedValues,
+  onChange,
+}: {
+  options: string[];
+  selectedValues: string[];
+  onChange: (values: string[]) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = React.useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const toggle = (val: string) => {
+    if (selectedValues.includes(val)) {
+      onChange(selectedValues.filter(v => v !== val));
+    } else {
+      onChange([...selectedValues, val]);
+    }
+  };
+
+  const displayText = selectedValues.length > 0
+    ? selectedValues.length <= 2 ? selectedValues.join(', ') : `${selectedValues.length} 项已选`
+    : '请选择值';
+
+  return (
+    <div ref={ref} className="relative flex-1 min-w-[140px]">
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        className="w-full px-3 py-1.5 border border-gray-200 rounded-md text-sm text-left focus:outline-none focus:border-[#165DFF] bg-white hover:border-gray-300 transition-colors truncate"
+      >
+        <span className={selectedValues.length > 0 ? 'text-[#0A0A0A]' : 'text-gray-400'}>
+          {displayText}
+        </span>
+        <svg className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+      {open && (
+        <div className="absolute z-50 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+          {options.map(opt => (
+            <label
+              key={opt}
+              className="flex items-center gap-2 px-3 py-2 hover:bg-[#EEF2FF] cursor-pointer text-sm"
+            >
+              <input
+                type="checkbox"
+                checked={selectedValues.includes(opt)}
+                onChange={() => toggle(opt)}
+                className="w-4 h-4 text-[#2D3BFF] accent-[#2D3BFF] rounded"
+              />
+              <span className="text-[#0A0A0A]">{opt}</span>
+            </label>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 const generateId = () => `item-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
-export default function RuleGroupEditor({ group, fields, onChange, depth = 0 }: RuleGroupEditorProps) {
+export default function RuleGroupEditor({ group, fields, onChange, depth = 0, customerFieldOptions }: RuleGroupEditorProps) {
   const [collapsed, setCollapsed] = useState(false);
 
   // 获取条件列表
@@ -146,10 +225,10 @@ export default function RuleGroupEditor({ group, fields, onChange, depth = 0 }: 
           <div className="flex-1 flex items-center gap-2 flex-wrap">
             {/* 字段选择 */}
             <select
-              value={condition.condition?.fieldKey || ''}
+              value={condition.condition?.field || condition.condition?.fieldKey || ''}
               onChange={(e) => {
-                const field = fields.find(f => f.fieldKey === e.target.value);
-                updateCondition(condition.id, { fieldKey: e.target.value, fieldName: field?.name || '' });
+                const f = fields.find(f => f.fieldKey === e.target.value);
+                updateCondition(condition.id, { field: e.target.value, fieldKey: e.target.value, fieldName: f?.name || '' });
               }}
               className="px-3 py-1.5 border border-gray-200 rounded-md text-sm focus:outline-none focus:border-[#165DFF] bg-white"
             >
@@ -173,16 +252,43 @@ export default function RuleGroupEditor({ group, fields, onChange, depth = 0 }: 
               ))}
             </select>
 
-            {/* 值输入框 */}
-            {!['any', 'empty', 'not_empty'].includes(condition.condition?.operator || '') && (
-              <input
-                type="text"
-                value={condition.condition?.value || ''}
-                onChange={(e) => updateCondition(condition.id, { value: e.target.value })}
-                placeholder={condition.condition?.operator === 'in' ? '多个值用逗号分隔' : '输入值'}
-                className="px-3 py-1.5 border border-gray-200 rounded-md text-sm focus:outline-none focus:border-[#165DFF] flex-1 min-w-[120px]"
-              />
-            )}
+            {/* 值输入 — 多选下拉或文本 */}
+            {!NO_VALUE_OPERATORS.includes(condition.condition?.operator || '') && (() => {
+              const fieldName = condition.condition?.fieldName || condition.condition?.field || '';
+              const fieldOpts = customerFieldOptions?.[fieldName];
+              const currentValue = condition.condition?.value || '';
+              const selectedValues = currentValue ? currentValue.split(',').map(s => s.trim()).filter(Boolean) : [];
+              const currentOperator = condition.condition?.operator || '';
+
+              if (fieldOpts && fieldOpts.length > 0) {
+                // 多选下拉
+                return (
+                  <MultiSelectDropdown
+                    options={fieldOpts}
+                    selectedValues={selectedValues}
+                    onChange={(newValues) => {
+                      const newVal = newValues.join(',');
+                      // P2: 自动转换操作符
+                      let newOp = currentOperator;
+                      if (newValues.length > 1 && currentOperator === 'equals') newOp = 'in_list';
+                      else if (newValues.length > 1 && currentOperator === 'not_equals') newOp = 'not_in_list';
+                      else if (newValues.length === 1 && currentOperator === 'in_list') newOp = 'equals';
+                      else if (newValues.length === 1 && currentOperator === 'not_in_list') newOp = 'not_equals';
+                      updateCondition(condition.id, { value: newVal, operator: newOp });
+                    }}
+                  />
+                );
+              }
+              return (
+                <input
+                  type="text"
+                  value={currentValue}
+                  onChange={(e) => updateCondition(condition.id, { value: e.target.value })}
+                  placeholder={currentOperator === 'in_list' || currentOperator === 'not_in_list' ? '多个值用逗号分隔' : '输入值'}
+                  className="px-3 py-1.5 border border-gray-200 rounded-md text-sm focus:outline-none focus:border-[#165DFF] flex-1 min-w-[120px]"
+                />
+              );
+            })()}
           </div>
 
           {/* 删除按钮 */}
@@ -268,6 +374,7 @@ export default function RuleGroupEditor({ group, fields, onChange, depth = 0 }: 
             group={subGroupData}
             fields={fields}
             onChange={(newGroup) => updateSubGroup(subGroup.id, newGroup)}
+            customerFieldOptions={customerFieldOptions}
           />
         </div>
       </div>
@@ -358,7 +465,7 @@ export default function RuleGroupEditor({ group, fields, onChange, depth = 0 }: 
 }
 
 // 子分组编辑器组件（简化版本，不显示外层分组）
-function SubGroupEditor({ group, fields, onChange }: Omit<RuleGroupEditorProps, 'depth'>) {
+function SubGroupEditor({ group, fields, onChange, customerFieldOptions }: Omit<RuleGroupEditorProps, 'depth'>) {
   const [collapsed, setCollapsed] = useState(false);
 
   const generateSubId = () => `item-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
@@ -469,10 +576,10 @@ function SubGroupEditor({ group, fields, onChange }: Omit<RuleGroupEditorProps, 
 
           <div className="flex-1 flex items-center gap-2 flex-wrap">
             <select
-              value={condition.condition?.fieldKey || ''}
+              value={condition.condition?.field || condition.condition?.fieldKey || ''}
               onChange={(e) => {
-                const field = fields.find(f => f.fieldKey === e.target.value);
-                updateCondition(condition.id, { fieldKey: e.target.value, fieldName: field?.name || '' });
+                const f = fields.find(f => f.fieldKey === e.target.value);
+                updateCondition(condition.id, { field: e.target.value, fieldKey: e.target.value, fieldName: f?.name || '' });
               }}
               className="px-3 py-1.5 border border-gray-200 rounded-md text-sm focus:outline-none focus:border-[#165DFF] bg-white"
             >
@@ -495,15 +602,40 @@ function SubGroupEditor({ group, fields, onChange }: Omit<RuleGroupEditorProps, 
               ))}
             </select>
 
-            {!['any', 'empty', 'not_empty'].includes(condition.condition?.operator || '') && (
-              <input
-                type="text"
-                value={condition.condition?.value || ''}
-                onChange={(e) => updateCondition(condition.id, { value: e.target.value })}
-                placeholder={condition.condition?.operator === 'in' ? '多个值用逗号分隔' : '输入值'}
-                className="px-3 py-1.5 border border-gray-200 rounded-md text-sm focus:outline-none focus:border-[#165DFF] flex-1 min-w-[120px]"
-              />
-            )}
+            {!NO_VALUE_OPERATORS.includes(condition.condition?.operator || '') && (() => {
+              const fieldName = condition.condition?.fieldName || condition.condition?.field || '';
+              const fieldOpts = customerFieldOptions?.[fieldName];
+              const currentValue = condition.condition?.value || '';
+              const selectedValues = currentValue ? currentValue.split(',').map(s => s.trim()).filter(Boolean) : [];
+              const currentOperator = condition.condition?.operator || '';
+
+              if (fieldOpts && fieldOpts.length > 0) {
+                return (
+                  <MultiSelectDropdown
+                    options={fieldOpts}
+                    selectedValues={selectedValues}
+                    onChange={(newValues) => {
+                      const newVal = newValues.join(',');
+                      let newOp = currentOperator;
+                      if (newValues.length > 1 && currentOperator === 'equals') newOp = 'in_list';
+                      else if (newValues.length > 1 && currentOperator === 'not_equals') newOp = 'not_in_list';
+                      else if (newValues.length === 1 && currentOperator === 'in_list') newOp = 'equals';
+                      else if (newValues.length === 1 && currentOperator === 'not_in_list') newOp = 'not_equals';
+                      updateCondition(condition.id, { value: newVal, operator: newOp });
+                    }}
+                  />
+                );
+              }
+              return (
+                <input
+                  type="text"
+                  value={currentValue}
+                  onChange={(e) => updateCondition(condition.id, { value: e.target.value })}
+                  placeholder={currentOperator === 'in_list' || currentOperator === 'not_in_list' ? '多个值用逗号分隔' : '输入值'}
+                  className="px-3 py-1.5 border border-gray-200 rounded-md text-sm focus:outline-none focus:border-[#165DFF] flex-1 min-w-[120px]"
+                />
+              );
+            })()}
           </div>
 
           <button
@@ -582,6 +714,7 @@ function SubGroupEditor({ group, fields, onChange }: Omit<RuleGroupEditorProps, 
             group={subGroupData}
             fields={fields}
             onChange={(newGroup) => updateSubGroup(subGroup.id, newGroup)}
+            customerFieldOptions={customerFieldOptions}
           />
         </div>
       </div>

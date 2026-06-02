@@ -1,7 +1,7 @@
 'use client';
 
-import React, { createContext, useContext, useReducer, useCallback, ReactNode } from 'react';
-import { initialSplitFields, initialBillingEntities, initialBillingRules, initialCustomers, initialQuotes, initialApprovalWorkflows, initialAutoApprovalRules, initialQuoteTemplates, initialSigningEntities, initialServiceEntities, initialSettlementEntities, initialApprovalFields } from './sample-data';
+import React, { createContext, useContext, useReducer, useCallback, useEffect, ReactNode } from 'react';
+import { initialSplitFields, initialBillingEntities, initialBillingRules, initialCustomers, initialQuotes, initialApprovalWorkflows, initialAutoApprovalRules, initialQuoteTemplates, initialSigningEntities, initialServiceEntities, initialSettlementEntities, initialApprovalFields, initialRiskApprovals } from './sample-data';
 import type {
   RuleGroup,
   SplitField,
@@ -118,6 +118,11 @@ export interface AppContextType {
   updateApprovalField: (id: string, updates: Partial<ApprovalField>) => void;
   deleteApprovalField: (id: string) => void;
 
+  // 风控审批管理
+  addRiskApproval: (approval: Omit<RiskApproval, 'id' | 'createdAt'>) => void;
+  updateRiskApproval: (id: string, updates: Partial<RiskApproval>) => void;
+  deleteRiskApproval: (id: string) => void;
+
   // 跟进记录管理
   addFollowUp: (followUp: Omit<FollowUpRecord, 'id' | 'createdAt'>) => void;
   updateFollowUp: (id: string, updates: Partial<FollowUpRecord>) => void;
@@ -126,10 +131,10 @@ export interface AppContextType {
   updateCustomerProgress: (id: string, status: ProgressStatus) => void;
   collaborateCustomer: (id: string, collaborators: string[]) => void;
   assignCustomer: (id: string, responsiblePersons: string[]) => void;
-  transferCustomer: (id: string, newResponsiblePerson: string, reason?: string) => void;
+  transferCustomer: (id: string, transferFromId: string, newResponsiblePerson: string, reason?: string) => void;
   batchCollaborate: (ids: string[], collaborators: string[]) => void;
   batchAssign: (ids: string[], responsiblePersons: string[]) => void;
-  batchTransfer: (ids: string[], newResponsiblePerson: string, reason?: string) => void;
+  batchTransfer: (ids: string[], transferFromId: string, newResponsiblePerson: string, reason?: string) => void;
 
   // 规则匹配
   matchBillingEntity: (params: Record<string, string>) => { entity: BillingEntity | null; rule: BillingRule | null; matchedConditions: string[] };
@@ -150,7 +155,7 @@ const defaultState = {
   opportunities: [] as Opportunity[],
   contacts: [] as Contact[],
   contracts: [] as Contract[],
-  riskApprovals: [] as RiskApproval[],
+  riskApprovals: initialRiskApprovals as unknown as RiskApproval[],
   serviceEntities: initialServiceEntities as ServiceEntity[],
   signingEntities: initialSigningEntities as SigningEntity[],
   settlementEntities: initialSettlementEntities as SettlementEntity[],
@@ -205,10 +210,10 @@ type Action =
   | { type: 'UPDATE_CUSTOMER_PROGRESS'; payload: { id: string; status: ProgressStatus } }
   | { type: 'COLLABORATE_CUSTOMER'; payload: { id: string; collaborators: string[] } }
   | { type: 'ASSIGN_CUSTOMER'; payload: { id: string; responsiblePersons: string[] } }
-  | { type: 'TRANSFER_CUSTOMER'; payload: { id: string; newResponsiblePerson: string; reason?: string } }
+  | { type: 'TRANSFER_CUSTOMER'; payload: { id: string; transferFromId: string; newResponsiblePerson: string; reason?: string } }
   | { type: 'BATCH_COLLABORATE'; payload: { ids: string[]; collaborators: string[] } }
   | { type: 'BATCH_ASSIGN'; payload: { ids: string[]; responsiblePersons: string[] } }
-  | { type: 'BATCH_TRANSFER'; payload: { ids: string[]; newResponsiblePerson: string; reason?: string } }
+  | { type: 'BATCH_TRANSFER'; payload: { ids: string[]; transferFromId: string; newResponsiblePerson: string; reason?: string } }
   | { type: 'ADD_QUOTE'; payload: Omit<Quote, 'id' | 'createdAt' | 'updatedAt'> }
   | { type: 'UPDATE_QUOTE'; payload: { id: string; updates: Partial<Quote> } }
   | { type: 'DELETE_QUOTE'; payload: string }
@@ -219,6 +224,10 @@ type Action =
   | { type: 'ADD_AUTO_APPROVAL_RULE'; payload: Omit<AutoApprovalRule, 'id' | 'createdAt' | 'updatedAt'> }
   | { type: 'UPDATE_AUTO_APPROVAL_RULE'; payload: { id: string; updates: Partial<AutoApprovalRule> } }
   | { type: 'DELETE_AUTO_APPROVAL_RULE'; payload: string }
+  | { type: 'ADD_RISK_APPROVAL'; payload: Omit<RiskApproval, 'id' | 'createdAt'> }
+  | { type: 'UPDATE_RISK_APPROVAL'; payload: { id: string; updates: Partial<RiskApproval> } }
+  | { type: 'DELETE_RISK_APPROVAL'; payload: string }
+  | { type: 'RESET_RISK_APPROVALS' }
   | { type: 'ADD_FOLLOWUP'; payload: Omit<FollowUpRecord, 'id' | 'createdAt'> }
   | { type: 'UPDATE_FOLLOWUP'; payload: { id: string; updates: Partial<FollowUpRecord> } }
   | { type: 'ADD_SIGNING_ENTITY'; payload: Omit<SigningEntity, 'id' | 'createdAt'> }
@@ -327,23 +336,21 @@ function reducer(state: AppState, action: Action): AppState {
         ...state,
         customers: state.customers.map((c) =>
           c.id === action.payload.id
-            ? { ...c, responsiblePersons: action.payload.responsiblePersons, updatedAt: new Date().toISOString() }
+            ? { ...c, responsiblePersons: [...new Set([...c.responsiblePersons, ...action.payload.responsiblePersons])], updatedAt: new Date().toISOString() }
             : c
         ),
       };
     case 'TRANSFER_CUSTOMER': {
+      const { transferFromId, newResponsiblePerson } = action.payload;
       return {
         ...state,
         customers: state.customers.map((c) => {
           if (c.id !== action.payload.id) return c;
-          const prevOwners = c.responsiblePersons;
-          const newCollaborators = prevOwners
-            .filter((id) => !c.collaborators.includes(id))
-            .concat(c.collaborators);
           return {
             ...c,
-            responsiblePersons: [action.payload.newResponsiblePerson],
-            collaborators: [...new Set(newCollaborators)],
+            responsiblePersons: c.responsiblePersons.map(id =>
+              id === transferFromId ? newResponsiblePerson : id
+            ),
             updatedAt: new Date().toISOString(),
           };
         }),
@@ -367,23 +374,22 @@ function reducer(state: AppState, action: Action): AppState {
             : c
         ),
       };
-    case 'BATCH_TRANSFER':
+    case 'BATCH_TRANSFER': {
+      const { transferFromId, newResponsiblePerson } = action.payload;
       return {
         ...state,
         customers: state.customers.map((c) => {
           if (!action.payload.ids.includes(c.id)) return c;
-          const prevOwners = c.responsiblePersons;
-          const newCollaborators = prevOwners
-            .filter((id) => !c.collaborators.includes(id))
-            .concat(c.collaborators);
           return {
             ...c,
-            responsiblePersons: [action.payload.newResponsiblePerson],
-            collaborators: [...new Set(newCollaborators)],
+            responsiblePersons: c.responsiblePersons.map(id =>
+              id === transferFromId ? newResponsiblePerson : id
+            ),
             updatedAt: new Date().toISOString(),
           };
         }),
       };
+    }
     case 'ADD_LOG':
       return {
         ...state,
@@ -457,6 +463,30 @@ function reducer(state: AppState, action: Action): AppState {
       return {
         ...state,
         autoApprovalRules: state.autoApprovalRules.filter((r: AutoApprovalRule) => r.id !== action.payload),
+      };
+    case 'RESET_RISK_APPROVALS':
+      return { ...state, riskApprovals: [] };
+    case 'ADD_RISK_APPROVAL':
+      return {
+        ...state,
+        riskApprovals: [...state.riskApprovals, {
+          ...action.payload as any,
+          id: (action.payload as any).id || `ra-${Date.now()}`,
+          createdAt: (action.payload as any).createdAt || new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        }],
+      };
+    case 'UPDATE_RISK_APPROVAL':
+      return {
+        ...state,
+        riskApprovals: state.riskApprovals.map((ra: RiskApproval) =>
+          ra.id === action.payload.id ? { ...ra, ...action.payload.updates, updatedAt: new Date().toISOString() } : ra
+        ),
+      };
+    case 'DELETE_RISK_APPROVAL':
+      return {
+        ...state,
+        riskApprovals: state.riskApprovals.filter((ra: RiskApproval) => ra.id !== action.payload),
       };
     case 'ADD_FOLLOWUP':
       return {
@@ -549,6 +579,30 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(reducer, { ...defaultState, currentUser });
+
+  // 启动时从数据库加载风控审批数据
+  useEffect(() => {
+    let cancelled = false;
+    const loadFromDb = async () => {
+      try {
+        const res = await fetch('/api/risk-approvals');
+        if (res.ok && !cancelled) {
+          const dbData = await res.json();
+          if (Array.isArray(dbData) && dbData.length > 0) {
+            // 清除初始示例数据，再加载 DB 数据，避免重复
+            dispatch({ type: 'RESET_RISK_APPROVALS' });
+            dbData.forEach((ra: Record<string, unknown>) => {
+              dispatch({ type: 'ADD_RISK_APPROVAL', payload: ra as unknown as Omit<RiskApproval, 'id' | 'createdAt'> });
+            });
+          }
+        }
+      } catch {
+        // 数据库不可用时使用示例数据（已通过defaultState加载）
+      }
+    };
+    loadFromDb();
+    return () => { cancelled = true; };
+  }, []);
 
   const addSplitField = useCallback((field: Omit<SplitField, 'id'>) => {
     dispatch({ type: 'ADD_SPLIT_FIELD', payload: field });
@@ -697,11 +751,33 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const assignCustomer = useCallback((id: string, responsiblePersons: string[]) => {
     dispatch({ type: 'ASSIGN_CUSTOMER', payload: { id, responsiblePersons } });
-  }, []);
+    // 同步到数据库
+    const customer = state.customers.find(c => c.id === id);
+    if (customer) {
+      const newResponsiblePersons = [...new Set([...customer.responsiblePersons, ...responsiblePersons])];
+      fetch('/api/customers', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, responsiblePersons: newResponsiblePersons }),
+      }).catch(() => {});
+    }
+  }, [state.customers]);
 
-  const transferCustomer = useCallback((id: string, newResponsiblePerson: string, reason?: string) => {
-    dispatch({ type: 'TRANSFER_CUSTOMER', payload: { id, newResponsiblePerson, reason } });
-  }, []);
+  const transferCustomer = useCallback((id: string, transferFromId: string, newResponsiblePerson: string, reason?: string) => {
+    dispatch({ type: 'TRANSFER_CUSTOMER', payload: { id, transferFromId, newResponsiblePerson, reason } });
+    // 同步到数据库
+    const customer = state.customers.find(c => c.id === id);
+    if (customer) {
+      const newResponsiblePersons = customer.responsiblePersons.map(pid =>
+        pid === transferFromId ? newResponsiblePerson : pid
+      );
+      fetch('/api/customers', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, responsiblePersons: newResponsiblePersons }),
+      }).catch(() => {});
+    }
+  }, [state.customers]);
 
   const batchCollaborate = useCallback((ids: string[], collaborators: string[]) => {
     dispatch({ type: 'BATCH_COLLABORATE', payload: { ids, collaborators } });
@@ -711,8 +787,28 @@ export function AppProvider({ children }: { children: ReactNode }) {
     dispatch({ type: 'BATCH_ASSIGN', payload: { ids, responsiblePersons } });
   }, []);
 
-  const batchTransfer = useCallback((ids: string[], newResponsiblePerson: string, reason?: string) => {
-    dispatch({ type: 'BATCH_TRANSFER', payload: { ids, newResponsiblePerson, reason } });
+  const batchTransfer = useCallback((ids: string[], transferFromId: string, newResponsiblePerson: string, reason?: string) => {
+    dispatch({ type: 'BATCH_TRANSFER', payload: { ids, transferFromId, newResponsiblePerson, reason } });
+  }, []);
+
+  // 风控审批管理
+  const addRiskApproval = useCallback((approval: Omit<RiskApproval, 'id' | 'createdAt'>) => {
+    dispatch({ type: 'ADD_RISK_APPROVAL', payload: approval });
+  }, []);
+
+  const updateRiskApproval = useCallback((id: string, updates: Partial<RiskApproval>) => {
+    dispatch({ type: 'UPDATE_RISK_APPROVAL', payload: { id, updates } });
+    // 同步到数据库
+    fetch('/api/risk-approvals', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, ...updates }),
+    }).catch((e: unknown) => { console.error('[API] PUT risk-approvals 失败:', e); });
+  }, []);
+
+  const deleteRiskApproval = useCallback((id: string) => {
+    dispatch({ type: 'DELETE_RISK_APPROVAL', payload: id });
+    fetch(`/api/risk-approvals?id=${encodeURIComponent(id)}`, { method: 'DELETE' }).catch((e: unknown) => { console.error('[API] DELETE risk-approvals 失败:', e); });
   }, []);
 
   // 审批字段配置管理
@@ -809,6 +905,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
         addApprovalField,
         updateApprovalField,
         deleteApprovalField,
+        addRiskApproval,
+        updateRiskApproval,
+        deleteRiskApproval,
         addFollowUp,
         updateFollowUp,
         updateCustomerProgress,
@@ -940,15 +1039,29 @@ export function evaluateApprovalRules(
     results.set('出货地区', { result: 'pass', triggeredRules: [] });
   }
 
-  // 运输及时率
+  // 运输及时率 — 客户要求 >99% 过于严苛，CIM作为供应商可能无法达到
   const onTimeRate = fieldValues['on_time_rate'] || '';
   if (onTimeRate) {
     const rate = parseFloat(onTimeRate.replace('%', ''));
-    if (!isNaN(rate) && rate < 99) {
-      results.set('KPI-运输及时率', { result: 'warn', suggestion: `运输及时率${onTimeRate}低于99%标准`, triggeredRules: ['rule-on-time-low'] });
+    if (!isNaN(rate) && rate > 99) {
+      results.set('KPI-运输及时率', { result: 'warn', suggestion: `客户要求的运输及时率${onTimeRate}%过于严苛，CIM作为供应商可能无法达到，建议评估KPI可行性`, triggeredRules: ['rule-on-time-low'] });
     } else {
       results.set('KPI-运输及时率', { result: 'pass', triggeredRules: [] });
     }
+  }
+
+  // 低业务量警告 (ar-002): 月开票额 < 5000 或 月订单数 < 5 → warn（业务量过低需人工评估）
+  const monthlyInvAmt = fieldValues['monthly_invoice_amount'] || '';
+  const monthlyOrders = fieldValues['monthly_orders'] || '';
+  const invNum = parseInt(monthlyInvAmt.replace(/[^0-9]/g, ''));
+  const ordNum = parseInt(monthlyOrders.replace(/[^0-9]/g, ''));
+  const invLow = !isNaN(invNum) && invNum < 5000;
+  const ordLow = !isNaN(ordNum) && ordNum < 5;
+  if (invLow || ordLow) {
+    const reasons: string[] = [];
+    if (invLow) reasons.push(`月开票额${monthlyInvAmt}元低于5000元`);
+    if (ordLow) reasons.push(`月订单数${monthlyOrders}低于5单`);
+    results.set('业务量-低业务量提醒', { result: 'warn', suggestion: `${reasons.join('，')}，业务量过低需人工评估业务必要性`, triggeredRules: ['rule-low-amount-warn'] });
   }
 
   return results;

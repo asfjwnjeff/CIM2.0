@@ -3,6 +3,7 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import { useApp } from '@/lib/store';
 import { BillingRule, RuleGroup, RuleCondition } from '@/lib/types';
+import { initialCustomerBillingFields } from '@/lib/sample-data';
 import RuleGroupEditor from '@/components/RuleGroupEditor';
 
 // 生成唯一ID
@@ -21,14 +22,38 @@ const OPERATORS = [
   { value: 'not_equals', label: '不等于' },
   { value: 'contains', label: '包含' },
   { value: 'not_contains', label: '不包含' },
-  { value: 'in', label: '在列表中' },
-  { value: 'any', label: '任意值' },
-  { value: 'empty', label: '为空' },
+  { value: 'is_empty', label: '为空' },
   { value: 'not_empty', label: '不为空' },
+  { value: 'in_list', label: '在列表中' },
+  { value: 'not_in_list', label: '不在列表中' },
 ];
 
+// 获取指定客户的账单区分字段（排除账单主体）
+function getCustomerConditionFields(customerId: string): { name: string; fieldKey: string; options: string[] }[] {
+  return initialCustomerBillingFields
+    .filter(f => f.customerId === customerId && f.name !== '账单主体')
+    .map(f => ({ name: f.name, fieldKey: f.name, options: f.options }));
+}
+
+// 获取指定客户的账单主体可选值
+function getCustomerBillingEntities(customerId: string): string[] {
+  const field = initialCustomerBillingFields.find(
+    f => f.customerId === customerId && f.name === '账单主体'
+  );
+  return field?.options || [];
+}
+
+// 获取指定客户的字段可选值映射（用于条件值下拉）
+function getCustomerFieldOptions(customerId: string): Record<string, string[]> {
+  const result: Record<string, string[]> = {};
+  initialCustomerBillingFields
+    .filter(f => f.customerId === customerId)
+    .forEach(f => { result[f.name] = f.options; });
+  return result;
+}
+
 export default function RulesPage() {
-  const { billingRules, billingEntities, splitFields, customers, addBillingRule, updateBillingRule, deleteBillingRule } = useApp();
+  const { billingRules, customers, addBillingRule, updateBillingRule, deleteBillingRule } = useApp();
 
   const [showModal, setShowModal] = useState(false);
   const [editingRule, setEditingRule] = useState<BillingRule | null>(null);
@@ -49,6 +74,20 @@ export default function RulesPage() {
     priority: 0,
   });
 
+  // 根据选中客户获取条件字段和可选值
+  const customerConditionFields = useMemo(() =>
+    getCustomerConditionFields(formData.customerId),
+    [formData.customerId]
+  );
+  const customerFieldOpts = useMemo(() =>
+    getCustomerFieldOptions(formData.customerId),
+    [formData.customerId]
+  );
+  const customerBillingEntityOptions = useMemo(() =>
+    getCustomerBillingEntities(formData.customerId),
+    [formData.customerId]
+  );
+
   // 过滤规则
   const filteredRules = useMemo(() => {
     return billingRules.filter(rule => {
@@ -67,13 +106,13 @@ export default function RulesPage() {
       name: '',
       customerId: filterCustomer !== 'all' ? filterCustomer : (customers[0]?.id || ''),
       conditionGroup: createRootGroup(),
-      targetBillingEntity: billingEntities[0]?.name || '',
+      targetBillingEntity: '',
       status: 'active',
       remark: '',
       priority: 0,
     });
     setShowModal(true);
-  }, [billingEntities, customers, filterCustomer]);
+  }, [customers, filterCustomer]);
 
   // 打开编辑弹窗
   const handleEdit = useCallback((rule: BillingRule) => {
@@ -148,9 +187,12 @@ export default function RulesPage() {
   // 渲染条件预览
   const renderConditionPreview = (condition: { fieldKey?: string; fieldName?: string; field?: string; operator: string; value: string } | undefined) => {
     if (!condition) return '未知条件';
-    const field = splitFields.find(f => f.fieldKey === condition.fieldKey);
-    const fieldName = field?.name || condition.fieldName || condition.field;
+    const fieldName = condition.fieldName || condition.field || '未知字段';
     const operatorLabel = OPERATORS.find(op => op.value === condition.operator)?.label || condition.operator;
+    const noValueOps = ['is_empty', 'not_empty'];
+    if (noValueOps.includes(condition.operator)) {
+      return `${fieldName} ${operatorLabel}`;
+    }
     return `${fieldName} ${operatorLabel} "${condition.value || '任意'}"`;
   };
 
@@ -478,10 +520,11 @@ export default function RulesPage() {
                     value={formData.targetBillingEntity}
                     onChange={(e) => setFormData({ ...formData, targetBillingEntity: e.target.value })}
                     className="w-full px-4 py-3 bg-[#F5F5F5] border border-[#EBEBEB] rounded-xl focus:outline-none focus:border-[#2D3BFF] cursor-pointer"
+                    disabled={!formData.customerId}
                   >
-                    <option value="">请选择账单主体</option>
-                    {billingEntities.map(entity => (
-                      <option key={entity.id} value={entity.name}>{entity.name}</option>
+                    <option value="">{formData.customerId ? '请选择账单主体' : '请先选择客户'}</option>
+                    {customerBillingEntityOptions.map(opt => (
+                      <option key={opt} value={opt}>{opt}</option>
                     ))}
                   </select>
                 </div>
@@ -523,7 +566,8 @@ export default function RulesPage() {
                   <RuleGroupEditor
                     group={formData.conditionGroup}
                     onChange={(newGroup) => setFormData({ ...formData, conditionGroup: newGroup })}
-                    fields={splitFields}
+                    fields={customerConditionFields}
+                    customerFieldOptions={customerFieldOpts}
                   />
                 </div>
               </div>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useApp } from '@/lib/store';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 
@@ -50,64 +51,14 @@ interface MockRule {
   implementationMethod: string;
 }
 
-const mockRules: MockRule[] = [
-  {
-    id: '1',
-    approvalPoint: '业务量',
-    name: '低业务量提醒评估',
-    serviceProduct: '货代',
-    status: 'active',
-    remark: '月订单数≤5或月开票额<5000元，提醒评估业务必要性',
-    conditionLogic: 'OR',
-    conditions: [
-      { field: '月均订单数', operator: '小于等于', value: '5' },
-      { field: '月均开票额', operator: '小于', value: '5000元' },
-    ],
-    actions: [
-      { type: 'show_message', target: '', message: '业务量较低，请评估业务必要性' },
-    ],
-    implementationMethod: '字段条件判断，【月均订单数】，【月均开票额】',
-  },
-  {
-    id: '2',
-    approvalPoint: '实际落地承运商安排可行性',
-    name: '运输供应商确认校验',
-    serviceProduct: '运输',
-    status: 'active',
-    remark: '主要运输供应商是否已确定，校验当前已确认的合作供应商',
-    conditionLogic: 'AND',
-    conditions: [
-      { field: '合作供应商', operator: '范围内', value: '已确认供应商库' },
-    ],
-    actions: [
-      { type: 'auto_approve', target: '', message: '供应商已在合作范围内' },
-      { type: 'show_message', target: '', message: '供应商已在确认范围内，自动通过' },
-    ],
-    implementationMethod: '供应商库，范围内通过，其他人工审批',
-  },
-  {
-    id: '3',
-    approvalPoint: 'KPI时效考核要求',
-    name: '运输及时率考核评估',
-    serviceProduct: '运输',
-    status: 'active',
-    remark: '客户运输及时率≥99%需评估',
-    conditionLogic: 'AND',
-    conditions: [
-      { field: '运输及时率', operator: '大于等于', value: '99%' },
-    ],
-    actions: [
-      { type: 'show_message', target: '', message: '客户运输及时率要求较高(≥99%)，请评估KPI可行性' },
-    ],
-    implementationMethod: '字段条件判断，运输及时率',
-  },
-];
+
 
 export default function AutoRuleEditPage() {
   const params = useParams();
   const router = useRouter();
   const id = params.id as string;
-  const rule = mockRules.find(r => r.id === id) || mockRules[0];
+  const { autoApprovalRules, updateAutoApprovalRule, deleteAutoApprovalRule } = useApp();
+  const rule = autoApprovalRules.find((r: any) => r.id === id) || autoApprovalRules[0];
 
   const [formData, setFormData] = useState({
     approvalPoint: '',
@@ -123,16 +74,16 @@ export default function AutoRuleEditPage() {
 
   useEffect(() => {
     setFormData({
-      approvalPoint: rule.approvalPoint,
+      approvalPoint: (rule as any).approvalPoint || '',
       name: rule.name,
-      serviceProduct: rule.serviceProduct,
-      status: rule.status,
-      remark: rule.remark,
-      conditionLogic: rule.conditionLogic,
-      implementationMethod: rule.implementationMethod,
+      serviceProduct: rule.serviceProduct || '',
+      status: rule.status as any,
+      remark: rule.remark || '',
+      conditionLogic: (rule.conditionLogic as 'AND' | 'OR') || 'AND',
+      implementationMethod: (rule as any).implementationMethod || '',
     });
-    setConditions(rule.conditions.length > 0 ? rule.conditions : [{ field: '', operator: '', value: '' }]);
-    setActions(rule.actions.length > 0 ? rule.actions : [{ type: '', target: '', message: '' }]);
+    setConditions(rule.conditions.length > 0 ? rule.conditions as any : [{ field: '', operator: '', value: '' }]);
+    setActions((rule.actions.length > 0 ? rule.actions : [{ type: '', target: '', message: '' }]) as any);
   }, [id]);
 
   const addCondition = () => setConditions([...conditions, { field: '', operator: '', value: '' }]);
@@ -176,7 +127,7 @@ export default function AutoRuleEditPage() {
                 取消
               </button>
               <button
-                onClick={() => { alert('规则已保存'); router.push('/approval/auto-rules'); }}
+                onClick={() => { updateAutoApprovalRule(id, formData as any); router.push('/approval/auto-rules'); }}
                 className="px-5 py-2.5 text-sm text-white rounded-xl bg-[#2D3BFF] hover:bg-[#4338CA] transition-colors"
               >
                 保存规则

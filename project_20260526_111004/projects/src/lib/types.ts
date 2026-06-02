@@ -558,16 +558,40 @@ export type ServiceProduct = '货代' | '关务' | '仓库' | '运输' | '进出
 
 export interface RiskApproval {
   id: string;
-  customerId: string;
+  customerId?: string;
   customerName?: string;
+  companyName?: string;
+  englishName?: string;
+  parentCompany?: string;
+  subsidiaryCompany?: string;
   serviceProducts?: ServiceProduct[];
   serviceProduct?: string;
-  isTradeAgent?: boolean;
+  isTradeAgent?: string;        // '是' | '否'
   approvalNumber?: string;
   businessType?: string;
+  goodsType?: string;
+  monthlyBusinessVolume?: string;
+  monthlyInvoiceAmount?: string;
+  customsKpiRequirement?: string;
+  transportKpiRequirement?: string;
+  warehouseLeaseRequirement?: string;
+  customServiceRequirement?: string;
+  customRequirementDescription?: string;
   riskPurpose?: string;
+  riskControlPurpose?: string;
+  relationshipWithHMG?: string;
+  settlementPeriod?: string;
+  contactName?: string;
+  businessCustomerIds?: string[];
+  suggestedSystemCode?: string;
+  opportunityId?: string;
+  invoiceInfoIds?: string[];
   approvalNodes?: ApprovalNode[];
-  status: RiskApprovalStatus;
+  approvalSteps?: Record<string, unknown>[];  // 审批步骤（从mock/DB数据中）
+  approvalStatus?: string;       // 审批状态（中文：草稿/审批中/审批完成/已驳回）
+  pickedApprover?: string;       // 合同物流四选一结果
+  dynamicFieldValues?: Record<string, string>;  // 动态字段值 { fieldKey: value }
+  status: RiskApprovalStatus | string;
   remark?: string;
   submitTime?: string;
   submitter?: string;
@@ -814,6 +838,18 @@ export interface BillingRule {
   createdAt: string;
   createdBy?: string;
   updatedAt?: string;
+}
+
+// ==================== 客户账单区分字段 ====================
+
+export interface CustomerBillingField {
+  id: string;
+  customerId: string;
+  customerName: string;
+  name: string;
+  options: string[];
+  createdAt: number;
+  updatedAt: number;
 }
 
 // ==================== AI 转录 ====================
