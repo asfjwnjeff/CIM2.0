@@ -121,7 +121,7 @@ export const riskApprovals = sqliteTable('risk_approvals', {
   isTradeAgent: text('is_trade_agent').default('否'),
   businessType: text('business_type'),
   approvalStatus: text('approval_status').default('草稿'),
-  status: text('status'),                        // RiskApprovalStatus: draft/pending/in_review/approved/rejected
+  status: text('status'),                        // RiskApprovalStatus: draft/in_review/approved/rejected
   approvalSteps: text('approval_steps'),          // JSON
   pickedApprover: text('picked_approver'),
   dynamicFieldValues: text('dynamic_field_values'),  // JSON { fieldKey: value }
@@ -171,6 +171,8 @@ export const autoApprovalRules = sqliteTable('auto_approval_rules', {
   successMessage: text('success_message'),
   failureMessage: text('failure_message'),
   priority: integer('priority').default(99),
+  remark: text('remark'),
+  isSystem: integer('is_system', { mode: 'boolean' }).default(false),
   createdBy: text('created_by'),
   createdAt: text('created_at'),
   updatedAt: text('updated_at'),

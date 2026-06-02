@@ -532,7 +532,7 @@ export interface Quote {
 
 // ==================== 风控审批 ====================
 
-export type RiskApprovalStatus = 'draft' | 'pending' | 'approved' | 'rejected';
+export type RiskApprovalStatus = 'draft' | 'in_review' | 'approved' | 'rejected';
 export type ApprovalNodeType = 'initiator' | 'department_manager' | 'functional' | 'finance' | 'general_manager' | 'it_ops';
 
 export interface ApprovalNodeApprover {
@@ -558,8 +558,6 @@ export type ServiceProduct = '货代' | '关务' | '仓库' | '运输' | '进出
 
 export interface RiskApproval {
   id: string;
-  customerId?: string;
-  customerName?: string;
   companyName?: string;
   englishName?: string;
   parentCompany?: string;
@@ -567,7 +565,6 @@ export interface RiskApproval {
   serviceProducts?: ServiceProduct[];
   serviceProduct?: string;
   isTradeAgent?: string;        // '是' | '否'
-  approvalNumber?: string;
   businessType?: string;
   goodsType?: string;
   monthlyBusinessVolume?: string;
@@ -577,7 +574,6 @@ export interface RiskApproval {
   warehouseLeaseRequirement?: string;
   customServiceRequirement?: string;
   customRequirementDescription?: string;
-  riskPurpose?: string;
   riskControlPurpose?: string;
   relationshipWithHMG?: string;
   settlementPeriod?: string;
@@ -586,7 +582,6 @@ export interface RiskApproval {
   suggestedSystemCode?: string;
   opportunityId?: string;
   invoiceInfoIds?: string[];
-  approvalNodes?: ApprovalNode[];
   approvalSteps?: Record<string, unknown>[];  // 审批步骤（从mock/DB数据中）
   approvalStatus?: string;       // 审批状态（中文：草稿/审批中/审批完成/已驳回）
   pickedApprover?: string;       // 合同物流四选一结果
@@ -609,13 +604,11 @@ export interface ApprovalWorkflow {
   name: string;
   serviceProducts?: ServiceProduct[];
   serviceProduct?: string;
-  isTradeAgent?: boolean;
   isTradeAgency?: boolean;
   approvalNodes?: ApprovalNode[];
   status: Status;
   remark?: string;
   createdBy?: string;
-  updatedBy?: string;
   createdAt: string;
   updatedAt?: string;
 }
@@ -657,7 +650,6 @@ export interface AutoApprovalRule {
   id: string;
   name: string;
   serviceProduct?: string;
-  serviceProducts?: ServiceProduct[];
   status: Status;
   conditionLogic?: LogicOperator;
   conditions: AutoApprovalCondition[];

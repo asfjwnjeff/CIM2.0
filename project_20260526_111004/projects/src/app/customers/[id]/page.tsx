@@ -81,7 +81,7 @@ export default function CustomerDetailPage() {
     [contracts, customer],
   );
   const customerRiskApprovals = useMemo(
-    () => riskApprovals.filter((ra) => ra.customerId === customer?.id),
+    () => riskApprovals.filter((ra) => ra.companyName === customer?.name),
     [riskApprovals, customer],
   );
 
@@ -953,10 +953,10 @@ function ApprovalsTab({ customerRiskApprovals }: { customerRiskApprovals: Return
               <tr><td colSpan={7} className="px-4 py-8 text-center text-sm text-[#999999]">暂无风控审批记录</td></tr>
             ) : customerRiskApprovals.map(ra => (
               <tr key={ra.id} className="hover:bg-[#F5F5F5]">
-                <td className="px-4 py-3 text-sm font-mono text-[#5A5A5A]">{ra.approvalNumber || '-'}</td>
+                <td className="px-4 py-3 text-sm font-mono text-[#5A5A5A]">{ra.id || '-'}</td>
                 <td className="px-4 py-3"><span className="px-2 py-0.5 rounded-full text-xs bg-[#E8EBFF] text-[#2D3BFF]">{ra.serviceProduct || '-'}</span></td>
                 <td className="px-4 py-3 text-[13px] text-[#0A0A0A]">{ra.businessType || '-'}</td>
-                <td className="px-4 py-3 text-[13px] text-[#0A0A0A]">{ra.riskPurpose || '-'}</td>
+                <td className="px-4 py-3 text-[13px] text-[#0A0A0A]">{ra.riskControlPurpose || '-'}</td>
                 <td className="px-4 py-3"><ApprovalStatusBadge status={ra.status} /></td>
                 <td className="px-4 py-3 text-[13px] text-[#5A5A5A]">{ra.submitTime || '-'}</td>
                 <td className="px-4 py-3 text-center"><button onClick={() => router.push(`/approvals/${ra.id}`)} className="text-[#2D3BFF] text-sm hover:text-[#0A0A0A]">查看</button></td>
@@ -1029,7 +1029,7 @@ function StageBadge({ stage }: { stage?: string }) {
 function ApprovalStatusBadge({ status }: { status?: string }) {
   const map: Record<string, { bg: string; text: string; label: string }> = {
     draft: { bg: 'bg-[#F5F5F5]', text: 'text-[#5A5A5A]', label: '暂存' },
-    pending: { bg: 'bg-[#FFF4E8]', text: 'text-[#E8850C]', label: '审批中' },
+    in_review: { bg: 'bg-[#FFF4E8]', text: 'text-[#E8850C]', label: '审批中' },
     approved: { bg: 'bg-[#E6F7F0]', text: 'text-[#0D8A5E]', label: '已通过' },
     rejected: { bg: 'bg-[#FFEBEE]', text: 'text-[#D63031]', label: '已驳回' },
   };
