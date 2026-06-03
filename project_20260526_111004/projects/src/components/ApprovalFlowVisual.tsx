@@ -48,12 +48,16 @@ export default function ApprovalFlowVisual({
         // Conditional approvers for functional node
         const functionalApprovers = isFunctional ? ruleTriggeredApprovers : [];
         const hasConditional = functionalApprovers.length > 0;
-        // 当 pickedApprover 存在时（四选一场景），用过滤后的审批人列表
-        const effectiveApprovers = pickedApprover
+        // 仅在节点有多于1个审批人且 pickedApprover 匹配到其中一人时，才视为多选一场景
+        const hasMultipleApprovers = (node.approvers?.length || 0) > 1;
+        const matchedApprovers = hasMultipleApprovers && pickedApprover
           ? (node.approvers || []).filter((a) => a.name === pickedApprover)
+          : [];
+        const effectiveApprovers = matchedApprovers.length > 0
+          ? matchedApprovers
           : (node.approvers || []);
         const totalApprovers = effectiveApprovers.length + functionalApprovers.length;
-        const isPickOne = !!(pickedApprover && effectiveApprovers.length === 1 && (node.approvers?.length || 0) > 1);
+        const isPickOne = !!(matchedApprovers.length === 1 && hasMultipleApprovers);
         const showCountersignNote = isFunctional && totalApprovers > 1 && !isPickOne;
 
         return (

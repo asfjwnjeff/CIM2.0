@@ -214,6 +214,7 @@ export default function ApprovalEditPage() {
 
   const handleChange = (field: string, value: string | string[]) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+    if (field === 'serviceProduct') setPickedApprover('');
   };
 
   const toggleMultiSelect = (field: "businessCustomerIds" | "invoiceInfoIds", id: string) => {
