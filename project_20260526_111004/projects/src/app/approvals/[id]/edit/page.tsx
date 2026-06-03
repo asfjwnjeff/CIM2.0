@@ -402,7 +402,7 @@ export default function ApprovalEditPage() {
                   <div className="grid grid-cols-2 gap-4">
                     {dynamicFields.map((field) => {
                       return (
-                        <div key={field.id}>
+                        <div key={field.id} className="p-3 bg-[#F0F1FF] border border-[#C7CAFF] rounded-lg">
                           <label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">
                             {field.name}
                             {field.isRequired && <span className="text-red-500 ml-0.5">*</span>}

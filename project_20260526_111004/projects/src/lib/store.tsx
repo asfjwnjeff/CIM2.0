@@ -1060,11 +1060,19 @@ export function evaluateApprovalRules(
       ? conditions.every(c => evaluateAutoCondition(c, fieldValues))
       : conditions.some(c => evaluateAutoCondition(c, fieldValues));
 
-    if (!allMatch) continue;
-
     const firstConditionField = conditions[0]?.field || '';
     const matchedField = approvalFields.find(f => f.fieldKey === firstConditionField);
     const fieldName = matchedField?.name || FIXED_FIELD_NAMES[firstConditionField] || firstConditionField;
+
+    if (!allMatch) {
+      results.set(rule.name, {
+        result: 'pass',
+        ruleName: rule.name,
+        fieldName,
+        reason: '未触发规则条件',
+      });
+      continue;
+    }
 
     const getReason = (action: AutoApprovalAction, rule: AutoApprovalRule, defaultText: string) => {
       return (action as any).message || (action as any).description || rule.remark || rule.failureMessage || rule.message || defaultText;
