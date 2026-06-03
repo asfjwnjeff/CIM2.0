@@ -61,12 +61,12 @@ export default function AutoRulesPage() {
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
               placeholder="搜索规则名称、审批点..."
-              className="flex-1 px-4 py-2.5 bg-[#F5F5F5] border-none rounded-xl text-sm text-[#0A0A0A] focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30 placeholder:text-[#999999]"
+              className="flex-1 px-4 py-2.5 bg-white border border-[#D5D5D5] rounded-lg text-sm text-[#0A0A0A] focus:outline-none focus:border-[#2D3BFF] focus:shadow-[0_0_0_2px_rgba(45,59,255,0.10)] placeholder:text-[#999999]"
             />
             <select
               value={filterProduct}
               onChange={e => setFilterProduct(e.target.value)}
-              className="px-4 py-2.5 bg-[#F5F5F5] border-none rounded-xl text-sm text-[#0A0A0A] focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30"
+              className="px-4 py-2.5 bg-white border border-[#D5D5D5] rounded-lg text-sm text-[#0A0A0A] focus:outline-none focus:border-[#2D3BFF] focus:shadow-[0_0_0_2px_rgba(45,59,255,0.10)]"
             >
               <option value="">全部产品</option>
               {['货代', '关务', '仓储', '运输', '进出口', '维修', '合同物流', '其他'].map(p => <option key={p} value={p}>{p}</option>)}
@@ -74,7 +74,7 @@ export default function AutoRulesPage() {
             <select
               value={filterStatus}
               onChange={e => setFilterStatus(e.target.value)}
-              className="px-4 py-2.5 bg-[#F5F5F5] border-none rounded-xl text-sm text-[#0A0A0A] focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30"
+              className="px-4 py-2.5 bg-white border border-[#D5D5D5] rounded-lg text-sm text-[#0A0A0A] focus:outline-none focus:border-[#2D3BFF] focus:shadow-[0_0_0_2px_rgba(45,59,255,0.10)]"
             >
               <option value="">全部状态</option>
               <option value="active">启用</option>

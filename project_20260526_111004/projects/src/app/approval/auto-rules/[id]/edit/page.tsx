@@ -124,7 +124,7 @@ export default function AutoRuleEditPage() {
             <div className="flex items-center gap-3">
               <button
                 onClick={() => router.push('/approval/auto-rules')}
-                className="px-5 py-2.5 text-sm text-[#5A5A5A] border border-[#E5E7EB] rounded-xl hover:bg-[#F5F5F5] transition-colors"
+                className="px-5 py-2.5 text-sm text-[#5A5A5A] border border-[#D5D5D5] rounded-lg hover:bg-[#F5F5F5] transition-colors"
               >
                 取消
               </button>
@@ -151,7 +151,7 @@ export default function AutoRuleEditPage() {
                     type="text"
                     value={formData.approvalPoint}
                     onChange={e => setFormData({ ...formData, approvalPoint: e.target.value })}
-                    className="w-full px-4 py-2.5 bg-[#F5F5F5] border-none rounded-xl text-sm text-[#0A0A0A] focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30"
+                    className="w-full px-4 py-2.5 bg-white border border-[#D5D5D5] rounded-lg text-sm text-[#0A0A0A] focus:outline-none focus:border-[#2D3BFF] focus:shadow-[0_0_0_2px_rgba(45,59,255,0.10)]"
                     placeholder="请输入审批点"
                   />
                 </div>
@@ -161,7 +161,7 @@ export default function AutoRuleEditPage() {
                     type="text"
                     value={formData.name}
                     onChange={e => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full px-4 py-2.5 bg-[#F5F5F5] border-none rounded-xl text-sm text-[#0A0A0A] focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30"
+                    className="w-full px-4 py-2.5 bg-white border border-[#D5D5D5] rounded-lg text-sm text-[#0A0A0A] focus:outline-none focus:border-[#2D3BFF] focus:shadow-[0_0_0_2px_rgba(45,59,255,0.10)]"
                     placeholder="请输入规则名称"
                   />
                 </div>
@@ -171,7 +171,7 @@ export default function AutoRuleEditPage() {
                 <select
                   value={formData.serviceProduct}
                   onChange={e => setFormData({ ...formData, serviceProduct: e.target.value })}
-                  className="w-full px-4 py-2.5 bg-[#F5F5F5] border-none rounded-xl text-sm text-[#0A0A0A] focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30"
+                  className="w-full px-4 py-2.5 bg-white border border-[#D5D5D5] rounded-lg text-sm text-[#0A0A0A] focus:outline-none focus:border-[#2D3BFF] focus:shadow-[0_0_0_2px_rgba(45,59,255,0.10)]"
                 >
                   <option value="">请选择服务产品</option>
                   {serviceProductOptions.map(o => <option key={o} value={o}>{o}</option>)}
@@ -183,7 +183,7 @@ export default function AutoRuleEditPage() {
                   value={formData.remark}
                   onChange={e => setFormData({ ...formData, remark: e.target.value })}
                   rows={3}
-                  className="w-full px-4 py-2.5 bg-[#F5F5F5] border-none rounded-xl text-sm text-[#0A0A0A] focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30 resize-none"
+                  className="w-full px-4 py-2.5 bg-white border border-[#D5D5D5] rounded-lg text-sm text-[#0A0A0A] focus:outline-none focus:border-[#2D3BFF] focus:shadow-[0_0_0_2px_rgba(45,59,255,0.10)] resize-none"
                   placeholder="请输入规则说明"
                 />
               </div>
@@ -221,7 +221,7 @@ export default function AutoRuleEditPage() {
                     <select
                       value={condition.field}
                       onChange={e => updateCondition(index, 'field', e.target.value)}
-                      className="flex-1 px-4 py-2.5 bg-[#F5F5F5] border-none rounded-xl text-sm text-[#0A0A0A] focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30"
+                      className="flex-1 px-4 py-2.5 bg-white border border-[#D5D5D5] rounded-lg text-sm text-[#0A0A0A] focus:outline-none focus:border-[#2D3BFF] focus:shadow-[0_0_0_2px_rgba(45,59,255,0.10)]"
                     >
                       <option value="">选择字段</option>
                       {fieldOptions.map(f => <option key={f.value} value={f.value}>{f.label}</option>)}
@@ -229,7 +229,7 @@ export default function AutoRuleEditPage() {
                     <select
                       value={condition.operator}
                       onChange={e => updateCondition(index, 'operator', e.target.value)}
-                      className="w-28 px-3 py-2.5 bg-[#F5F5F5] border-none rounded-xl text-sm text-[#5A5A5A] focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30"
+                      className="w-28 px-3 py-2.5 bg-white border border-[#D5D5D5] rounded-lg text-sm text-[#5A5A5A] focus:outline-none focus:border-[#2D3BFF] focus:shadow-[0_0_0_2px_rgba(45,59,255,0.10)]"
                     >
                       <option value="">操作符</option>
                       {getOperators(condition.field).map(op => <option key={op.value} value={op.value}>{op.label}</option>)}
@@ -238,7 +238,7 @@ export default function AutoRuleEditPage() {
                       type="text"
                       value={condition.value}
                       onChange={e => updateCondition(index, 'value', e.target.value)}
-                      className="w-32 px-4 py-2.5 bg-[#F5F5F5] border-none rounded-xl text-sm font-medium text-[#0A0A0A] focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30"
+                      className="w-32 px-4 py-2.5 bg-white border border-[#D5D5D5] rounded-lg text-sm font-medium text-[#0A0A0A] focus:outline-none focus:border-[#2D3BFF] focus:shadow-[0_0_0_2px_rgba(45,59,255,0.10)]"
                       placeholder="值"
                     />
                     {conditions.length > 1 && (
@@ -265,7 +265,7 @@ export default function AutoRuleEditPage() {
                       <select
                         value={action.type}
                         onChange={e => updateAction(index, 'type', e.target.value)}
-                        className="flex-1 px-4 py-2.5 bg-white border-none rounded-xl text-sm text-[#0A0A0A] focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30"
+                        className="flex-1 px-4 py-2.5 bg-white border-none rounded-xl text-sm text-[#0A0A0A] focus:outline-none focus:border-[#2D3BFF] focus:shadow-[0_0_0_2px_rgba(45,59,255,0.10)]"
                       >
                         <option value="">选择动作类型</option>
                         {actionTypes.map(t => <option key={t.value} value={t.value}>{t.label} - {t.description}</option>)}
@@ -281,7 +281,7 @@ export default function AutoRuleEditPage() {
                         type="text"
                         value={action.target}
                         onChange={e => updateAction(index, 'target', e.target.value)}
-                        className="w-full px-4 py-2.5 bg-white border-none rounded-xl text-sm text-[#0A0A0A] focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30"
+                        className="w-full px-4 py-2.5 bg-white border-none rounded-xl text-sm text-[#0A0A0A] focus:outline-none focus:border-[#2D3BFF] focus:shadow-[0_0_0_2px_rgba(45,59,255,0.10)]"
                         placeholder="审批人姓名"
                       />
                     )}
@@ -289,7 +289,7 @@ export default function AutoRuleEditPage() {
                       type="text"
                       value={action.message}
                       onChange={e => updateAction(index, 'message', e.target.value)}
-                      className="w-full px-4 py-2.5 bg-white border-none rounded-xl text-sm text-[#0A0A0A] focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30"
+                      className="w-full px-4 py-2.5 bg-white border-none rounded-xl text-sm text-[#0A0A0A] focus:outline-none focus:border-[#2D3BFF] focus:shadow-[0_0_0_2px_rgba(45,59,255,0.10)]"
                       placeholder="提示消息（可选）"
                     />
                   </div>

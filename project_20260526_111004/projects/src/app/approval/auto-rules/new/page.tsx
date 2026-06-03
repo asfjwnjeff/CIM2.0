@@ -138,13 +138,13 @@ export default function NewAutoRulePage() {
             <div className="flex items-center gap-3">
               <button
                 onClick={() => router.push('/approval/auto-rules')}
-                className="px-5 py-2.5 text-sm text-[#5A5A5A] border border-[#E5E7EB] rounded-xl hover:bg-[#F5F5F5] transition-colors"
+                className="px-5 py-2.5 text-sm text-[#5A5A5A] border border-[#D5D5D5] rounded-lg hover:bg-[#F5F5F5] transition-colors"
               >
                 取消
               </button>
               <button
                 onClick={handleSave}
-                className="px-5 py-2.5 text-sm text-white rounded-xl bg-[#2D3BFF] hover:bg-[#4338CA] transition-colors"
+                className="px-5 py-2.5 text-sm text-white rounded-lg bg-[#2D3BFF] hover:bg-[#4338CA] transition-colors"
               >
                 保存规则
               </button>
@@ -166,7 +166,7 @@ export default function NewAutoRulePage() {
                     value={approvalPoint}
                     onChange={(e) => setApprovalPoint(e.target.value)}
                     placeholder="如：业务量、KPI时效考核要求"
-                    className="w-full px-4 py-2.5 bg-[#F5F5F5] border-none rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/20 placeholder:text-[#999999]/40"
+                    className="w-full px-4 py-2.5 bg-white border border-[#D5D5D5] rounded-lg text-sm focus:outline-none focus:border-[#2D3BFF] focus:shadow-[0_0_0_2px_rgba(45,59,255,0.10)] placeholder:text-[#999999]"
                   />
                 </div>
                 <div>
@@ -176,7 +176,7 @@ export default function NewAutoRulePage() {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="请输入规则名称"
-                    className="w-full px-4 py-2.5 bg-[#F5F5F5] border-none rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/20 placeholder:text-[#999999]/40"
+                    className="w-full px-4 py-2.5 bg-white border border-[#D5D5D5] rounded-lg text-sm focus:outline-none focus:border-[#2D3BFF] focus:shadow-[0_0_0_2px_rgba(45,59,255,0.10)] placeholder:text-[#999999]"
                   />
                 </div>
               </div>
@@ -204,17 +204,12 @@ export default function NewAutoRulePage() {
                   <label className="text-sm font-medium text-[#5A5A5A]">状态</label>
                   <div className="flex items-center gap-2">
                     <button
-                      onClick={() => setStatus('active')}
-                      className={`px-4 py-1.5 text-sm rounded-lg transition-colors ${status === 'active' ? 'bg-[#2D3BFF] text-white' : 'bg-[#F5F5F5] text-[#5A5A5A]'}`}
+                      onClick={() => setStatus(status === 'active' ? 'inactive' : 'active')}
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${status === 'active' ? 'bg-green-500' : 'bg-[#D5D5D5]'}`}
                     >
-                      启用
+                      <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${status === 'active' ? 'translate-x-6' : 'translate-x-1'}`} />
                     </button>
-                    <button
-                      onClick={() => setStatus('inactive')}
-                      className={`px-4 py-1.5 text-sm rounded-lg transition-colors ${status === 'inactive' ? 'bg-[#999999] text-white' : 'bg-[#F5F5F5] text-[#5A5A5A]'}`}
-                    >
-                      禁用
-                    </button>
+                    <span className="text-sm text-[#5A5A5A]">{status === 'active' ? '启用' : '禁用'}</span>
                   </div>
                 </div>
               </div>
