@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { useApp } from '@/lib/store';
+import { useApp, evaluateApprovalRules } from '@/lib/store';
 import { RuleTriggeredApprover, ServiceProduct } from '@/lib/types';
 import ApprovalFlowVisual from '@/components/ApprovalFlowVisual';
 import ApprovalReport, { ReportItem } from '@/components/ApprovalReport';
@@ -434,7 +434,7 @@ export default function ApprovalDetailPage() {
   const params = useParams();
   const id = params.id as string;
 
-  const { approvalWorkflows, riskApprovals, updateRiskApproval, approvalFields } = useApp();
+  const { approvalWorkflows, autoApprovalRules, riskApprovals, updateRiskApproval, approvalFields } = useApp();
   const approval = riskApprovals.find((a) => a.id === id) || riskApprovals[0];
   if (!approval) {
     return <div className="max-w-7xl mx-auto p-12 text-center"><h2 className="text-lg font-semibold text-[#0A0A0A] mb-2">审批数据加载中...</h2><p className="text-[#999]">正在从数据库加载审批记录</p></div>;
@@ -522,34 +522,24 @@ export default function ApprovalDetailPage() {
   const statusInfo = STATUS_MAP[derivedStatus] || STATUS_MAP.draft;
 
   const reportItems = useMemo(() => {
-    const dv = (approval as any).dynamicFieldValues as Record<string, string> || {};
-    const capital = dv.registered_capital || '';
-    const capitalNum = parseInt(capital.replace(/[^0-9]/g, ''));
-    const si = dv.social_insurance_count || '';
-    const siNum = parseInt(si.replace(/[^0-9]/g, ''));
-    const shipping = dv.shipping_country || '';
-    const onTime = dv.on_time_rate || '';
-    const onTimeNum = parseFloat(onTime.replace('%', ''));
-
-    return [
-    { ruleName: '业务可行性审核', fieldName: '风险控制目的', fieldValue: approval.riskControlPurpose || '未填写', result: 'pass' as const, reason: '风控目的明确' },
-    { ruleName: '业务可行性审核', fieldName: '与HMG关系', fieldValue: approval.relationshipWithHMG || '未填写', result: 'pass' as const, reason: '非"内部用户"即合规' },
-    { ruleName: '业务可行性审核', fieldName: '服务产品', fieldValue: approval.serviceProduct || '', result: 'pass' as const, reason: '已匹配审批流模板' },
-    { ruleName: '业务可行性审核', fieldName: '货物类型', fieldValue: approval.goodsType || '未填写', result: 'pass' as const, reason: '已填写' },
-    { ruleName: '业务可行性审核', fieldName: '月均业务量', fieldValue: approval.monthlyBusinessVolume || '未填写', result: (approval.monthlyBusinessVolume || '') === '500以上' ? 'warn' as const : 'pass' as const, reason: (approval.monthlyBusinessVolume || '') === '500以上' ? '超高业务量提醒' : '正常范围' },
-    { ruleName: '贸易合规审核', fieldName: '贸易代理', fieldValue: approval.isTradeAgent || '', result: approval.isTradeAgent === '是' ? 'warn' as const : 'pass' as const, reason: approval.isTradeAgent === '是' ? '涉及贸易代理需追加审批' : '正常' },
-    { ruleName: 'KPI能力审核', fieldName: '通关KPI', fieldValue: (approval.customsKpiRequirement || '').substring(0, 20) + '...', result: 'pass' as const, reason: '通关时效要求评估' },
-    { ruleName: 'KPI能力审核', fieldName: '运输KPI', fieldValue: (approval.transportKpiRequirement || '').substring(0, 20) + '...', result: (approval.transportKpiRequirement || '').includes('危化品') ? 'warn' as const : 'pass' as const, reason: (approval.transportKpiRequirement || '').includes('危化品') ? '危化品运输需专项资质，请确认' : '运输时效/货损率评估' },
-    { ruleName: '资源能力审核', fieldName: '仓库要求', fieldValue: (approval.warehouseLeaseRequirement || '').substring(0, 20) + '...', result: 'pass' as const, reason: '仓储面积和条件评估' },
-    // 动态字段：企业规模
-    ...(capital ? [{ ruleName: '企业规模审核', fieldName: '注册资本', fieldValue: capital + '万', result: (!isNaN(capitalNum) && capitalNum < 100 ? 'warn' : 'pass') as 'pass' | 'warn', reason: !isNaN(capitalNum) && capitalNum < 100 ? '注册资本不足100万，建议人工审核' : '注册资本正常' }] : []),
-    ...(si ? [{ ruleName: '企业规模审核', fieldName: '社保人数', fieldValue: si + '人', result: (!isNaN(siNum) && siNum < 10 ? 'warn' : 'pass') as 'pass' | 'warn', reason: !isNaN(siNum) && siNum < 10 ? '社保人数不足10人，建议人工审核' : '社保人数正常' }] : []),
-    // 动态字段：出货地区
-    ...(shipping ? [{ ruleName: '贸易合规审核', fieldName: '出货国家/地区', fieldValue: shipping, result: (shipping === '以色列' || shipping === '伊朗' ? 'warn' : 'pass') as 'pass' | 'warn', reason: shipping === '以色列' || shipping === '伊朗' ? `${shipping}为战争地区，建议人工审核` : '出货地区正常' }] : []),
-    // 动态字段：运输及时率
-    ...(onTime ? [{ ruleName: 'KPI能力审核', fieldName: '运输及时率', fieldValue: onTime + '%', result: (!isNaN(onTimeNum) && onTimeNum > 99 ? 'warn' : 'pass') as 'pass' | 'warn', reason: !isNaN(onTimeNum) && onTimeNum > 99 ? `客户要求的运输及时率${onTime}%过于严苛，CIM作为供应商可能无法达到` : '运输及时率正常' }] : []),
-    ...(derivedStatus === 'rejected' ? [{ ruleName: '财务确认', fieldName: '财务审批', fieldValue: '已拒绝', result: 'warn' as const, reason: '财务确认节点被拒绝，请重新提交审批' }] : []),
-  ];}, [approval]);
+    const allFieldValues = {
+      ...(approval.dynamicFieldValues || {}),
+      monthly_orders: approval.monthly_orders || '',
+      monthly_invoice_amount: approval.monthly_invoice_amount || '',
+      is_trade_agent: approval.isTradeAgent || '',
+    };
+    const results = evaluateApprovalRules(allFieldValues, autoApprovalRules, approvalFields);
+    const items: Array<{ruleName: string; fieldName: string; result: 'pass' | 'warn'; reason: string}> = [];
+    results.forEach((value) => {
+      items.push({
+        ruleName: value.ruleName,
+        fieldName: value.fieldName,
+        result: value.result,
+        reason: value.reason,
+      });
+    });
+    return items;
+  }, [approval, autoApprovalRules, approvalFields]);
 
   const passCount = reportItems.filter(i => i.result === 'pass').length;
   const warnCount = reportItems.filter(i => i.result === 'warn').length;
@@ -655,8 +645,8 @@ export default function ApprovalDetailPage() {
                   <div><label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">服务产品 <span className="text-red-500">*</span></label><div className="w-full bg-[#E8F4FF] text-[#2D3BFF] rounded-xl px-4 py-3 text-sm font-medium">{approval.serviceProduct}</div></div>
                   <div><label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">业务类型 <span className="text-red-500">*</span></label><div className="w-full bg-[#F5F5F5] rounded-xl px-4 py-3 text-sm text-[#0A0A0A]">{approval.businessType}</div></div>
                   <div><label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">货物类型 <span className="text-red-500">*</span></label><div className="w-full bg-[#F5F5F5] rounded-xl px-4 py-3 text-sm text-[#0A0A0A]">{approval.goodsType}</div></div>
-                  <div><label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">月均业务量 <span className="text-red-500">*</span></label><div className="w-full bg-[#F5F5F5] rounded-xl px-4 py-3 text-sm text-[#0A0A0A]">{approval.monthlyBusinessVolume}</div></div>
-                  <div><label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">每月开票金额 <span className="text-red-500">*</span></label><div className="w-full bg-[#F5F5F5] rounded-xl px-4 py-3 text-sm text-[#0A0A0A]">{approval.monthlyInvoiceAmount}</div></div>
+                  <div><label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">月均订单数 <span className="text-red-500">*</span></label><div className="w-full bg-[#F5F5F5] rounded-xl px-4 py-3 text-sm text-[#0A0A0A]">{approval.monthly_orders || (approval.dynamicFieldValues || {})['monthly_orders'] || '—'}</div></div>
+                  <div><label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">月均开票额 <span className="text-red-500">*</span></label><div className="w-full bg-[#F5F5F5] rounded-xl px-4 py-3 text-sm text-[#0A0A0A]">{approval.monthly_invoice_amount || (approval.dynamicFieldValues || {})['monthly_invoice_amount'] || '—'}</div></div>
                 </div>
                 <div className="mt-4 space-y-4">
                   <div><label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">通关KPI要求 <span className="text-red-500">*</span></label><div className="w-full bg-[#F5F5F5] rounded-xl px-4 py-3 text-sm text-[#0A0A0A] whitespace-pre-wrap">{approval.customsKpiRequirement}</div></div>

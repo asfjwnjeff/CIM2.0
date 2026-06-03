@@ -1134,7 +1134,7 @@ export const initialAutoApprovalRules: AutoApprovalRule[] = [
     serviceProduct: '全部',
     status: 'active',
     conditions: [
-      { id: 'c-001', field: '是否贸易代理', operator: 'equals', value: '是' },
+      { id: 'c-001', field: 'is_trade_agent', operator: 'equals', value: '是' },
     ],
     actions: [
       { id: 'a-001', type: 'add_approver', target: '白沥', description: '自动添加白沥为贸易代理职能审批人' },
@@ -1153,8 +1153,8 @@ export const initialAutoApprovalRules: AutoApprovalRule[] = [
     status: 'active',
     conditionLogic: 'OR' as const,
     conditions: [
-      { field: '月开票额', operator: 'less_than' as const, value: '5000', logic: 'OR' as const },
-      { field: '月订单数', operator: 'less_than' as const, value: '5', logic: 'OR' as const },
+      { field: 'monthly_invoice_amount', operator: 'less_than' as const, value: '5000', logic: 'OR' as const },
+      { field: 'monthly_orders', operator: 'less_than' as const, value: '5', logic: 'OR' as const },
     ],
     actions: [
       { type: 'show_message' as const, description: '业务量过低需人工评估' },
@@ -1165,7 +1165,7 @@ export const initialAutoApprovalRules: AutoApprovalRule[] = [
   {
     id: 'ar-004', name: '注册资本过低警告', serviceProduct: '全部', status: 'active',
     conditionLogic: 'AND' as const,
-    conditions: [{ field: '注册资本', operator: 'less_than' as const, value: '100' as const }],
+    conditions: [{ field: 'registered_capital', operator: 'less_than' as const, value: '100' as const }],
     actions: [{ type: 'show_message' as const, description: '注册资本不足100万，建议人工审核' }],
     failureMessage: '注册资本不足100万，建议人工审核', priority: 4,
     createdBy: 'system', createdAt: '2026-05-29T08:00:00Z',
@@ -1173,7 +1173,7 @@ export const initialAutoApprovalRules: AutoApprovalRule[] = [
   {
     id: 'ar-005', name: '社保人数过少警告', serviceProduct: '全部', status: 'active',
     conditionLogic: 'AND' as const,
-    conditions: [{ field: '社保人数', operator: 'less_than' as const, value: '10' as const }],
+    conditions: [{ field: 'social_insurance_count', operator: 'less_than' as const, value: '10' as const }],
     actions: [{ type: 'show_message' as const, description: '社保人数不足10人，建议人工审核' }],
     failureMessage: '社保人数不足10人，建议人工审核', priority: 5,
     createdBy: 'system', createdAt: '2026-05-29T08:00:00Z',
@@ -1182,8 +1182,8 @@ export const initialAutoApprovalRules: AutoApprovalRule[] = [
     id: 'ar-006', name: '战争地区出货警告', serviceProduct: '全部', status: 'active',
     conditionLogic: 'OR' as const,
     conditions: [
-      { field: '出货国家/地区', operator: 'equals' as const, value: '以色列', logic: 'OR' as const },
-      { field: '出货国家/地区', operator: 'equals' as const, value: '伊朗', logic: 'OR' as const },
+      { field: 'shipping_country', operator: 'equals' as const, value: '以色列', logic: 'OR' as const },
+      { field: 'shipping_country', operator: 'equals' as const, value: '伊朗', logic: 'OR' as const },
     ],
     actions: [{ type: 'show_message' as const, description: '出货地区为战争地区，建议人工审核' }],
     failureMessage: '出货地区为战争地区，建议人工审核', priority: 6,
@@ -1192,7 +1192,7 @@ export const initialAutoApprovalRules: AutoApprovalRule[] = [
   {
     id: 'ar-007', name: '运输及时率考核评估', serviceProduct: '运输', status: 'active',
     conditionLogic: 'AND' as const,
-    conditions: [{ field: '运输及时率', operator: 'greater_than' as const, value: '99' as const }],
+    conditions: [{ field: 'on_time_rate', operator: 'greater_than' as const, value: '99' as const }],
     actions: [{ type: 'show_message' as const, description: '客户要求的运输及时率>99%，标准过于严苛' }],
     failureMessage: '客户要求的运输及时率>99%过于严苛，CIM作为供应商可能无法达到，建议评估KPI可行性', priority: 7,
     createdBy: 'system', createdAt: '2026-05-29T08:00:00Z',
@@ -2420,32 +2420,6 @@ export const initialQuoteTemplates: QuoteTemplate[] = [
 /** 初始审批结构化字段 */
 export const initialApprovalFields: ApprovalField[] = [
   // ===== 运输 =====
-  {
-    id: 'af-001', name: '月订单数', fieldKey: 'monthly_orders', fieldType: 'number',
-    serviceProducts: ['运输', '一体化供应链'], approvalPoint: '业务量',
-    options: [
-      { id: 'opt-001', label: '0-5单', order: 1 },
-      { id: 'opt-002', label: '6-10单', order: 2 },
-      { id: 'opt-003', label: '11-20单', order: 3 },
-      { id: 'opt-004', label: '21-50单', order: 4 },
-      { id: 'opt-005', label: '50单以上', order: 5 },
-    ],
-    isRequired: true, status: 'active',
-    remark: '评估运输业务订单量是否达到基本业务规模门槛',
-    createdBy: 'system', createdAt: '2026-05-29T00:00:00Z',
-  },
-  {
-    id: 'af-002', name: '月开票额', fieldKey: 'monthly_invoice_amount', fieldType: 'number',
-    serviceProducts: ['运输', '一体化供应链'], approvalPoint: '业务量',
-    options: [
-      { id: 'opt-006', label: '0-5000元', order: 1 },
-      { id: 'opt-007', label: '5000-20000元', order: 2 },
-      { id: 'opt-008', label: '20000-100000元', order: 3 },
-      { id: 'opt-009', label: '100000元以上', order: 4 },
-    ],
-    isRequired: true, status: 'active',
-    createdBy: 'system', createdAt: '2026-05-29T00:00:00Z',
-  },
   {
     id: 'af-003', name: '运输及时率', fieldKey: 'on_time_rate', fieldType: 'percentage',
     serviceProducts: ['运输', '一体化供应链'], approvalPoint: 'KPI时效考核要求',

@@ -569,6 +569,8 @@ export interface RiskApproval {
   goodsType?: string;
   monthlyBusinessVolume?: string;
   monthlyInvoiceAmount?: string;
+  monthly_orders?: string;
+  monthly_invoice_amount?: string;
   customsKpiRequirement?: string;
   transportKpiRequirement?: string;
   warehouseLeaseRequirement?: string;

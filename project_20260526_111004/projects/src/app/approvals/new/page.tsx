@@ -61,8 +61,8 @@ export default function NewRiskControlPage() {
     serviceProduct: "",
     businessType: "",
     goodsType: "",
-    monthlyBusinessVolume: "",
-    monthlyInvoiceAmount: "",
+    monthly_orders: "",
+    monthly_invoice_amount: "",
     customsKpiRequirement: "",
     transportKpiRequirement: "",
     warehouseLeaseRequirement: "",
@@ -138,10 +138,18 @@ export default function NewRiskControlPage() {
     return result;
   }, [formData.isTradeAgent]);
 
+  // 合并动态字段和固定字段用于规则评估
+  const allFieldValues = useMemo(() => ({
+    ...dynamicFieldValues,
+    monthly_orders: formData.monthly_orders || '',
+    monthly_invoice_amount: formData.monthly_invoice_amount || '',
+    is_trade_agent: formData.isTradeAgent || '',
+  }), [dynamicFieldValues, formData.monthly_orders, formData.monthly_invoice_amount, formData.isTradeAgent]);
+
   // 实时报告评估
   const liveReport = useMemo(() => {
     const results = evaluateApprovalRules(
-      dynamicFieldValues || {},
+      allFieldValues || {},
       autoApprovalRules,
       approvalFields,
     );
@@ -161,7 +169,7 @@ export default function NewRiskControlPage() {
     });
 
     return { items, passCount, warnCount };
-  }, [dynamicFieldValues, autoApprovalRules, approvalFields]);
+  }, [allFieldValues, autoApprovalRules, approvalFields]);
 
   const handleDynamicFieldChange = (fieldKey: string, value: string) => {
     setDynamicFieldValues(prev => ({ ...prev, [fieldKey]: value }));
@@ -208,8 +216,8 @@ export default function NewRiskControlPage() {
     isTradeAgent: formData.isTradeAgent || '否',
     businessType: formData.businessType,
     goodsType: formData.goodsType,
-    monthlyBusinessVolume: formData.monthlyBusinessVolume,
-    monthlyInvoiceAmount: formData.monthlyInvoiceAmount,
+    monthly_orders: formData.monthly_orders,
+    monthly_invoice_amount: formData.monthly_invoice_amount,
     customsKpiRequirement: formData.customsKpiRequirement,
     transportKpiRequirement: formData.transportKpiRequirement,
     warehouseLeaseRequirement: formData.warehouseLeaseRequirement,
@@ -453,17 +461,22 @@ export default function NewRiskControlPage() {
                     <input type="text" value={formData.goodsType} onChange={(e) => handleChange("goodsType", e.target.value)} placeholder="请输入货物类型" className="w-full bg-[#F5F5F5] border-none rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30" />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">月均业务量 <span className="text-red-500">*</span></label>
+                    <label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">月均订单数 <span className="text-red-500">*</span></label>
                     <SearchableSelect
-                      value={formData.monthlyBusinessVolume}
-                      onChange={(value) => handleChange("monthlyBusinessVolume", value)}
-                      options={MONTHLY_VOLUMES.map((v) => ({ value: v, label: v }))}
-                      placeholder="请选择月均业务量"
+                      value={formData.monthly_orders}
+                      onChange={(value) => handleChange("monthly_orders", value)}
+                      options={['0-5单','6-10单','11-20单','21-50单','50单以上'].map((v) => ({ value: v, label: v }))}
+                      placeholder="请选择月均订单数"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">每月开票金额 <span className="text-red-500">*</span></label>
-                    <input type="text" value={formData.monthlyInvoiceAmount} onChange={(e) => handleChange("monthlyInvoiceAmount", e.target.value)} placeholder="请输入每月开票金额" className="w-full bg-[#F5F5F5] border-none rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30" />
+                    <label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">月均开票额 <span className="text-red-500">*</span></label>
+                    <SearchableSelect
+                      value={formData.monthly_invoice_amount}
+                      onChange={(value) => handleChange("monthly_invoice_amount", value)}
+                      options={['0-5000元','5000-20000元','20000-100000元','100000元以上'].map((v) => ({ value: v, label: v }))}
+                      placeholder="请选择月均开票额"
+                    />
                   </div>
                 </div>
                 <div className="mt-4 space-y-4">
