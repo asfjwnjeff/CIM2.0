@@ -2470,14 +2470,14 @@ export const initialApprovalFields: ApprovalField[] = [
   // ===== 运输 =====
   {
     id: 'af-003', name: '运输及时率', fieldKey: 'on_time_rate', fieldType: 'percentage',
-    serviceProducts: ['运输', '一体化供应链'], approvalPoint: 'KPI时效考核要求',
+    serviceProducts: ['运输', '一体化供应链', '合同物流'], approvalPoint: 'KPI时效考核要求',
     options: [],
     isRequired: false, status: 'active',
     createdBy: 'system', createdAt: '2026-05-29T00:00:00Z',
   },
   {
     id: 'af-004', name: '意向服务地区', fieldKey: 'service_regions', fieldType: 'multi_select',
-    serviceProducts: ['运输', '一体化供应链'], approvalPoint: '业务分布',
+    serviceProducts: ['运输', '一体化供应链', '合同物流'], approvalPoint: '业务分布',
     options: [
       { id: 'opt-010', label: '上海', order: 1 }, { id: 'opt-011', label: '无锡', order: 2 },
       { id: 'opt-012', label: '南京', order: 3 }, { id: 'opt-013', label: '合肥', order: 4 },
@@ -2494,7 +2494,7 @@ export const initialApprovalFields: ApprovalField[] = [
   // ===== 货代 =====
   {
     id: 'af-005', name: '运输产品种类', fieldKey: 'transport_product_type', fieldType: 'single_other',
-    serviceProducts: ['货代', '一体化供应链'], approvalPoint: '运输产品种类',
+    serviceProducts: ['货代', '一体化供应链', '合同物流'], approvalPoint: '运输产品种类',
     options: [
       { id: 'opt-023', label: '空运进口', order: 1 },
       { id: 'opt-024', label: '海运进口', order: 2 },
@@ -2510,7 +2510,7 @@ export const initialApprovalFields: ApprovalField[] = [
   },
   {
     id: 'af-006', name: '出货国家/地区', fieldKey: 'shipping_country', fieldType: 'single_select',
-    serviceProducts: ['货代', '一体化供应链'], approvalPoint: '出货地区',
+    serviceProducts: ['货代', '一体化供应链', '合同物流'], approvalPoint: '出货地区',
     options: [
       { id: 'opt-031', label: '中国', order: 1 },
       { id: 'opt-032', label: '美国', order: 2 },
@@ -2523,7 +2523,7 @@ export const initialApprovalFields: ApprovalField[] = [
   },
   {
     id: 'af-007', name: '注册资本', fieldKey: 'registered_capital', fieldType: 'text',
-    serviceProducts: ['货代', '仓库', '运输', '一体化供应链'], approvalPoint: '企业规模',
+    serviceProducts: ['货代', '仓库', '运输', '一体化供应链', '合同物流'], approvalPoint: '企业规模',
     options: [],
     isRequired: true, status: 'active',
     remark: '可通过企查查接口自动获取',
@@ -2531,7 +2531,7 @@ export const initialApprovalFields: ApprovalField[] = [
   },
   {
     id: 'af-008', name: '社保人数', fieldKey: 'social_insurance_count', fieldType: 'text',
-    serviceProducts: ['货代', '仓库', '运输', '一体化供应链'], approvalPoint: '企业规模',
+    serviceProducts: ['货代', '仓库', '运输', '一体化供应链', '合同物流'], approvalPoint: '企业规模',
     options: [],
     isRequired: true, status: 'active',
     remark: '可通过企查查接口自动获取',
@@ -2540,7 +2540,7 @@ export const initialApprovalFields: ApprovalField[] = [
   // ===== 仓库 =====
   {
     id: 'af-010', name: '面积需求', fieldKey: 'area_requirement', fieldType: 'number',
-    serviceProducts: ['仓库', '一体化供应链'], approvalPoint: '业务量',
+    serviceProducts: ['仓库', '一体化供应链', '合同物流'], approvalPoint: '业务量',
     options: [],
     isRequired: true, status: 'active',
     remark: '手动输入数字，保留两位小数，单位平方米（㎡）',
@@ -2548,7 +2548,7 @@ export const initialApprovalFields: ApprovalField[] = [
   },
   {
     id: 'af-011', name: '货量需求', fieldKey: 'cargo_volume', fieldType: 'number',
-    serviceProducts: ['仓库', '一体化供应链'], approvalPoint: '业务量',
+    serviceProducts: ['仓库', '一体化供应链', '合同物流'], approvalPoint: '业务量',
     options: [],
     isRequired: true, status: 'active',
     remark: '手动输入正整数，单位件',
@@ -2556,7 +2556,7 @@ export const initialApprovalFields: ApprovalField[] = [
   },
   {
     id: 'af-012', name: '仓库地区', fieldKey: 'warehouse_region', fieldType: 'multi_select',
-    serviceProducts: ['仓库', '一体化供应链'], approvalPoint: '业务量',
+    serviceProducts: ['仓库', '一体化供应链', '合同物流'], approvalPoint: '业务量',
     options: [
       { id: 'opt-043', label: '上海', order: 1 },
       { id: 'opt-044', label: '无锡', order: 2 },
@@ -2578,7 +2578,7 @@ export const initialApprovalFields: ApprovalField[] = [
   },
   {
     id: 'af-013', name: '存储类型', fieldKey: 'storage_type', fieldType: 'single_select',
-    serviceProducts: ['仓库', '一体化供应链'], approvalPoint: '存储类型',
+    serviceProducts: ['仓库', '一体化供应链', '合同物流'], approvalPoint: '存储类型',
     options: [
       { id: 'opt-047', label: '恒温恒湿', order: 1 },
       { id: 'opt-048', label: '常温', order: 2 },

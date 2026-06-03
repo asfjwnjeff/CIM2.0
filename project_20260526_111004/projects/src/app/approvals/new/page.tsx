@@ -179,7 +179,7 @@ export default function NewRiskControlPage() {
 
   const handleChange = (name: string, value: string) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
-    if (name === 'serviceProduct') setPickedApprover('');
+    if (name === 'serviceProduct') { setPickedApprover(''); setDynamicFieldValues({}); }
   };
 
   const toggleMultiSelect = (name: "businessCustomerIds" | "invoiceInfoIds", id: string) => {
