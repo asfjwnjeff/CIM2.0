@@ -1028,16 +1028,22 @@ function evaluateCondition(condition: RuleCondition, actualValue: string): boole
 
 // ==================== 规则引擎 ====================
 
-import type { RuleTriggeredApprover, AutoApprovalCondition } from './types';
+import type { RuleTriggeredApprover, AutoApprovalCondition, AutoApprovalAction } from './types';
 
 /** 评估自动审批规则，返回每个审批点的结果 */
 export function evaluateApprovalRules(
   fieldValues: Record<string, string>,
   autoApprovalRules: AutoApprovalRule[],
   approvalFields: ApprovalField[],
+  serviceProduct?: string,
 ): Map<string, { result: 'pass' | 'warn'; ruleName: string; fieldName: string; reason: string }> {
   const results = new Map<string, { result: 'pass' | 'warn'; ruleName: string; fieldName: string; reason: string }>();
-  const activeRules = autoApprovalRules.filter(r => r.status === 'active');
+  const activeRules = autoApprovalRules.filter(r => {
+    if (r.status !== 'active') return false;
+    // 按服务产品过滤：'全部'匹配所有，否则精确匹配
+    if (!serviceProduct || r.serviceProduct === '全部') return true;
+    return r.serviceProduct === serviceProduct;
+  });
 
   for (const rule of activeRules) {
     const conditions = rule.conditions || [];
@@ -1054,6 +1060,10 @@ export function evaluateApprovalRules(
     const matchedField = approvalFields.find(f => f.fieldKey === firstConditionField);
     const fieldName = matchedField?.name || firstConditionField;
 
+    const getReason = (action: AutoApprovalAction, rule: AutoApprovalRule, defaultText: string) => {
+      return (action as any).message || (action as any).description || rule.remark || rule.failureMessage || rule.message || defaultText;
+    };
+
     for (const action of rule.actions) {
       if (!action.type) continue;
 
@@ -1063,7 +1073,7 @@ export function evaluateApprovalRules(
             result: 'pass',
             ruleName: rule.name,
             fieldName,
-            reason: action.message || rule.remark || '满足规则条件，自动通过',
+            reason: getReason(action, rule, '满足规则条件，自动通过'),
           });
           break;
         case 'auto_reject':
@@ -1071,7 +1081,7 @@ export function evaluateApprovalRules(
             result: 'warn',
             ruleName: rule.name,
             fieldName,
-            reason: action.message || rule.remark || '触发风险规则，已自动拒绝',
+            reason: getReason(action, rule, '触发风险规则，已自动拒绝'),
           });
           break;
         case 'show_message':
@@ -1079,7 +1089,7 @@ export function evaluateApprovalRules(
             result: 'warn',
             ruleName: rule.name,
             fieldName,
-            reason: action.message || rule.remark || '触发提醒规则',
+            reason: getReason(action, rule, '触发提醒规则'),
           });
           break;
         // add_approver 不在此处理，由 computeTriggeredApprovers 处理

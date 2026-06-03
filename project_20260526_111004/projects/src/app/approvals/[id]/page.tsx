@@ -529,7 +529,7 @@ export default function ApprovalDetailPage() {
       is_trade_agent: approval.isTradeAgent || '',
       service_regions: (approval.dynamicFieldValues || {})['service_regions'] || '',
     };
-    const results = evaluateApprovalRules(allFieldValues, autoApprovalRules, approvalFields);
+    const results = evaluateApprovalRules(allFieldValues, autoApprovalRules, approvalFields, approval.serviceProduct);
     const items: Array<{ruleName: string; fieldName: string; result: 'pass' | 'warn'; reason: string}> = [];
     results.forEach((value) => {
       items.push({

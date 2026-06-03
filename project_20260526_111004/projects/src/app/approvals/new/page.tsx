@@ -153,6 +153,7 @@ export default function NewRiskControlPage() {
       allFieldValues || {},
       autoApprovalRules,
       approvalFields,
+      formData.serviceProduct,
     );
     const items: Array<{ ruleName: string; fieldName: string; result: 'pass' | 'warn'; reason: string }> = [];
     let passCount = 0;
