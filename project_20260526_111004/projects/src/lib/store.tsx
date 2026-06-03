@@ -1031,6 +1031,12 @@ function evaluateCondition(condition: RuleCondition, actualValue: string): boole
 import type { RuleTriggeredApprover, AutoApprovalCondition, AutoApprovalAction } from './types';
 
 /** 评估自动审批规则，返回每个审批点的结果 */
+const FIXED_FIELD_NAMES: Record<string, string> = {
+  monthly_orders: '月均订单数',
+  monthly_invoice_amount: '月均开票额',
+  is_trade_agent: '是否贸易代理',
+};
+
 export function evaluateApprovalRules(
   fieldValues: Record<string, string>,
   autoApprovalRules: AutoApprovalRule[],
@@ -1058,7 +1064,7 @@ export function evaluateApprovalRules(
 
     const firstConditionField = conditions[0]?.field || '';
     const matchedField = approvalFields.find(f => f.fieldKey === firstConditionField);
-    const fieldName = matchedField?.name || firstConditionField;
+    const fieldName = matchedField?.name || FIXED_FIELD_NAMES[firstConditionField] || firstConditionField;
 
     const getReason = (action: AutoApprovalAction, rule: AutoApprovalRule, defaultText: string) => {
       return (action as any).message || (action as any).description || rule.remark || rule.failureMessage || rule.message || defaultText;

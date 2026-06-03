@@ -199,14 +199,16 @@ export default function NewRiskControlPage() {
       alert("合同物流必须选择一位职能审批人");
       return;
     }
-    addRiskApproval(buildApprovalData('已驳回'));
-    router.push("/approvals");
+    const newId = `ra-${Date.now()}`;
+    addRiskApproval({ ...buildApprovalData('已驳回'), id: newId } as any);
+    router.push(`/approvals/${newId}`);
   };
 
   const handleSaveDraft = () => {
     if (!formData.companyName.trim()) { alert('请填写公司全称'); return; }
-    addRiskApproval(buildApprovalData('草稿'));
-    router.push("/approvals");
+    const newId = `ra-${Date.now()}`;
+    addRiskApproval({ ...buildApprovalData('草稿'), id: newId } as any);
+    router.push(`/approvals/${newId}`);
   };
 
   const buildApprovalData = (approvalStatus: string) => ({

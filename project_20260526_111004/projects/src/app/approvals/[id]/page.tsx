@@ -474,7 +474,6 @@ export default function ApprovalDetailPage() {
       return s;
     });
     updateRiskApproval(approval.id, { approvalSteps: steps, approvalStatus: '审批中', status: 'in_review' });
-    router.push('/approvals');
   };
 
   const handleRevokeApproval = () => {
@@ -483,7 +482,6 @@ export default function ApprovalDetailPage() {
       return { ...s, status: 'pending', rejected: false };
     });
     updateRiskApproval(approval.id, { approvalSteps: steps, approvalStatus: '草稿', status: 'draft' });
-    router.push('/approvals');
   };
 
   const progressData = useMemo((): { currentNodeIndex: number; completedNodes: number[]; rejectedNodes: number[] } => {
@@ -689,7 +687,7 @@ export default function ApprovalDetailPage() {
                         <div className="col-span-2 flex justify-between items-center p-2.5 rounded-lg bg-[#FFF9EB] border border-[#E8850C]">
                           <span className="text-xs text-[#5A5A5A]">是否贸易代理</span>
                           <span className="inline-flex items-center gap-1.5">
-                            <span className="text-xs font-medium text-[#E8850C]">是 — 触发追加审批人（白沥）</span>
+                            <span className="text-xs font-medium text-[#E8850C]">是</span>
                           </span>
                         </div>
                       )}
