@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useApp } from '@/lib/store';
-import { RuleTriggeredApprover } from '@/lib/types';
+import { RuleTriggeredApprover, ServiceProduct } from '@/lib/types';
 import ApprovalFlowVisual from '@/components/ApprovalFlowVisual';
 import ApprovalReport, { ReportItem } from '@/components/ApprovalReport';
 
@@ -434,7 +434,7 @@ export default function ApprovalDetailPage() {
   const params = useParams();
   const id = params.id as string;
 
-  const { approvalWorkflows, riskApprovals, updateRiskApproval } = useApp();
+  const { approvalWorkflows, riskApprovals, updateRiskApproval, approvalFields } = useApp();
   const approval = riskApprovals.find((a) => a.id === id) || riskApprovals[0];
   if (!approval) {
     return <div className="max-w-7xl mx-auto p-12 text-center"><h2 className="text-lg font-semibold text-[#0A0A0A] mb-2">审批数据加载中...</h2><p className="text-[#999]">正在从数据库加载审批记录</p></div>;
@@ -667,48 +667,46 @@ export default function ApprovalDetailPage() {
                 </div>
               </div>
 
-              {/* 合规审核 — 只读动态字段 */}
-              <div className="bg-white rounded-2xl shadow-sm p-6">
-                <div className="flex items-center gap-2 mb-4 pb-3 border-b border-[#EBEBEB]">
-                  <div className="w-1 h-4 bg-[#0D8A5E] rounded-full" />
-                  <h3 className="text-sm font-semibold text-[#0A0A0A]">合规审核</h3>
-                  <span className="text-[10px] text-[#999]">审批辅助报告数据来源</span>
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="flex justify-between items-center p-2.5 rounded-lg bg-[#F0F1FF] border border-[#C7CAFF]">
-                    <span className="text-xs text-[#5A5A5A]">月订单数</span>
-                    <span className="text-xs font-medium text-[#2D3BFF]">21-50单</span>
-                  </div>
-                  <div className="flex justify-between items-center p-2.5 rounded-lg bg-[#F0F1FF] border border-[#C7CAFF]">
-                    <span className="text-xs text-[#5A5A5A]">月开票额</span>
-                    <span className="text-xs font-medium text-[#2D3BFF]">50-100万</span>
-                  </div>
-                  <div className="flex justify-between items-center p-2.5 rounded-lg bg-[#F0F1FF] border border-[#C7CAFF]">
-                    <span className="text-xs text-[#5A5A5A]">出货国家/地区</span>
-                    <span className="text-xs font-medium text-[#2D3BFF]">中国</span>
-                  </div>
-                  <div className="flex justify-between items-center p-2.5 rounded-lg bg-[#F0F1FF] border border-[#C7CAFF]">
-                    <span className="text-xs text-[#5A5A5A]">注册资本</span>
-                    <span className="text-xs font-medium text-[#2D3BFF]">5000万</span>
-                  </div>
-                  {approval.isTradeAgent === '是' && (
-                    <div className="col-span-2 flex justify-between items-center p-2.5 rounded-lg bg-[#FFF9EB] border border-[#E8850C]">
-                      <span className="text-xs text-[#5A5A5A]">是否贸易代理</span>
-                      <span className="inline-flex items-center gap-1.5">
-                        <span className="text-xs font-medium text-[#E8850C]">是 — 触发追加审批人（白沥）</span>
-                      </span>
+              {/* 合规审核 — 按服务产品动态渲染 */}
+              {(() => {
+                const complianceFields = approvalFields.filter(
+                  f => f.status === 'active' &&
+                       f.serviceProducts.includes(approval.serviceProduct as ServiceProduct) &&
+                       f.fieldKey !== 'is_trade_agent'
+                );
+
+                if (complianceFields.length === 0 && approval.isTradeAgent !== '是') return null;
+
+                return (
+                  <div className="bg-white rounded-2xl shadow-sm p-6">
+                    <div className="flex items-center gap-2 mb-4 pb-3 border-b border-[#EBEBEB]">
+                      <div className="w-1 h-4 bg-[#0D8A5E] rounded-full" />
+                      <h3 className="text-sm font-semibold text-[#0A0A0A]">合规审核</h3>
+                      <span className="text-[10px] text-[#999]">按服务产品动态加载</span>
                     </div>
-                  )}
-                  <div className="flex justify-between items-center p-2.5 rounded-lg bg-[#F0F1FF] border border-[#C7CAFF]">
-                    <span className="text-xs text-[#5A5A5A]">社保人数</span>
-                    <span className="text-xs font-medium text-[#2D3BFF]">200人</span>
+                    <div className="grid grid-cols-2 gap-3">
+                      {complianceFields.map(field => {
+                        const value = (approval.dynamicFieldValues || {})[field.fieldKey];
+                        const displayValue = value || '—';
+                        return (
+                          <div key={field.id} className="flex justify-between items-center p-2.5 rounded-lg bg-[#F0F1FF] border border-[#C7CAFF]">
+                            <span className="text-xs text-[#5A5A5A]">{field.name}{field.isRequired ? ' *' : ''}</span>
+                            <span className="text-xs font-medium text-[#2D3BFF]">{displayValue}</span>
+                          </div>
+                        );
+                      })}
+                      {approval.isTradeAgent === '是' && (
+                        <div className="col-span-2 flex justify-between items-center p-2.5 rounded-lg bg-[#FFF9EB] border border-[#E8850C]">
+                          <span className="text-xs text-[#5A5A5A]">是否贸易代理</span>
+                          <span className="inline-flex items-center gap-1.5">
+                            <span className="text-xs font-medium text-[#E8850C]">是 — 触发追加审批人（白沥）</span>
+                          </span>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                  <div className="flex justify-between items-center p-2.5 rounded-lg bg-[#F0F1FF] border border-[#C7CAFF]">
-                    <span className="text-xs text-[#5A5A5A]">运输及时率</span>
-                    <span className="text-xs font-medium text-[#2D3BFF]">98%</span>
-                  </div>
-                </div>
-              </div>
+                );
+              })()}
             </div>
 
             {/* 右侧审批流 + 报告 */}
@@ -747,6 +745,7 @@ export default function ApprovalDetailPage() {
                     <ApprovalFlowVisual
                       workflow={matchedWorkflow}
                       ruleTriggeredApprovers={ruleTriggeredApprovers}
+                      pickedApprover={(approval as any).pickedApprover || undefined}
                       mode="progress"
                       progress={{
                         currentNodeIndex: progressData.currentNodeIndex,

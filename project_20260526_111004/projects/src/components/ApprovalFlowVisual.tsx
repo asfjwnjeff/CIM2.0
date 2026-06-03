@@ -48,8 +48,13 @@ export default function ApprovalFlowVisual({
         // Conditional approvers for functional node
         const functionalApprovers = isFunctional ? ruleTriggeredApprovers : [];
         const hasConditional = functionalApprovers.length > 0;
-        const totalApprovers = (node.approvers?.length || 0) + functionalApprovers.length;
-        const showCountersignNote = isFunctional && totalApprovers > 1;
+        // 当 pickedApprover 存在时（四选一场景），用过滤后的审批人列表
+        const effectiveApprovers = pickedApprover
+          ? (node.approvers || []).filter((a) => a.name === pickedApprover)
+          : (node.approvers || []);
+        const totalApprovers = effectiveApprovers.length + functionalApprovers.length;
+        const isPickOne = !!(pickedApprover && effectiveApprovers.length === 1 && (node.approvers?.length || 0) > 1);
+        const showCountersignNote = isFunctional && totalApprovers > 1 && !isPickOne;
 
         return (
           <div key={node.id || index} className="flex gap-3">
@@ -117,12 +122,9 @@ export default function ApprovalFlowVisual({
               </div>
 
               {/* Default approvers */}
-              {node.approvers && node.approvers.length > 0 && (
+              {effectiveApprovers.length > 0 && (
                 <div className="flex flex-wrap gap-1.5 mb-2">
-                  {(pickedApprover
-                    ? node.approvers.filter((a) => a.name === pickedApprover)
-                    : node.approvers
-                  ).map((approver) => (
+                  {effectiveApprovers.map((approver) => (
                     <span key={approver.id} className={`inline-flex items-center px-2 py-0.5 text-xs rounded-full ${
                       isFunctional && mode === 'preview'
                         ? 'bg-[#E8EBFF] text-[#2D3BFF] border border-[#2D3BFF]/20'
