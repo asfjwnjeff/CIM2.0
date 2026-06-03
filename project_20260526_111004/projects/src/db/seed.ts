@@ -66,7 +66,8 @@ const CREATE_TABLES = [
     id TEXT PRIMARY KEY, name TEXT NOT NULL, service_product TEXT,
     status TEXT DEFAULT 'active', condition_logic TEXT DEFAULT 'AND',
     conditions TEXT, actions TEXT, success_message TEXT,
-    failure_message TEXT, priority INTEGER DEFAULT 99,
+    failure_message TEXT, message TEXT, priority INTEGER DEFAULT 99,
+    remark TEXT, is_system INTEGER DEFAULT 0,
     created_by TEXT, created_at TEXT, updated_at TEXT
   )`,
   `CREATE TABLE IF NOT EXISTS risk_approvals (
@@ -76,7 +77,7 @@ const CREATE_TABLES = [
     status TEXT, approval_steps TEXT, picked_approver TEXT,
     dynamic_field_values TEXT, submitter TEXT, remark TEXT,
     english_name TEXT, parent_company TEXT, subsidiary_company TEXT,
-    goods_type TEXT, monthly_business_volume TEXT, monthly_invoice_amount TEXT,
+    goods_type TEXT, monthly_business_volume TEXT, monthly_orders TEXT, monthly_invoice_amount TEXT,
     customs_kpi_requirement TEXT, transport_kpi_requirement TEXT, warehouse_lease_requirement TEXT,
     custom_service_requirement TEXT, custom_requirement_description TEXT,
     risk_control_purpose TEXT, relationship_with_hmg TEXT,
@@ -253,7 +254,8 @@ async function seed() {
         englishName: ra.englishName ?? null, parentCompany: ra.parentCompany ?? null,
         subsidiaryCompany: ra.subsidiaryCompany ?? null, goodsType: ra.goodsType ?? null,
         monthlyBusinessVolume: ra.monthlyBusinessVolume ?? null,
-        monthlyInvoiceAmount: ra.monthlyInvoiceAmount ?? null,
+        monthlyOrders: (ra as any).monthly_orders ?? null,
+        monthlyInvoiceAmount: (ra as any).monthly_invoice_amount ?? ra.monthlyInvoiceAmount ?? null,
         customsKpiRequirement: ra.customsKpiRequirement ?? null,
         transportKpiRequirement: ra.transportKpiRequirement ?? null,
         warehouseLeaseRequirement: ra.warehouseLeaseRequirement ?? null,

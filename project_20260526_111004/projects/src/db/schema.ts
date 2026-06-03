@@ -134,6 +134,7 @@ export const riskApprovals = sqliteTable('risk_approvals', {
   // 业务信息
   goodsType: text('goods_type'),
   monthlyBusinessVolume: text('monthly_business_volume'),
+  monthlyOrders: text('monthly_orders'),
   monthlyInvoiceAmount: text('monthly_invoice_amount'),
   customsKpiRequirement: text('customs_kpi_requirement'),
   transportKpiRequirement: text('transport_kpi_requirement'),

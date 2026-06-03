@@ -15,6 +15,15 @@ function parseRecord(record: Record<string, unknown>) {
       parsed[f] = f === 'dynamicFieldValues' ? {} : [];
     }
   }
+  // 字段名映射：DB 驼峰 → 前端下划线
+  if (parsed['monthlyOrders'] !== undefined) {
+    parsed['monthly_orders'] = parsed['monthlyOrders'];
+    delete parsed['monthlyOrders'];
+  }
+  if (parsed['monthlyInvoiceAmount'] !== undefined) {
+    parsed['monthly_invoice_amount'] = parsed['monthlyInvoiceAmount'];
+    delete parsed['monthlyInvoiceAmount'];
+  }
   return parsed;
 }
 
@@ -61,7 +70,8 @@ export async function POST(req: Request) {
       subsidiaryCompany: body.subsidiaryCompany ?? null,
       goodsType: body.goodsType ?? null,
       monthlyBusinessVolume: body.monthlyBusinessVolume ?? null,
-      monthlyInvoiceAmount: body.monthlyInvoiceAmount ?? null,
+      monthlyOrders: body.monthly_orders ?? null,
+      monthlyInvoiceAmount: body.monthly_invoice_amount ?? body.monthlyInvoiceAmount ?? null,
       customsKpiRequirement: body.customsKpiRequirement ?? null,
       transportKpiRequirement: body.transportKpiRequirement ?? null,
       warehouseLeaseRequirement: body.warehouseLeaseRequirement ?? null,
@@ -103,7 +113,7 @@ export async function PUT(req: Request) {
       'companyName', 'serviceProduct', 'isTradeAgent', 'businessType',
       'approvalStatus', 'status', 'pickedApprover', 'submitter', 'remark',
       'englishName', 'parentCompany', 'subsidiaryCompany',
-      'goodsType', 'monthlyBusinessVolume', 'monthlyInvoiceAmount',
+      'goodsType', 'monthlyBusinessVolume', 'monthlyOrders', 'monthlyInvoiceAmount',
       'customsKpiRequirement', 'transportKpiRequirement', 'warehouseLeaseRequirement',
       'customServiceRequirement', 'customRequirementDescription',
       'riskControlPurpose', 'relationshipWithHMG',
@@ -114,6 +124,9 @@ export async function PUT(req: Request) {
     for (const field of STRING_FIELDS) {
       if (body[field] !== undefined) updateData[field] = body[field];
     }
+    // 兼容前端发送的下划线命名
+    if (body.monthly_orders !== undefined) updateData['monthlyOrders'] = body.monthly_orders;
+    if (body.monthly_invoice_amount !== undefined) updateData['monthlyInvoiceAmount'] = body.monthly_invoice_amount;
 
     // JSON 序列化
     for (const field of JSON_FIELDS) {
