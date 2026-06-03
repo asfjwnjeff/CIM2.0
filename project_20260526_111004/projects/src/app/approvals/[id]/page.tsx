@@ -671,8 +671,7 @@ export default function ApprovalDetailPage() {
               {(() => {
                 const complianceFields = approvalFields.filter(
                   f => f.status === 'active' &&
-                       f.serviceProducts.includes(approval.serviceProduct as ServiceProduct) &&
-                       f.fieldKey !== 'is_trade_agent'
+                       f.serviceProducts.includes(approval.serviceProduct as ServiceProduct)
                 );
 
                 if (complianceFields.length === 0 && approval.isTradeAgent !== '是') return null;

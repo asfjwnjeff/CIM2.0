@@ -113,7 +113,7 @@ export default function NewRiskControlPage() {
   const dynamicFields = useMemo(() => {
     if (!formData.serviceProduct) return [];
     return approvalFields.filter(
-      f => f.status === 'active' && f.serviceProducts.includes(formData.serviceProduct as ServiceProduct) && f.fieldKey !== 'is_trade_agent'
+      f => f.status === 'active' && f.serviceProducts.includes(formData.serviceProduct as ServiceProduct)
     );
   }, [approvalFields, formData.serviceProduct]);
 
@@ -505,12 +505,6 @@ export default function NewRiskControlPage() {
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     {dynamicFields.map((field) => {
-                      const isTradeAgentField = field.fieldKey === 'is_trade_agent';
-                      const isTradeAgentYes = isTradeAgentField && dynamicFieldValues[field.fieldKey] === '是';
-                      const inputBg = isTradeAgentYes
-                        ? 'bg-[#FFF9EB] border border-[#E8850C]'
-                        : 'bg-[#F0F1FF] border border-[#C7CAFF]';
-
                       return (
                         <div key={field.id} className={field.fieldType === 'boolean' || field.fieldKey === 'shipping_country' ? '' : ''}>
                           <label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">
@@ -554,7 +548,7 @@ export default function NewRiskControlPage() {
                                     if (!vals.includes(e.target.value)) vals.push(e.target.value);
                                     handleDynamicFieldChange(field.fieldKey, vals.join(','));
                                   }}
-                                  className={`w-full rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30 ${inputBg}`}
+                                  className={`w-full rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30 bg-[#F0F1FF] border border-[#C7CAFF]`}
                                 >
                                   <option value="">{`请选择${field.name}`}</option>
                                   {field.options.filter(o => !(dynamicFieldValues[field.fieldKey] || '').includes(o.label)).map(o => (
@@ -571,7 +565,7 @@ export default function NewRiskControlPage() {
                                   value={dynamicFieldValues[field.fieldKey + '_other'] || ''}
                                   onChange={(e) => handleDynamicFieldChange(field.fieldKey + '_other', e.target.value)}
                                   placeholder="请输入其他地区"
-                                  className={`w-full rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30 ${inputBg}`}
+                                  className={`w-full rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30 bg-[#F0F1FF] border border-[#C7CAFF]`}
                                 />
                               )}
                             </div>
@@ -582,7 +576,7 @@ export default function NewRiskControlPage() {
                                 value={dynamicFieldValues[field.fieldKey] || ''}
                                 onChange={(e) => handleDynamicFieldChange(field.fieldKey, e.target.value)}
                                 placeholder={`请输入${field.name}`}
-                                className={`w-full rounded-xl px-4 py-3 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30 ${inputBg}`}
+                                className={`w-full rounded-xl px-4 py-3 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30 bg-[#F0F1FF] border border-[#C7CAFF]`}
                               />
                               <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-[#999]">%</span>
                             </div>
@@ -600,7 +594,7 @@ export default function NewRiskControlPage() {
                                   value={dynamicFieldValues[field.fieldKey + '_other'] || ''}
                                   onChange={(e) => handleDynamicFieldChange(field.fieldKey + '_other', e.target.value)}
                                   placeholder="请输入其他类型"
-                                  className={`w-full rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30 ${inputBg}`}
+                                  className={`w-full rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30 bg-[#F0F1FF] border border-[#C7CAFF]`}
                                 />
                               )}
                             </div>
@@ -610,13 +604,10 @@ export default function NewRiskControlPage() {
                               value={dynamicFieldValues[field.fieldKey] || ''}
                               onChange={(e) => handleDynamicFieldChange(field.fieldKey, e.target.value)}
                               placeholder={`请输入${field.name}`}
-                              className={`w-full rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30 ${inputBg}`}
+                              className={`w-full rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30 bg-[#F0F1FF] border border-[#C7CAFF]`}
                             />
                           )}
 
-                          {isTradeAgentYes && (
-                            <p className="text-[10px] text-[#E8850C] mt-1">触发追加审批人</p>
-                          )}
                         </div>
                       );
                     })}

@@ -2515,15 +2515,6 @@ export const initialApprovalFields: ApprovalField[] = [
     remark: '可通过企查查接口自动获取',
     createdBy: 'system', createdAt: '2026-05-29T00:00:00Z',
   },
-  {
-    id: 'af-009', name: '是否贸易代理', fieldKey: 'is_trade_agent', fieldType: 'boolean',
-    serviceProducts: ['运输', '货代', '仓库', '关务', '进出口', '维修', '合同物流', '一体化供应链'],
-    approvalPoint: '业务类型',
-    options: [],
-    isRequired: true, status: 'active',
-    createdBy: 'system', createdAt: '2026-05-29T00:00:00Z',
-  },
-
   // ===== 仓库 =====
   {
     id: 'af-010', name: '面积需求', fieldKey: 'area_requirement', fieldType: 'number',
