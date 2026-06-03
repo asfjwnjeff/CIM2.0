@@ -595,6 +595,7 @@ export interface RiskApproval {
   rejectReason?: string;
   createdAt: string;
   updatedAt?: string;
+  history?: ApprovalHistoryEntry[];
 }
 
 // ==================== 审批流程配置 ====================
@@ -624,10 +625,22 @@ export interface ApprovalWorkflowHistory {
   timestamp: string;
 }
 
+/** 审批操作历史 */
+export interface ApprovalHistoryEntry {
+  id: string;
+  approvalId: string;
+  action: 'submitted' | 'approved' | 'rejected' | 'withdrawn';
+  operator: string;
+  operatorName: string;
+  nodeName?: string;
+  reason?: string;
+  timestamp: string;
+}
+
 // ==================== 自动审批规则 ====================
 
 export type AutoApprovalOperator = 'equals' | 'not_equals' | 'contains' | 'not_contains' | 'in' | 'empty' | 'not_empty' | 'greater_than' | 'less_than' | 'less_than_or_equal' | 'greater_than_or_equal' | '';
-export type AutoApprovalActionType = 'auto_approve' | 'auto_reject' | 'add_approver' | 'show_message' | 'skip_node' | '';
+export type AutoApprovalActionType = 'auto_approve' | 'auto_reject' | 'add_approver' | 'show_message' | '';
 
 export interface AutoApprovalCondition {
   id?: string;
@@ -669,13 +682,12 @@ export interface AutoApprovalRule {
 
 /** 审批字段类型 */
 export type ApprovalFieldType =
-  | 'number_select'    // 数值（下拉）
-  | 'percentage'       // 百分比
-  | 'single_select'    // 单选
-  | 'multi_select'     // 多选
+  | 'single_select'    // 单选（可搜索）
+  | 'multi_select'     // 多选（可搜索）
   | 'single_other'     // 单选+其他
   | 'boolean'          // 布尔
-  | 'api_query'        // 接口查询
+  | 'percentage'       // 百分比
+  | 'number'           // 数字（保留两位小数）
   | 'text';            // 文本输入
 
 /** 审批字段选项 */
@@ -899,3 +911,16 @@ export interface GroupFieldMeta {
 export type FollowUp = FollowUpRecord;
 export type LogicType = LogicOperator;
 export type RuleConditionItem = RuleGroupItem;
+
+// ==================== 钉钉对接（预留） ====================
+
+/** 钉钉审批实例 */
+export interface DingTalkApprovalInstance {
+  id: string;
+  cimApprovalId: string;
+  dingTalkProcessInstanceId?: string;
+  status: 'pending' | 'synced' | 'completed' | 'terminated';
+  syncedAt?: string;
+  completedAt?: string;
+  result?: string;
+}

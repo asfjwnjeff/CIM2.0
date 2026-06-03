@@ -3,9 +3,10 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { SearchableSelect } from '@/components/ui/searchable-select';
-import { useApp } from '@/lib/store';
+import { useApp, evaluateApprovalRules } from '@/lib/store';
 import { RuleTriggeredApprover, ServiceProduct } from '@/lib/types';
 import ApprovalFlowVisual from '@/components/ApprovalFlowVisual';
+import ApprovalReport from '@/components/ApprovalReport';
 
 const SERVICE_PRODUCTS = ['货代', '关务', '仓库', '运输', '进出口', '维修', '合同物流', '一体化供应链', '其他'];
 const BUSINESS_TYPES = ['保税', '口岸完税', '免税', '试单', '其他'];
@@ -109,7 +110,7 @@ export default function ApprovalEditPage() {
   const params = useParams();
   const id = params.id as string;
 
-  const { approvalFields, approvalWorkflows, riskApprovals, updateRiskApproval } = useApp();
+  const { approvalFields, approvalWorkflows, autoApprovalRules, riskApprovals, updateRiskApproval } = useApp();
   const approval = riskApprovals.find((a) => a.id === id) || riskApprovals[0];
 
   const STATUS_MAP: Record<string, { label: string; bg: string; text: string }> = {
@@ -167,6 +168,31 @@ export default function ApprovalEditPage() {
     }
     return result;
   }, [formData.isTradeAgent]);
+
+  // 实时报告评估
+  const liveReport = useMemo(() => {
+    const results = evaluateApprovalRules(
+      dynamicFieldValues || {},
+      autoApprovalRules,
+      approvalFields,
+    );
+    const items: Array<{ ruleName: string; fieldName: string; result: 'pass' | 'warn'; reason: string }> = [];
+    let passCount = 0;
+    let warnCount = 0;
+
+    results.forEach((value) => {
+      if (value.result === 'pass') passCount++;
+      else warnCount++;
+      items.push({
+        ruleName: value.ruleName,
+        fieldName: value.fieldName,
+        result: value.result,
+        reason: value.reason,
+      });
+    });
+
+    return { items, passCount, warnCount };
+  }, [dynamicFieldValues, autoApprovalRules, approvalFields]);
 
   const handleDynamicFieldChange = (fieldKey: string, value: string) => {
     setDynamicFieldValues(prev => ({ ...prev, [fieldKey]: value }));
@@ -384,7 +410,7 @@ export default function ApprovalEditPage() {
                               options={[{ value: '是', label: '是' }, { value: '否', label: '否' }]}
                               placeholder={`请选择${field.name}`}
                             />
-                          ) : field.fieldType === 'single_select' || field.fieldType === 'number_select' ? (
+                          ) : field.fieldType === 'single_select' || field.fieldType === 'number' ? (
                             <SearchableSelect
                               value={dynamicFieldValues[field.fieldKey] || ''}
                               onChange={(v) => handleDynamicFieldChange(field.fieldKey, v)}
@@ -532,6 +558,20 @@ export default function ApprovalEditPage() {
                   <div className="mt-4 p-3 bg-[#F5F5F5] rounded-xl">
                     <p className="text-xs text-[#999]">注意: 风控审批中填写的所有字段均不受角色权限限制，所有审批人均可查看全部字段内容。</p>
                   </div>
+
+                  {/* 实时报告 */}
+                  {liveReport.items.length > 0 && (
+                    <div className="mt-6">
+                      <ApprovalReport
+                        customerName={formData.companyName || '—'}
+                        serviceProduct={formData.serviceProduct || '—'}
+                        generatedAt={new Date().toISOString()}
+                        items={liveReport.items}
+                        passCount={liveReport.passCount}
+                        warnCount={liveReport.warnCount}
+                      />
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

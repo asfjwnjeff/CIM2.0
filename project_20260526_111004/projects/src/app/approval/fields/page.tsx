@@ -5,18 +5,17 @@ import { useApp } from '@/lib/store';
 import { ApprovalField, ApprovalFieldType, ApprovalFieldOption, ServiceProduct } from '@/lib/types';
 
 const fieldTypeLabels: Record<ApprovalFieldType, string> = {
-  number_select: '数值(下拉)',
-  percentage: '百分比',
   single_select: '单选',
   multi_select: '多选',
   single_other: '单选+其他',
   boolean: '布尔',
-  api_query: '接口查询',
+  percentage: '百分比',
+  number: '数字',
   text: '文本输入',
 };
 
 const fieldTypesWithOptions: ApprovalFieldType[] = [
-  'number_select', 'single_select', 'multi_select', 'single_other',
+  'single_select', 'multi_select', 'single_other',
 ];
 
 const serviceProducts: { label: string; value: string }[] = [

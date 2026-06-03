@@ -1028,111 +1028,143 @@ function evaluateCondition(condition: RuleCondition, actualValue: string): boole
 
 // ==================== 规则引擎 ====================
 
-import type { RuleTriggeredApprover } from './types';
+import type { RuleTriggeredApprover, AutoApprovalCondition } from './types';
 
 /** 评估自动审批规则，返回每个审批点的结果 */
 export function evaluateApprovalRules(
   fieldValues: Record<string, string>,
-): Map<string, { result: 'pass' | 'warn' | 'reject'; suggestion?: string; triggeredRules: string[] }> {
-  const results = new Map<string, { result: 'pass' | 'warn' | 'reject'; suggestion?: string; triggeredRules: string[] }>();
+  autoApprovalRules: AutoApprovalRule[],
+  approvalFields: ApprovalField[],
+): Map<string, { result: 'pass' | 'warn'; ruleName: string; fieldName: string; reason: string }> {
+  const results = new Map<string, { result: 'pass' | 'warn'; ruleName: string; fieldName: string; reason: string }>();
+  const activeRules = autoApprovalRules.filter(r => r.status === 'active');
 
-  // 注册资本检查
-  const registeredCapital = fieldValues['registered_capital'] || '';
-  if (registeredCapital) {
-    const capitalNum = parseFloat(registeredCapital.replace(/[^0-9.]/g, ''));
-    if (!isNaN(capitalNum) && capitalNum < 100) {
-      results.set('企业规模-注册资本', { result: 'warn', suggestion: '注册资本不足100万，建议人工审核', triggeredRules: ['rule-capital-low'] });
-    } else {
-      results.set('企业规模-注册资本', { result: 'pass', triggeredRules: [] });
+  for (const rule of activeRules) {
+    const conditions = rule.conditions || [];
+    if (conditions.length === 0) continue;
+
+    const logic = rule.conditionLogic || 'AND';
+    const allMatch = logic === 'AND'
+      ? conditions.every(c => evaluateAutoCondition(c, fieldValues))
+      : conditions.some(c => evaluateAutoCondition(c, fieldValues));
+
+    if (!allMatch) continue;
+
+    const firstConditionField = conditions[0]?.field || '';
+    const matchedField = approvalFields.find(f => f.fieldKey === firstConditionField);
+    const fieldName = matchedField?.name || firstConditionField;
+
+    for (const action of rule.actions) {
+      if (!action.type) continue;
+
+      switch (action.type) {
+        case 'auto_approve':
+          results.set(rule.name, {
+            result: 'pass',
+            ruleName: rule.name,
+            fieldName,
+            reason: action.message || rule.remark || '满足规则条件，自动通过',
+          });
+          break;
+        case 'auto_reject':
+          results.set(rule.name, {
+            result: 'warn',
+            ruleName: rule.name,
+            fieldName,
+            reason: action.message || rule.remark || '触发风险规则，已自动拒绝',
+          });
+          break;
+        case 'show_message':
+          results.set(rule.name, {
+            result: 'warn',
+            ruleName: rule.name,
+            fieldName,
+            reason: action.message || rule.remark || '触发提醒规则',
+          });
+          break;
+        // add_approver 不在此处理，由 computeTriggeredApprovers 处理
+      }
     }
-  }
-
-  // 社保人数检查
-  const socialInsurance = fieldValues['social_insurance_count'] || '';
-  if (socialInsurance) {
-    const siNum = parseInt(socialInsurance.replace(/[^0-9]/g, ''));
-    if (!isNaN(siNum) && siNum < 10) {
-      results.set('企业规模-社保人数', { result: 'warn', suggestion: '社保人数不足10人，建议人工审核', triggeredRules: ['rule-si-low'] });
-    } else {
-      results.set('企业规模-社保人数', { result: 'pass', triggeredRules: [] });
-    }
-  }
-
-  // 贸易代理检查
-  const isTradeAgent = fieldValues['is_trade_agent'] || '';
-  if (isTradeAgent === '是') {
-    results.set('业务类型-贸易代理', { result: 'warn', suggestion: '涉及贸易代理业务，已追加审批人白沥', triggeredRules: ['rule-trade-agent'] });
-  } else if (isTradeAgent === '否') {
-    results.set('业务类型-贸易代理', { result: 'pass', triggeredRules: [] });
-  }
-
-  // 出货地区检查
-  const shippingCountry = fieldValues['shipping_country'] || '';
-  if (shippingCountry === '以色列' || shippingCountry === '伊朗') {
-    results.set('出货地区', { result: 'warn', suggestion: `${shippingCountry}为战争地区，建议人工审核`, triggeredRules: ['rule-war-zone'] });
-  } else if (shippingCountry) {
-    results.set('出货地区', { result: 'pass', triggeredRules: [] });
-  }
-
-  // 运输及时率 — 客户要求 >99% 过于严苛，CIM作为供应商可能无法达到
-  const onTimeRate = fieldValues['on_time_rate'] || '';
-  if (onTimeRate) {
-    const rate = parseFloat(onTimeRate.replace('%', ''));
-    if (!isNaN(rate) && rate > 99) {
-      results.set('KPI-运输及时率', { result: 'warn', suggestion: `客户要求的运输及时率${onTimeRate}%过于严苛，CIM作为供应商可能无法达到，建议评估KPI可行性`, triggeredRules: ['rule-on-time-low'] });
-    } else {
-      results.set('KPI-运输及时率', { result: 'pass', triggeredRules: [] });
-    }
-  }
-
-  // 低业务量警告 (ar-002): 月开票额 < 5000 或 月订单数 < 5 → warn（业务量过低需人工评估）
-  const monthlyInvAmt = fieldValues['monthly_invoice_amount'] || '';
-  const monthlyOrders = fieldValues['monthly_orders'] || '';
-  const invNum = parseInt(monthlyInvAmt.replace(/[^0-9]/g, ''));
-  const ordNum = parseInt(monthlyOrders.replace(/[^0-9]/g, ''));
-  const invLow = !isNaN(invNum) && invNum < 5000;
-  const ordLow = !isNaN(ordNum) && ordNum < 5;
-  if (invLow || ordLow) {
-    const reasons: string[] = [];
-    if (invLow) reasons.push(`月开票额${monthlyInvAmt}元低于5000元`);
-    if (ordLow) reasons.push(`月订单数${monthlyOrders}低于5单`);
-    results.set('业务量-低业务量提醒', { result: 'warn', suggestion: `${reasons.join('，')}，业务量过低需人工评估业务必要性`, triggeredRules: ['rule-low-amount-warn'] });
   }
 
   return results;
 }
 
+/** 评估单条条件 */
+function evaluateAutoCondition(condition: AutoApprovalCondition, fieldValues: Record<string, string>): boolean {
+  const actualValue = fieldValues[condition.field] || '';
+  const expectedValue = condition.value || '';
+
+  switch (condition.operator) {
+    case 'equals':
+      return actualValue === expectedValue;
+    case 'not_equals':
+      return actualValue !== expectedValue;
+    case 'contains':
+      return actualValue.includes(expectedValue);
+    case 'not_contains':
+      return !actualValue.includes(expectedValue);
+    case 'greater_than': {
+      const a = parseFloat(actualValue.replace(/[^0-9.]/g, ''));
+      const b = parseFloat(expectedValue.replace(/[^0-9.]/g, ''));
+      return !isNaN(a) && !isNaN(b) && a > b;
+    }
+    case 'less_than': {
+      const a = parseFloat(actualValue.replace(/[^0-9.]/g, ''));
+      const b = parseFloat(expectedValue.replace(/[^0-9.]/g, ''));
+      return !isNaN(a) && !isNaN(b) && a < b;
+    }
+    case 'greater_than_or_equal': {
+      const a = parseFloat(actualValue.replace(/[^0-9.]/g, ''));
+      const b = parseFloat(expectedValue.replace(/[^0-9.]/g, ''));
+      return !isNaN(a) && !isNaN(b) && a >= b;
+    }
+    case 'less_than_or_equal': {
+      const a = parseFloat(actualValue.replace(/[^0-9.]/g, ''));
+      const b = parseFloat(expectedValue.replace(/[^0-9.]/g, ''));
+      return !isNaN(a) && !isNaN(b) && a <= b;
+    }
+    case 'empty':
+      return !actualValue || actualValue.trim() === '';
+    case 'not_empty':
+      return !!actualValue && actualValue.trim() !== '';
+    default:
+      return false;
+  }
+}
+
 /** 根据规则评估结果，计算需要追加的审批人（去重） */
 export function computeTriggeredApprovers(
   fieldValues: Record<string, string>,
+  autoApprovalRules: AutoApprovalRule[],
 ): RuleTriggeredApprover[] {
   const approvers: RuleTriggeredApprover[] = [];
   const seenNames = new Set<string>();
+  const activeRules = autoApprovalRules.filter(r => r.status === 'active');
 
-  // 贸易代理 → 白沥
-  if (fieldValues['is_trade_agent'] === '是' && !seenNames.has('白沥')) {
-    approvers.push({
-      approver: { id: 'baili', name: '白沥', role: '贸易代理职能审批人' },
-      reason: '涉及贸易代理',
-      ruleId: 'rule-trade-agent',
-    });
-    seenNames.add('白沥');
-  }
+  for (const rule of activeRules) {
+    const conditions = rule.conditions || [];
+    if (conditions.length === 0) continue;
 
-  // 企业规模不达标 → 追加对应审批人
-  const capital = fieldValues['registered_capital'] || '';
-  const si = fieldValues['social_insurance_count'] || '';
-  const capitalNum = parseFloat(capital.replace(/[^0-9.]/g, ''));
-  const siNum = parseInt(si.replace(/[^0-9]/g, ''));
+    const logic = rule.conditionLogic || 'AND';
+    const allMatch = logic === 'AND'
+      ? conditions.every(c => evaluateAutoCondition(c, fieldValues))
+      : conditions.some(c => evaluateAutoCondition(c, fieldValues));
 
-  if ((!isNaN(capitalNum) && capitalNum < 100) || (!isNaN(siNum) && siNum < 10)) {
-    const reasons: string[] = [];
-    if (!isNaN(capitalNum) && capitalNum < 100) reasons.push('企业规模未达标');
-    if (!isNaN(siNum) && siNum < 10) reasons.push('企业规模未达标');
+    if (!allMatch) continue;
 
-    // 去重：企业规模不达标可能追加多个审批人，但白沥已打过
-    if (reasons.length > 0 && !seenNames.has('白沥')) {
-      // 已在贸易代理检查中添加白沥，此处不再重复
+    for (const action of rule.actions) {
+      if (action.type === 'add_approver' && action.target) {
+        const name = action.target.trim();
+        if (name && !seenNames.has(name)) {
+          approvers.push({
+            approver: { id: `rule-${rule.id}-${name}`, name, role: '规则触发审批人' },
+            reason: action.message || rule.remark || `规则「${rule.name}」触发追加`,
+            ruleId: rule.id,
+          });
+          seenNames.add(name);
+        }
+      }
     }
   }
 

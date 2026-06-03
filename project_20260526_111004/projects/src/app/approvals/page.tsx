@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useApp } from '@/lib/store';
 import { useGroupFilter, GroupTabs, GroupManageDialog } from '@/components/groups';
 import { FIELD_META_MAP } from '@/lib/group-utils';
+import { SearchableSelect } from '@/components/ui/searchable-select';
 
 // 客户风险控制数据类型
 interface RiskControl {
@@ -114,7 +115,7 @@ const ChevronRightIcon = ({ className }: { className?: string }) => (
 );
 
 export default function ApprovalsPage() {
-  const { currentUser, riskApprovals, deleteRiskApproval } = useApp();
+  const { currentUser, riskApprovals, deleteRiskApproval, updateRiskApproval, customers } = useApp();
 
   // 从 Store 读取风控审批数据，映射为列表显示格式
   const mockRiskControls = useMemo(() => riskApprovals.map((ra: any) => ({
@@ -146,6 +147,9 @@ export default function ApprovalsPage() {
   const [serviceProductFilter, setServiceProductFilter] = useState('all');
   const [tradeAgentFilter, setTradeAgentFilter] = useState('all');
   const [viewMode, setViewMode] = useState<'card' | 'list'>('card');
+  const [customerFilter, setCustomerFilter] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 20;
 
   // 筛选和搜索
   const filteredRiskControls = useMemo(() => {
@@ -164,9 +168,19 @@ export default function ApprovalsPage() {
         (tradeAgentFilter === 'yes' && rc.involvesTradeAgent) || 
         (tradeAgentFilter === 'no' && !rc.involvesTradeAgent);
       
-      return matchesSearch && matchesStatus && matchesServiceProduct && matchesTradeAgent;
+      const matchesCustomer = !customerFilter || rc.companyName === customerFilter;
+
+      return matchesSearch && matchesStatus && matchesServiceProduct && matchesTradeAgent && matchesCustomer;
     });
-  }, [groupFilter, searchQuery, statusFilter, serviceProductFilter, tradeAgentFilter]);
+  }, [groupFilter, searchQuery, statusFilter, serviceProductFilter, tradeAgentFilter, customerFilter]);
+
+  // 分页
+  const paginatedApprovals = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return filteredRiskControls.slice(start, start + pageSize);
+  }, [filteredRiskControls, currentPage]);
+
+  const totalPages = Math.ceil(filteredRiskControls.length / pageSize);
 
   // 获取审批状态颜色
   const getStatusColor = (status: string) => {
@@ -193,6 +207,33 @@ export default function ApprovalsPage() {
       '其他': 'bg-[#F5F5F5] text-[#5A5A5A]',
     };
     return colors[sp] || 'bg-[#F5F5F5] text-[#5A5A5A]';
+  };
+
+  // 撤回审批
+  const handleWithdraw = (id: string) => {
+    const approval = riskApprovals.find((a: any) => a.id === id);
+    if (!approval || approval.approvalStatus !== '审批中') return;
+    updateRiskApproval(id, {
+      approvalStatus: '草稿',
+      status: 'draft',
+      history: [
+        ...(approval.history || []),
+        {
+          id: `h-${Date.now()}`,
+          approvalId: id,
+          action: 'withdrawn' as const,
+          operator: currentUser?.id || 'unknown',
+          operatorName: currentUser?.name || '未知用户',
+          timestamp: new Date().toISOString(),
+        },
+      ],
+      approvalSteps: (approval.approvalSteps || []).map((step: any) => ({
+        ...step,
+        status: 'pending',
+        completed: false,
+        current: false,
+      })),
+    });
   };
 
   return (
@@ -248,6 +289,51 @@ export default function ApprovalsPage() {
           onSelect={groupFilter.setActiveGroupId}
           onManage={groupFilter.openCreateDialog}
         />
+
+        {/* 高级筛选栏 */}
+        <div className="flex items-center gap-3 bg-white rounded-xl shadow-sm border border-[#EBEBEB] p-4">
+          <SearchableSelect
+            value={statusFilter}
+            onChange={setStatusFilter}
+            options={[
+              { value: 'all', label: '全部状态' },
+              { value: '草稿', label: '草稿' },
+              { value: '审批中', label: '审批中' },
+              { value: '审批完成', label: '审批完成' },
+              { value: '已驳回', label: '已驳回' },
+            ]}
+            placeholder="审批状态"
+            className="w-40"
+          />
+          <SearchableSelect
+            value={serviceProductFilter}
+            onChange={setServiceProductFilter}
+            options={[
+              { value: 'all', label: '全部产品' },
+              { value: '货代', label: '货代' },
+              { value: '关务', label: '关务' },
+              { value: '仓库', label: '仓库' },
+              { value: '运输', label: '运输' },
+              { value: '进出口', label: '进出口' },
+              { value: '维修', label: '维修' },
+              { value: '合同物流', label: '合同物流' },
+              { value: '一体化供应链', label: '一体化供应链' },
+              { value: '其他', label: '其他' },
+            ]}
+            placeholder="服务产品"
+            className="w-40"
+          />
+          <SearchableSelect
+            value={customerFilter}
+            onChange={setCustomerFilter}
+            options={[
+              { value: '', label: '全部客户' },
+              ...customers.map(c => ({ value: c.name, label: c.name })),
+            ]}
+            placeholder="客户名称"
+            className="w-48"
+          />
+        </div>
 
         {/* 搜索和筛选区 */}
         <div className="bg-white rounded-xl border border-[#EBEBEB] shadow-sm p-4">
@@ -316,7 +402,7 @@ export default function ApprovalsPage() {
         {/* 卡片视图 */}
         {viewMode === 'card' && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredRiskControls.map((rc) => (
+            {paginatedApprovals.map((rc) => (
               <Link key={rc.id} href={`/approvals/${rc.id}`}>
                 <div className="bg-white rounded-xl border border-[#EBEBEB] shadow-sm hover:shadow-md hover:border-[#2D3BFF]/30 transition-all p-5 cursor-pointer group h-full flex flex-col">
                   {/* 卡片头部 */}
@@ -396,7 +482,7 @@ export default function ApprovalsPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredRiskControls.map((rc) => (
+                  {paginatedApprovals.map((rc) => (
                     <tr key={rc.id} className="border-b border-[#F5F5F5] hover:bg-[#F8F9FB] transition-colors">
                       <td className="px-5 py-4">
                         <Link href={`/approvals/${rc.id}`} className="text-[#2D3BFF] hover:underline font-medium text-sm">
@@ -447,6 +533,19 @@ export default function ApprovalsPage() {
                           ) : (
                             <span className="px-3 py-1.5 text-sm text-[#D5D5D5] cursor-not-allowed">编辑</span>
                           )}
+                          {rc.approvalStatus === '审批中' && (
+                            <button
+                              onClick={() => { if (confirm('确定要撤回该审批吗？')) handleWithdraw(rc.id); }}
+                              className="px-3 py-1.5 text-sm text-[#E8850C] hover:bg-[#FFF7ED] rounded-lg transition-all font-medium"
+                            >
+                              撤回
+                            </button>
+                          )}
+                          <Link href={`/approvals/${rc.id}?tab=history`}>
+                            <button className="px-3 py-1.5 text-sm text-[#5A5A5A] hover:bg-[#F5F5F5] rounded-lg transition-all font-medium">
+                              历史
+                            </button>
+                          </Link>
                         </div>
                       </td>
                     </tr>
@@ -457,8 +556,31 @@ export default function ApprovalsPage() {
           </div>
         )}
 
+        {/* 分页 */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-center gap-2 mt-6">
+            <button
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              className="px-4 py-2 text-sm border border-[#D5D5D5] rounded-lg hover:bg-[#F5F5F5] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            >
+              上一页
+            </button>
+            <span className="text-sm text-[#5A5A5A] px-3">
+              第 {currentPage} / {totalPages} 页（共 {filteredRiskControls.length} 条）
+            </span>
+            <button
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+              className="px-4 py-2 text-sm border border-[#D5D5D5] rounded-lg hover:bg-[#F5F5F5] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            >
+              下一页
+            </button>
+          </div>
+        )}
+
         {/* 空状态 */}
-        {filteredRiskControls.length === 0 && (
+        {paginatedApprovals.length === 0 && (
           <div className="bg-white rounded-xl border border-[#EBEBEB] shadow-sm p-12 text-center">
             <div className="w-20 h-20 bg-[#F5F5F5] rounded-full flex items-center justify-center mx-auto mb-4">
               <SearchIcon className="w-10 h-10 text-[#999999]" />

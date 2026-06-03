@@ -1,38 +1,18 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useApp } from '@/lib/store';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 
 const serviceProductOptions = ['货代', '关务', '仓储', '运输', '进出口', '维修', '合同物流', '其他'];
 
-const fieldOptions = [
-  '是否贸易代理', '月开票金额', '月均订单数', '月均开票额', '运输及时率', '客户等级', '信用额度',
-  '合同金额', '服务产品', '签约主体', '结算主体', '合作供应商',
-];
-
-const operatorOptions: Record<string, string[]> = {
-  '是否贸易代理': ['等于', '不等于'],
-  '月开票金额': ['等于', '不等于', '大于', '小于', '大于等于', '小于等于'],
-  '月均订单数': ['等于', '不等于', '大于', '小于', '大于等于', '小于等于'],
-  '月均开票额': ['等于', '不等于', '大于', '小于', '大于等于', '小于等于'],
-  '运输及时率': ['等于', '不等于', '大于', '小于', '大于等于', '小于等于'],
-  '客户等级': ['等于', '不等于', '包含', '不包含'],
-  '信用额度': ['等于', '不等于', '大于', '小于'],
-  '合同金额': ['等于', '不等于', '大于', '小于', '大于等于', '小于等于'],
-  '服务产品': ['等于', '不等于', '包含', '不包含'],
-  '签约主体': ['等于', '不等于', '包含'],
-  '结算主体': ['等于', '不等于', '包含'],
-  '合作供应商': ['等于', '不等于', '包含', '不包含', '范围内', '范围外'],
-};
 
 const actionTypes = [
-  { value: 'auto_approve', label: '自动通过', description: '满足条件时自动通过审批' },
-  { value: 'auto_reject', label: '自动拒绝', description: '满足条件时自动拒绝审批' },
-  { value: 'add_approver', label: '添加审批人', description: '自动在审批流程中添加指定审批人' },
-  { value: 'skip_node', label: '跳过节点', description: '跳过指定的审批节点' },
-  { value: 'show_message', label: '显示提示', description: '在审批页面显示提示信息' },
+  { value: 'auto_approve', label: '自动通过', description: '满足条件时标记为通过' },
+  { value: 'auto_reject', label: '自动拒绝', description: '满足条件时标记为拒绝' },
+  { value: 'add_approver', label: '添加审批人', description: '自动在审批流程中追加指定审批人' },
+  { value: 'show_message', label: '显示提示', description: '展示风险评估提示信息（含原因）' },
 ];
 
 interface Condition { field: string; operator: string; value: string; }
@@ -48,7 +28,6 @@ interface MockRule {
   conditionLogic: 'AND' | 'OR';
   conditions: Condition[];
   actions: Action[];
-  implementationMethod: string;
 }
 
 
@@ -57,8 +36,33 @@ export default function AutoRuleEditPage() {
   const params = useParams();
   const router = useRouter();
   const id = params.id as string;
-  const { autoApprovalRules, updateAutoApprovalRule, deleteAutoApprovalRule } = useApp();
+  const { autoApprovalRules, updateAutoApprovalRule, deleteAutoApprovalRule, approvalFields } = useApp();
   const rule = autoApprovalRules.find((r: any) => r.id === id) || autoApprovalRules[0];
+
+  const fieldOptions = useMemo(() => {
+    return approvalFields.filter(f => f.status === 'active').map(f => ({ value: f.fieldKey, label: f.name }));
+  }, [approvalFields]);
+
+  const getOperators = (fieldKey: string): { value: string; label: string }[] => {
+    const field = approvalFields.find(f => f.fieldKey === fieldKey);
+    const fieldType = field?.fieldType || 'text';
+    switch (fieldType) {
+      case 'number':
+      case 'percentage':
+        return [
+          { value: 'equals', label: '等于' }, { value: 'not_equals', label: '不等于' },
+          { value: 'greater_than', label: '大于' }, { value: 'less_than', label: '小于' },
+          { value: 'greater_than_or_equal', label: '大于等于' }, { value: 'less_than_or_equal', label: '小于等于' },
+        ];
+      case 'boolean':
+        return [{ value: 'equals', label: '等于' }];
+      default:
+        return [
+          { value: 'equals', label: '等于' }, { value: 'not_equals', label: '不等于' },
+          { value: 'contains', label: '包含' }, { value: 'not_contains', label: '不包含' },
+        ];
+    }
+  };
 
   const [formData, setFormData] = useState({
     approvalPoint: '',
@@ -67,7 +71,6 @@ export default function AutoRuleEditPage() {
     status: 'active' as 'active' | 'inactive',
     remark: '',
     conditionLogic: 'AND' as 'AND' | 'OR',
-    implementationMethod: '',
   });
   const [conditions, setConditions] = useState<Condition[]>([{ field: '', operator: '', value: '' }]);
   const [actions, setActions] = useState<Action[]>([{ type: '', target: '', message: '' }]);
@@ -80,7 +83,6 @@ export default function AutoRuleEditPage() {
       status: rule.status as any,
       remark: rule.remark || '',
       conditionLogic: (rule.conditionLogic as 'AND' | 'OR') || 'AND',
-      implementationMethod: (rule as any).implementationMethod || '',
     });
     setConditions(rule.conditions.length > 0 ? rule.conditions as any : [{ field: '', operator: '', value: '' }]);
     setActions((rule.actions.length > 0 ? rule.actions : [{ type: '', target: '', message: '' }]) as any);
@@ -222,7 +224,7 @@ export default function AutoRuleEditPage() {
                       className="flex-1 px-4 py-2.5 bg-[#F5F5F5] border-none rounded-xl text-sm text-[#0A0A0A] focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30"
                     >
                       <option value="">选择字段</option>
-                      {fieldOptions.map(f => <option key={f} value={f}>{f}</option>)}
+                      {fieldOptions.map(f => <option key={f.value} value={f.value}>{f.label}</option>)}
                     </select>
                     <select
                       value={condition.operator}
@@ -230,7 +232,7 @@ export default function AutoRuleEditPage() {
                       className="w-28 px-3 py-2.5 bg-[#F5F5F5] border-none rounded-xl text-sm text-[#5A5A5A] focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30"
                     >
                       <option value="">操作符</option>
-                      {(condition.field && operatorOptions[condition.field] ? operatorOptions[condition.field] : ['等于', '不等于', '大于', '小于', '包含', '不包含']).map(op => <option key={op} value={op}>{op}</option>)}
+                      {getOperators(condition.field).map(op => <option key={op.value} value={op.value}>{op.label}</option>)}
                     </select>
                     <input
                       type="text"
@@ -274,13 +276,13 @@ export default function AutoRuleEditPage() {
                         </button>
                       )}
                     </div>
-                    {(action.type === 'add_approver' || action.type === 'skip_node') && (
+                    {action.type === 'add_approver' && (
                       <input
                         type="text"
                         value={action.target}
                         onChange={e => updateAction(index, 'target', e.target.value)}
                         className="w-full px-4 py-2.5 bg-white border-none rounded-xl text-sm text-[#0A0A0A] focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30"
-                        placeholder={action.type === 'add_approver' ? '审批人姓名' : '跳过的节点名称'}
+                        placeholder="审批人姓名"
                       />
                     )}
                     <input
@@ -299,17 +301,6 @@ export default function AutoRuleEditPage() {
               </button>
             </div>
 
-            {/* 实现方式 */}
-            <div className="bg-white rounded-2xl shadow-sm border border-[#EBEBEB] p-6 space-y-5">
-              <h3 className="text-sm font-semibold text-[#0A0A0A] border-b border-[#EBEBEB] pb-3">实现方式</h3>
-              <textarea
-                value={formData.implementationMethod}
-                onChange={e => setFormData({ ...formData, implementationMethod: e.target.value })}
-                rows={2}
-                className="w-full px-4 py-2.5 bg-[#F5F5F5] border-none rounded-xl text-sm text-[#0A0A0A] focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30 resize-none"
-                placeholder="请输入实现方式说明"
-              />
-            </div>
           </div>
 
           {/* 右侧 - 规则预览 */}
@@ -347,7 +338,6 @@ export default function AutoRuleEditPage() {
                         {a.type === 'auto_approve' && <span className="w-2 h-2 rounded-full bg-[#16A34A]"></span>}
                         {a.type === 'auto_reject' && <span className="w-2 h-2 rounded-full bg-[#DC2626]"></span>}
                         {a.type === 'add_approver' && <span className="w-2 h-2 rounded-full bg-[#2D3BFF]"></span>}
-                        {a.type === 'skip_node' && <span className="w-2 h-2 rounded-full bg-[#CA8A04]"></span>}
                         {a.type === 'show_message' && <span className="w-2 h-2 rounded-full bg-[#0D9488]"></span>}
                         <span className="font-medium text-[#0A0A0A]">{actionTypes.find(t => t.value === a.type)?.label}</span>
                         {a.target && <span className="text-[#5A5A5A]">: {a.target}</span>}

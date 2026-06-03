@@ -28,11 +28,10 @@ const operatorOptions: Record<string, string[]> = {
 };
 
 const actionTypes = [
-  { value: 'auto_approve', label: '自动通过', description: '满足条件时自动通过审批' },
-  { value: 'auto_reject', label: '自动拒绝', description: '满足条件时自动拒绝审批' },
-  { value: 'add_approver', label: '添加审批人', description: '自动在审批流程中添加指定审批人' },
-  { value: 'skip_node', label: '跳过节点', description: '跳过指定的审批节点' },
-  { value: 'show_message', label: '显示提示', description: '在审批页面显示提示信息' },
+  { value: 'auto_approve', label: '自动通过', description: '满足条件时标记为通过' },
+  { value: 'auto_reject', label: '自动拒绝', description: '满足条件时标记为拒绝' },
+  { value: 'add_approver', label: '添加审批人', description: '自动在审批流程中追加指定审批人' },
+  { value: 'show_message', label: '显示提示', description: '展示风险评估提示信息（含原因）' },
 ];
 
 interface Condition { field: string; operator: string; value: string; }
@@ -48,7 +47,6 @@ interface MockRule {
   conditionLogic: 'AND' | 'OR';
   conditions: Condition[];
   actions: Action[];
-  implementationMethod: string;
 }
 
 
@@ -155,7 +153,6 @@ export default function AutoRuleDetailPage() {
                       {action.type === 'auto_approve' && <span className="w-2 h-2 rounded-full bg-[#16A34A]"></span>}
                       {action.type === 'auto_reject' && <span className="w-2 h-2 rounded-full bg-[#DC2626]"></span>}
                       {action.type === 'add_approver' && <span className="w-2 h-2 rounded-full bg-[#2D3BFF]"></span>}
-                      {action.type === 'skip_node' && <span className="w-2 h-2 rounded-full bg-[#CA8A04]"></span>}
                       {action.type === 'show_message' && <span className="w-2 h-2 rounded-full bg-[#0D9488]"></span>}
                       <span className="font-medium text-sm text-[#0A0A0A]">{actionTypes.find(t => t.value === action.type)?.label}</span>
                       {action.target && <span className="text-sm text-[#5A5A5A]">: {action.target}</span>}
@@ -166,12 +163,6 @@ export default function AutoRuleDetailPage() {
                   </div>
                 ))}
               </div>
-            </div>
-
-            {/* 实现方式 */}
-            <div className="bg-white rounded-2xl shadow-sm border border-[#EBEBEB] p-6 space-y-5">
-              <h3 className="text-sm font-semibold text-[#0A0A0A] border-b border-[#EBEBEB] pb-3">实现方式</h3>
-              <div className="px-4 py-2.5 bg-[#F5F5F5] rounded-xl text-sm text-[#0A0A0A]">{(rule as any).implementationMethod || '—'}</div>
             </div>
           </div>
 
@@ -209,7 +200,6 @@ export default function AutoRuleDetailPage() {
                         {a.type === 'auto_approve' && <span className="w-2 h-2 rounded-full bg-[#16A34A]"></span>}
                         {a.type === 'auto_reject' && <span className="w-2 h-2 rounded-full bg-[#DC2626]"></span>}
                         {a.type === 'add_approver' && <span className="w-2 h-2 rounded-full bg-[#2D3BFF]"></span>}
-                        {a.type === 'skip_node' && <span className="w-2 h-2 rounded-full bg-[#CA8A04]"></span>}
                         {a.type === 'show_message' && <span className="w-2 h-2 rounded-full bg-[#0D9488]"></span>}
                         <span className="font-medium text-[#0A0A0A]">{actionTypes.find(t => t.value === a.type)?.label}</span>
                         {a.target && <span className="text-[#5A5A5A]">: {a.target}</span>}

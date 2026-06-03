@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useApp } from '@/lib/store';
-import { ApprovalNode, ApprovalWorkflow, ServiceProduct } from '@/lib/types';
+import { ApprovalNode, ApprovalWorkflow, ApprovalNodeType, ServiceProduct } from '@/lib/types';
 import { SearchableSelect } from '@/components/ui/searchable-select';
 import { FIELD_STYLES } from '@/lib/ui-constants';
 
@@ -166,6 +166,30 @@ export default function ApprovalWorkflowEditPage() {
     router.push('/approval/workflows');
   };
 
+  const addNode = () => {
+    setApprovalNodes([
+      ...approvalNodes,
+      {
+        id: `node-${Date.now()}`,
+        nodeType: 'functional' as ApprovalNodeType,
+        type: 'functional' as ApprovalNodeType,
+        level: approvalNodes.length + 1,
+        order: approvalNodes.length,
+        name: '',
+        description: '',
+        isRequired: true,
+        isCountersign: false,
+        approvers: [],
+      },
+    ]);
+  };
+
+  const removeNode = (index: number) => {
+    if (approvalNodes.length <= 2) return;
+    const updated = approvalNodes.filter((_, i) => i !== index).map((n, i) => ({ ...n, order: i, level: i + 1 }));
+    setApprovalNodes(updated);
+  };
+
   return (
       <div className="max-w-7xl mx-auto space-y-6">
         {/* 顶部 */}
@@ -308,18 +332,29 @@ export default function ApprovalWorkflowEditPage() {
                         )}
                       </div>
                       {/* Content */}
-                      <div className={`flex-1 pb-4 ${
+                      <div className={`flex-1 pb-4 relative ${
                         isFunctional
                           ? 'bg-[#F0F1FF] border border-[#C7CAFF] rounded-lg p-3'
                           : 'bg-[#FAFAFA] border border-[#EBEBEB] rounded-lg p-3'
                       }`}>
                         <div className="flex items-center gap-2 mb-1">
-                          <span className="text-sm font-semibold text-[#0A0A0A]">{node.name}</span>
+                          <span className="text-sm font-semibold text-[#0A0A0A]">{node.name || `节点 ${index + 1}`}</span>
                           {isFunctional && (
                             <span className="inline-flex items-center px-1.5 py-0.5 text-[10px] font-medium bg-[#2D3BFF] text-white rounded">动态</span>
                           )}
                           {node.isCountersign && (
                             <span className="inline-flex items-center px-1.5 py-0.5 text-[10px] font-medium bg-[#FFF9EB] text-[#E8850C] rounded border border-[#FDE68A]">会签</span>
+                          )}
+                          {index >= 2 && (
+                            <button
+                              onClick={() => removeNode(index)}
+                              className="ml-auto p-1 rounded hover:bg-red-50 text-[#C0C0C0] hover:text-red-500 transition-colors"
+                              title="删除节点"
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                              </svg>
+                            </button>
                           )}
                         </div>
                         <p className="text-xs text-[#5A5A5A] mb-2">{node.description}</p>
@@ -359,6 +394,15 @@ export default function ApprovalWorkflowEditPage() {
                     </div>
                   );
                 })}
+              </div>
+              {/* 添加节点按钮 */}
+              <div className="mt-4">
+                <button
+                  onClick={addNode}
+                  className="w-full py-2.5 border-2 border-dashed border-[#D5D5D5] rounded-lg text-sm text-[#5A5A5A] hover:border-[#2D3BFF] hover:text-[#2D3BFF] hover:bg-[#F0F1FF] transition-colors"
+                >
+                  + 添加节点
+                </button>
               </div>
             </div>
           </div>

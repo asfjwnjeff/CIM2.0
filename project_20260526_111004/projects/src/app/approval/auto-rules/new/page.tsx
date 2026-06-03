@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useApp } from '@/lib/store';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -9,32 +9,11 @@ import { FIELD_STYLES } from '@/lib/ui-constants';
 
 const serviceProductOptions = ['货代', '关务', '仓储', '运输', '进出口', '维修', '合同物流', '其他'];
 
-const fieldOptions = [
-  '是否贸易代理', '月开票金额', '月均订单数', '月均开票额', '运输及时率', '客户等级', '信用额度',
-  '合同金额', '服务产品', '签约主体', '结算主体', '合作供应商',
-];
-
-const operatorOptions: Record<string, string[]> = {
-  '是否贸易代理': ['等于', '不等于'],
-  '月开票金额': ['等于', '不等于', '大于', '小于', '大于等于', '小于等于'],
-  '月均订单数': ['等于', '不等于', '大于', '小于', '大于等于', '小于等于'],
-  '月均开票额': ['等于', '不等于', '大于', '小于', '大于等于', '小于等于'],
-  '运输及时率': ['等于', '不等于', '大于', '小于', '大于等于', '小于等于'],
-  '客户等级': ['等于', '不等于', '包含', '不包含'],
-  '信用额度': ['等于', '不等于', '大于', '小于'],
-  '合同金额': ['等于', '不等于', '大于', '小于', '大于等于', '小于等于'],
-  '服务产品': ['等于', '不等于', '包含', '不包含'],
-  '签约主体': ['等于', '不等于', '包含'],
-  '结算主体': ['等于', '不等于', '包含'],
-  '合作供应商': ['等于', '不等于', '包含', '不包含', '范围内', '范围外'],
-};
-
 const actionTypes = [
-  { value: 'auto_approve', label: '自动通过', description: '满足条件时自动通过审批' },
-  { value: 'auto_reject', label: '自动拒绝', description: '满足条件时自动拒绝审批' },
-  { value: 'add_approver', label: '添加审批人', description: '自动在审批流程中添加指定审批人' },
-  { value: 'skip_node', label: '跳过节点', description: '跳过指定的审批节点' },
-  { value: 'show_message', label: '显示提示', description: '在审批页面显示提示信息' },
+  { value: 'auto_approve', label: '自动通过', description: '满足条件时标记为通过' },
+  { value: 'auto_reject', label: '自动拒绝', description: '满足条件时标记为拒绝' },
+  { value: 'add_approver', label: '添加审批人', description: '自动在审批流程中追加指定审批人' },
+  { value: 'show_message', label: '显示提示', description: '展示风险评估提示信息（含原因）' },
 ];
 
 interface Condition {
@@ -63,10 +42,41 @@ export default function NewAutoRulePage() {
   const [actions, setActions] = useState<Action[]>([
     { type: 'show_message', target: '', message: '' },
   ]);
-  const [implementationMethod, setImplementationMethod] = useState('');
+  const { addAutoApprovalRule, approvalFields } = useApp();
+  const formData = { name, approvalPoint, serviceProduct, status, remark, conditionLogic, conditions, actions };
 
-  const { addAutoApprovalRule } = useApp();
-  const formData = { name, approvalPoint, serviceProduct, status, remark, conditionLogic, conditions, actions, implementationMethod };
+  const fieldOptions = useMemo(() => {
+    return approvalFields
+      .filter(f => f.status === 'active')
+      .map(f => ({ value: f.fieldKey, label: f.name }));
+  }, [approvalFields]);
+
+  const getOperators = (fieldKey: string): { value: string; label: string }[] => {
+    const field = approvalFields.find(f => f.fieldKey === fieldKey);
+    const fieldType = field?.fieldType || 'text';
+
+    switch (fieldType) {
+      case 'number':
+      case 'percentage':
+        return [
+          { value: 'equals', label: '等于' },
+          { value: 'not_equals', label: '不等于' },
+          { value: 'greater_than', label: '大于' },
+          { value: 'less_than', label: '小于' },
+          { value: 'greater_than_or_equal', label: '大于等于' },
+          { value: 'less_than_or_equal', label: '小于等于' },
+        ];
+      case 'boolean':
+        return [{ value: 'equals', label: '等于' }];
+      default:
+        return [
+          { value: 'equals', label: '等于' },
+          { value: 'not_equals', label: '不等于' },
+          { value: 'contains', label: '包含' },
+          { value: 'not_contains', label: '不包含' },
+        ];
+    }
+  };
 
   const addCondition = () => {
     setConditions([...conditions, { field: '', operator: '', value: '' }]);
@@ -233,14 +243,14 @@ export default function NewAutoRulePage() {
                     <SearchableSelect
                       value={condition.field}
                       onChange={(value) => updateCondition(index, 'field', value)}
-                      options={fieldOptions.map(f => ({ value: f, label: f }))}
+                      options={fieldOptions}
                       placeholder="选择字段"
                       className="flex-1"
                     />
                     <SearchableSelect
                       value={condition.operator}
                       onChange={(value) => updateCondition(index, 'operator', value)}
-                      options={(operatorOptions[condition.field] || ['等于', '不等于', '包含']).map(op => ({ value: op, label: op }))}
+                      options={getOperators(condition.field)}
                       placeholder="操作符"
                       className="w-28"
                     />
@@ -292,16 +302,14 @@ export default function NewAutoRulePage() {
                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                       </button>
                     </div>
-                    {(action.type === 'add_approver' || action.type === 'skip_node') && (
+                    {(action.type === 'add_approver') && (
                       <div>
-                        <label className="block text-sm text-[#5A5A5A] mb-1.5">
-                          {action.type === 'add_approver' ? '审批人姓名' : '跳过的节点名称'}
-                        </label>
+                        <label className="block text-sm text-[#5A5A5A] mb-1.5">审批人姓名</label>
                         <input
                           type="text"
                           value={action.target || ''}
                           onChange={(e) => updateAction(index, 'target', e.target.value)}
-                          placeholder={action.type === 'add_approver' ? '如：白沥' : '如：部门经理审批'}
+                          placeholder="如：白沥"
                           className="w-full px-4 py-2.5 bg-white border-none rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/20 placeholder:text-[#999999]/40"
                         />
                       </div>
@@ -327,21 +335,6 @@ export default function NewAutoRulePage() {
                 添加动作
               </button>
             </div>
-
-            {/* 实现方式 */}
-            <div className="bg-white rounded-2xl shadow-sm border border-[#EBEBEB] p-6 space-y-5">
-              <h3 className="text-sm font-semibold text-[#0A0A0A] border-b border-[#EBEBEB] pb-3">实现方式</h3>
-              <div>
-                <label className="block text-sm font-medium text-[#5A5A5A] mb-2">实现方式说明 <span className="text-red-500">*</span></label>
-                <textarea
-                  value={implementationMethod}
-                  onChange={(e) => setImplementationMethod(e.target.value)}
-                  placeholder="描述此规则的实现方式，如：字段条件判断，供应商库匹配等..."
-                  rows={3}
-                  className="w-full px-4 py-2.5 bg-[#F5F5F5] border-none rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/20 resize-none placeholder:text-[#999999]/40"
-                />
-              </div>
-            </div>
           </div>
 
           {/* 右侧 - 规则说明与预览 */}
@@ -361,11 +354,10 @@ export default function NewAutoRulePage() {
                 <div>
                   <p className="font-medium text-[#0A0A0A] mb-1">动作类型：</p>
                   <ul className="list-disc list-inside space-y-1 text-[#5A5A5A]">
-                    <li>自动通过：跳过所有审批节点直接通过</li>
-                    <li>自动拒绝：直接拒绝审批</li>
-                    <li>添加审批人：在指定节点添加新的审批人</li>
-                    <li>跳过节点：跳过指定的审批节点</li>
-                    <li>显示提示：在审批页面展示提示信息</li>
+                    <li>自动通过：满足条件时标记为通过</li>
+                    <li>自动拒绝：满足条件时标记为拒绝</li>
+                    <li>添加审批人：自动在审批流程中追加指定审批人</li>
+                    <li>显示提示：展示风险评估提示信息（含原因）</li>
                   </ul>
                 </div>
               </div>
@@ -408,7 +400,6 @@ export default function NewAutoRulePage() {
                             {a.type === 'auto_approve' && <span className="w-2 h-2 rounded-full bg-[#16A34A]"></span>}
                             {a.type === 'auto_reject' && <span className="w-2 h-2 rounded-full bg-[#DC2626]"></span>}
                             {a.type === 'add_approver' && <span className="w-2 h-2 rounded-full bg-[#2D3BFF]"></span>}
-                            {a.type === 'skip_node' && <span className="w-2 h-2 rounded-full bg-[#CA8A04]"></span>}
                             {a.type === 'show_message' && <span className="w-2 h-2 rounded-full bg-[#0D9488]"></span>}
                             <span className="font-medium text-[#0A0A0A]">{actionTypes.find(t => t.value === a.type)?.label}</span>
                             {a.target && <span className="text-[#5A5A5A]">: {a.target}</span>}

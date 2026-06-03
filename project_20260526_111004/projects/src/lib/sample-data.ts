@@ -2421,7 +2421,7 @@ export const initialQuoteTemplates: QuoteTemplate[] = [
 export const initialApprovalFields: ApprovalField[] = [
   // ===== 运输 =====
   {
-    id: 'af-001', name: '月订单数', fieldKey: 'monthly_orders', fieldType: 'number_select',
+    id: 'af-001', name: '月订单数', fieldKey: 'monthly_orders', fieldType: 'number',
     serviceProducts: ['运输', '一体化供应链'], approvalPoint: '业务量',
     options: [
       { id: 'opt-001', label: '0-5单', order: 1 },
@@ -2435,7 +2435,7 @@ export const initialApprovalFields: ApprovalField[] = [
     createdBy: 'system', createdAt: '2026-05-29T00:00:00Z',
   },
   {
-    id: 'af-002', name: '月开票额', fieldKey: 'monthly_invoice_amount', fieldType: 'number_select',
+    id: 'af-002', name: '月开票额', fieldKey: 'monthly_invoice_amount', fieldType: 'number',
     serviceProducts: ['运输', '一体化供应链'], approvalPoint: '业务量',
     options: [
       { id: 'opt-006', label: '0-5000元', order: 1 },
@@ -2526,7 +2526,7 @@ export const initialApprovalFields: ApprovalField[] = [
 
   // ===== 仓库 =====
   {
-    id: 'af-010', name: '面积需求', fieldKey: 'area_requirement', fieldType: 'number_select',
+    id: 'af-010', name: '面积需求', fieldKey: 'area_requirement', fieldType: 'number',
     serviceProducts: ['仓库', '一体化供应链'], approvalPoint: '业务量',
     options: [
       { id: 'opt-036', label: '0-100㎡', order: 1 },
@@ -2538,7 +2538,7 @@ export const initialApprovalFields: ApprovalField[] = [
     createdBy: 'system', createdAt: '2026-05-29T00:00:00Z',
   },
   {
-    id: 'af-011', name: '货量需求', fieldKey: 'cargo_volume', fieldType: 'number_select',
+    id: 'af-011', name: '货量需求', fieldKey: 'cargo_volume', fieldType: 'number',
     serviceProducts: ['仓库', '一体化供应链'], approvalPoint: '业务量',
     options: [
       { id: 'opt-040', label: '0-100吨/月', order: 1 },
@@ -2605,6 +2605,7 @@ export const initialRiskApprovals = [
     approvalStatus: "草稿",
     status: "draft",
     approvalSteps: [{"id":"init","name":"发起审批","role":"申请人","status":"current","approver":"王明","level":1},{"id":"mgmt","name":"部门经理审批","role":"部门经理","status":"pending","approver":"陈总","level":2},{"id":"func","name":"职能审批","role":"货代职能审批人","status":"pending","approver":"张洁","level":3},{"id":"fin","name":"财务审批","role":"财务部+中心总经理（会签）","status":"pending","approver":"赵总监、中心总经理","level":4},{"id":"gm","name":"总经理审批","role":"各中心负责人","status":"pending","approver":"各中心负责人","level":5},{"id":"it","name":"IT运维确认","role":"IT运维","status":"pending","approver":"IT运维","level":6}],
+    history: [],
     createdAt: "2026-05-29T08:00:00Z",
     dynamicFieldValues: {"transport_product_type":"空运","shipping_country":"美国","registered_capital":"500","social_insurance_count":"85"},
   },
@@ -2636,6 +2637,7 @@ export const initialRiskApprovals = [
     approvalStatus: "审批中",
     status: "in_review",
     approvalSteps: [{"id":"init","name":"发起审批","role":"申请人","status":"completed","approver":"王明","level":1},{"id":"mgmt","name":"部门经理审批","role":"部门经理","status":"completed","approver":"陈总","level":2},{"id":"func","name":"职能审批","role":"仓储职能审批人","status":"current","approver":"吴总","level":3},{"id":"fin","name":"财务审批","role":"财务部+中心总经理（会签）","status":"pending","approver":"赵总监、中心总经理","level":4},{"id":"gm","name":"总经理审批","role":"各中心负责人","status":"pending","approver":"各中心负责人","level":5},{"id":"it","name":"IT运维确认","role":"IT运维","status":"pending","approver":"IT运维","level":6}],
+    history: [],
     createdAt: "2026-05-29T09:00:00Z",
     dynamicFieldValues: {"area_requirement":"500-1000㎡","cargo_volume":"100-500吨","storage_type":"常温"},
   },
@@ -2667,6 +2669,7 @@ export const initialRiskApprovals = [
     approvalStatus: "审批中",
     status: "in_review",
     approvalSteps: [{"id":"init","name":"发起审批","role":"申请人","status":"completed","approver":"刘芳","level":1},{"id":"mgmt","name":"部门经理审批","role":"部门经理","status":"completed","approver":"陈总","level":2},{"id":"func","name":"职能审批","role":"运输职能审批人","status":"completed","approver":"朱弢","level":3},{"id":"fin","name":"财务审批","role":"财务部+中心总经理（会签）","status":"current","approver":"赵总监、中心总经理","level":4},{"id":"gm","name":"总经理审批","role":"各中心负责人","status":"pending","approver":"各中心负责人","level":5},{"id":"it","name":"IT运维确认","role":"IT运维","status":"pending","approver":"IT运维","level":6}],
+    history: [],
     createdAt: "2026-05-29T10:00:00Z",
     dynamicFieldValues: {"monthly_orders":"51-100","monthly_invoice_amount":"30-50万","on_time_rate":"95","service_regions":"华东,华南","registered_capital":"200","social_insurance_count":"45"},
   },
@@ -2698,6 +2701,7 @@ export const initialRiskApprovals = [
     approvalStatus: "审批中",
     status: "in_review",
     approvalSteps: [{"id":"init","name":"发起审批","role":"申请人","status":"completed","approver":"李强","level":1},{"id":"mgmt","name":"部门经理审批","role":"部门经理","status":"completed","approver":"陈总","level":2},{"id":"func","name":"职能审批","role":"进出口职能审批人","status":"completed","approver":"张洁","level":3},{"id":"fin","name":"财务审批","role":"财务部+中心总经理（会签）","status":"completed","approver":"赵总监、中心总经理","level":4},{"id":"gm","name":"总经理审批","role":"各中心负责人","status":"current","approver":"各中心负责人","level":5},{"id":"it","name":"IT运维确认","role":"IT运维","status":"pending","approver":"IT运维","level":6}],
+    history: [],
     createdAt: "2026-05-29T11:00:00Z",
     dynamicFieldValues: {"is_trade_agent":"否"},
   },
@@ -2729,6 +2733,7 @@ export const initialRiskApprovals = [
     approvalStatus: "审批中",
     status: "in_review",
     approvalSteps: [{"id":"init","name":"发起审批","role":"申请人","status":"completed","approver":"周华","level":1},{"id":"mgmt","name":"部门经理审批","role":"部门经理","status":"completed","approver":"陈总","level":2},{"id":"func","name":"职能审批","role":"合同物流职能审批人（四选一）","status":"current","approver":"蒋总","approvers":["张洁","蒋总","吴总","朱弢"],"level":3},{"id":"fin","name":"财务审批","role":"财务部+中心总经理（会签）","status":"pending","approver":"赵总监、中心总经理","level":4},{"id":"gm","name":"总经理审批","role":"各中心负责人","status":"pending","approver":"各中心负责人","level":5},{"id":"it","name":"IT运维确认","role":"IT运维","status":"pending","approver":"IT运维","level":6}],
+    history: [],
     createdAt: "2026-05-29T12:00:00Z",
     dynamicFieldValues: {"registered_capital":"1500","social_insurance_count":"320"},
   },
@@ -2760,6 +2765,7 @@ export const initialRiskApprovals = [
     approvalStatus: "审批完成",
     status: "approved",
     approvalSteps: [{"id":"init","name":"发起审批","role":"申请人","status":"completed","approver":"王健","level":1},{"id":"mgmt","name":"部门经理审批","role":"部门经理","status":"completed","approver":"陈总","level":2},{"id":"func","name":"职能审批","role":"关务职能审批人","status":"completed","approver":"蒋总","level":3},{"id":"fin","name":"财务审批","role":"财务部+中心总经理（会签）","status":"completed","approver":"赵总监、中心总经理","level":4},{"id":"gm","name":"总经理审批","role":"各中心负责人","status":"completed","approver":"各中心负责人","level":5},{"id":"it","name":"IT运维确认","role":"IT运维","status":"completed","approver":"IT运维","level":6}],
+    history: [],
     createdAt: "2026-05-29T13:00:00Z",
     dynamicFieldValues: {"registered_capital":"80","social_insurance_count":"8"},
   },
@@ -2791,6 +2797,7 @@ export const initialRiskApprovals = [
     approvalStatus: "审批完成",
     status: "approved",
     approvalSteps: [{"id":"init","name":"发起审批","role":"申请人","status":"completed","approver":"倪萍","level":1},{"id":"mgmt","name":"部门经理审批","role":"部门经理","status":"completed","approver":"陈总","level":2},{"id":"func","name":"职能审批","role":"一体化供应链职能审批人","status":"completed","approver":"张洁","level":3},{"id":"fin","name":"财务审批","role":"财务部+中心总经理（会签）","status":"completed","approver":"赵总监、中心总经理","level":4},{"id":"gm","name":"总经理审批","role":"各中心负责人","status":"completed","approver":"各中心负责人","level":5},{"id":"it","name":"IT运维确认","role":"IT运维","status":"completed","approver":"IT运维","level":6}],
+    history: [],
     createdAt: "2026-05-29T14:00:00Z",
     dynamicFieldValues: {"monthly_orders":"6-10","monthly_invoice_amount":"10-30万","on_time_rate":"99.5","registered_capital":"150","social_insurance_count":"12"},
   },
@@ -2822,6 +2829,7 @@ export const initialRiskApprovals = [
     approvalStatus: "已驳回",
     status: "rejected",
     approvalSteps: [{"id":"init","name":"发起审批","role":"申请人","status":"completed","approver":"夏赟帆","level":1},{"id":"mgmt","name":"部门经理审批","role":"部门经理","status":"completed","approver":"陈总","level":2},{"id":"func","name":"职能审批","role":"货代职能审批人","status":"completed","approver":"张洁","level":3},{"id":"fin","name":"财务审批","role":"财务部+中心总经理（会签）","status":"completed","approver":"赵总监、中心总经理","rejected":true,"level":4},{"id":"gm","name":"总经理审批","role":"各中心负责人","status":"pending","approver":"各中心负责人","level":5},{"id":"it","name":"IT运维确认","role":"IT运维","status":"pending","approver":"IT运维","level":6}],
+    history: [],
     createdAt: "2026-05-29T15:00:00Z",
     dynamicFieldValues: {"transport_product_type":"海运","shipping_country":"以色列","registered_capital":"300","social_insurance_count":"55"},
   },
@@ -2853,6 +2861,7 @@ export const initialRiskApprovals = [
     approvalStatus: "草稿",
     status: "draft",
     approvalSteps: [{"id":"init","name":"发起审批","role":"申请人","status":"current","approver":"张明","level":1},{"id":"mgmt","name":"部门经理审批","role":"部门经理","status":"pending","approver":"陈总","level":2},{"id":"func","name":"职能审批","role":"维修职能审批人","status":"pending","approver":"蒋总","level":3},{"id":"fin","name":"财务审批","role":"财务部+中心总经理（会签）","status":"pending","approver":"赵总监、中心总经理","level":4},{"id":"gm","name":"总经理审批","role":"各中心负责人","status":"pending","approver":"各中心负责人","level":5},{"id":"it","name":"IT运维确认","role":"IT运维","status":"pending","approver":"IT运维","level":6}],
+    history: [],
     createdAt: "2026-05-29T16:00:00Z",
     dynamicFieldValues: {"registered_capital":"600","social_insurance_count":"120"},
   },
@@ -2885,6 +2894,7 @@ export const initialRiskApprovals = [
     status: "rejected",
     approvalSteps: [{"id":"init","name":"发起审批","role":"申请人","status":"completed","approver":"李华","level":1},{"id":"mgmt","name":"部门经理审批","role":"部门经理","status":"completed","approver":"陈总","level":2},{"id":"func","name":"职能审批","role":"运输职能审批人","status":"completed","approver":"朱弢","rejected":true,"level":3},{"id":"fin","name":"财务审批","role":"财务部+中心总经理（会签）","status":"pending","approver":"赵总监、中心总经理","level":4},{"id":"gm","name":"总经理审批","role":"各中心负责人","status":"pending","approver":"各中心负责人","level":5},{"id":"it","name":"IT运维确认","role":"IT运维","status":"pending","approver":"IT运维","level":6}],
     dynamicFieldValues: {"monthly_orders":"0-5","monthly_invoice_amount":"5-10万","on_time_rate":"99.8","registered_capital":"60","social_insurance_count":"6"},
+    history: [],
     createdAt: "2026-05-29T17:00:00Z",
   },
 ];

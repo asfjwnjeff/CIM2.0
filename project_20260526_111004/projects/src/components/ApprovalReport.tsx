@@ -1,43 +1,34 @@
 'use client';
 
 export interface ReportItem {
-  approvalPoint: string;
+  ruleName: string;
   fieldName: string;
-  fieldKey: string;
-  fieldValue: string;
-  condition: string;
-  result: 'pass' | 'warn' | 'reject';
-  suggestion?: string;
+  fieldValue?: string;
+  result: 'pass' | 'warn';
+  reason: string;
 }
 
 export interface ApprovalReportProps {
-  reportId: string;
   customerName: string;
   serviceProduct: string;
   generatedAt: string;
   items: ReportItem[];
-  flowChanges: string;
   passCount: number;
   warnCount: number;
-  rejectCount: number;
 }
 
 const resultConfig = {
   pass: { color: '#0D8A5E', bg: 'bg-white', dot: 'bg-[#0D8A5E]', label: '通过' },
-  warn: { color: '#E8850C', bg: 'bg-[#FFF9EB]', dot: 'bg-[#E8850C]', label: '提醒' },
-  reject: { color: '#D63031', bg: 'bg-[#FFF5F5]', dot: 'bg-[#D63031]', label: '拦截' },
+  warn: { color: '#E8850C', bg: 'bg-[#FFF9EB]', dot: 'bg-[#E8850C]', label: '风险提醒' },
 };
 
 export default function ApprovalReport({
-  reportId,
   customerName,
   serviceProduct,
   generatedAt,
   items,
-  flowChanges,
   passCount,
   warnCount,
-  rejectCount,
 }: ApprovalReportProps) {
   return (
     <div className="bg-white rounded-xl shadow-sm border border-[#EBEBEB] overflow-hidden">
@@ -46,7 +37,6 @@ export default function ApprovalReport({
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-3">
             <h3 className="text-sm font-bold text-[#0A0A0A]">审批辅助报告</h3>
-            <span className="text-[10px] text-[#999] bg-[#F5F5F5] px-2 py-0.5 rounded">{reportId}</span>
           </div>
           <span className="text-[10px] text-[#999]">
             {new Date(generatedAt).toLocaleString('zh-CN')}
@@ -64,11 +54,7 @@ export default function ApprovalReport({
           </div>
           <div className="flex items-center gap-1.5">
             <div className="w-2 h-2 rounded-full bg-[#E8850C]" />
-            <span className="text-xs font-medium text-[#E8850C]">{warnCount} 提醒</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <div className="w-2 h-2 rounded-full bg-[#D63031]" />
-            <span className="text-xs font-medium text-[#D63031]">{rejectCount} 拦截</span>
+            <span className="text-xs font-medium text-[#E8850C]">{warnCount} 风险提醒</span>
           </div>
         </div>
       </div>
@@ -78,11 +64,10 @@ export default function ApprovalReport({
         <table className="w-full">
           <thead>
             <tr className="border-b border-[#EBEBEB] bg-[#FAFAFA]">
-              <th className="text-left px-4 py-2.5 text-[10px] font-semibold text-[#5A5A5A] uppercase tracking-wider">审批点</th>
+              <th className="text-left px-4 py-2.5 text-[10px] font-semibold text-[#5A5A5A] uppercase tracking-wider">规则名称</th>
               <th className="text-left px-4 py-2.5 text-[10px] font-semibold text-[#5A5A5A] uppercase tracking-wider">字段</th>
-              <th className="text-left px-4 py-2.5 text-[10px] font-semibold text-[#5A5A5A] uppercase tracking-wider">填写值</th>
-              <th className="text-left px-4 py-2.5 text-[10px] font-semibold text-[#5A5A5A] uppercase tracking-wider">判断条件</th>
-              <th className="text-center px-4 py-2.5 text-[10px] font-semibold text-[#5A5A5A] uppercase tracking-wider">结果</th>
+              <th className="text-center px-4 py-2.5 text-[10px] font-semibold text-[#5A5A5A] uppercase tracking-wider">判定结果</th>
+              <th className="text-left px-4 py-2.5 text-[10px] font-semibold text-[#5A5A5A] uppercase tracking-wider">原因</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-[#EBEBEB]">
@@ -91,20 +76,16 @@ export default function ApprovalReport({
               return (
                 <tr key={idx} className={`${cfg.bg} text-xs`}>
                   <td className="px-4 py-2.5" style={{ borderLeft: `3px solid ${cfg.color}` }}>
-                    <span className="text-[#0A0A0A]">{item.approvalPoint}</span>
+                    <span className="text-[#0A0A0A]">{item.ruleName}</span>
                   </td>
                   <td className="px-4 py-2.5 text-[#5A5A5A]">{item.fieldName}</td>
-                  <td className="px-4 py-2.5 text-[#0A0A0A] font-medium">{item.fieldValue}</td>
-                  <td className="px-4 py-2.5 text-[#5A5A5A]">{item.condition}</td>
                   <td className="px-4 py-2.5 text-center">
                     <div className="flex items-center justify-center gap-1.5">
                       <div className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />
                       <span style={{ color: cfg.color }} className="font-medium">{cfg.label}</span>
                     </div>
-                    {item.suggestion && (
-                      <p className="text-[10px] mt-0.5" style={{ color: cfg.color }}>{item.suggestion}</p>
-                    )}
                   </td>
+                  <td className="px-4 py-2.5 text-[#5A5A5A]">{item.reason}</td>
                 </tr>
               );
             })}
@@ -114,8 +95,7 @@ export default function ApprovalReport({
 
       {/* Footer */}
       <div className="px-5 py-3 border-t border-[#EBEBEB] bg-[#FAFAFA]">
-        <div className="flex items-center justify-between text-[10px] text-[#999]">
-          <span>审批流变更：{flowChanges}</span>
+        <div className="flex items-center justify-end text-[10px] text-[#999]">
           <span>CIM2.0 自动审批引擎</span>
         </div>
       </div>

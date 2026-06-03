@@ -439,7 +439,14 @@ export default function ApprovalDetailPage() {
   if (!approval) {
     return <div className="max-w-7xl mx-auto p-12 text-center"><h2 className="text-lg font-semibold text-[#0A0A0A] mb-2">审批数据加载中...</h2><p className="text-[#999]">正在从数据库加载审批记录</p></div>;
   }
-  const [activeTab, setActiveTab] = useState<'detail' | 'report'>('detail');
+  const [activeTab, setActiveTab] = useState<'flow' | 'report' | 'history'>('flow');
+
+  // 从 URL query 读取 tab
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const tab = urlParams.get('tab');
+    if (tab === 'history') setActiveTab('history');
+  }, []);
 
   const matchedWorkflow = useMemo(() => {
     if (!approval.serviceProduct) return null;
@@ -525,43 +532,27 @@ export default function ApprovalDetailPage() {
     const onTimeNum = parseFloat(onTime.replace('%', ''));
 
     return [
-    { approvalPoint: '业务可行性审核', fieldName: '风险控制目的', fieldKey: 'risk_purpose', fieldValue: approval.riskControlPurpose || '未填写', condition: '业务可行性评审/仅增加结算单位', result: 'pass' as const, suggestion: '风控目的明确' },
-    { approvalPoint: '业务可行性审核', fieldName: '与HMG关系', fieldKey: 'hmg_relation', fieldValue: approval.relationshipWithHMG || '未填写', condition: '非"内部用户"即合规', result: 'pass' as const },
-    { approvalPoint: '业务可行性审核', fieldName: '服务产品', fieldKey: 'service_product', fieldValue: approval.serviceProduct || '', condition: '已匹配审批流模板', result: 'pass' as const },
-    { approvalPoint: '业务可行性审核', fieldName: '货物类型', fieldKey: 'goods_type', fieldValue: approval.goodsType || '未填写', condition: '已填写', result: 'pass' as const },
-    { approvalPoint: '业务可行性审核', fieldName: '月均业务量', fieldKey: 'monthly_volume', fieldValue: approval.monthlyBusinessVolume || '未填写', condition: (approval.monthlyBusinessVolume || '') === '500以上' ? '超高业务量提醒' : '正常范围', result: (approval.monthlyBusinessVolume || '') === '500以上' ? 'warn' as const : 'pass' as const },
-    { approvalPoint: '贸易合规审核', fieldName: '贸易代理', fieldKey: 'is_trade_agent', fieldValue: approval.isTradeAgent || '', condition: '涉及贸易代理需追加审批', result: approval.isTradeAgent === '是' ? 'warn' as const : 'pass' as const, suggestion: approval.isTradeAgent === '是' ? '已触发白沥审批追加' : undefined },
-    { approvalPoint: 'KPI能力审核', fieldName: '通关KPI', fieldKey: 'customs_kpi', fieldValue: (approval.customsKpiRequirement || '').substring(0, 20) + '...', condition: '通关时效要求评估', result: 'pass' as const },
-    { approvalPoint: 'KPI能力审核', fieldName: '运输KPI', fieldKey: 'transport_kpi', fieldValue: (approval.transportKpiRequirement || '').substring(0, 20) + '...', condition: '运输时效/货损率评估', result: (approval.transportKpiRequirement || '').includes('危化品') ? 'warn' as const : 'pass' as const, suggestion: (approval.transportKpiRequirement || '').includes('危化品') ? '危化品运输需专项资质，请确认' : undefined },
-    { approvalPoint: '资源能力审核', fieldName: '仓库要求', fieldKey: 'warehouse', fieldValue: (approval.warehouseLeaseRequirement || '').substring(0, 20) + '...', condition: '仓储面积和条件评估', result: 'pass' as const },
+    { ruleName: '业务可行性审核', fieldName: '风险控制目的', fieldValue: approval.riskControlPurpose || '未填写', result: 'pass' as const, reason: '风控目的明确' },
+    { ruleName: '业务可行性审核', fieldName: '与HMG关系', fieldValue: approval.relationshipWithHMG || '未填写', result: 'pass' as const, reason: '非"内部用户"即合规' },
+    { ruleName: '业务可行性审核', fieldName: '服务产品', fieldValue: approval.serviceProduct || '', result: 'pass' as const, reason: '已匹配审批流模板' },
+    { ruleName: '业务可行性审核', fieldName: '货物类型', fieldValue: approval.goodsType || '未填写', result: 'pass' as const, reason: '已填写' },
+    { ruleName: '业务可行性审核', fieldName: '月均业务量', fieldValue: approval.monthlyBusinessVolume || '未填写', result: (approval.monthlyBusinessVolume || '') === '500以上' ? 'warn' as const : 'pass' as const, reason: (approval.monthlyBusinessVolume || '') === '500以上' ? '超高业务量提醒' : '正常范围' },
+    { ruleName: '贸易合规审核', fieldName: '贸易代理', fieldValue: approval.isTradeAgent || '', result: approval.isTradeAgent === '是' ? 'warn' as const : 'pass' as const, reason: approval.isTradeAgent === '是' ? '涉及贸易代理需追加审批' : '正常' },
+    { ruleName: 'KPI能力审核', fieldName: '通关KPI', fieldValue: (approval.customsKpiRequirement || '').substring(0, 20) + '...', result: 'pass' as const, reason: '通关时效要求评估' },
+    { ruleName: 'KPI能力审核', fieldName: '运输KPI', fieldValue: (approval.transportKpiRequirement || '').substring(0, 20) + '...', result: (approval.transportKpiRequirement || '').includes('危化品') ? 'warn' as const : 'pass' as const, reason: (approval.transportKpiRequirement || '').includes('危化品') ? '危化品运输需专项资质，请确认' : '运输时效/货损率评估' },
+    { ruleName: '资源能力审核', fieldName: '仓库要求', fieldValue: (approval.warehouseLeaseRequirement || '').substring(0, 20) + '...', result: 'pass' as const, reason: '仓储面积和条件评估' },
     // 动态字段：企业规模
-    ...(capital ? [{ approvalPoint: '企业规模审核', fieldName: '注册资本', fieldKey: 'registered_capital', fieldValue: capital + '万', condition: '≥ 100万为正常', result: (!isNaN(capitalNum) && capitalNum < 100 ? 'warn' : 'pass') as 'pass' | 'warn', suggestion: !isNaN(capitalNum) && capitalNum < 100 ? '注册资本不足100万，建议人工审核' : undefined }] : []),
-    ...(si ? [{ approvalPoint: '企业规模审核', fieldName: '社保人数', fieldKey: 'social_insurance_count', fieldValue: si + '人', condition: '≥ 10人为正常', result: (!isNaN(siNum) && siNum < 10 ? 'warn' : 'pass') as 'pass' | 'warn', suggestion: !isNaN(siNum) && siNum < 10 ? '社保人数不足10人，建议人工审核' : undefined }] : []),
+    ...(capital ? [{ ruleName: '企业规模审核', fieldName: '注册资本', fieldValue: capital + '万', result: (!isNaN(capitalNum) && capitalNum < 100 ? 'warn' : 'pass') as 'pass' | 'warn', reason: !isNaN(capitalNum) && capitalNum < 100 ? '注册资本不足100万，建议人工审核' : '注册资本正常' }] : []),
+    ...(si ? [{ ruleName: '企业规模审核', fieldName: '社保人数', fieldValue: si + '人', result: (!isNaN(siNum) && siNum < 10 ? 'warn' : 'pass') as 'pass' | 'warn', reason: !isNaN(siNum) && siNum < 10 ? '社保人数不足10人，建议人工审核' : '社保人数正常' }] : []),
     // 动态字段：出货地区
-    ...(shipping ? [{ approvalPoint: '贸易合规审核', fieldName: '出货国家/地区', fieldKey: 'shipping_country', fieldValue: shipping, condition: '非战争地区为正常', result: (shipping === '以色列' || shipping === '伊朗' ? 'warn' : 'pass') as 'pass' | 'warn', suggestion: shipping === '以色列' || shipping === '伊朗' ? `${shipping}为战争地区，建议人工审核` : undefined }] : []),
+    ...(shipping ? [{ ruleName: '贸易合规审核', fieldName: '出货国家/地区', fieldValue: shipping, result: (shipping === '以色列' || shipping === '伊朗' ? 'warn' : 'pass') as 'pass' | 'warn', reason: shipping === '以色列' || shipping === '伊朗' ? `${shipping}为战争地区，建议人工审核` : '出货地区正常' }] : []),
     // 动态字段：运输及时率
-    ...(onTime ? [{ approvalPoint: 'KPI能力审核', fieldName: '运输及时率', fieldKey: 'on_time_rate', fieldValue: onTime + '%', condition: '≤ 99%为正常（作为供应商，>99%过严）', result: (!isNaN(onTimeNum) && onTimeNum > 99 ? 'warn' : 'pass') as 'pass' | 'warn', suggestion: !isNaN(onTimeNum) && onTimeNum > 99 ? `客户要求的运输及时率${onTime}%过于严苛，CIM作为供应商可能无法达到` : undefined }] : []),
-    ...(derivedStatus === 'rejected' ? [{ approvalPoint: '财务确认', fieldName: '财务审批', fieldKey: 'finance', fieldValue: '已拒绝', condition: '财务确认节点被拒绝', result: 'reject' as const, suggestion: '请重新提交审批' }] : []),
+    ...(onTime ? [{ ruleName: 'KPI能力审核', fieldName: '运输及时率', fieldValue: onTime + '%', result: (!isNaN(onTimeNum) && onTimeNum > 99 ? 'warn' : 'pass') as 'pass' | 'warn', reason: !isNaN(onTimeNum) && onTimeNum > 99 ? `客户要求的运输及时率${onTime}%过于严苛，CIM作为供应商可能无法达到` : '运输及时率正常' }] : []),
+    ...(derivedStatus === 'rejected' ? [{ ruleName: '财务确认', fieldName: '财务审批', fieldValue: '已拒绝', result: 'warn' as const, reason: '财务确认节点被拒绝，请重新提交审批' }] : []),
   ];}, [approval]);
 
   const passCount = reportItems.filter(i => i.result === 'pass').length;
   const warnCount = reportItems.filter(i => i.result === 'warn').length;
-  const rejectCount = reportItems.filter(i => i.result === 'reject').length;
-
-  const flowChanges = useMemo(() => {
-    const changes: string[] = [];
-    const steps = approval.approvalSteps || [];
-    if (steps.length === 0) return '暂无审批流数据';
-    const completed = steps.filter(s => s.status === 'completed').length;
-    const total = steps.length;
-    changes.push(`${completed}/${total} 节点已完成`);
-    if (approval.isTradeAgent === '是') changes.push('追加审批人：白沥（贸易代理）');
-    if (derivedStatus === 'rejected') {
-      const rejectedStep = steps.find(s => (s as Record<string, unknown>).rejected === true);
-      if (rejectedStep) changes.push(`${rejectedStep.name}节点已拒绝`);
-    }
-    return changes.join('；');
-  }, [approval, derivedStatus]);
 
   const getSelectedNames = (ids: string[], list: { id: string; name?: string; title?: string }[]) => {
     return ids.map((itemId: string) => list.find((item) => item.id === itemId)?.name || list.find((item) => item.id === itemId)?.title || itemId);
@@ -726,9 +717,9 @@ export default function ApprovalDetailPage() {
                 {/* Tab 切换 */}
                 <div className="flex gap-1 mb-4 bg-[#F5F5F5] rounded-lg p-1">
                   <button
-                    onClick={() => setActiveTab('detail')}
+                    onClick={() => setActiveTab('flow')}
                     className={`flex-1 py-2 text-xs font-semibold rounded-md transition-all ${
-                      activeTab === 'detail' ? 'bg-white text-[#0A0A0A] shadow-sm' : 'text-[#999] hover:text-[#5A5A5A]'
+                      activeTab === 'flow' ? 'bg-white text-[#0A0A0A] shadow-sm' : 'text-[#999] hover:text-[#5A5A5A]'
                     }`}
                   >
                     审批流程
@@ -741,9 +732,17 @@ export default function ApprovalDetailPage() {
                   >
                     审批辅助报告
                   </button>
+                  <button
+                    onClick={() => setActiveTab('history')}
+                    className={`flex-1 py-2 text-xs font-semibold rounded-md transition-all ${
+                      activeTab === 'history' ? 'bg-white text-[#0A0A0A] shadow-sm' : 'text-[#999] hover:text-[#5A5A5A]'
+                    }`}
+                  >
+                    历史记录
+                  </button>
                 </div>
 
-                {activeTab === 'detail' ? (
+                {activeTab === 'flow' && (
                   <>
                     <ApprovalFlowVisual
                       workflow={matchedWorkflow}
@@ -760,18 +759,60 @@ export default function ApprovalDetailPage() {
                       <p className="text-xs text-[#999]">注意: 风控审批中填写的所有字段均不受角色权限限制，所有审批人均可查看全部字段内容。</p>
                     </div>
                   </>
-                ) : (
+                )}
+
+                {activeTab === 'report' && (
                   <ApprovalReport
-                    reportId={`CIM-AR-${approval.id.padStart(4, '0')}`}
                     customerName={approval.companyName || ''}
                     serviceProduct={approval.serviceProduct || ''}
                     generatedAt={new Date().toISOString()}
                     items={reportItems as ReportItem[]}
-                    flowChanges={flowChanges}
                     passCount={passCount}
                     warnCount={warnCount}
-                    rejectCount={rejectCount}
                   />
+                )}
+
+                {activeTab === 'history' && (
+                  <div className="p-4">
+                    {(approval.history || []).length === 0 ? (
+                      <p className="text-sm text-[#999] text-center py-8">暂无操作记录</p>
+                    ) : (
+                      <div className="space-y-0">
+                        {[...(approval.history || [])].reverse().map((entry, idx, arr) => (
+                          <div key={entry.id} className="flex items-start gap-3 pb-3">
+                            <div className="flex flex-col items-center">
+                              <div className={`w-2.5 h-2.5 rounded-full ${
+                                entry.action === 'submitted' ? 'bg-[#2D3BFF]' :
+                                entry.action === 'approved' ? 'bg-[#0D8A5E]' :
+                                entry.action === 'rejected' ? 'bg-[#D63031]' :
+                                'bg-[#999]'
+                              }`} />
+                              {idx < arr.length - 1 && (
+                                <div className="w-0.5 flex-1 bg-[#EBEBEB] mt-1 min-h-[20px]" />
+                              )}
+                            </div>
+                            <div className="flex-1 min-w-0 pb-2">
+                              <div className="flex items-center justify-between">
+                                <span className="text-sm font-medium text-[#0A0A0A]">
+                                  {entry.action === 'submitted' ? '提交审批' :
+                                   entry.action === 'approved' ? `${entry.nodeName || '审批'} — 通过` :
+                                   entry.action === 'rejected' ? `${entry.nodeName || '审批'} — 驳回` :
+                                   '撤回审批'}
+                                </span>
+                                <span className="text-xs text-[#999]">
+                                  {new Date(entry.timestamp).toLocaleString('zh-CN')}
+                                </span>
+                              </div>
+                              <p className="text-xs text-[#5A5A5A] mt-0.5">
+                                {entry.operatorName}
+                                {entry.reason && ` — ${entry.reason}`}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 )}
               </div>
             </div>
