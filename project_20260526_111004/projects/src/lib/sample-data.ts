@@ -1153,14 +1153,29 @@ export const initialAutoApprovalRules: AutoApprovalRule[] = [
     status: 'active',
     conditionLogic: 'OR' as const,
     conditions: [
-      { field: 'monthly_invoice_amount', operator: 'less_than' as const, value: '5000', logic: 'OR' as const },
-      { field: 'monthly_orders', operator: 'less_than' as const, value: '5', logic: 'OR' as const },
+      { field: 'monthly_invoice_amount', operator: 'equals' as const, value: '0-5000元', logic: 'OR' as const },
+      { field: 'monthly_orders', operator: 'equals' as const, value: '0-5单', logic: 'OR' as const },
     ],
     actions: [
-      { type: 'show_message' as const, description: '业务量过低需人工评估' },
+      { type: 'show_message' as const, message: '业务量/开票额过低，需人工评估业务必要性' },
     ],
-    failureMessage: '业务量过低（月开票额<5000元或月订单数<5），需人工评估业务必要性', priority: 2,
+    priority: 2,
     createdBy: 'system', createdAt: '2026-06-01T08:00:00Z',
+  },
+  {
+    id: 'ar-003',
+    name: '意向服务地区含其他',
+    serviceProduct: '运输',
+    status: 'active',
+    conditionLogic: 'AND' as const,
+    conditions: [
+      { field: 'service_regions', operator: 'contains' as const, value: '其他' },
+    ],
+    actions: [
+      { type: 'show_message' as const, message: '运输线路是否当前全国网点可覆盖，需要人工判断' },
+    ],
+    priority: 3,
+    createdBy: 'system', createdAt: '2026-06-03T08:00:00Z',
   },
   {
     id: 'ar-004', name: '注册资本过低警告', serviceProduct: '全部', status: 'active',

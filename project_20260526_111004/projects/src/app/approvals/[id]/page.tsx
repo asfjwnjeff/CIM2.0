@@ -527,6 +527,7 @@ export default function ApprovalDetailPage() {
       monthly_orders: approval.monthly_orders || '',
       monthly_invoice_amount: approval.monthly_invoice_amount || '',
       is_trade_agent: approval.isTradeAgent || '',
+      service_regions: (approval.dynamicFieldValues || {})['service_regions'] || '',
     };
     const results = evaluateApprovalRules(allFieldValues, autoApprovalRules, approvalFields);
     const items: Array<{ruleName: string; fieldName: string; result: 'pass' | 'warn'; reason: string}> = [];

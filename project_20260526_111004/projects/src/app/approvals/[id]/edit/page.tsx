@@ -175,6 +175,7 @@ export default function ApprovalEditPage() {
     monthly_orders: formData.monthly_orders || '',
     monthly_invoice_amount: formData.monthly_invoice_amount || '',
     is_trade_agent: formData.isTradeAgent || '',
+    service_regions: (dynamicFieldValues['service_regions'] || ''),
   }), [dynamicFieldValues, formData.monthly_orders, formData.monthly_invoice_amount, formData.isTradeAgent]);
 
   // 实时报告评估
@@ -379,7 +380,7 @@ export default function ApprovalEditPage() {
                     <div><label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">业务类型 <span className="text-red-500">*</span></label><SearchableSelect value={formData.businessType || ''} onChange={(value) => handleChange('businessType', value)} options={BUSINESS_TYPES.map((t) => ({ value: t, label: t }))} placeholder="请选择业务类型" /></div>
                     <div><label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">货物类型 <span className="text-red-500">*</span></label><input type="text" value={formData.goodsType} onChange={(e) => handleChange('goodsType', e.target.value)} placeholder="请输入货物类型" className="w-full bg-[#F5F5F5] border-none rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30" /></div>
                     <div><label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">月均订单数 <span className="text-red-500">*</span></label><SearchableSelect value={formData.monthly_orders || ''} onChange={(value) => handleChange('monthly_orders', value)} options={['0-5单','6-10单','11-20单','21-50单','50单以上'].map((v) => ({ value: v, label: v }))} placeholder="请选择月均订单数" /></div>
-                    <div><label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">月均开票额 <span className="text-red-500">*</span></label><SearchableSelect value={formData.monthly_invoice_amount || ''} onChange={(value) => handleChange('monthly_invoice_amount', value)} options={['0-5000元','5000-20000元','20000-100000元','100000元以上'].map((v) => ({ value: v, label: v }))} placeholder="请选择月均开票额" /></div>
+                    <div><label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">月均开票额 <span className="text-red-500">*</span></label><SearchableSelect value={formData.monthly_invoice_amount || ''} onChange={(value) => handleChange('monthly_invoice_amount', value)} options={['0-5000元','5001-20000元','20001-100000元','100000元以上'].map((v) => ({ value: v, label: v }))} placeholder="请选择月均开票额" /></div>
                   </div>
                   <div className="mt-4 space-y-4">
                     <div><label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">通关KPI要求 <span className="text-red-500">*</span></label><textarea value={formData.customsKpiRequirement} onChange={(e) => handleChange('customsKpiRequirement', e.target.value)} placeholder="请输入通关KPI要求" rows={3} className="w-full bg-[#F5F5F5] border-none rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30 resize-none" /></div>
@@ -434,24 +435,20 @@ export default function ApprovalEditPage() {
                                 </span>
                               ))}
                               <div className="relative w-full">
-                                <select
+                                <SearchableSelect
                                   value=""
-                                  onChange={(e) => {
-                                    if (!e.target.value) return;
+                                  onChange={(value) => {
+                                    if (!value) return;
                                     const vals = (dynamicFieldValues[field.fieldKey] || '').split(',').filter(Boolean);
-                                    if (!vals.includes(e.target.value)) vals.push(e.target.value);
+                                    if (!vals.includes(value)) vals.push(value);
                                     handleDynamicFieldChange(field.fieldKey, vals.join(','));
                                   }}
-                                  className={`w-full rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30 bg-[#F0F1FF] border border-[#C7CAFF]`}
-                                >
-                                  <option value="">{`请选择${field.name}`}</option>
-                                  {field.options.filter(o => !(dynamicFieldValues[field.fieldKey] || '').includes(o.label)).map(o => (
-                                    <option key={o.id} value={o.label}>{o.label}</option>
-                                  ))}
-                                  {(dynamicFieldValues[field.fieldKey] || '').indexOf('其他') === -1 && (
-                                    <option value="其他">其他</option>
-                                  )}
-                                </select>
+                                  options={[
+                                    ...field.options.filter(o => !(dynamicFieldValues[field.fieldKey] || '').includes(o.label)).map(o => ({ value: o.label, label: o.label })),
+                                    ...((dynamicFieldValues[field.fieldKey] || '').indexOf('其他') === -1 ? [{ value: '其他', label: '其他' }] : []),
+                                  ]}
+                                  placeholder={`请选择${field.name}`}
+                                />
                               </div>
                               {(dynamicFieldValues[field.fieldKey] || '').indexOf('其他') !== -1 && (
                                 <input
