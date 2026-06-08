@@ -415,7 +415,7 @@ export default function ApprovalsPage() {
                         {rc.riskControlPurpose}
                       </p>
                     </div>
-                    <span className={`px-3 py-1 rounded-full text-sm font-medium flex-shrink-0 ${getStatusColor(rc.approvalStatus)}`}>
+                    <span className={`px-3 py-1 rounded-full text-sm font-medium flex-shrink-0 whitespace-nowrap ${getStatusColor(rc.approvalStatus)}`}>
                       {rc.approvalStatus}
                     </span>
                   </div>
@@ -476,7 +476,7 @@ export default function ApprovalsPage() {
                     <th className="text-left px-5 py-3.5 text-sm font-semibold text-[#0A0A0A]">风控目的</th>
                     <th className="text-left px-5 py-3.5 text-sm font-semibold text-[#0A0A0A]">联系人</th>
                     <th className="text-left px-5 py-3.5 text-sm font-semibold text-[#0A0A0A]">当前审核人</th>
-                    <th className="text-left px-5 py-3.5 text-sm font-semibold text-[#0A0A0A]">审批状态</th>
+                    <th className="text-left px-5 py-3.5 text-sm font-semibold text-[#0A0A0A] whitespace-nowrap min-w-[100px]">审批状态</th>
                     <th className="text-left px-5 py-3.5 text-sm font-semibold text-[#0A0A0A]">创建时间</th>
                     <th className="text-center px-5 py-3.5 text-sm font-semibold text-[#0A0A0A]">操作</th>
                   </tr>
@@ -503,8 +503,8 @@ export default function ApprovalsPage() {
                       <td className="px-5 py-4 text-sm text-[#5A5A5A]">{rc.riskControlPurpose}</td>
                       <td className="px-5 py-4 text-sm text-[#0A0A0A]">{rc.contactName}</td>
                       <td className="px-5 py-4 text-sm text-[#2D3BFF] font-medium">{rc.currentApprover || '-'}</td>
-                      <td className="px-5 py-4">
-                        <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(rc.approvalStatus)}`}>
+                      <td className="px-5 py-4 whitespace-nowrap">
+                        <span className={`px-3 py-1 rounded-full text-sm font-medium whitespace-nowrap ${getStatusColor(rc.approvalStatus)}`}>
                           {rc.approvalStatus}
                         </span>
                       </td>
