@@ -13,20 +13,12 @@ import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { FIELD_STYLES } from '@/lib/ui-constants';
 
-type TabType = 'basic' | 'business' | 'semiconductor' | 'relations' | 'products' | 'config' | 'billing' | 'followup' | 'opportunities' | 'approvals' | 'logs';
+type TabType = 'basic' | 'business' | 'semiconductor';
 
 const TAB_LABELS: Record<TabType, string> = {
   basic: '企业基本信息',
   business: '工商资质全景',
   semiconductor: '半导体产业链定位',
-  relations: '上下游关联关系',
-  products: '经营商品档案',
-  config: '客户信息配置',
-  billing: '账单主体配置',
-  followup: '跟进记录',
-  opportunities: '商机',
-  approvals: '风控审批记录',
-  logs: '操作日志',
 };
 
 interface FormData {
@@ -1124,17 +1116,6 @@ export default function NewCustomerPage() {
             </div>
           )}
 
-          {/* Tabs 4-7: Read-only placeholder */}
-          {activeTab === 'relations' && <EmptyTab message="上下游关联关系将在客户创建后可配置" />}
-          {activeTab === 'products' && <EmptyTab message="经营商品档案将在客户创建后可配置" />}
-          {activeTab === 'config' && <EmptyTab message="客户信息配置将在客户创建后可配置" />}
-          {activeTab === 'billing' && <EmptyTab message="账单主体配置将在客户创建后可配置" />}
-
-          {/* Tabs 8-11: Read-only empty */}
-          {activeTab === 'followup' && <EmptyTab message="跟进记录将在客户创建后产生" />}
-          {activeTab === 'opportunities' && <EmptyTab message="商机将在客户创建后关联" />}
-          {activeTab === 'approvals' && <EmptyTab message="风控审批记录将在客户创建后产生" />}
-          {activeTab === 'logs' && <EmptyTab message="操作日志将在客户创建后产生" />}
         </div>
       </div>
   );
