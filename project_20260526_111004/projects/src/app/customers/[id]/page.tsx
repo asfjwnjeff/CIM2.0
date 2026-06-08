@@ -55,6 +55,9 @@ export default function CustomerDetailPage() {
     assignCustomer,
     transferCustomer,
     addLog,
+    deleteFollowUp,
+    deleteOpportunity,
+    deleteRiskApproval,
   } = useApp();
 
   const [activeTab, setActiveTab] = useState<TabType>('basic');
@@ -62,6 +65,17 @@ export default function CustomerDetailPage() {
   // Collaboration dialog state
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogType, setDialogType] = useState<CollaborationDialogType>('collaborate');
+
+  // Delete confirmation state
+  const [deleteTarget, setDeleteTarget] = useState<{ type: 'followup' | 'opportunity' | 'approval'; id: string } | null>(null);
+
+  const handleDelete = () => {
+    if (!deleteTarget) return;
+    if (deleteTarget.type === 'followup') deleteFollowUp(deleteTarget.id);
+    else if (deleteTarget.type === 'opportunity') deleteOpportunity(deleteTarget.id);
+    else if (deleteTarget.type === 'approval') deleteRiskApproval(deleteTarget.id);
+    setDeleteTarget(null);
+  };
 
   const customer = useMemo(
     () => customers.find((c) => c.id === params.id),
@@ -658,9 +672,9 @@ export default function CustomerDetailPage() {
 
           {activeTab === 'config' && <ConfigTab customer={customer} />}
           {activeTab === 'billing' && <BillingTab customer={customer} customerBillingEntities={customerBillingEntities} customerRules={customerRules} />}
-          {activeTab === 'followup' && <FollowUpTab customerFollowUps={customerFollowUps} />}
-          {activeTab === 'opportunities' && <OpportunitiesTab customerOpportunities={customerOpportunities} />}
-          {activeTab === 'approvals' && <ApprovalsTab customerRiskApprovals={customerRiskApprovals} />}
+          {activeTab === 'followup' && <FollowUpTab customerFollowUps={customerFollowUps} setDeleteTarget={setDeleteTarget} customer={customer} />}
+          {activeTab === 'opportunities' && <OpportunitiesTab customerOpportunities={customerOpportunities} setDeleteTarget={setDeleteTarget} customer={customer} />}
+          {activeTab === 'approvals' && <ApprovalsTab customerRiskApprovals={customerRiskApprovals} setDeleteTarget={setDeleteTarget} customer={customer} />}
           {activeTab === 'logs' && <LogsTab auditLogs={customer.auditLogs} />}
         </div>
 
@@ -674,6 +688,20 @@ export default function CustomerDetailPage() {
           currentCollaboratorIds={customer.collaborators}
           onConfirm={handleDialogConfirm}
         />
+
+        {/* Delete confirmation dialog */}
+        {deleteTarget && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-md w-full">
+              <h3 className="text-lg font-bold text-[#0A0A0A] mb-2">确认删除</h3>
+              <p className="text-[#5A5A5A] mb-6">确定要删除此记录吗？此操作不可撤销。</p>
+              <div className="flex justify-end gap-3">
+                <button onClick={() => setDeleteTarget(null)} className="px-4 py-2 text-sm border border-[#D5D5D5] rounded-lg hover:bg-[#F5F5F5]">取消</button>
+                <button onClick={handleDelete} className="px-4 py-2 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700">确认删除</button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
   );
 }
@@ -873,13 +901,13 @@ function ConditionGroupRenderer({ group }: { group: RuleGroup | undefined }) {
   );
 }
 
-function FollowUpTab({ customerFollowUps }: { customerFollowUps: ReturnType<typeof useApp>['followUps'] }) {
+function FollowUpTab({ customerFollowUps, setDeleteTarget, customer }: { customerFollowUps: ReturnType<typeof useApp>['followUps']; setDeleteTarget: (target: { type: 'followup' | 'opportunity' | 'approval'; id: string } | null) => void; customer: ReturnType<typeof useApp>['customers'][number] }) {
   const router = useRouter();
   return (
     <div className="bg-white rounded-2xl border border-[#EBEBEB] shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
       <div className="p-6 border-b border-[#EBEBEB] flex items-center justify-between">
         <h3 className="text-[16px] font-semibold text-[#0A0A0A]">跟进记录</h3>
-        <button onClick={() => router.push('/followup')} className="text-[#2D3BFF] hover:text-[#4338CA] text-sm font-medium">查看全部 →</button>
+        <button onClick={() => router.push(`/followup/new?customerId=${customer.id}&customerName=${encodeURIComponent(customer.name)}`)} className="text-[#2D3BFF] hover:text-[#4338CA] text-sm font-medium">新增跟进记录</button>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full">
@@ -895,7 +923,11 @@ function FollowUpTab({ customerFollowUps }: { customerFollowUps: ReturnType<type
                 <td className="px-4 py-3"><StatusBadgeSmall status={fu.status} /></td>
                 <td className="px-4 py-3 text-[13px] text-[#0A0A0A]">{fu.owner || '-'}</td>
                 <td className="px-4 py-3 text-[13px] text-[#5A5A5A]">{fu.contactPerson || '-'}</td>
-                <td className="px-4 py-3 text-center"><button onClick={() => router.push(`/followup/${fu.id}/edit`)} className="text-[#2D3BFF] text-sm hover:text-[#0A0A0A]">查看</button></td>
+                <td className="px-4 py-3 text-center space-x-2">
+                  <button onClick={() => router.push(`/followup/${fu.id}`)} className="text-[#2D3BFF] text-sm hover:text-[#0A0A0A]">查看</button>
+                  <button onClick={() => router.push(`/followup/${fu.id}/edit`)} className="text-[#5A5A5A] text-sm hover:text-[#0A0A0A]">编辑</button>
+                  <button onClick={() => setDeleteTarget({ type: 'followup', id: fu.id })} className="text-red-500 text-sm hover:text-red-700">删除</button>
+                </td>
               </tr>
             ))}
           </tbody>
@@ -905,13 +937,13 @@ function FollowUpTab({ customerFollowUps }: { customerFollowUps: ReturnType<type
   );
 }
 
-function OpportunitiesTab({ customerOpportunities }: { customerOpportunities: ReturnType<typeof useApp>['opportunities'] }) {
+function OpportunitiesTab({ customerOpportunities, setDeleteTarget, customer }: { customerOpportunities: ReturnType<typeof useApp>['opportunities']; setDeleteTarget: (target: { type: 'followup' | 'opportunity' | 'approval'; id: string } | null) => void; customer: ReturnType<typeof useApp>['customers'][number] }) {
   const router = useRouter();
   return (
     <div className="bg-white rounded-2xl border border-[#EBEBEB] shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
       <div className="p-6 border-b border-[#EBEBEB] flex items-center justify-between">
         <h3 className="text-[16px] font-semibold text-[#0A0A0A]">商机</h3>
-        <button onClick={() => router.push('/opportunities')} className="text-[#2D3BFF] hover:text-[#4338CA] text-sm font-medium">查看全部 →</button>
+        <button onClick={() => router.push(`/opportunities/new?customerId=${customer.id}&customerName=${encodeURIComponent(customer.name)}`)} className="text-[#2D3BFF] hover:text-[#4338CA] text-sm font-medium">新增商机</button>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full">
@@ -927,7 +959,7 @@ function OpportunitiesTab({ customerOpportunities }: { customerOpportunities: Re
                 <td className="px-4 py-3"><StageBadge stage={opp.salesStage || opp.stage} /></td>
                 <td className="px-4 py-3 text-[13px] text-[#0A0A0A]">¥{(opp.opportunityAmount || opp.amount || 0).toLocaleString()}</td>
                 <td className="px-4 py-3 text-[13px] text-[#5A5A5A]">{opp.owner || '-'}</td>
-                <td className="px-4 py-3 text-center"><button onClick={() => router.push(`/opportunities/${opp.id}`)} className="text-[#2D3BFF] text-sm hover:text-[#0A0A0A] mr-2">查看</button><button onClick={() => router.push(`/opportunities/${opp.id}/edit`)} className="text-[#5A5A5A] text-sm hover:text-[#0A0A0A]">编辑</button></td>
+                <td className="px-4 py-3 text-center space-x-2"><button onClick={() => router.push(`/opportunities/${opp.id}`)} className="text-[#2D3BFF] text-sm hover:text-[#0A0A0A]">查看</button><button onClick={() => router.push(`/opportunities/${opp.id}/edit`)} className="text-[#5A5A5A] text-sm hover:text-[#0A0A0A]">编辑</button><button onClick={() => setDeleteTarget({ type: 'opportunity', id: opp.id })} className="text-red-500 text-sm hover:text-red-700">删除</button></td>
               </tr>
             ))}
           </tbody>
@@ -937,13 +969,13 @@ function OpportunitiesTab({ customerOpportunities }: { customerOpportunities: Re
   );
 }
 
-function ApprovalsTab({ customerRiskApprovals }: { customerRiskApprovals: ReturnType<typeof useApp>['riskApprovals'] }) {
+function ApprovalsTab({ customerRiskApprovals, setDeleteTarget, customer }: { customerRiskApprovals: ReturnType<typeof useApp>['riskApprovals']; setDeleteTarget: (target: { type: 'followup' | 'opportunity' | 'approval'; id: string } | null) => void; customer: ReturnType<typeof useApp>['customers'][number] }) {
   const router = useRouter();
   return (
     <div className="bg-white rounded-2xl border border-[#EBEBEB] shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
       <div className="p-6 border-b border-[#EBEBEB] flex items-center justify-between">
         <h3 className="text-[16px] font-semibold text-[#0A0A0A]">风控审批记录</h3>
-        <button onClick={() => router.push('/approvals')} className="text-[#2D3BFF] hover:text-[#4338CA] text-sm font-medium">查看全部 →</button>
+        <button onClick={() => router.push(`/approvals/new?companyName=${encodeURIComponent(customer.name)}`)} className="text-[#2D3BFF] hover:text-[#4338CA] text-sm font-medium">新增风控审批</button>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full">
@@ -959,7 +991,11 @@ function ApprovalsTab({ customerRiskApprovals }: { customerRiskApprovals: Return
                 <td className="px-4 py-3 text-[13px] text-[#0A0A0A]">{ra.riskControlPurpose || '-'}</td>
                 <td className="px-4 py-3"><ApprovalStatusBadge status={ra.status} /></td>
                 <td className="px-4 py-3 text-[13px] text-[#5A5A5A]">{ra.submitTime || '-'}</td>
-                <td className="px-4 py-3 text-center"><button onClick={() => router.push(`/approvals/${ra.id}`)} className="text-[#2D3BFF] text-sm hover:text-[#0A0A0A]">查看</button></td>
+                <td className="px-4 py-3 text-center space-x-2">
+                  <button onClick={() => router.push(`/approvals/${ra.id}`)} className="text-[#2D3BFF] text-sm hover:text-[#0A0A0A]">查看</button>
+                  <button onClick={() => router.push(`/approvals/${ra.id}/edit`)} className="text-[#5A5A5A] text-sm hover:text-[#0A0A0A]">编辑</button>
+                  <button onClick={() => setDeleteTarget({ type: 'approval', id: ra.id })} className="text-red-500 text-sm hover:text-red-700">删除</button>
+                </td>
               </tr>
             ))}
           </tbody>

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { SearchableSelect } from '@/components/ui/searchable-select';
 import type { SelectOption } from '@/components/ui/searchable-select';
 import { FIELD_STYLES } from '@/lib/ui-constants';
@@ -121,8 +121,9 @@ const currencyOptions = ['人民币', '美元', '欧元', '日元'];
 
 export default function NewOpportunityPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [formData, setFormData] = useState({
-    customer: '',
+    customer: searchParams.get('customerName') || '',
     opportunityNumber: '',
     existingServiceContract: '',
     newSite: '',

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { SearchableSelect } from '@/components/ui/searchable-select';
 import { useApp, evaluateApprovalRules } from '@/lib/store';
 import { RuleTriggeredApprover, ServiceProduct } from '@/lib/types';
@@ -54,6 +54,7 @@ const mockInvoiceInfos = [
 
 export default function NewRiskControlPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { customers, approvalFields, approvalWorkflows, autoApprovalRules, addRiskApproval } = useApp();
 
   const [formData, setFormData] = useState({
@@ -68,7 +69,7 @@ export default function NewRiskControlPage() {
     warehouseLeaseRequirement: "",
     customServiceRequirement: "",
     customRequirementDescription: "",
-    companyName: "",
+    companyName: searchParams.get('companyName') || '',
     englishName: "",
     parentCompany: "",
     subsidiaryCompany: "",

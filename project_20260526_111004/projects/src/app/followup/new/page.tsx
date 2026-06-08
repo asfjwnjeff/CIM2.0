@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { SearchableSelect } from '@/components/ui/searchable-select';
 import type { SelectOption } from '@/components/ui/searchable-select';
 
@@ -99,8 +99,10 @@ const PencilIcon = ({ className = '' }: { className?: string }) => (
 
 export default function NewFollowupPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
 
-  const [selectedCustomer, setSelectedCustomer] = useState<string>('');
+  const [selectedCustomer, setSelectedCustomer] = useState<string>(searchParams.get('customerName') || '');
+  const [selectedCustomerId, setSelectedCustomerId] = useState<string>(searchParams.get('customerId') || '');
   const [selectedType, setSelectedType] = useState<string>('');
   const [followupTypeOther, setFollowupTypeOther] = useState('');
   const [selectedMethod, setSelectedMethod] = useState<string>('');

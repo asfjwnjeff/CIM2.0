@@ -126,6 +126,10 @@ export interface AppContextType {
   // 跟进记录管理
   addFollowUp: (followUp: Omit<FollowUpRecord, 'id' | 'createdAt'>) => void;
   updateFollowUp: (id: string, updates: Partial<FollowUpRecord>) => void;
+  deleteFollowUp: (id: string) => void;
+
+  // 商机管理
+  deleteOpportunity: (id: string) => void;
 
   // 客户协同操作
   updateCustomerProgress: (id: string, status: ProgressStatus) => void;
@@ -230,6 +234,8 @@ type Action =
   | { type: 'RESET_RISK_APPROVALS' }
   | { type: 'ADD_FOLLOWUP'; payload: Omit<FollowUpRecord, 'id' | 'createdAt'> }
   | { type: 'UPDATE_FOLLOWUP'; payload: { id: string; updates: Partial<FollowUpRecord> } }
+  | { type: 'DELETE_FOLLOWUP'; payload: string }
+  | { type: 'DELETE_OPPORTUNITY'; payload: string }
   | { type: 'ADD_SIGNING_ENTITY'; payload: Omit<SigningEntity, 'id' | 'createdAt'> }
   | { type: 'UPDATE_SIGNING_ENTITY'; payload: { id: string; updates: Partial<SigningEntity> } }
   | { type: 'DELETE_SIGNING_ENTITY'; payload: string }
@@ -499,6 +505,16 @@ function reducer(state: AppState, action: Action): AppState {
         followUps: state.followUps.map((fu: FollowUpRecord) =>
           fu.id === action.payload.id ? { ...fu, ...action.payload.updates } : fu
         ),
+      };
+    case 'DELETE_FOLLOWUP':
+      return {
+        ...state,
+        followUps: state.followUps.filter((fu: FollowUpRecord) => fu.id !== action.payload),
+      };
+    case 'DELETE_OPPORTUNITY':
+      return {
+        ...state,
+        opportunities: state.opportunities.filter((opp: Opportunity) => opp.id !== action.payload),
       };
     case 'ADD_SIGNING_ENTITY':
       return {
@@ -836,6 +852,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
     fetch(`/api/risk-approvals?id=${encodeURIComponent(id)}`, { method: 'DELETE' }).catch((e: unknown) => { console.error('[API] DELETE risk-approvals 失败:', e); });
   }, []);
 
+  const deleteFollowUp = useCallback((id: string) => {
+    dispatch({ type: 'DELETE_FOLLOWUP', payload: id });
+  }, []);
+
+  const deleteOpportunity = useCallback((id: string) => {
+    dispatch({ type: 'DELETE_OPPORTUNITY', payload: id });
+  }, []);
+
   // 审批字段配置管理
   const addApprovalField = useCallback((field: Omit<ApprovalField, 'id' | 'createdAt'>) => {
     dispatch({ type: 'ADD_APPROVAL_FIELD', payload: field });
@@ -945,6 +969,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         deleteRiskApproval,
         addFollowUp,
         updateFollowUp,
+        deleteFollowUp,
+        deleteOpportunity,
         updateCustomerProgress,
         collaborateCustomer,
         assignCustomer,
