@@ -110,7 +110,7 @@ export default function ApprovalEditPage() {
   const params = useParams();
   const id = params.id as string;
 
-  const { approvalFields, approvalWorkflows, autoApprovalRules, riskApprovals, updateRiskApproval } = useApp();
+  const { customers, approvalFields, approvalWorkflows, autoApprovalRules, riskApprovals, updateRiskApproval } = useApp();
   const approval = riskApprovals.find((a) => a.id === id) || riskApprovals[0];
 
   const STATUS_MAP: Record<string, { label: string; bg: string; text: string }> = {
@@ -298,7 +298,7 @@ export default function ApprovalEditPage() {
                 <div className="bg-white rounded-2xl shadow-sm p-6">
                   <h3 className="text-sm font-semibold text-[#0A0A0A] mb-4 pb-3 border-b border-[#EBEBEB]">公司信息</h3>
                   <div className="grid grid-cols-2 gap-4">
-                    <div><label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">公司全称 <span className="text-red-500">*</span></label><input type="text" value={formData.companyName} onChange={(e) => handleChange('companyName', e.target.value)} placeholder="签约名称" className="w-full bg-[#F5F5F5] border-none rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30" /></div>
+                    <div><label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">公司全称 <span className="text-red-500">*</span></label><SearchableSelect value={formData.companyName || ''} onChange={(value) => handleChange('companyName', value)} options={customers.map(c => ({ value: c.name, label: c.name }))} placeholder="请搜索选择客户公司" /></div>
                     <div><label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">英文名称</label><input type="text" value={formData.englishName} onChange={(e) => handleChange('englishName', e.target.value)} placeholder="境外客户必填" className="w-full bg-[#F5F5F5] border-none rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30" /></div>
                     <div><label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">集团（母）公司名称</label><input type="text" value={formData.parentCompany} onChange={(e) => handleChange('parentCompany', e.target.value)} placeholder="请输入集团母公司名称" className="w-full bg-[#F5F5F5] border-none rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30" /></div>
                     <div><label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">分（子）公司名称</label><input type="text" value={formData.subsidiaryCompany} onChange={(e) => handleChange('subsidiaryCompany', e.target.value)} placeholder="请输入分子公司名称" className="w-full bg-[#F5F5F5] border-none rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30" /></div>

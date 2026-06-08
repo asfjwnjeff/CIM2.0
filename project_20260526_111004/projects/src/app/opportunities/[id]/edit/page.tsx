@@ -623,49 +623,21 @@ export default function EditOpportunityPage() {
               <h3 className={sectionTitleClass}>人员信息</h3>
               <div>
                 <label className={labelClass}>负责人 <span className="text-red-500">*</span></label>
-                <SearchableSelect
-                  value={formData.responsiblePerson}
-                  onChange={(value) => handleInputChange('responsiblePerson', value)}
-                  options={responsiblePersons.map(p => ({ value: p, label: p }))}
-                  placeholder="请选择负责人"
-                />
-                {formData.responsiblePerson && (
-                  <div className="flex items-center gap-2 mt-2 p-2 bg-[#F5F5F5] rounded-lg">
-                    <div className="w-8 h-8 bg-[#2D3BFF] rounded-full flex items-center justify-center text-white text-sm">
-                      {formData.responsiblePerson.charAt(0)}
-                    </div>
-                    <span className="text-sm text-[#0A0A0A]">{formData.responsiblePerson}</span>
-                    <button className="ml-auto p-1 rounded hover:bg-[#EBEBEB]" onClick={() => handleInputChange('responsiblePerson', '')}>
-                      <XIcon />
-                    </button>
-                  </div>
-                )}
+                <div className="flex items-center gap-2">
+                  {formData.responsiblePerson ? (
+                    <span className="inline-flex items-center px-3 py-1.5 bg-[#F0F1FF] text-[#2D3BFF] rounded-lg text-sm font-medium">{formData.responsiblePerson}</span>
+                  ) : (
+                    <span className="text-sm text-[#999]">—</span>
+                  )}
+                </div>
               </div>
               <div>
                 <label className={labelClass}>协作人</label>
-                <button
-                  onClick={() => setCollaboratorModalOpen(true)}
-                  className="w-full bg-[#F5F5F5] border-none rounded-xl px-4 py-2.5 text-sm text-[#999999] hover:bg-[#EBEBEB] transition-all flex items-center gap-2"
-                >
-                  <UsersIcon /> {formData.collaborators.length > 0 ? `已选 ${formData.collaborators.length} 人` : '添加协作人'}
-                </button>
-                {formData.collaborators.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    {formData.collaborators.map((collaborator, idx) => (
-                      <div key={idx} className="flex items-center gap-1 p-1 pr-2 bg-[#F5F5F5] rounded-lg">
-                        <div className="w-6 h-6 bg-[#2D3BFF] rounded-full flex items-center justify-center text-white text-xs">
-                          {collaborator.charAt(0)}
-                        </div>
-                        <span className="text-xs text-[#0A0A0A]">{collaborator}</span>
-                        <button className="p-0.5 rounded hover:bg-[#EBEBEB]" onClick={() => {
-                          setFormData(prev => ({ ...prev, collaborators: prev.collaborators.filter(c => c !== collaborator) }));
-                        }}>
-                          <XIcon />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                <div className="flex flex-wrap gap-1.5">
+                  {(formData.collaborators || []).length > 0 ? formData.collaborators.map((c: string, i: number) => (
+                    <span key={i} className="inline-flex items-center px-3 py-1.5 bg-[#F0F1FF] text-[#2D3BFF] rounded-lg text-sm">{c}</span>
+                  )) : <span className="text-sm text-[#999]">—</span>}
+                </div>
               </div>
             </div>
 

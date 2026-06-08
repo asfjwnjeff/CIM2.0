@@ -54,7 +54,7 @@ const mockInvoiceInfos = [
 
 export default function NewRiskControlPage() {
   const router = useRouter();
-  const { approvalFields, approvalWorkflows, autoApprovalRules, addRiskApproval } = useApp();
+  const { customers, approvalFields, approvalWorkflows, autoApprovalRules, addRiskApproval } = useApp();
 
   const [formData, setFormData] = useState({
     isTradeAgent: "",
@@ -283,7 +283,12 @@ export default function NewRiskControlPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">公司全称 <span className="text-red-500">*</span></label>
-                    <input type="text" value={formData.companyName} onChange={(e) => handleChange("companyName", e.target.value)} placeholder="签约名称" className="w-full bg-[#F5F5F5] border-none rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30" />
+                    <SearchableSelect
+                      value={formData.companyName}
+                      onChange={(value) => handleChange("companyName", value)}
+                      options={customers.map(c => ({ value: c.name, label: c.name }))}
+                      placeholder="请搜索选择客户公司"
+                    />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">英文名称</label>

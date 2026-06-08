@@ -363,24 +363,23 @@ export default function FollowUpEditPage() {
                 
                 <div>
                   <label className="block text-sm font-medium text-[#5A5A5A] mb-2">负责人</label>
-                  <input
-                    type="text"
-                    value={owner}
-                    onChange={(e) => setOwner(e.target.value)}
-                    placeholder="请输入负责人"
-                    className="w-full bg-[#F5F5F5] border-none rounded-xl px-4 py-2.5 text-sm text-[#0A0A0A] focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/10 transition-all"
-                  />
+                  <div className="flex items-center gap-2">
+                    {owner ? (
+                      <span className="inline-flex items-center px-3 py-1.5 bg-[#F0F1FF] text-[#2D3BFF] rounded-lg text-sm font-medium">{owner}</span>
+                    ) : (
+                      <span className="text-sm text-[#999]">—</span>
+                    )}
+                  </div>
                 </div>
                 
                 <div>
                   <label className="block text-sm font-medium text-[#5A5A5A] mb-2">协同人</label>
-                  <input
-                    type="text"
-                    value={collaborators}
-                    onChange={(e) => setCollaborators(e.target.value)}
-                    placeholder="请输入协同人"
-                    className="w-full bg-[#F5F5F5] border-none rounded-xl px-4 py-2.5 text-sm text-[#0A0A0A] focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/10 transition-all"
-                  />
+                  <div className="flex flex-wrap gap-1.5">
+                    {collaborators ? collaborators.split(',').filter(Boolean).map((c: string, i: number) => (
+                      <span key={i} className="inline-flex items-center px-3 py-1.5 bg-[#F0F1FF] text-[#2D3BFF] rounded-lg text-sm">{c.trim()}</span>
+                    )) : <span className="text-sm text-[#999]">—</span>}
+                    {collaborators === '' && <span className="text-sm text-[#999]">—</span>}
+                  </div>
                 </div>
                 
                 <div>
