@@ -245,6 +245,9 @@ export interface Customer {
   responsiblePersons: string[];
   collaborators: string[];
   progressStatus: ProgressStatus;
+  contactPerson?: string;
+  contactPhone?: string;
+  contactEmail?: string;
   // 子模块信息
   basicInfo?: CompanyBasicInfo;
   businessInfo?: CompanyBusinessInfo;
@@ -313,9 +316,9 @@ export interface OrderMapping {
 
 // ==================== 客户 ====================
 
-export type FollowUpType = 'visit' | 'phone' | 'email' | 'meeting' | 'wechat' | 'other';
+export type FollowUpType = 'kpi_not_met' | 'contract_mgmt' | 'biz_meeting' | 'other_customer';
 export type FollowUpStatus = 'new' | 'discussing' | 'promoting' | 'completed' | 'cancelled' | 'success' | 'no_progress' | 'terminated';
-export type FollowUpMethod = 'onsite' | 'remote' | 'phone_call' | 'video' | 'email' | 'other';
+export type FollowUpMethod = 'phone_visit' | 'onsite_visit' | 'online_visit' | 'hmg_meeting';
 
 export interface FollowUpRecord {
   id: string;

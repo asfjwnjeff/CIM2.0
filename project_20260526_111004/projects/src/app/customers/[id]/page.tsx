@@ -890,7 +890,7 @@ function FollowUpTab({ customerFollowUps }: { customerFollowUps: ReturnType<type
             ) : customerFollowUps.map(fu => (
               <tr key={fu.id} className="hover:bg-[#F5F5F5]">
                 <td className="px-4 py-3 text-[13px] text-[#5A5A5A]">{fu.followUpDate || fu.date}</td>
-                <td className="px-4 py-3"><span className={`px-2 py-0.5 rounded-full text-xs font-medium ${fu.type === 'phone' ? 'bg-[#E8EBFF] text-[#2D3BFF]' : fu.type === 'email' ? 'bg-[#E6F7F0] text-[#0D8A5E]' : fu.type === 'meeting' ? 'bg-[#FFF4E8] text-[#E8850C]' : 'bg-[#F5F5F5] text-[#5A5A5A]'}`}>{fu.type === 'phone' ? '电话' : fu.type === 'email' ? '邮件' : fu.type === 'meeting' ? '面谈' : '其他'}</span></td>
+                <td className="px-4 py-3"><span className={`px-2 py-0.5 rounded-full text-xs font-medium ${fu.type === 'kpi_not_met' ? 'bg-[#FFEBEE] text-[#D63031]' : fu.type === 'contract_mgmt' ? 'bg-[#E8EBFF] text-[#2D3BFF]' : fu.type === 'biz_meeting' ? 'bg-[#FFF4E8] text-[#E8850C]' : 'bg-[#F5F5F5] text-[#5A5A5A]'}`}>{fu.type === 'kpi_not_met' ? 'KPI未达标' : fu.type === 'contract_mgmt' ? '合同管理' : fu.type === 'biz_meeting' ? '业务会议' : '其他客户事项'}</span></td>
                 <td className="px-4 py-3 text-[13px] text-[#0A0A0A]">{fu.method || '-'}</td>
                 <td className="px-4 py-3"><StatusBadgeSmall status={fu.status} /></td>
                 <td className="px-4 py-3 text-[13px] text-[#0A0A0A]">{fu.owner || '-'}</td>

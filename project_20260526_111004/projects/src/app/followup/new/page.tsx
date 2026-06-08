@@ -102,6 +102,7 @@ export default function NewFollowupPage() {
 
   const [selectedCustomer, setSelectedCustomer] = useState<string>('');
   const [selectedType, setSelectedType] = useState<string>('');
+  const [followupTypeOther, setFollowupTypeOther] = useState('');
   const [selectedMethod, setSelectedMethod] = useState<string>('');
   const [followupTime, setFollowupTime] = useState<string>('');
   const [nextFollowupTime, setNextFollowupTime] = useState<string>('');
@@ -204,23 +205,34 @@ export default function NewFollowupPage() {
                     value={selectedType}
                     onChange={(value) => setSelectedType(value)}
                     options={[
-                      { value: '电话', label: '电话' },
-                      { value: '拜访', label: '拜访' },
-                      { value: '邮件', label: '邮件' },
-                      { value: '会议', label: '会议' },
+                      { value: 'kpi_not_met', label: 'KPI未达标' },
+                      { value: 'contract_mgmt', label: '合同管理' },
+                      { value: 'biz_meeting', label: '业务会议' },
+                      { value: 'other_customer', label: '其他客户事项' },
                     ]}
                     placeholder="请选择类型"
                   />
+                  {selectedType === 'other_customer' && (
+                    <input
+                      type="text"
+                      value={followupTypeOther}
+                      onChange={(e) => setFollowupTypeOther(e.target.value)}
+                      placeholder="请输入其他客户事项说明"
+                      className="mt-2 w-full bg-[#F5F5F5] border-none rounded-xl px-4 py-2.5 text-sm text-[#0A0A0A] focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30"
+                    />
+                  )}
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-[#5A5A5A] mb-2">跟进方式</label>
                   <SearchableSelect
                     value={selectedMethod}
                     onChange={(value) => setSelectedMethod(value)}
                     options={[
-                      { value: '上门', label: '上门' },
-                      { value: '线上', label: '线上' },
+                      { value: 'phone_visit', label: '电话拜访' },
+                      { value: 'onsite_visit', label: '上门拜访' },
+                      { value: 'online_visit', label: '网络拜访' },
+                      { value: 'hmg_meeting', label: 'HMG现场会议' },
                     ]}
                     placeholder="请选择方式"
                   />

@@ -41,6 +41,9 @@ interface EditFormData {
   responsiblePersons: string[];
   collaborators: string[];
   progressStatus: ProgressStatus;
+  contactPerson: string;
+  contactPhone: string;
+  contactEmail: string;
   // 企业基本信息 - 新字段
   logoUrls: string[];
   unifiedSocialCreditCode: string;
@@ -116,6 +119,9 @@ function buildFormData(customer: ReturnType<typeof useApp>['customers'][number])
     responsiblePersons: customer.responsiblePersons || [],
     collaborators: customer.collaborators || [],
     progressStatus: customer.progressStatus || 'newly_acquired',
+    contactPerson: customer.contactPerson || '',
+    contactPhone: customer.contactPhone || '',
+    contactEmail: customer.contactEmail || '',
     logoUrls: customer.basicInfo?.logoUrls || [],
     unifiedSocialCreditCode: customer.basicInfo?.unifiedSocialCreditCode || '',
     countryRegion: customer.basicInfo?.countryRegion || '',
@@ -773,6 +779,18 @@ export default function EditCustomerPage() {
                   <div>
                     <label className={FIELD_STYLES.label}>结算主体</label>
                     <SearchableMultiSelect values={form.settlementEntityIds} onChange={(ids) => updateField('settlementEntityIds', ids)} options={getSettlementEntityOptions(settlementEntities)} placeholder="搜索并选择结算主体..." searchPlaceholder="搜索结算主体..." emptyText="未找到结算主体" />
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-[#5A5A5A] mb-1.5 block">联系人</label>
+                    <input type="text" value={form.contactPerson} onChange={e => updateField('contactPerson', e.target.value)} placeholder="请输入联系人姓名" className="w-full px-3 py-2 border border-[#D5D5D5] rounded-lg text-sm focus:outline-none focus:border-[#2D3BFF] focus:shadow-[0_0_0_2px_rgba(45,59,255,0.10)]" />
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-[#5A5A5A] mb-1.5 block">联系人电话</label>
+                    <input type="text" value={form.contactPhone} onChange={e => updateField('contactPhone', e.target.value)} placeholder="请输入联系人电话" className="w-full px-3 py-2 border border-[#D5D5D5] rounded-lg text-sm focus:outline-none focus:border-[#2D3BFF] focus:shadow-[0_0_0_2px_rgba(45,59,255,0.10)]" />
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-[#5A5A5A] mb-1.5 block">联系人邮箱</label>
+                    <input type="text" value={form.contactEmail} onChange={e => updateField('contactEmail', e.target.value)} placeholder="请输入联系人邮箱" className="w-full px-3 py-2 border border-[#D5D5D5] rounded-lg text-sm focus:outline-none focus:border-[#2D3BFF] focus:shadow-[0_0_0_2px_rgba(45,59,255,0.10)]" />
                   </div>
                 </div>
               </div>
