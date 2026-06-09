@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useApp } from '@/lib/store';
 import { useGroupFilter, GroupTabs, GroupManageDialog } from '@/components/groups';
 import { FIELD_META_MAP } from '@/lib/group-utils';
@@ -115,6 +116,7 @@ const ChevronRightIcon = ({ className }: { className?: string }) => (
 );
 
 export default function ApprovalsPage() {
+  const router = useRouter();
   const { currentUser, riskApprovals, deleteRiskApproval, updateRiskApproval, customers } = useApp();
 
   // 从 Store 读取风控审批数据，映射为列表显示格式
@@ -510,19 +512,15 @@ export default function ApprovalsPage() {
                       </td>
                       <td className="px-5 py-4 text-sm text-[#999999]">{rc.createdAt}</td>
                       <td className="px-5 py-4 text-center">
-                        <div className="flex items-center justify-center gap-2">
-                          <Link href={`/approvals/${rc.id}`}>
-                            <button className="px-3 py-1.5 text-sm text-[#2D3BFF] hover:bg-[#2D3BFF]/5 rounded-lg transition-all font-medium">
-                              查看
-                            </button>
-                          </Link>
+                        <div className="flex items-center justify-center gap-1">
+                          <button onClick={() => router.push(`/approvals/${rc.id}`)} className="px-3 py-1.5 text-sm text-[#2D3BFF] hover:bg-[#2D3BFF]/5 rounded-lg transition-all font-medium">
+                            查看
+                          </button>
                           {(rc.approvalStatus === '草稿' || rc.approvalStatus === '已驳回') ? (
                             <>
-                              <Link href={`/approvals/${rc.id}/edit`}>
-                                <button className="px-3 py-1.5 text-sm text-[#5A5A5A] hover:bg-[#F5F5F5] rounded-lg transition-all font-medium">
-                                  编辑
-                                </button>
-                              </Link>
+                              <button onClick={() => router.push(`/approvals/${rc.id}/edit`)} className="px-3 py-1.5 text-sm text-[#5A5A5A] hover:bg-[#F5F5F5] rounded-lg transition-all font-medium">
+                                编辑
+                              </button>
                               <button
                                 onClick={() => { if (confirm('确定要删除该审批记录吗？')) deleteRiskApproval(rc.id); }}
                                 className="px-3 py-1.5 text-sm text-[#D63031] hover:bg-[#FFEBEE] rounded-lg transition-all font-medium"
@@ -541,11 +539,9 @@ export default function ApprovalsPage() {
                               撤回
                             </button>
                           )}
-                          <Link href={`/approvals/${rc.id}?tab=history`}>
-                            <button className="px-3 py-1.5 text-sm text-[#5A5A5A] hover:bg-[#F5F5F5] rounded-lg transition-all font-medium">
-                              历史
-                            </button>
-                          </Link>
+                          <button onClick={() => router.push(`/approvals/${rc.id}?tab=history`)} className="px-3 py-1.5 text-sm text-[#5A5A5A] hover:bg-[#F5F5F5] rounded-lg transition-all font-medium">
+                            历史
+                          </button>
                         </div>
                       </td>
                     </tr>
