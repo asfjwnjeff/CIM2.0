@@ -528,17 +528,17 @@ export default function FollowUpPage() {
                             <div className="flex items-center gap-2">
                               <button
                                 onClick={() => router.push(`/followup/${followUp.id}`)}
-                                className="text-[#2D3BFF] text-sm font-medium hover:underline"
+                                className="text-[#2D3BFF] text-sm font-medium whitespace-nowrap hover:underline"
                               >
                                 查看
                               </button>
                               <button
                                 onClick={() => router.push(`/followup/${followUp.id}/edit`)}
-                                className="text-[#2D3BFF] text-sm font-medium hover:underline"
+                                className="text-[#2D3BFF] text-sm font-medium whitespace-nowrap hover:underline"
                               >
                                 编辑
                               </button>
-                              <button className="text-[#DC3545] text-sm font-medium hover:underline">
+                              <button className="text-[#DC3545] text-sm font-medium whitespace-nowrap hover:underline">
                                 删除
                               </button>
                             </div>
@@ -592,19 +592,19 @@ export default function FollowUpPage() {
                             <div className="flex items-center gap-1">
                               <button
                                 onClick={() => router.push(`/followup/${followUp.id}`)}
-                                className="text-[#2D3BFF] text-sm hover:underline"
+                                className="text-[#2D3BFF] text-sm whitespace-nowrap hover:underline"
                               >
                                 查看
                               </button>
                               <span className="text-[#CCCCCC]">·</span>
                               <button
                                 onClick={() => router.push(`/followup/${followUp.id}/edit`)}
-                                className="text-[#2D3BFF] text-sm hover:underline"
+                                className="text-[#2D3BFF] text-sm whitespace-nowrap hover:underline"
                               >
                                 编辑
                               </button>
                               <span className="text-[#CCCCCC]">·</span>
-                              <button className="text-[#DC3545] text-sm hover:underline">
+                              <button className="text-[#DC3545] text-sm whitespace-nowrap hover:underline">
                                 删除
                               </button>
                             </div>
