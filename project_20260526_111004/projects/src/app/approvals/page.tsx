@@ -513,33 +513,33 @@ export default function ApprovalsPage() {
                       <td className="px-5 py-4 text-sm text-[#999999]">{rc.createdAt}</td>
                       <td className="px-5 py-4 text-center">
                         <div className="flex items-center justify-center gap-1">
-                          <button onClick={() => router.push(`/approvals/${rc.id}`)} className="px-3 py-1.5 text-sm text-[#2D3BFF] hover:bg-[#2D3BFF]/5 rounded-lg transition-all font-medium">
+                          <button onClick={() => router.push(`/approvals/${rc.id}`)} className="px-3 py-1.5 text-sm whitespace-nowrap text-[#2D3BFF] hover:bg-[#2D3BFF]/5 rounded-lg transition-all font-medium">
                             查看
                           </button>
                           {(rc.approvalStatus === '草稿' || rc.approvalStatus === '已驳回') ? (
                             <>
-                              <button onClick={() => router.push(`/approvals/${rc.id}/edit`)} className="px-3 py-1.5 text-sm text-[#5A5A5A] hover:bg-[#F5F5F5] rounded-lg transition-all font-medium">
+                              <button onClick={() => router.push(`/approvals/${rc.id}/edit`)} className="px-3 py-1.5 text-sm whitespace-nowrap text-[#5A5A5A] hover:bg-[#F5F5F5] rounded-lg transition-all font-medium">
                                 编辑
                               </button>
                               <button
                                 onClick={() => { if (confirm('确定要删除该审批记录吗？')) deleteRiskApproval(rc.id); }}
-                                className="px-3 py-1.5 text-sm text-[#D63031] hover:bg-[#FFEBEE] rounded-lg transition-all font-medium"
+                                className="px-3 py-1.5 text-sm whitespace-nowrap text-[#D63031] hover:bg-[#FFEBEE] rounded-lg transition-all font-medium"
                               >
                                 删除
                               </button>
                             </>
                           ) : (
-                            <span className="px-3 py-1.5 text-sm text-[#D5D5D5] cursor-not-allowed">编辑</span>
+                            <span className="px-3 py-1.5 text-sm whitespace-nowrap text-[#D5D5D5] cursor-not-allowed">编辑</span>
                           )}
                           {rc.approvalStatus === '审批中' && (
                             <button
                               onClick={() => { if (confirm('确定要撤回该审批吗？')) handleWithdraw(rc.id); }}
-                              className="px-3 py-1.5 text-sm text-[#E8850C] hover:bg-[#FFF7ED] rounded-lg transition-all font-medium"
+                              className="px-3 py-1.5 text-sm whitespace-nowrap text-[#E8850C] hover:bg-[#FFF7ED] rounded-lg transition-all font-medium"
                             >
                               撤回
                             </button>
                           )}
-                          <button onClick={() => router.push(`/approvals/${rc.id}?tab=history`)} className="px-3 py-1.5 text-sm text-[#5A5A5A] hover:bg-[#F5F5F5] rounded-lg transition-all font-medium">
+                          <button onClick={() => router.push(`/approvals/${rc.id}?tab=history`)} className="px-3 py-1.5 text-sm whitespace-nowrap text-[#5A5A5A] hover:bg-[#F5F5F5] rounded-lg transition-all font-medium">
                             历史
                           </button>
                         </div>

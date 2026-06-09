@@ -925,9 +925,9 @@ function FollowUpTab({ customerFollowUps, setDeleteTarget, customer }: { custome
                 <td className="px-4 py-3 text-[13px] text-[#5A5A5A]">{fu.contactPerson || '-'}</td>
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-2">
-                  <button onClick={() => router.push(`/followup/${fu.id}`)} className="text-[#2D3BFF] text-sm hover:text-[#0A0A0A]">查看</button>
-                  <button onClick={() => router.push(`/followup/${fu.id}/edit`)} className="text-[#5A5A5A] text-sm hover:text-[#0A0A0A]">编辑</button>
-                  <button onClick={() => setDeleteTarget({ type: 'followup', id: fu.id })} className="text-red-500 text-sm hover:text-red-700">删除</button>
+                  <button onClick={() => router.push(`/followup/${fu.id}`)} className="text-[#2D3BFF] text-sm whitespace-nowrap hover:text-[#0A0A0A]">查看</button>
+                  <button onClick={() => router.push(`/followup/${fu.id}/edit`)} className="text-[#5A5A5A] text-sm whitespace-nowrap hover:text-[#0A0A0A]">编辑</button>
+                  <button onClick={() => setDeleteTarget({ type: 'followup', id: fu.id })} className="text-red-500 text-sm whitespace-nowrap hover:text-red-700">删除</button>
                   </div>
                 </td>
               </tr>
@@ -961,7 +961,7 @@ function OpportunitiesTab({ customerOpportunities, setDeleteTarget, customer }: 
                 <td className="px-4 py-3"><StageBadge stage={opp.salesStage || opp.stage} /></td>
                 <td className="px-4 py-3 text-[13px] text-[#0A0A0A]">¥{(opp.opportunityAmount || opp.amount || 0).toLocaleString()}</td>
                 <td className="px-4 py-3 text-[13px] text-[#5A5A5A]">{opp.owner || '-'}</td>
-                <td className="px-4 py-3"><div className="flex items-center gap-2"><button onClick={() => router.push(`/opportunities/${opp.id}`)} className="text-[#2D3BFF] text-sm hover:text-[#0A0A0A]">查看</button><button onClick={() => router.push(`/opportunities/${opp.id}/edit`)} className="text-[#5A5A5A] text-sm hover:text-[#0A0A0A]">编辑</button><button onClick={() => setDeleteTarget({ type: 'opportunity', id: opp.id })} className="text-red-500 text-sm hover:text-red-700">删除</button></div></td>
+                <td className="px-4 py-3"><div className="flex items-center gap-2"><button onClick={() => router.push(`/opportunities/${opp.id}`)} className="text-[#2D3BFF] text-sm whitespace-nowrap hover:text-[#0A0A0A]">查看</button><button onClick={() => router.push(`/opportunities/${opp.id}/edit`)} className="text-[#5A5A5A] text-sm whitespace-nowrap hover:text-[#0A0A0A]">编辑</button><button onClick={() => setDeleteTarget({ type: 'opportunity', id: opp.id })} className="text-red-500 text-sm whitespace-nowrap hover:text-red-700">删除</button></div></td>
               </tr>
             ))}
           </tbody>
@@ -995,9 +995,9 @@ function ApprovalsTab({ customerRiskApprovals, setDeleteTarget, customer }: { cu
                 <td className="px-4 py-3 text-[13px] text-[#5A5A5A]">{ra.submitTime || '-'}</td>
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-2">
-                  <button onClick={() => router.push(`/approvals/${ra.id}`)} className="text-[#2D3BFF] text-sm hover:text-[#0A0A0A]">查看</button>
-                  <button onClick={() => router.push(`/approvals/${ra.id}/edit`)} className="text-[#5A5A5A] text-sm hover:text-[#0A0A0A]">编辑</button>
-                  <button onClick={() => setDeleteTarget({ type: 'approval', id: ra.id })} className="text-red-500 text-sm hover:text-red-700">删除</button>
+                  <button onClick={() => router.push(`/approvals/${ra.id}`)} className="text-[#2D3BFF] text-sm whitespace-nowrap hover:text-[#0A0A0A]">查看</button>
+                  <button onClick={() => router.push(`/approvals/${ra.id}/edit`)} className="text-[#5A5A5A] text-sm whitespace-nowrap hover:text-[#0A0A0A]">编辑</button>
+                  <button onClick={() => setDeleteTarget({ type: 'approval', id: ra.id })} className="text-red-500 text-sm whitespace-nowrap hover:text-red-700">删除</button>
                   </div>
                 </td>
               </tr>
