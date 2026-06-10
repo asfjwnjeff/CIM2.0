@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 
 export const dynamic = 'force-dynamic';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -99,7 +99,7 @@ const PencilIcon = ({ className = '' }: { className?: string }) => (
   </svg>
 );
 
-export default function NewFollowupPage() {
+function FollowupFormContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -418,5 +418,13 @@ export default function NewFollowupPage() {
           </div>
         </div>
       </div>
+  );
+}
+
+export default function NewFollowupPage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center min-h-screen text-[#999999]">加载中...</div>}>
+      <FollowupFormContent />
+    </Suspense>
   );
 }

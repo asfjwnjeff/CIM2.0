@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, Suspense } from "react";
 
 export const dynamic = 'force-dynamic';
 import { useRouter, useSearchParams } from "next/navigation";
@@ -54,7 +54,7 @@ const mockInvoiceInfos = [
   { id: "inv10", title: "8655 - 长江存储科技有限责任公司", taxNumber: "91420100MA4KN4K47W" },
 ];
 
-export default function NewRiskControlPage() {
+function RiskControlFormContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { customers, approvalFields, approvalWorkflows, autoApprovalRules, addRiskApproval } = useApp();
@@ -727,5 +727,13 @@ export default function NewRiskControlPage() {
           </div>
         )}
       </div>
+  );
+}
+
+export default function NewRiskControlPage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center min-h-screen text-[#999999]">加载中...</div>}>
+      <RiskControlFormContent />
+    </Suspense>
   );
 }

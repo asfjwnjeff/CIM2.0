@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 
 export const dynamic = 'force-dynamic';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -121,7 +121,7 @@ const peerInfluenceOptions = ['高', '中', '低'];
 // 结算货币选项
 const currencyOptions = ['人民币', '美元', '欧元', '日元'];
 
-export default function NewOpportunityPage() {
+function OpportunityFormContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [formData, setFormData] = useState({
@@ -684,4 +684,12 @@ export default function NewOpportunityPage() {
         </div>
       )}
   </>);
+}
+
+export default function NewOpportunityPage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center min-h-screen text-[#999999]">加载中...</div>}>
+      <OpportunityFormContent />
+    </Suspense>
+  );
 }
