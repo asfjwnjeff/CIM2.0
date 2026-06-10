@@ -1,27 +1,33 @@
 @echo off
-chcp 65001 >nul
-title CIM 2.0 开发服务器
-
 cd /d "%~dp0"
 
 echo ================================
-echo   CIM 2.0 开发服务器
+echo   CIM 2.0 Dev Server
 echo ================================
 echo.
-echo 正在后台启动服务器...
 
-bash scripts/start-dev.sh
+set BASH=
+if exist "D:\Git\usr\bin\bash.exe" set BASH=D:\Git\usr\bin\bash.exe
+if exist "C:\Program Files\Git\usr\bin\bash.exe" set BASH=C:\Program Files\Git\usr\bin\bash.exe
+if exist "C:\Program Files\Git\bin\bash.exe" set BASH=C:\Program Files\Git\bin\bash.exe
 
-echo.
-echo 正在打开浏览器...
+if "%BASH%"=="" (
+    echo ERROR: bash.exe not found!
+    echo Please install Git for Windows.
+    pause
+    exit /b 1
+)
+
+echo Starting server in background...
+"%BASH%" scripts/start-dev.sh
+
+echo Opening browser...
 start http://localhost:5000
 
 echo.
-echo 服务器已在后台运行!
-echo 访问地址: http://localhost:5000
-echo 停止服务器: 双击 stop-cim.bat 或在项目目录运行 pnpm stop-dev
-echo.
-echo 可以关闭此窗口，服务器不会停止。
+echo Server is running at http://localhost:5000
+echo You can close this window now.
+echo To stop: double-click stop-cim.bat
 echo ================================
 
 timeout /t 3 >nul
