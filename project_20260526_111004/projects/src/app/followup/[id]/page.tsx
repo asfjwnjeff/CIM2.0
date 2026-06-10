@@ -81,8 +81,8 @@ const MessageSquareIcon = ({ className = '' }: { className?: string }) => (
 const followUpDataByCompany: Record<string, any> = {
   '1': {
     companyName: '应用材料(中国)有限公司',
-    followUpType: 'phone',
-    followUpMethod: '电话',
+    followUpType: 'biz_meeting',
+    followUpMethod: 'phone_visit',
     followUpDate: '2025-03-15',
     followUpStatus: 'discussing',
     owner: '张经理',
@@ -110,8 +110,8 @@ const followUpDataByCompany: Record<string, any> = {
   },
   '2': {
     companyName: '飞雅贸易(上海)有限公司',
-    followUpType: 'meeting',
-    followUpMethod: '现场',
+    followUpType: 'biz_meeting',
+    followUpMethod: 'onsite_visit',
     followUpDate: '2025-03-14',
     followUpStatus: 'promoting',
     owner: '王经理',
@@ -139,8 +139,8 @@ const followUpDataByCompany: Record<string, any> = {
   },
   '3': {
     companyName: '荏原机械(中国)有限公司',
-    followUpType: 'email',
-    followUpMethod: '邮件',
+    followUpType: 'contract_mgmt',
+    followUpMethod: 'online_visit',
     followUpDate: '2025-03-13',
     followUpStatus: 'success',
     owner: '李经理',
@@ -176,10 +176,17 @@ const followUpStatusMap: Record<string, { label: string; color: string; bgColor:
 };
 
 const followUpTypeMap: Record<string, string> = {
-  'phone': '电话沟通',
-  'email': '邮件',
-  'meeting': '会议',
-  'other': '其他',
+  'kpi_not_met': 'KPI未达标',
+  'contract_mgmt': '合同管理',
+  'biz_meeting': '业务会议',
+  'other_customer': '其他客户事项',
+};
+
+const followUpMethodMap: Record<string, string> = {
+  'phone_visit': '电话拜访',
+  'onsite_visit': '上门拜访',
+  'online_visit': '网络拜访',
+  'hmg_meeting': 'HMG现场会议',
 };
 
 export default function FollowUpDetailPage() {
@@ -245,7 +252,7 @@ export default function FollowUpDetailPage() {
                 <div>
                   <label className="block text-sm font-medium text-[#5A5A5A] mb-2">跟进方式</label>
                   <div className="w-full bg-[#F5F5F5] border-none rounded-xl px-4 py-2.5 text-sm text-[#0A0A0A]">
-                    {data.followUpMethod}
+                    {followUpMethodMap[data.followUpMethod] || data.followUpMethod}
                   </div>
                 </div>
                 
@@ -258,7 +265,7 @@ export default function FollowUpDetailPage() {
                 
                 <div>
                   <label className="block text-sm font-medium text-[#5A5A5A] mb-2">跟进状态</label>
-                  <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium"
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium whitespace-nowrap"
                        style={{ backgroundColor: statusConfig.bgColor, color: statusConfig.color }}>
                     {statusConfig.label}
                   </div>

@@ -78,14 +78,12 @@ export const FOLLOWUP_FIELD_META: GroupFieldMeta[] = [
     { value: 'terminated', label: '合同终止' },
   ]},
   { key: 'type', label: '跟进类型', type: 'select', options: [
-    { value: 'visit', label: '拜访' }, { value: 'phone', label: '电话' },
-    { value: 'email', label: '邮件' }, { value: 'meeting', label: '会议' },
-    { value: 'wechat', label: '微信' }, { value: 'other', label: '其他' },
+    { value: 'kpi_not_met', label: 'KPI未达标' }, { value: 'contract_mgmt', label: '合同管理' },
+    { value: 'biz_meeting', label: '业务会议' }, { value: 'other_customer', label: '其他客户事项' },
   ]},
   { key: 'method', label: '跟进方式', type: 'select', options: [
-    { value: 'onsite', label: '现场' }, { value: 'remote', label: '远程' },
-    { value: 'phone_call', label: '电话' }, { value: 'video', label: '视频' },
-    { value: 'email', label: '邮件' }, { value: 'other', label: '其他' },
+    { value: 'phone_visit', label: '电话拜访' }, { value: 'onsite_visit', label: '上门拜访' },
+    { value: 'online_visit', label: '网络拜访' }, { value: 'hmg_meeting', label: 'HMG现场会议' },
   ]},
   { key: 'date', label: '跟进日期', type: 'date' },
   { key: 'createdAt', label: '创建时间', type: 'date' },

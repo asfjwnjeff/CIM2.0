@@ -919,7 +919,7 @@ function FollowUpTab({ customerFollowUps, setDeleteTarget, customer }: { custome
               <tr key={fu.id} className="hover:bg-[#F5F5F5]">
                 <td className="px-4 py-3 text-[13px] text-[#5A5A5A]">{fu.followUpDate || fu.date}</td>
                 <td className="px-4 py-3"><span className={`px-2 py-0.5 rounded-full text-xs font-medium ${fu.type === 'kpi_not_met' ? 'bg-[#FFEBEE] text-[#D63031]' : fu.type === 'contract_mgmt' ? 'bg-[#E8EBFF] text-[#2D3BFF]' : fu.type === 'biz_meeting' ? 'bg-[#FFF4E8] text-[#E8850C]' : 'bg-[#F5F5F5] text-[#5A5A5A]'}`}>{fu.type === 'kpi_not_met' ? 'KPI未达标' : fu.type === 'contract_mgmt' ? '合同管理' : fu.type === 'biz_meeting' ? '业务会议' : '其他客户事项'}</span></td>
-                <td className="px-4 py-3 text-[13px] text-[#0A0A0A]">{fu.method || '-'}</td>
+                <td className="px-4 py-3 text-[13px] text-[#0A0A0A]">{fu.method === 'phone_visit' ? '电话拜访' : fu.method === 'onsite_visit' ? '上门拜访' : fu.method === 'online_visit' ? '网络拜访' : fu.method === 'hmg_meeting' ? 'HMG现场会议' : (fu.method || '-')}</td>
                 <td className="px-4 py-3"><StatusBadgeSmall status={fu.status} /></td>
                 <td className="px-4 py-3 text-[13px] text-[#0A0A0A]">{fu.owner || '-'}</td>
                 <td className="px-4 py-3 text-[13px] text-[#5A5A5A]">{fu.contactPerson || '-'}</td>
@@ -1046,8 +1046,8 @@ function StatusBadgeSmall({ status }: { status?: string }) {
     terminated: { bg: 'bg-[#FFEBEE]', text: 'text-[#D63031]', label: '合同终止' },
   };
   const m = map[status || ''];
-  if (!m) return <span className="px-2 py-0.5 text-xs text-[#5A5A5A]">{status || '-'}</span>;
-  return <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${m.bg} ${m.text}`}>{m.label}</span>;
+  if (!m) return <span className="px-2 py-0.5 text-xs whitespace-nowrap text-[#5A5A5A]">{status || '-'}</span>;
+  return <span className={`px-2 py-0.5 rounded-full text-xs font-medium whitespace-nowrap ${m.bg} ${m.text}`}>{m.label}</span>;
 }
 
 function StageBadge({ stage }: { stage?: string }) {

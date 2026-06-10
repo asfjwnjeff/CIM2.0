@@ -113,8 +113,8 @@ const followUpDataByCompany: Record<string, any> = {
   '1': {
     companyName: '应用材料(中国)有限公司',
     customerId: '1',
-    followUpType: 'phone',
-    followUpMethod: '电话',
+    followUpType: 'biz_meeting',
+    followUpMethod: 'phone_visit',
     followUpDate: '2025-03-15',
     followUpStatus: 'discussing',
     owner: '张经理',
@@ -144,8 +144,8 @@ const followUpDataByCompany: Record<string, any> = {
   '2': {
     companyName: '飞雅贸易(上海)有限公司',
     customerId: '2',
-    followUpType: 'meeting',
-    followUpMethod: '现场',
+    followUpType: 'biz_meeting',
+    followUpMethod: 'onsite_visit',
     followUpDate: '2025-03-14',
     followUpStatus: 'promoting',
     owner: '王经理',
@@ -175,8 +175,8 @@ const followUpDataByCompany: Record<string, any> = {
   '3': {
     companyName: '荏原机械(中国)有限公司',
     customerId: '3',
-    followUpType: 'email',
-    followUpMethod: '邮件',
+    followUpType: 'contract_mgmt',
+    followUpMethod: 'online_visit',
     followUpDate: '2025-03-13',
     followUpStatus: 'success',
     owner: '李经理',
@@ -310,10 +310,10 @@ export default function FollowUpEditPage() {
                     value={followUpType}
                     onChange={(value) => setFollowUpType(value)}
                     options={[
-                      { value: 'phone', label: '电话沟通' },
-                      { value: 'email', label: '邮件' },
-                      { value: 'meeting', label: '会议' },
-                      { value: 'other', label: '其他' },
+                      { value: 'kpi_not_met', label: 'KPI未达标' },
+                      { value: 'contract_mgmt', label: '合同管理' },
+                      { value: 'biz_meeting', label: '业务会议' },
+                      { value: 'other_customer', label: '其他客户事项' },
                     ]}
                     placeholder="请选择类型"
                   />
@@ -325,11 +325,10 @@ export default function FollowUpEditPage() {
                     value={followUpMethod}
                     onChange={(value) => setFollowUpMethod(value)}
                     options={[
-                      { value: '电话', label: '电话' },
-                      { value: '邮件', label: '邮件' },
-                      { value: '现场', label: '现场' },
-                      { value: '视频', label: '视频' },
-                      { value: '会议', label: '会议' },
+                      { value: 'phone_visit', label: '电话拜访' },
+                      { value: 'onsite_visit', label: '上门拜访' },
+                      { value: 'online_visit', label: '网络拜访' },
+                      { value: 'hmg_meeting', label: 'HMG现场会议' },
                     ]}
                     placeholder="请选择方式"
                   />

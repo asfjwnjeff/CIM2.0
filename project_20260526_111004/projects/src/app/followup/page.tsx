@@ -119,8 +119,8 @@ const mockFollowUps = [
   {
     id: '1',
     customerId: '1',
-    type: 'phone',
-    method: '电话',
+    type: 'biz_meeting',
+    method: 'phone_visit',
     followUpDate: '2025-06-15',
     status: 'discussing',
     owner: '张经理',
@@ -134,8 +134,8 @@ const mockFollowUps = [
   {
     id: '2',
     customerId: '2',
-    type: 'meeting',
-    method: '现场',
+    type: 'biz_meeting',
+    method: 'onsite_visit',
     followUpDate: '2025-06-14',
     status: 'promoting',
     owner: '张经理',
@@ -149,8 +149,8 @@ const mockFollowUps = [
   {
     id: '3',
     customerId: '3',
-    type: 'email',
-    method: '邮件',
+    type: 'contract_mgmt',
+    method: 'online_visit',
     followUpDate: '2025-06-13',
     status: 'success',
     owner: '李主管',
@@ -164,8 +164,8 @@ const mockFollowUps = [
   {
     id: '4',
     customerId: '4',
-    type: 'phone',
-    method: '电话',
+    type: 'biz_meeting',
+    method: 'phone_visit',
     followUpDate: '2025-06-12',
     status: 'no_progress',
     owner: '李主管',
@@ -179,8 +179,8 @@ const mockFollowUps = [
   {
     id: '5',
     customerId: '5',
-    type: 'meeting',
-    method: '视频',
+    type: 'biz_meeting',
+    method: 'online_visit',
     followUpDate: '2025-06-10',
     status: 'new',
     owner: '张经理',
@@ -272,20 +272,32 @@ export default function FollowUpPage() {
 
   const getTypeLabel = (type: string) => {
     switch (type) {
-      case 'phone': return '电话沟通';
-      case 'email': return '邮件';
-      case 'meeting': return '会议';
-      case 'other': return '其他';
+      case 'kpi_not_met': return 'KPI未达标';
+      case 'contract_mgmt': return '合同管理';
+      case 'biz_meeting': return '业务会议';
+      case 'other_customer': return '其他客户事项';
       default: return type;
+    }
+  };
+
+
+  const getMethodLabel = (method?: string) => {
+    if (!method) return '-';
+    switch (method) {
+      case 'phone_visit': return '电话拜访';
+      case 'onsite_visit': return '上门拜访';
+      case 'online_visit': return '网络拜访';
+      case 'hmg_meeting': return 'HMG现场会议';
+      default: return method;
     }
   };
 
   const getTypeIcon = (type: string) => {
     switch (type) {
-      case 'phone': return PhoneIcon;
-      case 'email': return MailIcon;
-      case 'meeting': return UsersIcon;
-      case 'other': return MessageSquareIcon;
+      case 'kpi_not_met': return FileTextIcon;
+      case 'contract_mgmt': return FileTextIcon;
+      case 'biz_meeting': return UsersIcon;
+      case 'other_customer': return MessageSquareIcon;
       default: return MessageSquareIcon;
     }
   };
@@ -406,10 +418,10 @@ export default function FollowUpPage() {
                   className="w-full bg-[#F5F5F5] border-none rounded-lg px-4 py-2.5 text-sm text-[#0A0A0A] focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/10 transition-all"
                 >
                   <option value="all">全部类型</option>
-                  <option value="phone">电话沟通</option>
-                  <option value="email">邮件</option>
-                  <option value="meeting">会议</option>
-                  <option value="other">其他</option>
+                  <option value="kpi_not_met">KPI未达标</option>
+                  <option value="contract_mgmt">合同管理</option>
+                  <option value="biz_meeting">业务会议</option>
+                  <option value="other_customer">其他客户事项</option>
                 </select>
               </div>
               <div>
@@ -420,11 +432,10 @@ export default function FollowUpPage() {
                   className="w-full bg-[#F5F5F5] border-none rounded-lg px-4 py-2.5 text-sm text-[#0A0A0A] focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/10 transition-all"
                 >
                   <option value="all">全部方式</option>
-                  <option value="电话">电话</option>
-                  <option value="邮件">邮件</option>
-                  <option value="现场">现场</option>
-                  <option value="视频">视频</option>
-                  <option value="会议">会议</option>
+                  <option value="phone_visit">电话拜访</option>
+                  <option value="online_visit">网络拜访</option>
+                  <option value="onsite_visit">上门拜访</option>
+                  <option value="hmg_meeting">HMG现场会议</option>
                 </select>
               </div>
               <div>
@@ -488,13 +499,13 @@ export default function FollowUpPage() {
                             {getTypeLabel(followUp.type)}
                           </td>
                           <td className="px-4 py-3 text-sm text-[#5A5A5A]">
-                            {followUp.method}
+                            {getMethodLabel(followUp.method)}
                           </td>
                           <td className="px-4 py-3 text-sm text-[#5A5A5A]">
                             {followUp.followUpDate}
                           </td>
                           <td className="px-4 py-3">
-                            <span className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ${getStatusBadgeClass(followUp.status)}`}>
+                            <span className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium whitespace-nowrap ${getStatusBadgeClass(followUp.status)}`}>
                               {getStatusLabel(followUp.status)}
                             </span>
                           </td>
@@ -582,7 +593,7 @@ export default function FollowUpPage() {
                               {getCustomerName(followUp.customerId)}
                             </h3>
                             <p className="text-sm text-[#5A5A5A] mt-1">
-                              {getTypeLabel(followUp.type)} · {followUp.method || '-'} · {getContactName(followUp.contactId)} · {getStatusLabel(followUp.status)}
+                              {getTypeLabel(followUp.type)} · {getMethodLabel(followUp.method)} · {getContactName(followUp.contactId)} · {getStatusLabel(followUp.status)}
                             </p>
                           </div>
                           <div className="flex items-center gap-2">
