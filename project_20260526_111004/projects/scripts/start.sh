@@ -3,9 +3,9 @@ set -Eeuo pipefail
 
 COZE_WORKSPACE_PATH="${COZE_WORKSPACE_PATH:-$(pwd)}"
 
-PORT=5000
+# Render 使用 PORT 环境变量，兼容已有 DEPLOY_RUN_PORT
+PORT="${PORT:-5000}"
 DEPLOY_RUN_PORT="${DEPLOY_RUN_PORT:-$PORT}"
-
 
 start_service() {
     cd "${COZE_WORKSPACE_PATH}"

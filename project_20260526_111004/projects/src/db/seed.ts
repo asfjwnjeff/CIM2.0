@@ -149,7 +149,7 @@ const MIGRATIONS = [
   `ALTER TABLE customers ADD COLUMN created_by TEXT`,
 ];
 
-async function seed() {
+export async function seed() {
   console.log('正在初始化数据库...');
   const db = await getDb();
 
@@ -400,7 +400,10 @@ async function seed() {
   console.log('\n数据库初始化完成! data/cim.db');
 }
 
-seed().catch((err) => {
-  console.error('种子数据写入失败:', err);
-  process.exit(1);
-});
+// 直接运行 seed.ts 时自动执行；被 import 时不执行
+if (require.main === module || process.argv[1]?.includes('seed')) {
+  seed().catch((err) => {
+    console.error('种子数据写入失败:', err);
+    process.exit(1);
+  });
+}
