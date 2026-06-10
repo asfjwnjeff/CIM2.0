@@ -4,6 +4,7 @@ export interface NavItem {
   label: string;
   href: string;
   icon: React.ReactNode;
+  permissionCode?: string;  // 权限码，用于菜单过滤
   children?: NavItem[];
 }
 
@@ -76,44 +77,45 @@ export const NavIcons = {
 /* ====== 导航菜单配置 ====== */
 
 export const NAV_ITEMS: NavItem[] = [
-  { label: '首页', href: '/', icon: <NavIcons.Dashboard /> },
-  { label: '客户管理', href: '/customers', icon: <NavIcons.Users /> },
-  { label: '客户跟进', href: '/followup', icon: <NavIcons.StickyNote /> },
-  { label: '商机管理', href: '/opportunities', icon: <NavIcons.Briefcase /> },
-  { label: '售前报价', href: '/quotes', icon: <NavIcons.FileText /> },
+  { label: '首页', href: '/', icon: <NavIcons.Dashboard />, permissionCode: 'dashboard:view' },
+  { label: '客户管理', href: '/customers', icon: <NavIcons.Users />, permissionCode: 'customers:view' },
+  { label: '客户跟进', href: '/followup', icon: <NavIcons.StickyNote />, permissionCode: 'followup:view' },
+  { label: '商机管理', href: '/opportunities', icon: <NavIcons.Briefcase />, permissionCode: 'opportunities:view' },
+  { label: '售前报价', href: '/quotes', icon: <NavIcons.FileText />, permissionCode: 'quotes:view' },
   {
-    label: '风控审批', href: '/approvals', icon: <NavIcons.ShieldCheck />,
+    label: '风控审批', href: '/approvals', icon: <NavIcons.ShieldCheck />, permissionCode: 'approvals:view',
     children: [
-      { label: '审批列表', href: '/approvals', icon: <NavIcons.ShieldCheck /> },
-      { label: '流程配置', href: '/approval/workflows', icon: <NavIcons.Settings /> },
-      { label: '自动规则', href: '/approval/auto-rules', icon: <NavIcons.Settings /> },
-      { label: '字段配置', href: '/approval/fields', icon: <NavIcons.Settings /> },
+      { label: '审批列表', href: '/approvals', icon: <NavIcons.ShieldCheck />, permissionCode: 'approvals:view' },
+      { label: '流程配置', href: '/approval/workflows', icon: <NavIcons.Settings />, permissionCode: 'approval.workflows:view' },
+      { label: '自动规则', href: '/approval/auto-rules', icon: <NavIcons.Settings />, permissionCode: 'approval.rules:view' },
+      { label: '字段配置', href: '/approval/fields', icon: <NavIcons.Settings />, permissionCode: 'approval.fields:view' },
     ],
   },
   {
-    label: '主体管理', href: '/entities', icon: <NavIcons.Building />,
+    label: '主体管理', href: '/entities', icon: <NavIcons.Building />, permissionCode: 'entities:view',
     children: [
-      { label: '服务主体', href: '/entities/service', icon: <NavIcons.Building /> },
-      { label: '签约主体', href: '/entities/signing', icon: <NavIcons.FileText /> },
-      { label: '结算主体', href: '/entities/settlement', icon: <NavIcons.Clipboard /> },
+      { label: '服务主体', href: '/entities/service', icon: <NavIcons.Building />, permissionCode: 'entities.service:view' },
+      { label: '签约主体', href: '/entities/signing', icon: <NavIcons.FileText />, permissionCode: 'entities.signing:view' },
+      { label: '结算主体', href: '/entities/settlement', icon: <NavIcons.Clipboard />, permissionCode: 'entities.settlement:view' },
     ],
   },
-  { label: '账单主体规则管理', href: '/rules', icon: <NavIcons.Settings /> },
-  { label: '账单拆分字段管理', href: '/customer-billing-fields', icon: <NavIcons.Clipboard /> },
+  { label: '账单主体规则管理', href: '/rules', icon: <NavIcons.Settings />, permissionCode: 'rules:view' },
+  { label: '账单拆分字段管理', href: '/customer-billing-fields', icon: <NavIcons.Clipboard />, permissionCode: 'billing-fields:view' },
   {
-    label: '系统管理', href: '/settings', icon: <NavIcons.Settings />,
+    label: '系统管理', href: '/settings', icon: <NavIcons.Settings />, permissionCode: 'settings:view',
     children: [
-      { label: '字典管理', href: '/settings/dictionary', icon: <NavIcons.Clipboard /> },
-      { label: '接口管理', href: '/settings/api', icon: <NavIcons.Settings /> },
+      { label: '字典管理', href: '/settings/dictionary', icon: <NavIcons.Clipboard />, permissionCode: 'settings.dict:view' },
+      { label: '接口管理', href: '/settings/api', icon: <NavIcons.Settings />, permissionCode: 'settings.api:view' },
     ],
   },
   {
-    label: '权限管理', href: '/settings/permissions', icon: <NavIcons.Shield />,
+    label: '权限管理', href: '/settings/permissions', icon: <NavIcons.Shield />, permissionCode: 'permissions:view',
     children: [
-      { label: '角色管理', href: '/settings/roles', icon: <NavIcons.Users /> },
-      { label: '用户管理', href: '/settings/users', icon: <NavIcons.Users /> },
-      { label: '功能管理', href: '/settings/functions', icon: <NavIcons.Settings /> },
-      { label: '数据权限管理', href: '/settings/data-permissions', icon: <NavIcons.Shield /> },
+      { label: '角色管理', href: '/settings/roles', icon: <NavIcons.Users />, permissionCode: 'permissions.roles:view' },
+      { label: '用户管理', href: '/settings/users', icon: <NavIcons.Users />, permissionCode: 'permissions.users:view' },
+      { label: '功能管理', href: '/settings/functions', icon: <NavIcons.Settings />, permissionCode: 'permissions.functions:view' },
+      { label: '数据权限管理', href: '/settings/data-permissions', icon: <NavIcons.Shield />, permissionCode: 'permissions.data:view' },
+      { label: '审计日志', href: '/settings/audit-logs', icon: <NavIcons.Clipboard />, permissionCode: 'audit-logs:view' },
     ],
   },
 ];

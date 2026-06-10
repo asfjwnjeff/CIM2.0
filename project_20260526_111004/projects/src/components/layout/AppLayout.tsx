@@ -34,13 +34,54 @@ const HeaderIcons = {
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const { currentUser } = useApp();
+  const { currentUser, setPermissionCodes, permissionCodes } = useApp();
   const [sidebarExpanded, setSidebarExpanded] = useState(false);
   const [showSidebarText, setShowSidebarText] = useState(false);
   const [expandedMenus, setExpandedMenus] = useState<string[]>([]);
   const [searchOpen, setSearchOpen] = useState(false);
   const sidebarRef = useRef<HTMLDivElement>(null);
   const textTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  /* 初始化权限：管理员默认拥有全部权限 */
+  useEffect(() => {
+    async function initPermissions() {
+      try {
+        const permRes = await fetch('/api/permissions');
+        if (permRes.ok) {
+          const permData = await permRes.json();
+          if (permData.success && permData.data) {
+            const allPermissions = permData.data as Array<{ code: string; status: string }>;
+            const codes = new Set(
+              allPermissions.filter(p => p.status === 'active').map(p => p.code)
+            );
+            setPermissionCodes(codes);
+          }
+        }
+      } catch {
+        // 数据库未初始化时静默失败
+      }
+    }
+    initPermissions();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  /** 根据权限过滤导航菜单（管理员 role=admin 时不过滤） */
+  const filterNavByPermission = (items: NavItem[]): NavItem[] => {
+    // 管理员显示全部菜单
+    if (currentUser.role === 'admin') return items;
+    return items
+      .map(item => {
+        if (item.children) {
+          const filteredChildren = filterNavByPermission(item.children);
+          if (filteredChildren.length === 0) return null;
+          return { ...item, children: filteredChildren };
+        }
+        if (!item.permissionCode) return item;
+        return permissionCodes.has(item.permissionCode) ? item : null;
+      })
+      .filter(Boolean) as NavItem[];
+  };
+
+  const filteredNav = filterNavByPermission(NAV_ITEMS);
 
   const isActive = (href: string) => {
     if (href === '/') return pathname === '/';
@@ -60,7 +101,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   /* 自动展开包含当前路径的菜单 */
   useEffect(() => {
-    NAV_ITEMS.forEach(item => {
+    filteredNav.forEach(item => {
       if (item.children?.some(child => pathname.startsWith(child.href)) && !expandedMenus.includes(item.label)) {
         setExpandedMenus(prev => [...prev, item.label]);
       }
@@ -156,7 +197,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           </div>
 
           <div className="flex-1 space-y-0.5 px-2">
-            {NAV_ITEMS.map((item) => {
+            {filteredNav.map((item) => {
               const active = isActive(item.href);
               const childActive = isChildActive(item);
               const expanded = expandedMenus.includes(item.label);

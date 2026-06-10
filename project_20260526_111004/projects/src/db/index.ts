@@ -3,6 +3,9 @@ import initSqlJs, { Database as SqlJsDatabase } from 'sql.js';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as schema from './schema';
+import * as iamSchema from './schema-iam';
+
+const combinedSchema = { ...schema, ...iamSchema };
 
 const DB_PATH = path.resolve(process.cwd(), 'data', 'cim.db');
 
@@ -47,7 +50,7 @@ export async function getDb() {
   // 显式设置 UTF-8 编码，防止中文乱码
   sqlDb.run('PRAGMA encoding = "UTF-8"');
 
-  dbInstance = drizzle(sqlDb, { schema });
+  dbInstance = drizzle(sqlDb, { schema: combinedSchema });
   return dbInstance;
 }
 

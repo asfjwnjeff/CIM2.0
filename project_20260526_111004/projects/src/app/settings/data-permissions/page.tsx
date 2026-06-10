@@ -15,48 +15,9 @@ interface DataPermission {
   updatedAt: string;
 }
 
-// ==================== Mock数据 ====================
-
-const mockUsers = [
-  { id: 'u-001', account: 'zhangsan', name: '张三', empNo: 'EMP001', email: 'zhangsan@company.com', department: '客户服务部' },
-  { id: 'u-002', account: 'lisi', name: '李四', empNo: 'EMP002', email: 'lisi@company.com', department: '财务部' },
-  { id: 'u-003', account: 'wangwu', name: '王五', empNo: 'EMP003', email: 'wangwu@company.com', department: '数据中心' },
-  { id: 'u-004', account: 'zhaoliu', name: '赵六', empNo: 'EMP004', email: 'zhaoliu@company.com', department: '审计部' },
-  { id: 'u-005', account: 'qianqi', name: '钱七', empNo: 'EMP005', email: 'qianqi@company.com', department: '客户服务部' },
-  { id: 'u-006', account: 'sunba', name: '孙八', empNo: 'EMP006', email: 'sunba@company.com', department: '商务部' },
-  { id: 'u-007', account: 'zhoujiu', name: '周九', empNo: 'EMP007', email: 'zhoujiu@company.com', department: '运营部' },
-  { id: 'u-008', account: 'wushi', name: '吴十', empNo: 'EMP008', email: 'wushi@company.com', department: '技术部' },
-];
-
-const mockRoles = [
-  { id: 'r-001', name: '系统管理员', code: 'ADMIN', userCount: 2 },
-  { id: 'r-002', name: '客户经理', code: 'CM', userCount: 5 },
-  { id: 'r-003', name: '财务专员', code: 'FIN', userCount: 3 },
-  { id: 'r-004', name: '审计专员', code: 'AUDIT', userCount: 2 },
-  { id: 'r-005', name: '数据分析师', code: 'DA', userCount: 4 },
-  { id: 'r-006', name: '商务专员', code: 'BIZ', userCount: 3 },
-];
-
-const mockDepartments = [
-  { id: 'd-001', name: '客户服务部', code: 'CS', userCount: 8 },
-  { id: 'd-002', name: '财务部', code: 'FIN', userCount: 5 },
-  { id: 'd-003', name: '数据中心', code: 'DC', userCount: 6 },
-  { id: 'd-004', name: '审计部', code: 'AUD', userCount: 3 },
-  { id: 'd-005', name: '商务部', code: 'BIZ', userCount: 4 },
-  { id: 'd-006', name: '运营部', code: 'OPS', userCount: 7 },
-  { id: 'd-007', name: '技术部', code: 'TECH', userCount: 10 },
-];
-
-const initialPermissions: DataPermission[] = [
-  { id: 'dp-001', dimension: 'user', targetId: 'u-001', targetName: '张三', customerIds: ['cust-001', 'cust-002'], updatedAt: '2024-01-15 10:30:00' },
-  { id: 'dp-002', dimension: 'user', targetId: 'u-002', targetName: '李四', customerIds: ['cust-003', 'cust-004', 'cust-005'], updatedAt: '2024-01-16 14:20:00' },
-  { id: 'dp-003', dimension: 'role', targetId: 'r-002', targetName: '客户经理', customerIds: ['cust-001', 'cust-002', 'cust-003'], updatedAt: '2024-01-17 09:00:00' },
-  { id: 'dp-004', dimension: 'role', targetId: 'r-003', targetName: '财务专员', customerIds: ['cust-001', 'cust-002', 'cust-003', 'cust-004', 'cust-005', 'cust-006'], updatedAt: '2024-01-18 11:00:00' },
-  { id: 'dp-005', dimension: 'department', targetId: 'd-001', targetName: '客户服务部', customerIds: ['cust-001', 'cust-002', 'cust-003', 'cust-004', 'cust-005'], updatedAt: '2024-01-19 16:45:00' },
-  { id: 'dp-006', dimension: 'department', targetId: 'd-002', targetName: '财务部', customerIds: ['cust-001', 'cust-002', 'cust-003', 'cust-004', 'cust-005', 'cust-006'], updatedAt: '2024-01-20 08:30:00' },
-];
-
 type TabType = 'user' | 'role' | 'department';
+
+interface TargetItem { id: string; name: string; sub?: string; }
 
 // ==================== 多选客户选择器组件 ====================
 
@@ -210,23 +171,48 @@ function CustomerMultiSelect({
 export default function DataPermissionsPage() {
   const { customers } = useApp();
   const [activeTab, setActiveTab] = useState<TabType>('user');
-  const [permissions, setPermissions] = useState<DataPermission[]>(initialPermissions);
+  const [permissions, setPermissions] = useState<DataPermission[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [showConfigModal, setShowConfigModal] = useState(false);
   const [editingPermission, setEditingPermission] = useState<DataPermission | null>(null);
   const [editingTargetId, setEditingTargetId] = useState<string>('');
   const [editingTargetName, setEditingTargetName] = useState<string>('');
   const [selectedCustomerIds, setSelectedCustomerIds] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [apiUsers, setApiUsers] = useState<Array<{ id: string; username: string; realName: string; department: string; email: string }>>([]);
+  const [apiRoles, setApiRoles] = useState<Array<{ id: string; name: string; code: string }>>([]);
 
-  // 获取当前tab的数据列表
-  const getTargetList = () => {
+  useEffect(() => { loadData(); }, []);
+
+  async function loadData() {
+    try {
+      const [userRes, roleRes, permRes] = await Promise.all([
+        fetch('/api/users'), fetch('/api/roles'), fetch('/api/data-permissions'),
+      ]);
+      const userData = await userRes.json();
+      const roleData = await roleRes.json();
+      const permData = await permRes.json();
+      if (userData.success) setApiUsers(userData.data);
+      if (roleData.success) setApiRoles(roleData.data);
+      if (permData.success) setPermissions(permData.data);
+    } catch { /* 静默处理 */ }
+    finally { setLoading(false); }
+  }
+
+  // 获取当前tab的数据列表（从 API 数据构建）
+  const getTargetList = (): TargetItem[] => {
     switch (activeTab) {
       case 'user':
-        return mockUsers.map((u) => ({ id: u.id, name: `${u.name}（${u.account}）`, sub: u.department }));
+        return apiUsers.map(u => ({ id: u.id, name: `${u.realName}（${u.username}）`, sub: u.department }));
       case 'role':
-        return mockRoles.map((r) => ({ id: r.id, name: r.name, sub: `编码：${r.code} · ${r.userCount}人` }));
-      case 'department':
-        return mockDepartments.map((d) => ({ id: d.id, name: d.name, sub: `编码：${d.code} · ${d.userCount}人` }));
+        return apiRoles.map(r => ({ id: r.id, name: r.name, sub: `编码：${r.code}` }));
+      case 'department': {
+        const deptMap = new Map<string, number>();
+        apiUsers.forEach(u => { if (u.department) deptMap.set(u.department, (deptMap.get(u.department) || 0) + 1); });
+        return Array.from(deptMap.entries()).map(([name, count], i) => ({
+          id: name, name, sub: `${count}人`,
+        }));
+      }
     }
   };
 
@@ -243,13 +229,6 @@ export default function DataPermissionsPage() {
     return permissions.find((p) => p.dimension === activeTab && p.targetId === targetId);
   };
 
-  // 获取客户名称列表
-  const getCustomerNames = (customerIds: string[]): string[] => {
-    return customerIds
-      .map((id) => customers.find((c) => c.id === id)?.name || id)
-      .filter(Boolean);
-  };
-
   // 打开配置弹窗
   const openConfig = (targetId: string, targetName: string) => {
     const existing = getPermission(targetId);
@@ -260,24 +239,22 @@ export default function DataPermissionsPage() {
     setShowConfigModal(true);
   };
 
-  // 保存配置
-  const saveConfig = () => {
-    const existing = getPermission(editingTargetId);
-    if (existing) {
-      setPermissions((prev) =>
-        prev.map((p) => (p.id === existing.id ? { ...p, customerIds: selectedCustomerIds, updatedAt: new Date().toLocaleString() } : p))
-      );
-    } else {
-      const newPerm: DataPermission = {
-        id: `dp-${Date.now()}`,
-        dimension: activeTab,
-        targetId: editingTargetId,
-        targetName: editingTargetName,
-        customerIds: selectedCustomerIds,
-        updatedAt: new Date().toLocaleString(),
-      };
-      setPermissions((prev) => [...prev, newPerm]);
-    }
+  // 保存配置（调用 API 持久化）
+  const saveConfig = async () => {
+    try {
+      await fetch('/api/data-permissions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          dimension: activeTab, targetId: editingTargetId,
+          targetName: editingTargetName, customerIds: selectedCustomerIds,
+        }),
+      });
+      // 重新加载
+      const permRes = await fetch('/api/data-permissions');
+      const permData = await permRes.json();
+      if (permData.success) setPermissions(permData.data);
+    } catch { /* 静默处理 */ }
     setShowConfigModal(false);
     setEditingPermission(null);
     setEditingTargetId('');
@@ -337,16 +314,17 @@ export default function DataPermissionsPage() {
 
     switch (activeTab) {
       case 'user': {
-        const user = mockUsers.find((u) => u.id === item.id);
-        return [col1, user?.account || '-', user?.name || '-', user?.empNo || '-', user?.email || '-'];
+        const user = apiUsers.find((u) => u.id === item.id);
+        return [col1, user?.username || '-', user?.realName || '-', '', user?.email || '-'];
       }
       case 'role': {
-        const role = mockRoles.find((r) => r.id === item.id);
-        return [col1, role?.name || '-', role?.code || '-', role?.userCount || 0];
+        const role = apiRoles.find((r) => r.id === item.id);
+        return [col1, role?.name || '-', role?.code || '-', ''];
       }
       case 'department': {
-        const dept = mockDepartments.find((d) => d.id === item.id);
-        return [col1, dept?.name || '-', dept?.code || '-', dept?.userCount || 0];
+        const deptName = item.id;
+        const count = apiUsers.filter(u => u.department === deptName).length;
+        return [col1, deptName, '', count];
       }
     }
   };

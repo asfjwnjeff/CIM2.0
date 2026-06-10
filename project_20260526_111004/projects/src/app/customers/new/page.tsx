@@ -13,12 +13,11 @@ import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { FIELD_STYLES } from '@/lib/ui-constants';
 
-type TabType = 'basic' | 'business' | 'semiconductor';
+type TabType = 'basic' | 'business';
 
 const TAB_LABELS: Record<TabType, string> = {
   basic: '企业基本信息',
   business: '工商资质全景',
-  semiconductor: '半导体产业链定位',
 };
 
 interface FormData {
@@ -1043,13 +1042,46 @@ export default function NewCustomerPage() {
                   </div>
                 </div>
               </div>
+
+            {/* 半导体产业链定位 — 独立卡片 */}
+            <div className="bg-white rounded-2xl border border-[#EBEBEB] shadow-[0_2px_8px_rgba(0,0,0,0.06)] p-6">
+              <h3 className="text-[16px] font-semibold text-[#0A0A0A] mb-4">半导体产业链定位</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label className={FIELD_STYLES.label}>产业链层级</label>
+                  <SearchableSelect value={form.industryChainLevel} onChange={(v) => updateField('industryChainLevel', v as IndustryChainLevel | '')} options={INDUSTRY_CHAIN_LEVEL_OPTIONS} placeholder="请选择" />
+                </div>
+                <div>
+                  <label className={FIELD_STYLES.label}>细分产业链角色</label>
+                  <SearchableSelect value={form.industryChainRole} onChange={(v) => updateField('industryChainRole', v as IndustryChainRole | '')} options={INDUSTRY_CHAIN_ROLE_OPTIONS} placeholder="请选择" searchPlaceholder="搜索产业链角色..." />
+                </div>
+              </div>
+              <div>
+                <label className={FIELD_STYLES.label}>半导体行业标签</label>
+                <SearchableMultiSelect
+                  values={form.semiIndustryTags}
+                  onChange={(tags) => updateField('semiIndustryTags', tags)}
+                  options={INDUSTRY_TAG_OPTIONS}
+                  placeholder="添加标签..."
+                  searchPlaceholder="搜索标签..."
+                  emptyText="无匹配标签"
+                />
+              </div>
             </div>
+          </div>
           )}
 
           {/* Tab 2: Business Info (工商资质全景) */}
           {activeTab === 'business' && (
             <div className="bg-white rounded-2xl border border-[#EBEBEB] shadow-[0_2px_8px_rgba(0,0,0,0.06)] p-6">
               <h3 className="text-[16px] font-semibold text-[#0A0A0A] mb-4">工商资质全景信息</h3>
+              {/* 第三方数据来源标注 */}
+              <div className="mb-4 px-4 py-2.5 bg-[#FFF8E1] border border-[#FFE082] rounded-lg flex items-center gap-2">
+                <svg className="w-4 h-4 text-[#F59E0B] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span className="text-sm text-[#92400E]">以下信息来源于企查查、天眼查等第三方企业信息平台自动拉取填充，无需手动录入</span>
+              </div>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {/* 从旧基本信息移入的工商字段 */}
                 <div><label className={FIELD_STYLES.label}>电话</label><input type="text" className={FIELD_STYLES.input} value={form.phone} onChange={(e) => updateField('phone', e.target.value)} /></div>
@@ -1084,34 +1116,6 @@ export default function NewCustomerPage() {
                 <div className="md:col-span-2"><label className={FIELD_STYLES.label}>注册地址</label><input type="text" className={FIELD_STYLES.input} value={form.registeredAddress} onChange={(e) => updateField('registeredAddress', e.target.value)} /></div>
                 <div className="md:col-span-2"><label className={FIELD_STYLES.label}>通信地址</label><input type="text" className={FIELD_STYLES.input} value={form.correspondenceAddress} onChange={(e) => updateField('correspondenceAddress', e.target.value)} /></div>
                 <div className="lg:col-span-4"><label className={FIELD_STYLES.label}>经营范围</label><Textarea value={form.businessScope} onChange={(e) => updateField('businessScope', e.target.value)} className="mt-0.5 min-h-[80px]" placeholder="请输入经营范围" /></div>
-              </div>
-            </div>
-          )}
-
-          {/* Tab 3: Semiconductor */}
-          {activeTab === 'semiconductor' && (
-            <div className="bg-white rounded-2xl border border-[#EBEBEB] shadow-[0_2px_8px_rgba(0,0,0,0.06)] p-6">
-              <h3 className="text-[16px] font-semibold text-[#0A0A0A] mb-4">半导体产业链定位</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <div>
-                  <label className={FIELD_STYLES.label}>产业链层级</label>
-                  <SearchableSelect value={form.industryChainLevel} onChange={(v) => updateField('industryChainLevel', v as IndustryChainLevel | '')} options={INDUSTRY_CHAIN_LEVEL_OPTIONS} placeholder="请选择" />
-                </div>
-                <div>
-                  <label className={FIELD_STYLES.label}>细分产业链角色</label>
-                  <SearchableSelect value={form.industryChainRole} onChange={(v) => updateField('industryChainRole', v as IndustryChainRole | '')} options={INDUSTRY_CHAIN_ROLE_OPTIONS} placeholder="请选择" searchPlaceholder="搜索产业链角色..." />
-                </div>
-              </div>
-              <div>
-                <label className={FIELD_STYLES.label}>半导体行业标签</label>
-                <SearchableMultiSelect
-                  values={form.semiIndustryTags}
-                  onChange={(tags) => updateField('semiIndustryTags', tags)}
-                  options={INDUSTRY_TAG_OPTIONS}
-                  placeholder="添加标签..."
-                  searchPlaceholder="搜索标签..."
-                  emptyText="无匹配标签"
-                />
               </div>
             </div>
           )}

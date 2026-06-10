@@ -25,6 +25,13 @@ export interface User {
   role: string;
   department?: string;
   avatar?: string;
+  // IAM 扩展字段
+  username?: string;
+  realName?: string;
+  phone?: string;
+  status?: 'active' | 'inactive';
+  roleIds?: string[];
+  roleNames?: string[];
 }
 
 export const currentUser: User = {
@@ -34,6 +41,53 @@ export const currentUser: User = {
   role: 'admin',
   department: '信息技术部',
 };
+
+// ==================== 权限管理 ====================
+
+export interface Role {
+  id: string;
+  name: string;
+  code: string;
+  description: string;
+  userCount: number;
+  status: 'active' | 'inactive';
+  permissionIds?: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Permission {
+  id: string;
+  name: string;
+  code: string;
+  type: 'menu' | 'button';
+  parentId?: string | null;
+  path?: string | null;
+  sort: number;
+  status: 'active' | 'inactive';
+  createdAt?: string;
+}
+
+export interface DataPermission {
+  id: string;
+  dimension: 'user' | 'role' | 'department';
+  targetId: string;
+  targetName: string;
+  customerIds: string[];
+  updatedAt: string;
+}
+
+export interface AuditLog {
+  id: string;
+  userId: string;
+  userName?: string;
+  action: string;
+  resource?: string;
+  resourceId?: string;
+  detail?: string;
+  ip?: string;
+  createdAt: string;
+}
 
 // ==================== 产业链相关 ====================
 

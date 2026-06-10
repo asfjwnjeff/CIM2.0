@@ -17,6 +17,9 @@ export const customers = sqliteTable('customers', {
   billingEntities: text('billing_entities'),     // JSON array of IDs
   ruleIds: text('rule_ids'),            // JSON array of IDs
   auditLogs: text('audit_logs'),        // JSON array
+  responsiblePersons: text('responsible_persons'), // JSON array of user IDs
+  collaborators: text('collaborators'),             // JSON array of user IDs
+  createdBy: text('created_by'),
   createdAt: text('created_at').default('2024-01-01'),
   updatedAt: text('updated_at').default('2024-01-01'),
 });

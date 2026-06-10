@@ -38,6 +38,9 @@ export type { RuleGroup, SplitField, BillingEntity, BillingRule, RuleCondition, 
 export interface AppContextType {
   // 数据
   currentUser: User;
+  permissionCodes: Set<string>;
+  setCurrentUser: (user: User) => void;
+  setPermissionCodes: (codes: Set<string>) => void;
   splitFields: SplitField[];
   billingEntities: BillingEntity[];
   billingRules: BillingRule[];
@@ -169,12 +172,14 @@ const defaultState = {
   aiTranscriptions: [] as AITranscription[],
   quoteTemplates: initialQuoteTemplates as QuoteTemplate[],
   approvalFields: initialApprovalFields as ApprovalField[],
+  permissionCodes: new Set<string>(),
 };
 
 // ==================== Reducer ====================
 
 interface AppState {
   currentUser: User;
+  permissionCodes: Set<string>;
   splitFields: SplitField[];
   billingEntities: BillingEntity[];
   billingRules: BillingRule[];
@@ -247,7 +252,9 @@ type Action =
   | { type: 'DELETE_SETTLEMENT_ENTITY'; payload: string }
   | { type: 'ADD_APPROVAL_FIELD'; payload: Omit<ApprovalField, 'id' | 'createdAt'> }
   | { type: 'UPDATE_APPROVAL_FIELD'; payload: { id: string; updates: Partial<ApprovalField> } }
-  | { type: 'DELETE_APPROVAL_FIELD'; payload: string };
+  | { type: 'DELETE_APPROVAL_FIELD'; payload: string }
+  | { type: 'SET_CURRENT_USER'; payload: User }
+  | { type: 'SET_PERMISSION_CODES'; payload: Set<string> };
 
 function reducer(state: AppState, action: Action): AppState {
   switch (action.type) {
@@ -584,6 +591,10 @@ function reducer(state: AppState, action: Action): AppState {
         ...state,
         approvalFields: state.approvalFields.filter((f) => f.id !== action.payload),
       };
+    case 'SET_CURRENT_USER':
+      return { ...state, currentUser: action.payload };
+    case 'SET_PERMISSION_CODES':
+      return { ...state, permissionCodes: action.payload };
     default:
       return state;
   }
@@ -908,6 +919,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
     <AppContext.Provider
       value={{
         currentUser,
+        permissionCodes: state.permissionCodes,
+        setCurrentUser: (user: User) => dispatch({ type: 'SET_CURRENT_USER', payload: user }),
+        setPermissionCodes: (codes: Set<string>) => dispatch({ type: 'SET_PERMISSION_CODES', payload: codes }),
         splitFields: state.splitFields,
         billingEntities: state.billingEntities,
         billingRules: state.billingRules,
