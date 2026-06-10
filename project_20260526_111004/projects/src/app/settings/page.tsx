@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState, Suspense } from 'react';
+
+export const dynamic = 'force-dynamic';
 import { useSearchParams } from 'next/navigation';
 import { useApp } from '@/lib/store';
 

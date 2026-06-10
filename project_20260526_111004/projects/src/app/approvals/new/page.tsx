@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useMemo } from "react";
+
+export const dynamic = 'force-dynamic';
 import { useRouter, useSearchParams } from "next/navigation";
 import { SearchableSelect } from '@/components/ui/searchable-select';
 import { useApp, evaluateApprovalRules } from '@/lib/store';
