@@ -4,7 +4,7 @@ import next from 'next';
 import * as fs from 'fs';
 import * as path from 'path';
 
-const dev = process.env.COZE_PROJECT_ENV !== 'PROD';
+const dev = process.env.COZE_PROJECT_ENV !== 'PROD' && process.env.NODE_ENV !== 'production';
 const hostname = process.env.HOSTNAME || 'localhost';
 const port = parseInt(process.env.PORT || '5000', 10);
 
