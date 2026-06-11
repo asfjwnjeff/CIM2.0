@@ -1,0 +1,183 @@
+import { createHash } from "crypto";
+import { log, setLogLevel } from "./logger.js";
+import { loadConfig } from "./config.js";
+import { getApiKey, getBaseUrl } from "./credentialManager.js";
+import { processImage } from "./imageProcessor.js";
+import { withRetry, CircuitBreaker } from "./retry.js";
+import { ClientError } from "./errorHandler.js";
+import { MODE_PROMPTS, VALID_MODES } from "./providers/provider.js";
+import { getCacheKey, get, set, getStats } from "./cache.js";
+import { loadProviders } from "./providers/registry.js";
+
+const FORMAT_PROMPTS = {
+  json: "\n\nOutput the result as a single valid JSON object with keys: summary, details (array of strings). Do not wrap in markdown code blocks.",
+  yaml: "\n\nOutput the result as valid YAML with keys: summary, details. Do not wrap in markdown code blocks.",
+  csv: "\n\nOutput the result as CSV with columns: category, description. Include header row.",
+};
+
+/** 构建 Provider 链，每个 Provider 独立 CircuitBreaker */
+function buildProviderChain(config) {
+  const mimoKey = getApiKey();
+  const baseUrls = {
+    mimo: config.baseUrl || (mimoKey ? getBaseUrl(mimoKey) : ""),
+  };
+  const model = process.env.OPENAI_VISION_MODEL || config.model;
+
+  const providers = loadProviders(config.providerOrder, {
+    model,
+    timeoutMs: config.requestTimeoutMs,
+    baseUrls,
+  });
+
+  return providers.map(p => ({
+    ...p,
+    cb: new CircuitBreaker({ failureThreshold: p.name === "ollama" ? 3 : 5, timeoutSeconds: 60 }),
+  }));
+}
+
+/** 遍历 Provider 链，第一个成功即返回 */
+async function tryChain(chain, images, mode, config, prompt) {
+  const errors = [];
+  for (const { provider, name, cb } of chain) {
+    if (cb.state === "OPEN") {
+      log("info", "orchestrator", "provider_skipped", { provider: name, reason: "circuit_open" });
+      continue;
+    }
+
+    try {
+      log("info", "orchestrator", "calling_provider", { provider: name, mode });
+      const result = await withRetry(
+        () => provider.analyzeImage({ image: images, prompt, options: { mode } }),
+        { ...config.retry, circuitBreaker: cb }
+      );
+      log("info", "orchestrator", "analysis_complete", { mode, durationMs: result.processingTimeMs, provider: name });
+      return result;
+    } catch (err) {
+      errors.push({ name, error: err.message });
+      if (err.name === "ClientError" || err.name === "CircuitBreakerOpenError") continue;
+      log("warn", "orchestrator", "provider_failed", { provider: name, error: err.message });
+    }
+  }
+  throw new ClientError("所有 Provider 均不可用", {
+    suggestion: `已尝试 ${chain.length} 个 Provider。请稍后重试或检查配置。`,
+  });
+}
+
+// 语言检测：UNBLIND_LANG > 系统 LANG/LC_ALL > Intl API > 默认 zh
+const _locale = (process.env.UNBLIND_LANG || process.env.LANG || process.env.LC_ALL || Intl.DateTimeFormat().resolvedOptions().locale || "zh").toLowerCase();
+const _lang = _locale.startsWith("en") ? "en" : "zh";
+
+const _t = {
+  zh: {
+    reading: "正在读取",
+    cacheHit: "缓存命中 — 跳过 API 调用",
+    calling: "正在调用",
+    done: "分析完成",
+    images: "张图片",
+  },
+  en: {
+    reading: "Reading",
+    cacheHit: "Cache hit — skipping API call",
+    calling: "Calling",
+    done: "Done",
+    images: "images",
+  },
+};
+
+/** 向 stderr 输出过程状态（不污染 stdout），自动切换中英 */
+function status(emoji, key, suffix = "") {
+  process.stderr.write(`${emoji}  ${_t[_lang][key]}${suffix}\n`);
+}
+
+export async function analyze(imagePaths, mode = "describe", options = {}) {
+  const config = loadConfig();
+  setLogLevel(config.logging.level);
+
+  if (!VALID_MODES.includes(mode)) {
+    throw new ClientError(`未知的分析模式: ${mode}`, {
+      suggestion: `支持的模式: ${VALID_MODES.join(", ")}`,
+    });
+  }
+
+  const chain = buildProviderChain(config);
+  if (chain.length === 0) {
+    throw new ClientError("API Key 未配置", {
+      suggestion: "请设置 MIMO_API_KEY 或 OPENAI_API_KEY 环境变量",
+    });
+  }
+
+  // Normalize to array (backward-compatible with string path)
+  const paths = Array.isArray(imagePaths) ? imagePaths : [imagePaths];
+  const count = paths.length;
+  const label = count === 1 ? ` ${paths[0].replace(/^.*[\\/]/, "").slice(-40)}...` : ` ${count} ${_t[_lang].images}...`;
+
+  log("info", "orchestrator", "processing_images", { path: paths.map(p => p.slice(-30)).join(", "), mode, count });
+  status("📖", "reading", label);
+
+  // Batch process all images
+  const images = await Promise.all(
+    paths.map(p => processImage(p, { maxImageSize: config.maxImageSize }))
+  );
+
+  // --prompt 自定义提示词优先，覆盖 mode 预设和格式指令
+  const cachePrompt = options.customPrompt || MODE_PROMPTS[mode];
+  const apiPrompt = options.customPrompt || (cachePrompt + (options.format ? (FORMAT_PROMPTS[options.format] || "") : ""));
+
+  // Multi-image cache key: hash all base64 concatenated (backward-compatible for single image)
+  const combinedBase64 = images.map(i => i.base64).join("::");
+  const imageHash = createHash("sha256").update(combinedBase64).digest("hex");
+
+  if (!options.skipCache) {
+    const cacheKey = getCacheKey(imageHash, cachePrompt);
+    const cacheEntry = await get(cacheKey);
+    if (cacheEntry) {
+      log("info", "orchestrator", "cache_hit", { path: paths.map(p => p.slice(-30)).join(", "), mode, stats: await getStats() });
+      status("💾", "cacheHit");
+      return cacheEntry.content;
+    }
+  }
+
+  const startTime = Date.now();
+  status("🚀", "calling", ` ${chain.map(c => c.name).join(" → ")}...`);
+  const result = await tryChain(chain, images, mode, config, apiPrompt);
+
+  const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+  status("✅", "done", ` · ${result.model} · ${elapsed}s`);
+
+  if (!options.skipCache) {
+    await set(getCacheKey(imageHash, cachePrompt), { content: result.content }, config.cacheTTLSeconds || 3600);
+  }
+
+  return result.content;
+}
+
+export async function runHealthCheck() {
+  const checks = [];
+  const config = loadConfig();
+
+  try {
+    checks.push({ name: "config", pass: true, detail: `模型: ${config.model}, 图片上限: ${(config.maxImageSize / 1024 / 1024).toFixed(0)}MB` });
+  } catch (err) {
+    checks.push({ name: "config", pass: false, detail: err.message });
+    return { healthy: false, checks };
+  }
+
+  const chain = buildProviderChain(config);
+  checks.push({ name: "providers", pass: chain.length > 0, detail: `${chain.length} 个可用 Provider: ${chain.map(c => c.name).join(", ")}` });
+
+  let anyOk = false;
+  for (const { provider, name } of chain) {
+    try {
+      const ok = await provider.healthCheck();
+      checks.push({ name: `connectivity_${name}`, pass: ok, detail: ok ? `${name} API 连通正常` : `${name} API 连通失败` });
+      if (ok) anyOk = true;
+    } catch (err) {
+      checks.push({ name: `connectivity_${name}`, pass: false, detail: err.message });
+    }
+  }
+  if (!anyOk && chain.length > 0) {
+    checks.push({ name: "all_providers", pass: false, detail: "所有 Provider 均无法连通" });
+  }
+
+  return { healthy: checks.every(c => c.pass), checks };
+}

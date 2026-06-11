@@ -1,0 +1,28 @@
+name: CI
+
+on: [push, pull_request]
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+      - name: Run test suite
+        run: node --test tests/test-*.js
+
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check for secrets in source code
+        run: |
+          # 仅扫描源码，排除文档（文档中会引用安全扫描命令本身）
+          SOURCES=$(find scripts -name "*.js" -o -name "*.mjs")
+          ! grep -r "tp-cla\|tp-claq\|sk-anti" $SOURCES 2>/dev/null || exit 1
+          echo "No secrets found in source code"

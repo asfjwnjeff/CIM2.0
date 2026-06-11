@@ -36,7 +36,7 @@ export default function SentimentDetailPage() {
       <div className="max-w-[1280px] mx-auto py-12 text-center">
         <h2 className="text-2xl font-bold text-[#0A0A0A] mb-4">舆情不存在</h2>
         <button
-          onClick={() => router.push(`/customers/${customerId}`)}
+          onClick={() => router.push(`/customers/${customerId}?tab=sentiment`)}
           className="inline-flex items-center px-4 py-2 bg-[#2D3BFF] text-white rounded-lg font-medium hover:bg-[#4338CA] transition-colors"
         >
           返回客户详情

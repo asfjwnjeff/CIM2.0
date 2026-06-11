@@ -37,7 +37,7 @@ export function SentimentDetail({ item, customerName, customerId }: SentimentDet
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <button
-            onClick={() => router.push(`/customers/${customerId}`)}
+            onClick={() => router.push(`/customers/${customerId}?tab=sentiment`)}
             className="p-2 text-[#5A5A5A] hover:text-[#0A0A0A] hover:bg-[#F5F5F5] rounded-lg transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
@@ -45,7 +45,7 @@ export function SentimentDetail({ item, customerName, customerId }: SentimentDet
           <div>
             <div className="flex items-center gap-2">
               <Link
-                href={`/customers/${customerId}`}
+                href={`/customers/${customerId}?tab=sentiment`}
                 className="text-[13px] text-[#2D3BFF] hover:underline"
               >
                 {customerName}

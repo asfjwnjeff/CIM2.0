@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "unblind": {
+      "source": "Santazuki/unblind",
+      "sourceType": "github",
+      "skillPath": "SKILL.md",
+      "computedHash": "a62a373becc3f4a0a1211ab80f16381aa619505ffde95f492806653714061e39"
+    }
+  }
+}

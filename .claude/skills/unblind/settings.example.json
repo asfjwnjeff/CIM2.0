@@ -1,0 +1,9 @@
+{
+  "env": {
+    "MIMO_API_KEY": "YOUR_API_KEY_HERE",
+    "MIMO_VISION_MODEL": "mimo-v2.5",
+    "MIMO_MAX_IMAGE_SIZE": 52428800,
+    "MIMO_CACHE_TTL": 3600,
+    "MIMO_DEFAULT_MODE": "describe"
+  }
+}

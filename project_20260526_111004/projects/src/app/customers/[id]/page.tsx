@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useApp } from '@/lib/store';
 import { ProgressStepper } from '@/components/ProgressStepper';
@@ -63,6 +63,16 @@ export default function CustomerDetailPage() {
   } = useApp();
 
   const [activeTab, setActiveTab] = useState<TabType>('basic');
+
+  // 支持 URL 参数 ?tab=xxx 指定初始 tab
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const tab = params.get('tab');
+    const validTabs: TabType[] = ['basic', 'business', 'semiconductor', 'relations', 'products', 'config', 'billing', 'followup', 'opportunities', 'approvals', 'logs', 'sentiment'];
+    if (tab && validTabs.includes(tab as TabType)) {
+      setActiveTab(tab as TabType);
+    }
+  }, []);
 
   // Collaboration dialog state
   const [dialogOpen, setDialogOpen] = useState(false);
