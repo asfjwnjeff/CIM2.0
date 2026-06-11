@@ -60,7 +60,7 @@ export default function OrdersPage() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6">
+    <div className="max-w-[1440px] mx-auto space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-[#0A0A0A]">订单映射查询</h1>
         <p className="text-[#5A5A5A] mt-1">查询订单账单主体映射历史和测试规则匹配</p>

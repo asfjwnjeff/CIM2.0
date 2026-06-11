@@ -157,7 +157,7 @@ function FollowupFormContent() {
   };
 
   return (
-      <div className="max-w-7xl mx-auto space-y-6">
+      <div className="max-w-[1440px] mx-auto space-y-6">
         {/* 顶部 */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">

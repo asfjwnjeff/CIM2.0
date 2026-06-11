@@ -239,7 +239,7 @@ export default function ApprovalsPage() {
   };
 
   return (
-      <div className="max-w-7xl mx-auto space-y-6">
+      <div className="max-w-[1440px] mx-auto space-y-6">
         {/* 页面标题和操作区 */}
         <div className="flex items-center justify-between">
           <div>

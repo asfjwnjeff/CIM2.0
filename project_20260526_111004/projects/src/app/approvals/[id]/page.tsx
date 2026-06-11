@@ -437,7 +437,7 @@ export default function ApprovalDetailPage() {
   const { approvalWorkflows, autoApprovalRules, riskApprovals, updateRiskApproval, approvalFields } = useApp();
   const approval = riskApprovals.find((a) => a.id === id) || riskApprovals[0];
   if (!approval) {
-    return <div className="max-w-7xl mx-auto p-12 text-center"><h2 className="text-lg font-semibold text-[#0A0A0A] mb-2">审批数据加载中...</h2><p className="text-[#999]">正在从数据库加载审批记录</p></div>;
+    return <div className="max-w-[1440px] mx-auto p-12 text-center"><h2 className="text-lg font-semibold text-[#0A0A0A] mb-2">审批数据加载中...</h2><p className="text-[#999]">正在从数据库加载审批记录</p></div>;
   }
   const [activeTab, setActiveTab] = useState<'flow' | 'report' | 'history'>('flow');
 
@@ -550,7 +550,7 @@ export default function ApprovalDetailPage() {
   const opportunityTitle = mockOpportunities.find((o) => o.id === approval.opportunityId)?.title || approval.opportunityId;
 
   return (
-      <div className="max-w-7xl mx-auto space-y-6">
+      <div className="max-w-[1440px] mx-auto space-y-6">
         {/* 顶部导航 */}
         <div className="flex items-center gap-3 mb-2">
           <button onClick={() => router.push('/approvals')} className="p-2 rounded-lg hover:bg-gray-100 transition-colors">

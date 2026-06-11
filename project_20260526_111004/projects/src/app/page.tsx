@@ -201,7 +201,7 @@ export default function DashboardPage() {
   const recentLogs = operationLogs.slice(0, 8);
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6">
+    <div className="max-w-[1440px] mx-auto space-y-6">
       {/* 页面标题 */}
       <div>
         <h1 className="text-2xl font-bold text-[#0A0A0A]">首页概览</h1>

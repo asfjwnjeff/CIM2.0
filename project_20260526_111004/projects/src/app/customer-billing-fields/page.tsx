@@ -191,7 +191,7 @@ export default function BillingFieldsPage() {
   }, {} as Record<string, { customerName: string; fields: CustomerBillingField[] }>);
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6">
+    <div className="max-w-[1440px] mx-auto space-y-6">
       {/* 页面标题 */}
       <div className="flex items-center justify-between">
         <div>
@@ -256,7 +256,7 @@ export default function BillingFieldsPage() {
           </button>
         </div>
       ) : (
-        <div className="max-w-7xl mx-auto space-y-6">
+        <div className="max-w-[1440px] mx-auto space-y-6">
           {Object.entries(groupedFields).map(([customerId, { customerName, fields: customerFields }]) => (
             <div key={customerId} className="bg-white rounded-xl shadow-sm border border-[#EBEBEB] overflow-hidden">
               {/* 客户标题 */}

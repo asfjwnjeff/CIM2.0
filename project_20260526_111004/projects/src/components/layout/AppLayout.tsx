@@ -314,7 +314,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
       {/* ====== 主内容区 ====== */}
       <main
-        className={`pt-[87px] px-8 min-h-screen transition-[margin-left] duration-200 ease-out ${
+        className={`pt-[87px] px-4 min-h-screen transition-[margin-left] duration-200 ease-out ${
           sidebarExpanded ? 'ml-[256px]' : 'ml-[72px]'
         }`}
       >

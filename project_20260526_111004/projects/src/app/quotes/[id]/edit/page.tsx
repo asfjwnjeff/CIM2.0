@@ -139,7 +139,7 @@ const Page: React.FC = () => {
   if (!quote) {
     return (
         <div className="p-5 min-h-screen" style={{ background: 'linear-gradient(135deg, #F5F5F5 0%, #EBEBEB 50%, #EBEBEB 100%)' }}>
-          <div className="max-w-7xl mx-auto">
+          <div className="max-w-[1440px] mx-auto">
             <p className="text-[#5A5A5A]">加载中...</p>
           </div>
         </div>
@@ -147,7 +147,7 @@ const Page: React.FC = () => {
   }
 
   return (
-      <div className="max-w-7xl mx-auto space-y-6">
+      <div className="max-w-[1440px] mx-auto space-y-6">
         <div className="flex items-center gap-4">
           <button
             onClick={() => router.push(`/quotes/${id}`)}

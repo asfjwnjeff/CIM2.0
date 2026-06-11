@@ -32,7 +32,7 @@ export function SentimentDetail({ item, customerName, customerId }: SentimentDet
   const paragraphs = item.content.split('\n\n').filter(Boolean);
 
   return (
-    <div className="max-w-[1280px] mx-auto space-y-6">
+    <div className="max-w-[1440px] mx-auto space-y-6">
       {/* 顶栏 */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">

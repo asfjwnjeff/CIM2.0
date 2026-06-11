@@ -686,7 +686,7 @@ export default function EditCustomerPage() {
 
   if (!customer || !form) {
     return (
-        <div className="max-w-7xl mx-auto py-12 text-center">
+        <div className="max-w-[1440px] mx-auto py-12 text-center">
           <h2 className="text-2xl font-bold text-[#0A0A0A] mb-4">客户不存在</h2>
           <button onClick={() => router.push('/customers')} className="inline-flex items-center px-4 py-2 bg-[#2D3BFF] text-white rounded-lg font-medium hover:bg-[#4338CA] transition-all">返回客户列表</button>
         </div>
@@ -698,7 +698,7 @@ export default function EditCustomerPage() {
   const hasBizInfo = verifiedCompany !== null;
 
   return (
-      <div className="max-w-7xl mx-auto space-y-6">
+      <div className="max-w-[1440px] mx-auto space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">

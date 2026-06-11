@@ -115,7 +115,7 @@ export default function CustomerDetailPage() {
 
   if (!customer) {
     return (
-        <div className="max-w-7xl mx-auto py-12 text-center">
+        <div className="max-w-[1440px] mx-auto py-12 text-center">
           <h2 className="text-2xl font-bold text-[#0A0A0A] mb-4">客户不存在</h2>
           <button
             onClick={() => router.push('/customers')}
@@ -219,7 +219,7 @@ export default function CustomerDetailPage() {
   };
 
   return (
-      <div className="max-w-7xl mx-auto space-y-6">
+      <div className="max-w-[1440px] mx-auto space-y-6">
         {/* Top bar: back + name + actions */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">

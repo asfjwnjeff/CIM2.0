@@ -295,7 +295,7 @@ export default function ApiManagementPage() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6">
+    <div className="max-w-[1440px] mx-auto space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-[#0A0A0A]">接口管理</h1>
@@ -370,7 +370,7 @@ export default function ApiManagementPage() {
 
         <div className="p-6">
           {activeTab === 'flow' && (
-            <div className="max-w-7xl mx-auto space-y-6">
+            <div className="max-w-[1440px] mx-auto space-y-6">
               <div className="bg-[#F5F5F5] rounded-xl p-6">
                 <h3 className="text-sm font-semibold text-[#0A0A0A] mb-4">业务流程时序图</h3>
                 <div className="relative">

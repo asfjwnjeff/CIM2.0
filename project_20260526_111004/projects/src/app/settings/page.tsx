@@ -92,7 +92,7 @@ function SettingsPageContent() {
   ];
 
   return (
-      <div className="max-w-7xl mx-auto space-y-6">
+      <div className="max-w-[1440px] mx-auto space-y-6">
         {/* 页面标题 */}
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-[#0A0A0A]">系统设置</h1>

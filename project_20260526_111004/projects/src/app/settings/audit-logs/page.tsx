@@ -66,7 +66,7 @@ export default function AuditLogsPage() {
   const totalPages = Math.ceil(total / 50);
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6">
+    <div className="max-w-[1440px] mx-auto space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-[#0A0A0A]">审计日志</h1>
         <p className="text-sm text-[#5A5A5A] mt-1">查看用户操作记录，追溯系统变更历史</p>

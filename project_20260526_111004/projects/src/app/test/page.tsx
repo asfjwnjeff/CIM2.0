@@ -193,7 +193,7 @@ export default function TestPage() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6">
+    <div className="max-w-[1440px] mx-auto space-y-6">
       {/* 页面标题 */}
       <div>
         <h1 className="text-2xl font-bold text-[#0A0A0A]">规则匹配测试</h1>
@@ -202,7 +202,7 @@ export default function TestPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* 左侧：参数输入 */}
-        <div className="max-w-7xl mx-auto space-y-6">
+        <div className="max-w-[1440px] mx-auto space-y-6">
           {/* 选择客户 */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <h2 className="text-lg font-semibold text-[#0A0A0A] mb-4">1. 选择客户</h2>
@@ -298,7 +298,7 @@ export default function TestPage() {
         </div>
 
         {/* 右侧：测试结果 */}
-        <div className="max-w-7xl mx-auto space-y-6">
+        <div className="max-w-[1440px] mx-auto space-y-6">
           {/* 匹配结果 */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <h2 className="text-lg font-semibold text-[#0A0A0A] mb-4">匹配结果</h2>

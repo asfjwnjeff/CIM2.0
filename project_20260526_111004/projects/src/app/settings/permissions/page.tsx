@@ -90,7 +90,7 @@ export default function PermissionsPage() {
 
   if (loading && roles.length === 0) {
     return (
-      <div className="max-w-7xl mx-auto space-y-6">
+      <div className="max-w-[1440px] mx-auto space-y-6">
         <div className="animate-pulse bg-white rounded-xl shadow-sm border border-[#EBEBEB] p-12 flex items-center justify-center">
           <span className="text-[#B0B8D1]">加载中...</span>
         </div>
@@ -100,7 +100,7 @@ export default function PermissionsPage() {
 
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6">
+    <div className="max-w-[1440px] mx-auto space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-[#0A0A0A]">权限管理</h1>
         <p className="text-sm text-[#5A5A5A] mt-1">为角色分配菜单和按钮操作权限</p>
