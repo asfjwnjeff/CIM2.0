@@ -36,8 +36,8 @@ export const DEMO_SENTIMENT_ITEMS: SentimentItem[] = [
 
 当前，卓胜微的困境也折射出整个射频芯片行业面临的挑战。全球智能手机市场增长乏力，中国市场需求持续萎缩。在国产替代的大背景下，卓胜微的技术积累和产业布局仍具价值，但公司需要在短期业绩压力与长期战略投入之间找到平衡，才能在这场转型攻坚战中赢得最终胜利。`,
     images: [
-      'https://images.unsplash.com/photo-1611944212546-2fd3efb60e5e?w=800&h=400&fit=crop',
-      'https://images.unsplash.com/photo-1517077304055-6e89abbf09b0?w=800&h=400&fit=crop',
+      'https://webquoteklinepic.eastmoney.com/GetPic.aspx?nid=0.300782&imageType=knews&token=28dfeb41d35cc81d84b4664d7c23c49f&at=1',
+      'https://1252033264.vod2.myqcloud.com/d7a4cabbvodgzp1252033264/f41157461397757900041806806/1397757900047410453.png',
     ],
     originalUrl: 'https://finance.eastmoney.com/a/202603113668926878.html',
     tags: ['业绩下滑', '射频芯片', '毛利率', '存货减值', 'Fab-Lite'],
@@ -78,8 +78,8 @@ export const DEMO_SENTIMENT_ITEMS: SentimentItem[] = [
 
 清微智能是国内少有的走出差异化技术路线的AI芯片公司。在英伟达GPU主导的AI算力市场，清微智能的可重构计算方案提供了一条不同的技术路径——在特定场景下可实现更高的能效比和更低的部署成本，对大模型推理场景尤其具有竞争优势。`,
     images: [
-      'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800&h=400&fit=crop',
-      'https://images.unsplash.com/photo-1639322537228-f740d27f6a61?w=800&h=400&fit=crop',
+      'https://p9.itc.cn/q_70/images03/20220829/e67d1b5c4c6142558f65b7f8d01044ed.jpeg',
+      'https://ocmsmedia.sfccn.com/vod-4310da/image/default/855E0A1C1CB340F296E65D42CD4C6915-6-2.jpg',
     ],
     originalUrl: 'https://www.c114.net.cn/ainews/80171.html',
     tags: ['AI芯片', 'D轮融资', 'Pre-IPO', '可重构计算', '独角兽'],
@@ -121,8 +121,8 @@ export const DEMO_SENTIMENT_ITEMS: SentimentItem[] = [
 
 本次IPO拟募集资金39.04亿元，主要用于"新型高性能通用GPU研发及产业化项目"、"新一代人工智能推理GPU研发及产业化项目"和"面向前沿领域及新兴应用场景的高性能GPU技术研发项目"。`,
     images: [
+      'https://www.metax-tech.com/uploads/goods70/1764139776714143.jpg',
       'https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?w=800&h=400&fit=crop',
-      'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800&h=400&fit=crop',
     ],
     originalUrl: 'https://m.thepaper.cn/detail/31959351',
     tags: ['IPO', '科创板', 'GPU', '沐曦', '国产替代'],
@@ -162,8 +162,8 @@ export const DEMO_SENTIMENT_ITEMS: SentimentItem[] = [
 
 上一轮是通讯、工业、新能源、汽车，这一轮是AI，下一轮半导体的增长引擎又会是什么？这是留给芯片厂商们的问题——在这个技术为主导的领域，没有永恒的霸主，只有持续进化的生存者。`,
     images: [
-      'https://images.unsplash.com/photo-1563770660941-10a631076e28?w=800&h=400&fit=crop',
-      'https://images.unsplash.com/photo-1488229297570-58520851e868?w=800&h=400&fit=crop',
+      'https://img.cls.cn/images/20250430/9CHMFJeqCw.png',
+      'https://img.cls.cn/images/20250430/KQNejT1G9V.png',
     ],
     originalUrl: 'https://www.cls.cn/detail/2020675',
     tags: ['行业研报', 'AI芯片', '寒武纪', '消费电子', '行业洗牌'],
@@ -197,8 +197,8 @@ SK海力士是全球第二大内存芯片制造商，其无锡工厂是公司在
 
 此次处罚金额虽然不大（26.4万元），但涉及的"不正常运行污染防治设施"属于较严重的环境违法行为，反映出企业在日常环保管理中存在疏漏。对于一家全球领先的半导体企业而言，环保合规不仅是法律义务，更是ESG评价体系中的重要维度。此类事件可能影响公司的ESG评级和品牌形象。`,
     images: [
-      'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800&h=400&fit=crop',
-      'https://images.unsplash.com/photo-1563770660941-10a631076e28?w=800&h=400&fit=crop',
+      'https://n.sinaimg.cn/spider20251013/116/w724h192/20251013/f81f-b419eeeb15376d7831ddf87e0fe18efb.png',
+      'https://n.sinaimg.cn/spider20251013/776/w1080h496/20251013/2d2e-d26237f7482e6ebc66546fccb088c60d.png',
     ],
     originalUrl: 'https://finance.sina.com.cn/jjxw/2025-10-13/doc-inftthkr3116706.shtml',
     tags: ['环保处罚', 'SK海力士', '污染防治', 'ESG', '合规'],
