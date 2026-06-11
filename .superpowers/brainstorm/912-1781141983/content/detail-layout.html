@@ -1,0 +1,170 @@
+<h2>舆情详情页 — 布局方案</h2>
+<p class="subtitle">从列表点击进入后的详情展示。已确定列表页用方案B（紧凑列表+头条）。</p>
+
+<div class="options">
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>侧边栏式 — 文章居中 + 右侧元信息</h3>
+      <p>左侧（宽）：正文内容区，标题/来源/时间/正文/图片。右侧（窄）：情感倾向、标签、相关舆情推荐。适合深度阅读，类似媒体文章页。</p>
+    </div>
+  </div>
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>全宽式 — 顶部元信息 + 正文独占</h3>
+      <p>顶部横条展示来源/时间/标签/情感倾向，下方正文全宽展示，图片可居中放大。阅读沉浸感更强，公司官网新闻页常用。</p>
+    </div>
+  </div>
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>弹窗式 — 当前页弹出，不跳转</h3>
+      <p>点击列表条目直接弹出侧边抽屉或居中弹窗展示详情，背景保留列表。适合快速浏览、不需要沉浸阅读的场景。操作更轻量。</p>
+    </div>
+  </div>
+</div>
+
+<hr style="margin:32px 0;border-color:#e5e5e5">
+
+<h3>方案 A 预览 — 侧边栏式</h3>
+
+<div class="mockup">
+  <div class="mockup-header">客户详情 > 舆情分析 > 文章详情（侧边栏式）</div>
+  <div class="mockup-body" style="background:#f8f9fa;padding:16px;display:flex;gap:16px">
+    <!-- 主内容区 -->
+    <div style="flex:1;background:white;border-radius:12px;padding:24px">
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        <span style="background:#e8ebff;color:#2d3bff;padding:2px 10px;border-radius:4px;font-size:11px">媒体报道</span>
+        <span style="background:#ffebee;color:#d63031;padding:2px 10px;border-radius:4px;font-size:11px">负面</span>
+      </div>
+      <div style="font-size:20px;font-weight:700;margin-bottom:8px">某公司Q3财报不及预期，市场反应强烈</div>
+      <div style="font-size:12px;color:#999;margin-bottom:16px">
+        <span>来源：东方财富</span>
+        <span style="margin:0 8px">|</span>
+        <span>2025-10-28 14:30</span>
+        <span style="margin:0 8px">|</span>
+        <span>采集时间：2025-10-29 08:00</span>
+      </div>
+      <div class="placeholder" style="width:100%;height:200px;border-radius:8px;margin-bottom:16px">文章配图</div>
+      <div style="font-size:13px;line-height:1.8;color:#333;margin-bottom:12px">
+        公司于2025年10月28日发布第三季度财务报告。报告显示，公司Q3实现营业收入18.5亿元，同比下降12.3%；归母净利润2.1亿元，同比下降28.6%。财报发布后，公司股价当日下跌5.8%...
+      </div>
+      <div class="placeholder" style="width:100%;height:160px;border-radius:8px;margin-bottom:12px">正文配图</div>
+      <div style="font-size:13px;line-height:1.8;color:#333">
+        多家机构下调公司目标价。摩根士丹利将评级从"增持"下调至"中性"，目标价从45元下调至38元。分析师指出，下游需求疲软叠加竞争加剧是主要担忧...
+      </div>
+      <div style="margin-top:20px;padding-top:16px;border-top:1px solid #f0f0f0">
+        <a href="#" style="color:#2d3bff;font-size:12px">查看原文 →</a>
+      </div>
+    </div>
+    <!-- 侧边栏 -->
+    <div style="width:200px;flex-shrink:0;display:flex;flex-direction:column;gap:12px">
+      <div style="background:white;border-radius:10px;padding:12px">
+        <div style="font-size:11px;color:#999;margin-bottom:6px">情感倾向</div>
+        <div style="background:#ffebee;color:#d63031;padding:6px 12px;border-radius:8px;font-size:13px;font-weight:600;text-align:center">⚠️ 负面</div>
+      </div>
+      <div style="background:white;border-radius:10px;padding:12px">
+        <div style="font-size:11px;color:#999;margin-bottom:6px">关键标签</div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px">
+          <span style="background:#f5f5f5;padding:3px 8px;border-radius:4px;font-size:11px">财报</span>
+          <span style="background:#f5f5f5;padding:3px 8px;border-radius:4px;font-size:11px">业绩下滑</span>
+          <span style="background:#f5f5f5;padding:3px 8px;border-radius:4px;font-size:11px">机构评级</span>
+        </div>
+      </div>
+      <div style="background:white;border-radius:10px;padding:12px">
+        <div style="font-size:11px;color:#999;margin-bottom:6px">相关舆情</div>
+        <div style="font-size:11px;color:#2d3bff;line-height:1.6">← 公司Q2财报回顾</div>
+        <div style="font-size:11px;color:#2d3bff;line-height:1.6">← 行业Q3整体表现</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr style="margin:32px 0;border-color:#e5e5e5">
+
+<h3>方案 B 预览 — 全宽式（官网风格）</h3>
+
+<div class="mockup">
+  <div class="mockup-header">客户详情 > 舆情分析 > 文章详情（全宽式）</div>
+  <div class="mockup-body" style="background:#f8f9fa;padding:20px">
+    <div style="max-width:700px;margin:0 auto;background:white;border-radius:12px;padding:24px">
+      <!-- 顶部元信息条 -->
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid #f0f0f0">
+        <span style="background:#e8ebff;color:#2d3bff;padding:3px 10px;border-radius:4px;font-size:11px;font-weight:500">媒体报道</span>
+        <span style="background:#ffebee;color:#d63031;padding:3px 10px;border-radius:4px;font-size:11px;font-weight:500">⚠️ 负面</span>
+        <span style="font-size:12px;color:#999">东方财富</span>
+        <span style="font-size:12px;color:#999">2025-10-28</span>
+        <span style="margin-left:auto;display:flex;gap:4px;flex-wrap:wrap">
+          <span style="background:#f5f5f5;padding:2px 8px;border-radius:10px;font-size:10px">财报</span>
+          <span style="background:#f5f5f5;padding:2px 8px;border-radius:10px;font-size:10px">业绩下滑</span>
+        </span>
+      </div>
+      <!-- 标题 -->
+      <div style="font-size:22px;font-weight:700;margin-bottom:16px;line-height:1.4">某公司Q3财报不及预期，市场反应强烈</div>
+      <!-- 头图 -->
+      <div class="placeholder" style="width:100%;height:260px;border-radius:8px;margin-bottom:20px">头图 / 封面图</div>
+      <!-- 正文 -->
+      <div style="font-size:14px;line-height:2;color:#333">
+        <p style="margin-bottom:16px">公司于2025年10月28日发布第三季度财务报告。报告显示，公司Q3实现营业收入18.5亿元，同比下降12.3%；归母净利润2.1亿元，同比下降28.6%。</p>
+        <p style="margin-bottom:16px">财报发布后，公司股价当日下跌5.8%，创年内新低。多家机构随即下调公司评级与目标价。</p>
+        <div class="placeholder" style="width:100%;height:180px;border-radius:8px;margin-bottom:16px">正文配图</div>
+        <p style="margin-bottom:16px">摩根士丹利将评级从"增持"下调至"中性"，目标价从45元下调至38元。中金公司维持"中性"评级，目标价从42元下调至35元。</p>
+        <p>分析师普遍认为，下游消费电子需求疲软、行业竞争加剧是公司业绩承压的主要原因。短期内公司基本面改善空间有限。</p>
+      </div>
+      <div style="margin-top:24px;padding-top:16px;border-top:1px solid #f0f0f0;display:flex;justify-content:space-between;align-items:center">
+        <a href="#" style="color:#2d3bff;font-size:13px;font-weight:500">查看原文 →</a>
+        <span style="font-size:11px;color:#bbb">系统采集时间：2025-10-29 08:00</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr style="margin:32px 0;border-color:#e5e5e5">
+
+<h3>方案 C 预览 — 弹窗/抽屉式</h3>
+
+<div class="mockup">
+  <div class="mockup-header">客户详情 > 舆情分析（弹窗模式）</div>
+  <div class="mockup-body" style="background:#f8f9fa;padding:16px;display:flex;gap:16px">
+    <!-- 幕后列表 -->
+    <div style="flex:1;opacity:0.4">
+      <div style="background:white;border-radius:8px;padding:12px;margin-bottom:8px;display:flex;align-items:center;gap:8px">
+        <div class="placeholder" style="width:40px;height:40px;border-radius:4px">img</div>
+        <div><div style="font-weight:500;font-size:11px">Q3财报不及预期...</div><div style="font-size:9px;color:#999">东方财富 · 10-28</div></div>
+      </div>
+      <div style="background:white;border-radius:8px;padding:12px;margin-bottom:8px;display:flex;align-items:center;gap:8px">
+        <div class="placeholder" style="width:40px;height:40px;border-radius:4px">img</div>
+        <div><div style="font-weight:500;font-size:11px">完成新一轮融资...</div><div style="font-size:9px;color:#999">公司官网 · 10-25</div></div>
+      </div>
+      <div style="background:white;border-radius:8px;padding:12px;display:flex;align-items:center;gap:8px">
+        <div class="placeholder" style="width:40px;height:40px;border-radius:4px">img</div>
+        <div><div style="font-weight:500;font-size:11px">证监会核准IPO...</div><div style="font-size:9px;color:#999">证监会 · 10-20</div></div>
+      </div>
+    </div>
+    <!-- 弹窗 -->
+    <div style="width:420px;background:white;border-radius:16px;box-shadow:0 8px 40px rgba(0,0,0,0.15);overflow:hidden">
+      <div style="padding:16px;border-bottom:1px solid #f0f0f0;display:flex;justify-content:space-between;align-items:center">
+        <div style="font-weight:600;font-size:14px">舆情详情</div>
+        <span style="font-size:18px;color:#999;cursor:pointer">✕</span>
+      </div>
+      <div style="padding:16px;max-height:400px;overflow-y:auto">
+        <div style="display:flex;gap:6px;margin-bottom:10px">
+          <span style="background:#e8ebff;color:#2d3bff;padding:2px 8px;border-radius:4px;font-size:10px">媒体报道</span>
+          <span style="background:#ffebee;color:#d63031;padding:2px 8px;border-radius:4px;font-size:10px">负面</span>
+        </div>
+        <div style="font-weight:700;font-size:16px;margin-bottom:8px">某公司Q3财报不及预期，市场反应强烈</div>
+        <div style="font-size:11px;color:#999;margin-bottom:12px">东方财富 · 2025-10-28 · 采集于 2025-10-29</div>
+        <div class="placeholder" style="width:100%;height:160px;border-radius:8px;margin-bottom:12px">配图</div>
+        <div style="font-size:12px;line-height:1.7;color:#444">
+          公司于2025年10月28日发布Q3财报。营收18.5亿元，同比下降12.3%；归母净利润2.1亿元，同比下降28.6%。股价当日下跌5.8%。多家机构下调目标价...
+        </div>
+        <div style="display:flex;gap:6px;margin-top:12px">
+          <span style="background:#f5f5f5;padding:2px 8px;border-radius:10px;font-size:10px">财报</span>
+          <span style="background:#f5f5f5;padding:2px 8px;border-radius:10px;font-size:10px">业绩下滑</span>
+        </div>
+        <a href="#" style="display:block;margin-top:12px;color:#2d3bff;font-size:12px">查看原文 →</a>
+      </div>
+    </div>
+  </div>
+</div>
