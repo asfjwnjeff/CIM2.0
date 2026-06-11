@@ -18,8 +18,10 @@ import {
   getCustomerStatusColor,
 } from '@/lib/sample-data';
 import { ArrowLeft, Edit3, UserPlus, UserCheck, UserX } from 'lucide-react';
+import { useSentiment } from '@/hooks/useSentiment';
+import { SentimentList } from '@/components/sentiment/SentimentList';
 
-type TabType = 'basic' | 'business' | 'semiconductor' | 'relations' | 'products' | 'config' | 'billing' | 'followup' | 'opportunities' | 'approvals' | 'logs';
+type TabType = 'basic' | 'business' | 'semiconductor' | 'relations' | 'products' | 'config' | 'billing' | 'followup' | 'opportunities' | 'approvals' | 'logs' | 'sentiment';
 
 function getUserById(id: string) {
   return MOCK_USERS.find((u) => u.id === id);
@@ -98,6 +100,8 @@ export default function CustomerDetailPage() {
     () => riskApprovals.filter((ra) => ra.companyName === customer?.name),
     [riskApprovals, customer],
   );
+
+  const sentiment = useSentiment(customer?.id || '');
 
   if (!customer) {
     return (
@@ -201,6 +205,7 @@ export default function CustomerDetailPage() {
     opportunities: '商机',
     approvals: '风控审批记录',
     logs: '操作日志',
+    sentiment: '舆情分析',
   };
 
   return (
@@ -676,6 +681,17 @@ export default function CustomerDetailPage() {
           {activeTab === 'opportunities' && <OpportunitiesTab customerOpportunities={customerOpportunities} setDeleteTarget={setDeleteTarget} customer={customer} />}
           {activeTab === 'approvals' && <ApprovalsTab customerRiskApprovals={customerRiskApprovals} setDeleteTarget={setDeleteTarget} customer={customer} />}
           {activeTab === 'logs' && <LogsTab auditLogs={customer.auditLogs} />}
+          {activeTab === 'sentiment' && (
+            <SentimentList
+              items={sentiment.items}
+              headline={sentiment.headline}
+              filters={sentiment.filters}
+              onFilterChange={sentiment.setFilters}
+              hasMore={sentiment.hasMore}
+              onLoadMore={sentiment.loadMore}
+              isLoading={sentiment.isLoading}
+            />
+          )}
         </div>
 
         {/* Collaboration dialog */}
