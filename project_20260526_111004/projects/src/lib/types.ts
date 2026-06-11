@@ -983,3 +983,31 @@ export interface DingTalkApprovalInstance {
   completedAt?: string;
   result?: string;
 }
+
+// ==================== 舆情分析 ====================
+
+export type SentimentSourceType = '官网公告' | '监管公告' | '媒体报道' | '行业研报';
+
+export type ImpactAssessment = '正面' | '中性' | '负面';
+
+export interface SentimentItem {
+  id: string;
+  title: string;
+  source: string;
+  sourceType: SentimentSourceType;
+  publishDate: string;
+  summary: string;
+  content: string;
+  images: string[];
+  originalUrl: string;
+  tags: string[];
+  impactAssessment: ImpactAssessment;
+  collectedAt: string;
+}
+
+export interface SentimentFilters {
+  sourceType: SentimentSourceType | 'all';
+  impactAssessment: ImpactAssessment | 'all';
+  dateRange: { start: string; end: string } | null;
+  search: string;
+}
