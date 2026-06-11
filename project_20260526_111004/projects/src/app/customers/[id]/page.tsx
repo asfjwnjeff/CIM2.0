@@ -21,7 +21,7 @@ import { ArrowLeft, Edit3, UserPlus, UserCheck, UserX } from 'lucide-react';
 import { useSentiment } from '@/hooks/useSentiment';
 import { SentimentList } from '@/components/sentiment/SentimentList';
 
-type TabType = 'basic' | 'business' | 'semiconductor' | 'relations' | 'products' | 'config' | 'billing' | 'followup' | 'opportunities' | 'approvals' | 'logs' | 'sentiment';
+type TabType = 'basic' | 'business' | 'semiconductor' | 'relations' | 'products' | 'sentiment' | 'followup' | 'opportunities' | 'approvals' | 'config' | 'billing' | 'logs';
 
 function getUserById(id: string) {
   return MOCK_USERS.find((u) => u.id === id);
@@ -68,7 +68,7 @@ export default function CustomerDetailPage() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const tab = params.get('tab');
-    const validTabs: TabType[] = ['basic', 'business', 'semiconductor', 'relations', 'products', 'config', 'billing', 'followup', 'opportunities', 'approvals', 'logs', 'sentiment'];
+    const validTabs: TabType[] = ['basic', 'business', 'semiconductor', 'relations', 'products', 'sentiment', 'followup', 'opportunities', 'approvals', 'config', 'billing', 'logs'];
     if (tab && validTabs.includes(tab as TabType)) {
       setActiveTab(tab as TabType);
     }
@@ -209,13 +209,13 @@ export default function CustomerDetailPage() {
     semiconductor: '半导体产业链定位',
     relations: '上下游关联关系',
     products: '经营商品档案',
-    config: '客户信息配置',
-    billing: '账单主体配置',
+    sentiment: '舆情分析',
     followup: '跟进记录',
     opportunities: '商机',
     approvals: '风控审批记录',
+    config: '客户信息配置',
+    billing: '账单主体配置',
     logs: '操作日志',
-    sentiment: '舆情分析',
   };
 
   return (
