@@ -113,10 +113,11 @@ const mockOpportunities = [
     customerId: '1',
     customer: '应用材料(中国)有限公司',
     existingServiceContract: '是',
-    newSite: '否',
-    newProduct: '是',
+    newSite: '上海张江高科技园区',
+    newService: '货代+报关全流程',
     opportunityDate: '2026-05-15',
     biddingProject: '否',
+    biddingDocument: '',
     opportunityContent: '客户有半导体设备进口物流需求，需要评估货代服务能力，包括海运、空运、报关等全流程服务',
     serviceProduct: '货代',
     serviceRequirement: '恒温恒湿仓库，防静电包装，精密设备搬运',
@@ -147,10 +148,11 @@ const mockOpportunities = [
     customerId: '2',
     customer: '飞雅贸易(上海)有限公司',
     existingServiceContract: '否',
-    newSite: '是',
-    newProduct: '否',
+    newSite: '',
+    newService: '',
     opportunityDate: '2026-05-16',
     biddingProject: '否',
+    biddingDocument: '',
     opportunityContent: '客户需要上海地区的仓储服务，用于电子产品进口存储，要求恒温恒湿环境',
     serviceProduct: '仓储',
     serviceRequirement: '恒温恒湿仓库，温度20±2℃，湿度45-65%，面积2000㎡',
@@ -181,10 +183,11 @@ const mockOpportunities = [
     customerId: '3',
     customer: '荏原机械(中国)有限公司',
     existingServiceContract: '是',
-    newSite: '否',
-    newProduct: '否',
+    newSite: '昆山工厂',
+    newService: '大型设备运输+吊装',
     opportunityDate: '2026-05-17',
     biddingProject: '是',
+    biddingDocument: '荏原招标技术需求书.pdf',
     opportunityContent: '机械制造企业有大型设备运输需求，包括泵类设备的公路运输和吊装服务',
     serviceProduct: '运输',
     serviceRequirement: '超限设备运输，需特种车辆，最大单件重量30吨',
@@ -215,10 +218,11 @@ const mockOpportunities = [
     customerId: '1',
     customer: '应用材料(中国)有限公司',
     existingServiceContract: '是',
-    newSite: '否',
-    newProduct: '是',
+    newSite: '苏州工业园区',
+    newService: '进出口代理+外汇结算',
     opportunityDate: '2026-05-18',
     biddingProject: '否',
+    biddingDocument: '',
     opportunityContent: '半导体产品进出口代理服务需求，包括报关、报检、外汇结算等全流程服务',
     serviceProduct: '进出口',
     serviceRequirement: '快速通关，24小时内完成报关，合规性强',
@@ -249,10 +253,11 @@ const mockOpportunities = [
     customerId: '4',
     customer: '昇先创(上海)贸易有限公司',
     existingServiceContract: '否',
-    newSite: '是',
-    newProduct: '是',
+    newSite: '',
+    newService: '',
     opportunityDate: '2026-05-19',
     biddingProject: '是',
+    biddingDocument: '昇先创供应链招标文件.zip',
     opportunityContent: '客户需要一体化供应链解决方案，涵盖货代、仓储、运输、关务等全方位服务',
     serviceProduct: '一体化供应链',
     serviceRequirement: '全链条服务，包括国际物流、仓储管理、国内配送、关务合规',
@@ -289,11 +294,12 @@ export default function EditOpportunityPage() {
     customer: opportunity.customerId,
     existingServiceContract: opportunity.existingServiceContract,
     newSite: opportunity.newSite,
-    newProduct: opportunity.newProduct,
+    newService: opportunity.newService || '',
     opportunityTitle: opportunity.opportunityTitle,
     opportunityDate: opportunity.opportunityDate,
     opportunityContent: opportunity.opportunityContent,
     biddingProject: opportunity.biddingProject,
+    biddingDocument: (opportunity as any).biddingDocument || '',
     serviceProduct: opportunity.serviceProduct,
     serviceRequirement: opportunity.serviceRequirement,
     intendedSite: opportunity.intendedSite,
@@ -403,29 +409,29 @@ export default function EditOpportunityPage() {
                   <label className={labelClass}>已有服务合同 <span className="text-red-500">*</span></label>
                   <SearchableSelect
                     value={formData.existingServiceContract}
-                    onChange={(value) => handleInputChange('existingServiceContract', value)}
+                    onChange={(value) => {
+                      handleInputChange('existingServiceContract', value);
+                      if (value === '否') {
+                        handleInputChange('newSite', '');
+                        handleInputChange('newService', '');
+                      }
+                    }}
                     options={[{ value: '是', label: '是' }, { value: '否', label: '否' }]}
                     placeholder="请选择"
                   />
                 </div>
-                <div>
-                  <label className={labelClass}>新站点</label>
-                  <SearchableSelect
-                    value={formData.newSite}
-                    onChange={(value) => handleInputChange('newSite', value)}
-                    options={[{ value: '是', label: '是' }, { value: '否', label: '否' }]}
-                    placeholder="请选择"
-                  />
-                </div>
-                <div>
-                  <label className={labelClass}>新产品</label>
-                  <SearchableSelect
-                    value={formData.newProduct}
-                    onChange={(value) => handleInputChange('newProduct', value)}
-                    options={[{ value: '是', label: '是' }, { value: '否', label: '否' }]}
-                    placeholder="请选择"
-                  />
-                </div>
+                {formData.existingServiceContract === '是' && (
+                  <>
+                    <div>
+                      <label className={labelClass}>新站点 <span className="text-red-500">*</span></label>
+                      <input type="text" className={inputClass} value={formData.newSite} onChange={(e) => handleInputChange('newSite', e.target.value)} placeholder="请输入新站点" />
+                    </div>
+                    <div>
+                      <label className={labelClass}>新服务 <span className="text-red-500">*</span></label>
+                      <input type="text" className={inputClass} value={formData.newService || ''} onChange={(e) => handleInputChange('newService', e.target.value)} placeholder="请输入新服务" />
+                    </div>
+                  </>
+                )}
               </div>
             </div>
 
@@ -446,15 +452,35 @@ export default function EditOpportunityPage() {
                     <label className={labelClass}>招标项目</label>
                     <SearchableSelect
                       value={formData.biddingProject}
-                      onChange={(value) => handleInputChange('biddingProject', value)}
+                      onChange={(value) => {
+                        handleInputChange('biddingProject', value);
+                        if (value === '否') handleInputChange('biddingDocument', '');
+                      }}
                       options={[{ value: '是', label: '是' }, { value: '否', label: '否' }]}
                       placeholder="请选择"
                     />
                   </div>
                 </div>
+                {formData.biddingProject === '是' && (
+                  <div>
+                    <label className={labelClass}>招标文件 <span className="text-red-500">*</span></label>
+                    <input
+                      type="file"
+                      accept=".pdf,.doc,.docx,.xls,.xlsx,.zip,.rar"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) handleInputChange('biddingDocument', file.name);
+                      }}
+                      className="block w-full text-sm text-[#5A5A5A] file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-[#E8EBFF] file:text-[#2D3BFF] hover:file:bg-[#CDD1FF] file:cursor-pointer cursor-pointer"
+                    />
+                    {formData.biddingDocument && (
+                      <p className="text-xs text-[#0D8A5E] mt-1">已选择：{formData.biddingDocument}</p>
+                    )}
+                  </div>
+                )}
                 <div>
                   <label className={labelClass}>商机内容 <span className="text-red-500">*</span></label>
-                  <textarea value={formData.opportunityContent} onChange={(e) => handleInputChange('opportunityContent', e.target.value)} rows={4} className={inputClass + " resize-none"} />
+                  <textarea value={formData.opportunityContent} onChange={(e) => handleInputChange('opportunityContent', e.target.value)} rows={5} className={FIELD_STYLES.textarea + " resize-none"} />
                 </div>
               </div>
             </div>
@@ -474,7 +500,7 @@ export default function EditOpportunityPage() {
                 </div>
                 <div>
                   <label className={labelClass}>服务要求 <span className="text-red-500">*</span></label>
-                  <input type="text" value={formData.serviceRequirement} onChange={(e) => handleInputChange('serviceRequirement', e.target.value)} className={inputClass} />
+                  <textarea value={formData.serviceRequirement} onChange={(e) => handleInputChange('serviceRequirement', e.target.value)} rows={2} className={FIELD_STYLES.textarea + " resize-none"} />
                 </div>
                 <div className="col-span-2">
                   <label className={labelClass}>意向站点 <span className="text-red-500">*</span></label>
@@ -565,19 +591,19 @@ export default function EditOpportunityPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className={labelClass}><span className="text-green-600">优势</span> <span className="text-red-500">*</span></label>
-                  <input type="text" value={formData.advantages} onChange={(e) => handleInputChange('advantages', e.target.value)} className={inputClass} />
+                  <textarea value={formData.advantages} onChange={(e) => handleInputChange('advantages', e.target.value)} rows={3} className={FIELD_STYLES.textarea + " resize-none"} />
                 </div>
                 <div>
                   <label className={labelClass}><span className="text-red-600">劣势</span> <span className="text-red-500">*</span></label>
-                  <input type="text" value={formData.disadvantages} onChange={(e) => handleInputChange('disadvantages', e.target.value)} className={inputClass} />
+                  <textarea value={formData.disadvantages} onChange={(e) => handleInputChange('disadvantages', e.target.value)} rows={3} className={FIELD_STYLES.textarea + " resize-none"} />
                 </div>
                 <div>
                   <label className={labelClass}><span className="text-blue-600">机会</span> <span className="text-red-500">*</span></label>
-                  <input type="text" value={formData.opportunities} onChange={(e) => handleInputChange('opportunities', e.target.value)} className={inputClass} />
+                  <textarea value={formData.opportunities} onChange={(e) => handleInputChange('opportunities', e.target.value)} rows={3} className={FIELD_STYLES.textarea + " resize-none"} />
                 </div>
                 <div>
                   <label className={labelClass}><span className="text-orange-600">威胁</span> <span className="text-red-500">*</span></label>
-                  <input type="text" value={formData.threats} onChange={(e) => handleInputChange('threats', e.target.value)} className={inputClass} />
+                  <textarea value={formData.threats} onChange={(e) => handleInputChange('threats', e.target.value)} rows={3} className={FIELD_STYLES.textarea + " resize-none"} />
                 </div>
               </div>
             </div>
@@ -585,7 +611,7 @@ export default function EditOpportunityPage() {
             {/* 备注 */}
             <div className="bg-white border border-[#EBEBEB] rounded-xl p-6 space-y-4">
               <h3 className={sectionTitleClass}>备注</h3>
-              <textarea value={formData.remarks} onChange={(e) => handleInputChange('remarks', e.target.value)} rows={3} className={inputClass + " resize-none"} />
+              <textarea value={formData.remarks} onChange={(e) => handleInputChange('remarks', e.target.value)} rows={4} className={FIELD_STYLES.textarea + " resize-none"} />
             </div>
           </div>
 

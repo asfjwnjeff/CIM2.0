@@ -3,14 +3,16 @@ import { followups } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 
 const JSON_FIELDS = ['keyPoints', 'actionItems', 'decisions', 'attachments'] as const;
+const JSON_PARSE_FIELDS = ['keyPoints', 'actionItems', 'decisions', 'attachments', 'checkInRecords'];
+const JSON_STRINGIFY_FIELDS = ['keyPoints', 'actionItems', 'decisions', 'attachments', 'checkInRecords'];
 
 function parseRecord(record: Record<string, unknown>) {
   const parsed = { ...record };
-  for (const f of JSON_FIELDS) {
+  for (const f of JSON_PARSE_FIELDS) {
     if (parsed[f]) {
-      try { parsed[f] = JSON.parse(parsed[f] as string); } catch { parsed[f] = []; }
+      try { parsed[f] = JSON.parse(parsed[f] as string); } catch { parsed[f] = f === 'checkInRecords' ? [] : []; }
     } else {
-      parsed[f] = [];
+      parsed[f] = f === 'checkInRecords' ? [] : [];
     }
   }
   if (parsed['collaborators']) {
@@ -68,6 +70,7 @@ export async function POST(req: Request) {
       actionItems: body.actionItems ? JSON.stringify(body.actionItems) : null,
       decisions: body.decisions ? JSON.stringify(body.decisions) : null,
       attachments: body.attachments ? JSON.stringify(body.attachments) : null,
+      checkInRecords: body.checkInRecords ? JSON.stringify(body.checkInRecords) : null,
       createdAt: body.createdAt || now,
       updatedAt: now,
     };
@@ -95,7 +98,7 @@ export async function PUT(req: Request) {
     for (const f of STRING_FIELDS) {
       if (body[f] !== undefined) updates[f] = body[f];
     }
-    for (const f of JSON_FIELDS) {
+    for (const f of JSON_STRINGIFY_FIELDS) {
       if (body[f] !== undefined) updates[f] = JSON.stringify(body[f]);
     }
     if (body['collaborators'] !== undefined) {

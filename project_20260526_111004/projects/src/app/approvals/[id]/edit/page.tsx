@@ -305,15 +305,6 @@ export default function ApprovalEditPage() {
                   </div>
                 </div>
 
-                {/* 风控信息 */}
-                <div className="bg-white rounded-2xl shadow-sm p-6">
-                  <h3 className="text-sm font-semibold text-[#0A0A0A] mb-4 pb-3 border-b border-[#EBEBEB]">风控信息</h3>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div><label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">风险控制目的 <span className="text-red-500">*</span></label><SearchableSelect value={formData.riskControlPurpose || ''} onChange={(value) => handleChange('riskControlPurpose', value)} options={RISK_PURPOSES.map((p) => ({ value: p, label: p }))} placeholder="请选择" /></div>
-                    <div><label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">此公司与HMG的关系 <span className="text-red-500">*</span></label><SearchableSelect value={formData.relationshipWithHMG || ''} onChange={(value) => handleChange('relationshipWithHMG', value)} options={HMG_RELATIONS.map((r) => ({ value: r, label: r }))} placeholder="请选择" /></div>
-                  </div>
-                </div>
-
                 {/* 关联信息 */}
                 <div className="bg-white rounded-2xl shadow-sm p-6">
                   <h3 className="text-sm font-semibold text-[#0A0A0A] mb-4 pb-3 border-b border-[#EBEBEB]">关联信息</h3>
@@ -329,7 +320,6 @@ export default function ApprovalEditPage() {
                         <button type="button" onClick={() => { setSearchTerm(''); setSelectorOpen('businessCustomer'); }} className="w-full bg-white border border-dashed border-[#D5D5D5] rounded-xl px-4 py-3 text-sm text-[#999] hover:border-[#2D3BFF] hover:text-[#2D3BFF] transition-colors">+ 选择业务主客户</button>
                       </div>
                     </div>
-                    <div><label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">建议系统代码 <span className="text-red-500">*</span></label><input type="text" value={formData.suggestedSystemCode} onChange={(e) => handleChange('suggestedSystemCode', e.target.value)} placeholder="请输入建议系统代码" className="w-full bg-[#F5F5F5] border-none rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30" /></div>
                     <div>
                       <label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">商机 <span className="text-red-500">*</span></label>
                       <div className="relative" ref={opportunityRef}>

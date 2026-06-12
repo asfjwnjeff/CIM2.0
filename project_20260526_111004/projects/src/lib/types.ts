@@ -103,6 +103,8 @@ export interface CompanyBasicInfo {
   logoUrls?: string[];
   // 统一社会信用证代码
   unifiedSocialCreditCode?: string;
+  // 中文简称
+  shortName?: string;
   // 客户国（地）别：中企/美企/日企/韩企/台企等
   countryRegion?: string;
   // 产业分类：半导体/消费品/工业工程/医疗健康/新能源
@@ -265,15 +267,25 @@ export type CustomerLevel = 'vip' | 'key' | 'normal' | 'small';
 
 export interface Contact {
   id: string;
-  name?: string;
-  title?: string;
-  phone?: string;
-  email?: string;
-  department?: string;
-  isPrimary?: boolean;
-  customerId?: string;
-  customerName?: string;
+  customerId: string;
+  name: string;                    // 姓名 (必填)
+  englishName?: string;            // 英文名
+  phone?: string;                  // 手机号
+  isKeyDecisionMaker: boolean;     // 是否关键决策人 (必填)
+  email?: string;                  // 邮箱
+  wechat?: string;                 // 微信
+  address?: string;                // 地址
+  department: string;              // 部门 (必填)
+  position: string;                // 职务 (必填)
+  gender: 'male' | 'female';      // 性别 (必填)
+  birthday?: string;               // 生日
+  age?: number;                    // 年龄
+  hobbies?: string;                // 爱好
+  hometown?: string;               // 籍贯
+  familySituation?: string;        // 家庭情况
+  zipCode?: string;                // 邮政编码
   createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface Customer {
@@ -296,14 +308,10 @@ export interface Customer {
   contacts?: Contact[];
   createdAt: string;
   updatedAt?: string;
-  // 新增：协同管理字段
   createdBy: string;
   responsiblePersons: string[];
   collaborators: string[];
   progressStatus: ProgressStatus;
-  contactPerson?: string;
-  contactPhone?: string;
-  contactEmail?: string;
   // 子模块信息
   basicInfo?: CompanyBasicInfo;
   businessInfo?: CompanyBusinessInfo;
@@ -373,7 +381,7 @@ export interface OrderMapping {
 // ==================== 客户 ====================
 
 export type FollowUpType = 'kpi_not_met' | 'contract_mgmt' | 'biz_meeting' | 'other_customer';
-export type FollowUpStatus = 'draft' | 'new' | 'discussing' | 'promoting' | 'completed' | 'cancelled' | 'success' | 'no_progress' | 'terminated';
+export type FollowUpStatus = 'draft' | 'new' | 'discussing' | 'promoting' | 'success' | 'no_progress' | 'cancelled' | 'terminated' | 'failed';
 export type FollowUpMethod = 'phone_visit' | 'onsite_visit' | 'online_visit' | 'hmg_meeting';
 
 export interface FollowUpRecord {
@@ -405,6 +413,7 @@ export interface FollowUpRecord {
   actionItems?: string[];
   decisions?: string[];
   attachments?: string[];
+  checkInRecords?: Array<{ lat: number; lng: number; address: string; timestamp: string; photos: string[] }>;
   createdAt: string;
   updatedAt?: string;
 }
@@ -441,6 +450,11 @@ export interface Opportunity {
   serviceProducts?: string[];
   serviceProduct?: string;
   contacts?: Contact[];
+  existingServiceContract?: string;   // 已有服务合同: 是/否
+  newSite?: string;                    // 新站点
+  newService?: string;                 // 新服务
+  biddingProject?: string;             // 招标项目: 是/否
+  biddingDocument?: string;            // 招标文件（文件名）
   createdAt: string;
   updatedAt?: string;
 }
@@ -1015,4 +1029,23 @@ export interface SentimentFilters {
   impactAssessment: ImpactAssessment | 'all';
   dateRange: { start: string; end: string } | null;
   search: string;
+}
+
+// ==================== 跟进提醒 ====================
+
+export interface FollowupReminderConfig {
+  id: string;
+  level: string;       // K/A/B/C/D
+  days: number;        // 跟进频率天数
+  updatedAt?: string;
+}
+
+export interface FollowupReminderItem {
+  customerId: string;
+  customerName: string;
+  level: string;
+  lastFollowUpDate: string | null;
+  overdueDays: number;
+  responsiblePersons: string[];
+  collaborators: string[];
 }

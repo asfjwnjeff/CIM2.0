@@ -2927,3 +2927,22 @@ export const initialRiskApprovals = [
   },
 ];
 
+// ==================== 跟进记录种子数据 ====================
+
+function daysAgo(n: number): string {
+  const d = new Date();
+  d.setDate(d.getDate() - n);
+  return d.toISOString().split('T')[0];
+}
+
+export const initialFollowUps = [
+  { id: 'fu-seed-1', customerId: 'cust-001', customerName: '应用材料（中国）有限公司', type: 'biz_meeting', method: 'onsite_visit', content: '季度业务回顾会议，讨论Q3合作计划', followUpDate: daysAgo(3), status: 'completed', owner: 'user-2', createdAt: daysAgo(3) },
+  { id: 'fu-seed-2', customerId: 'cust-002', customerName: '飞雅贸易（上海）有限公司', type: 'contract_mgmt', method: 'online_visit', content: '合同续约条款确认', followUpDate: daysAgo(15), status: 'discussing', owner: 'user-5', createdAt: daysAgo(15) },
+  { id: 'fu-seed-3', customerId: 'cust-003', customerName: '中芯国际集成电路制造有限公司', type: 'biz_meeting', method: 'onsite_visit', content: '新工艺需求沟通', followUpDate: daysAgo(8), status: 'promoting', owner: 'user-4', createdAt: daysAgo(8) },
+  { id: 'fu-seed-4', customerId: 'cust-005', customerName: '苏斯贸易（上海）有限公司', type: 'biz_meeting', method: 'phone_visit', content: '新测试设备报价跟进', followUpDate: daysAgo(25), status: 'discussing', owner: 'user-5', createdAt: daysAgo(25) },
+  { id: 'fu-seed-5', customerId: 'cust-006', customerName: '昇先创科技（深圳）有限公司', type: 'kpi_not_met', method: 'onsite_visit', content: 'AI芯片设计服务方案演示', followUpDate: daysAgo(12), status: 'promoting', owner: 'user-2', createdAt: daysAgo(12) },
+  { id: 'fu-seed-6', customerId: 'cust-007', customerName: '上海华力集成电路有限公司', type: 'biz_meeting', method: 'hmg_meeting', content: '28nm工艺产能协调会议', followUpDate: daysAgo(2), status: 'completed', owner: 'user-4', createdAt: daysAgo(2) },
+  { id: 'fu-seed-7', customerId: 'cust-008', customerName: '上海荏原精密机械有限公司', type: 'contract_mgmt', method: 'online_visit', content: 'CMP设备维保合同签订', followUpDate: daysAgo(1), status: 'completed', owner: 'user-1', createdAt: daysAgo(1) },
+  { id: 'fu-seed-8', customerId: 'cust-009', customerName: '岛津企业管理（中国）有限公司', type: 'other_customer', method: 'phone_visit', content: '分析仪器进口报关咨询', followUpDate: daysAgo(35), status: 'new', owner: 'user-1', createdAt: daysAgo(35) },
+];
+

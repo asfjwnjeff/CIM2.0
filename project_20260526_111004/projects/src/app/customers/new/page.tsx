@@ -4,8 +4,9 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useApp } from '@/lib/store';
 import { MOCK_USERS, PROGRESS_STATUS_LABELS, PROGRESS_STATUS_COLORS } from '@/lib/sample-data';
-import type { ProgressStatus, IndustryChainLevel, IndustryChainRole, CustomerStatus } from '@/lib/types';
-import { ArrowLeft, Plus, X, Search as SearchIcon, Building2, Upload, Check } from 'lucide-react';
+import type { ProgressStatus, IndustryChainLevel, IndustryChainRole, CustomerStatus, Contact } from '@/lib/types';
+import ContactManagementDialog from '@/components/ContactManagementDialog';
+import { ArrowLeft, Plus, X, Search as SearchIcon, Building2, Upload, Check, Save, Phone } from 'lucide-react';
 import { SearchableSelect } from '@/components/ui/searchable-select';
 import type { SelectOption } from '@/components/ui/searchable-select';
 import { SearchableMultiSelect } from '@/components/ui/searchable-multi-select';
@@ -13,11 +14,10 @@ import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { FIELD_STYLES } from '@/lib/ui-constants';
 
-type TabType = 'basic' | 'business';
+type TabType = 'basic';
 
 const TAB_LABELS: Record<TabType, string> = {
   basic: '企业基本信息',
-  business: '工商资质全景',
 };
 
 interface FormData {
@@ -32,12 +32,10 @@ interface FormData {
   responsiblePersons: string[];
   collaborators: string[];
   progressStatus: ProgressStatus;
-  contactPerson: string;
-  contactPhone: string;
-  contactEmail: string;
   // 企业基本信息 - 新字段
   logoUrls: string[];
   unifiedSocialCreditCode: string;
+  shortName: string;
   countryRegion: string;
   industryCategory: string;
   mainProducts: string;
@@ -349,11 +347,9 @@ const EMPTY_FORM: FormData = {
   responsiblePersons: [],
   collaborators: [],
   progressStatus: 'newly_acquired',
-  contactPerson: '',
-  contactPhone: '',
-  contactEmail: '',
   logoUrls: [],
   unifiedSocialCreditCode: '',
+  shortName: '',
   countryRegion: '',
   industryCategory: '',
   mainProducts: '',
@@ -457,6 +453,32 @@ export default function NewCustomerPage() {
   const [errorMessage, setErrorMessage] = useState('');
   const hasShownWarning = useRef(false);
 
+  // Contact management state
+  const [contactDialogOpen, setContactDialogOpen] = useState(false);
+  const [contactList, setContactList] = useState<Contact[]>([]);
+  const [pendingCustomerId, setPendingCustomerId] = useState<string | null>(null);
+
+  const loadContacts = useCallback(async () => {
+    const cid = pendingCustomerId;
+    if (!cid) return;
+    try {
+      const res = await fetch(`/api/contacts?customerId=${encodeURIComponent(cid)}`);
+      const data = await res.json();
+      if (Array.isArray(data)) setContactList(data);
+    } catch { /* ignore */ }
+  }, [pendingCustomerId]);
+
+  useEffect(() => {
+    if (pendingCustomerId) loadContacts();
+  }, [pendingCustomerId, loadContacts]);
+
+  // 为新客户预生成 ID，用于联系人在客户保存前即可添加
+  useEffect(() => {
+    if (!pendingCustomerId) {
+      setPendingCustomerId(`cust-${Date.now()}`);
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   // 模糊搜索状态
   const [nameSuggestions, setNameSuggestions] = useState<MockCompany[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -551,6 +573,7 @@ export default function NewCustomerPage() {
       basicInfo: {
         logoUrls: form.logoUrls.length > 0 ? form.logoUrls : undefined,
         unifiedSocialCreditCode: form.unifiedSocialCreditCode.trim() || undefined,
+        shortName: form.shortName.trim() || undefined,
         countryRegion: form.countryRegion || undefined,
         industryCategory: form.industryCategory || undefined,
         mainProducts: form.mainProducts.trim() || undefined,
@@ -608,7 +631,7 @@ export default function NewCustomerPage() {
       } : undefined,
     };
 
-    addCustomer(newCustomer as Parameters<typeof addCustomer>[0]);
+    addCustomer({ ...newCustomer, id: pendingCustomerId } as Parameters<typeof addCustomer>[0]);
 
     const name = form.name.trim();
     addLog({
@@ -620,7 +643,7 @@ export default function NewCustomerPage() {
     });
 
     router.push('/customers');
-  }, [form, addCustomer, addLog, router]);
+  }, [form, addCustomer, addLog, router, pendingCustomerId]);
 
   const handleSaveDraft = useCallback(async () => {
     setIsDrafting(true);
@@ -640,6 +663,7 @@ export default function NewCustomerPage() {
       basicInfo: {
         logoUrls: form.logoUrls.length > 0 ? form.logoUrls : undefined,
         unifiedSocialCreditCode: form.unifiedSocialCreditCode.trim() || undefined,
+        shortName: form.shortName.trim() || undefined,
         countryRegion: form.countryRegion || undefined,
         industryCategory: form.industryCategory || undefined,
         mainProducts: form.mainProducts.trim() || undefined,
@@ -697,7 +721,7 @@ export default function NewCustomerPage() {
       } : undefined,
     };
 
-    addCustomer(newCustomer as Parameters<typeof addCustomer>[0]);
+    addCustomer({ ...newCustomer, id: pendingCustomerId } as Parameters<typeof addCustomer>[0]);
     addLog({
       action: 'create',
       operator: '系统管理员',
@@ -710,7 +734,7 @@ export default function NewCustomerPage() {
     setIsDrafting(false);
     setIsDirty(false);
     setTimeout(() => setDraftMessage(''), 3000);
-  }, [form, addCustomer, addLog]);
+  }, [form, addCustomer, addLog, pendingCustomerId]);
 
   const handleBack = useCallback(() => {
     if (isDirty && !hasShownWarning.current) {
@@ -742,11 +766,11 @@ export default function NewCustomerPage() {
             <button onClick={handleBack} className="px-4 py-2 border border-[#D5D5D5] text-[#5A5A5A] hover:bg-[#F5F5F5] rounded-lg text-sm font-medium transition-colors">
               取消
             </button>
-            <button onClick={handleSaveDraft} disabled={isDrafting} className="px-4 py-2 border border-[#EBEBEB] text-[#666] hover:bg-gray-50 rounded-lg text-sm font-medium transition-colors disabled:opacity-50">
-              {isDrafting ? '保存中...' : '暂存'}
+            <button onClick={handleSaveDraft} disabled={isDrafting} className="px-4 py-2 text-sm border border-[#EBEBEB] text-[#5A5A5A] rounded-xl hover:bg-[#F5F5F5] transition-all inline-flex items-center gap-2 disabled:opacity-50">
+              <Save className="w-4 h-4" /> {isDrafting ? '保存中...' : '暂存'}
             </button>
-            <button onClick={handleSubmit} disabled={isSubmitting} className="px-6 py-2 bg-[#2D3BFF] text-white hover:bg-[#4338CA] rounded-lg text-sm font-semibold transition-colors disabled:opacity-50">
-              {isSubmitting ? '保存中...' : '提交'}
+            <button onClick={handleSubmit} disabled={isSubmitting} className="px-4 py-2 text-sm bg-[#2D3BFF] text-white rounded-xl hover:opacity-90 active:scale-[0.98] transition-all inline-flex items-center gap-2 shadow-sm disabled:opacity-50">
+              <Plus className="w-4 h-4" /> {isSubmitting ? '保存中...' : '提交'}
             </button>
           </div>
         </div>
@@ -780,68 +804,9 @@ export default function NewCustomerPage() {
           {/* Tab 1: Basic Info */}
           {activeTab === 'basic' && (
             <div className="space-y-6">
-              {/* 协同管理信息 */}
+              {/* 客户核心信息 */}
               <div className="bg-white rounded-2xl border border-[#EBEBEB] shadow-[0_2px_8px_rgba(0,0,0,0.06)] p-6">
-                <h3 className="text-[16px] font-semibold text-[#0A0A0A] mb-4">协同管理信息</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                  <div>
-                    <label className={FIELD_STYLES.label}>创建人</label>
-                    <div className="flex items-center gap-2 px-3 py-2 bg-[#F5F5F5] border border-[#D5D5D5] rounded-lg">
-                      <UserAvatar userId={form.createdBy} size="sm" />
-                      <span className="text-sm text-[#999999]">{getUserById(form.createdBy)?.name || '-'}（自动填入）</span>
-                    </div>
-                  </div>
-                  <div>
-                    <label className={FIELD_STYLES.label}>负责人{requiredStar}</label>
-                    <SearchableMultiSelect
-                      values={form.responsiblePersons}
-                      onChange={(ids) => updateField('responsiblePersons', ids)}
-                      options={USER_OPTIONS}
-                      placeholder="请选择负责人（必填）"
-                      searchPlaceholder="搜索用户..."
-                      emptyText="未找到用户"
-                      renderOption={(opt, isSelected) => <UserOptionRender userId={opt.value} />}
-                      renderBadge={(opt, onRemove) => <UserBadgeRender userId={opt.value} onRemove={onRemove} />}
-                    />
-                  </div>
-                  <div>
-                    <label className={FIELD_STYLES.label}>协同人</label>
-                    <SearchableMultiSelect
-                      values={form.collaborators}
-                      onChange={(ids) => updateField('collaborators', ids)}
-                      options={USER_OPTIONS}
-                      placeholder="搜索并选择协同人..."
-                      searchPlaceholder="搜索用户..."
-                      emptyText="未找到用户"
-                      renderOption={(opt, isSelected) => <UserOptionRender userId={opt.value} />}
-                      renderBadge={(opt, onRemove) => <UserBadgeRender userId={opt.value} onRemove={onRemove} />}
-                    />
-                  </div>
-                  <div>
-                    <label className={FIELD_STYLES.label}>跟进进度 <span className="text-xs text-[#999]">（系统自动判断）</span></label>
-                    <div className={`${FIELD_STYLES.input} bg-[#F5F5F5] text-[#5A5A5A] flex items-center gap-2 cursor-default`}>
-                      <span className={`inline-block w-2.5 h-2.5 rounded-full ${PROGRESS_STATUS_COLORS[form.progressStatus]?.dot || 'bg-gray-400'}`} />
-                      {PROGRESS_STATUS_LABELS[form.progressStatus] || form.progressStatus}
-                    </div>
-                  </div>
-                  <div>
-                    <label className="text-xs font-semibold text-[#5A5A5A] mb-1.5 block">联系人</label>
-                    <input type="text" value={form.contactPerson} onChange={e => updateField('contactPerson', e.target.value)} placeholder="请输入联系人姓名" className="w-full px-3 py-2 border border-[#D5D5D5] rounded-lg text-sm focus:outline-none focus:border-[#2D3BFF] focus:shadow-[0_0_0_2px_rgba(45,59,255,0.10)]" />
-                  </div>
-                  <div>
-                    <label className="text-xs font-semibold text-[#5A5A5A] mb-1.5 block">联系人电话</label>
-                    <input type="text" value={form.contactPhone} onChange={e => updateField('contactPhone', e.target.value)} placeholder="请输入联系人电话" className="w-full px-3 py-2 border border-[#D5D5D5] rounded-lg text-sm focus:outline-none focus:border-[#2D3BFF] focus:shadow-[0_0_0_2px_rgba(45,59,255,0.10)]" />
-                  </div>
-                  <div>
-                    <label className="text-xs font-semibold text-[#5A5A5A] mb-1.5 block">联系人邮箱</label>
-                    <input type="text" value={form.contactEmail} onChange={e => updateField('contactEmail', e.target.value)} placeholder="请输入联系人邮箱" className="w-full px-3 py-2 border border-[#D5D5D5] rounded-lg text-sm focus:outline-none focus:border-[#2D3BFF] focus:shadow-[0_0_0_2px_rgba(45,59,255,0.10)]" />
-                  </div>
-                </div>
-              </div>
-
-              {/* 企业基本信息 */}
-              <div className="bg-white rounded-2xl border border-[#EBEBEB] shadow-[0_2px_8px_rgba(0,0,0,0.06)] p-6">
-                <h3 className="text-[16px] font-semibold text-[#0A0A0A] mb-4">企业基本信息</h3>
+                <h3 className="text-[16px] font-semibold text-[#0A0A0A] mb-4">客户核心信息</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                   {/* 客户LOGO */}
                   <div>
@@ -940,7 +905,18 @@ export default function NewCustomerPage() {
                     <label className={FIELD_STYLES.label}>统一社会信用证代码</label>
                     <input type="text" className={FIELD_STYLES.input} value={form.unifiedSocialCreditCode} onChange={(e) => updateField('unifiedSocialCreditCode', e.target.value)} placeholder="请输入信用证代码" />
                   </div>
+                  {/* 中文简称 */}
+                  <div>
+                    <label className={FIELD_STYLES.label}>中文简称</label>
+                    <input type="text" className={FIELD_STYLES.input} value={form.shortName} onChange={(e) => updateField('shortName', e.target.value)} placeholder="请输入中文简称" />
+                  </div>
+                </div>
+              </div>
 
+              {/* 其他企业信息 */}
+              <div className="bg-white rounded-2xl border border-[#EBEBEB] shadow-[0_2px_8px_rgba(0,0,0,0.06)] p-6">
+                <h3 className="text-[16px] font-semibold text-[#0A0A0A] mb-4">其他企业信息</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                   {/* 客户国（地）别 */}
                   <div>
                     <label className={FIELD_STYLES.label}>客户国（地）别</label>
@@ -1059,9 +1035,7 @@ export default function NewCustomerPage() {
                         options={getDistrictOptions(form.addressProvince, form.addressCity)}
                         placeholder="请选择区"
                       />
-                      <input
-                        type="text"
-                        className={FIELD_STYLES.input}
+                      <textarea rows={2} className={`${FIELD_STYLES.textarea} resize-none`}
                         value={form.addressDetail}
                         onChange={(e) => updateField('addressDetail', e.target.value)}
                         placeholder="请输入详细地址"
@@ -1072,18 +1046,119 @@ export default function NewCustomerPage() {
                   {/* 我司优势简述 */}
                   <div className="md:col-span-2">
                     <label className={FIELD_STYLES.label}>我司优势简述</label>
-                    <input type="text" className={FIELD_STYLES.input} value={form.ourAdvantage} onChange={(e) => updateField('ourAdvantage', e.target.value)} placeholder="请输入我司优势" />
+                    <textarea rows={3} className={`${FIELD_STYLES.textarea} resize-none`} value={form.ourAdvantage} onChange={(e) => updateField('ourAdvantage', e.target.value)} placeholder="请输入我司优势" />
                   </div>
 
                   {/* 我司劣势简述 */}
                   <div className="md:col-span-2">
                     <label className={FIELD_STYLES.label}>我司劣势简述</label>
-                    <input type="text" className={FIELD_STYLES.input} value={form.ourDisadvantage} onChange={(e) => updateField('ourDisadvantage', e.target.value)} placeholder="请输入我司劣势" />
+                    <textarea rows={3} className={`${FIELD_STYLES.textarea} resize-none`} value={form.ourDisadvantage} onChange={(e) => updateField('ourDisadvantage', e.target.value)} placeholder="请输入我司劣势" />
                   </div>
                 </div>
               </div>
 
-            {/* 半导体产业链定位 — 独立卡片 */}
+              {/* 协同管理信息 */}
+              <div className="bg-white rounded-2xl border border-[#EBEBEB] shadow-[0_2px_8px_rgba(0,0,0,0.06)] p-6">
+                <h3 className="text-[16px] font-semibold text-[#0A0A0A] mb-4">协同管理信息</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div>
+                    <label className={FIELD_STYLES.label}>创建人</label>
+                    <div className="flex items-center gap-2 px-3 py-2 bg-[#F5F5F5] border border-[#D5D5D5] rounded-lg">
+                      <UserAvatar userId={form.createdBy} size="sm" />
+                      <span className="text-sm text-[#999999]">{getUserById(form.createdBy)?.name || '-'}（自动填入）</span>
+                    </div>
+                  </div>
+                  <div>
+                    <label className={FIELD_STYLES.label}>负责人{requiredStar}</label>
+                    <SearchableMultiSelect
+                      values={form.responsiblePersons}
+                      onChange={(ids) => updateField('responsiblePersons', ids)}
+                      options={USER_OPTIONS}
+                      placeholder="请选择负责人（必填）"
+                      searchPlaceholder="搜索用户..."
+                      emptyText="未找到用户"
+                      renderOption={(opt, isSelected) => <UserOptionRender userId={opt.value} />}
+                      renderBadge={(opt, onRemove) => <UserBadgeRender userId={opt.value} onRemove={onRemove} />}
+                    />
+                  </div>
+                  <div>
+                    <label className={FIELD_STYLES.label}>协同人</label>
+                    <SearchableMultiSelect
+                      values={form.collaborators}
+                      onChange={(ids) => updateField('collaborators', ids)}
+                      options={USER_OPTIONS}
+                      placeholder="搜索并选择协同人..."
+                      searchPlaceholder="搜索用户..."
+                      emptyText="未找到用户"
+                      renderOption={(opt, isSelected) => <UserOptionRender userId={opt.value} />}
+                      renderBadge={(opt, onRemove) => <UserBadgeRender userId={opt.value} onRemove={onRemove} />}
+                    />
+                  </div>
+                  <div>
+                    <label className={FIELD_STYLES.label}>跟进进度 <span className="text-xs text-[#999]">（系统自动判断）</span></label>
+                    <div className={`${FIELD_STYLES.input} bg-[#F5F5F5] text-[#5A5A5A] flex items-center gap-2 cursor-default`}>
+                      <span className={`inline-block w-2.5 h-2.5 rounded-full ${PROGRESS_STATUS_COLORS[form.progressStatus]?.dot || 'bg-gray-400'}`} />
+                      {PROGRESS_STATUS_LABELS[form.progressStatus] || form.progressStatus}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* 联系人卡片 */}
+              <div className="bg-white rounded-2xl border border-[#EBEBEB] shadow-[0_2px_8px_rgba(0,0,0,0.06)] p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-[16px] font-semibold text-[#0A0A0A]">联系人</h3>
+                  <button
+                    type="button"
+                    onClick={() => setContactDialogOpen(true)}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs border border-[#EBEBEB] text-[#5A5A5A] rounded-xl hover:bg-[#F5F5F5] transition-colors"
+                  >
+                    <Plus className="w-3.5 h-3.5" /> 添加联系人
+                  </button>
+                </div>
+                {contactList.length === 0 ? (
+                  <div className="text-center py-6 text-sm text-[#999] border border-dashed border-[#EBEBEB] rounded-xl">
+                    暂无联系人，点击上方按钮添加
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {contactList.map((ct) => (
+                      <button
+                        key={ct.id}
+                        type="button"
+                        onClick={() => setContactDialogOpen(true)}
+                        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-[#EBEBEB] hover:border-[#2D3BFF] hover:bg-[#E8EBFF] transition-all text-left bg-white"
+                      >
+                        <div className="w-9 h-9 rounded-full bg-[#F5F5F5] flex items-center justify-center text-sm font-semibold text-[#5A5A5A] shrink-0">
+                          {ct.name[0]}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-sm font-semibold text-[#0A0A0A]">{ct.name}</div>
+                          <div className="text-xs text-[#5A5A5A] mt-0.5">
+                            {ct.phone || '—'}
+                            {' · '}
+                            <span className="text-[#999]">{ct.gender === 'male' ? '男' : ct.gender === 'female' ? '女' : ''}</span>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          {ct.isKeyDecisionMaker && (
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-semibold bg-[#E8EBFF] text-[#2D3BFF]">
+                              关键决策人
+                            </span>
+                          )}
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] text-[#999] bg-[#F5F5F5]">
+                            {ct.department} · {ct.position}
+                          </span>
+                        </div>
+                        <Phone className="w-3.5 h-3.5 text-[#999] shrink-0" />
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+            {/* 半导体产业链定位 — 仅当产业分类为"半导体"时显示 */}
+            {form.industryCategory === '半导体' && (
             <div className="bg-white rounded-2xl border border-[#EBEBEB] shadow-[0_2px_8px_rgba(0,0,0,0.06)] p-6">
               <h3 className="text-[16px] font-semibold text-[#0A0A0A] mb-4">半导体产业链定位</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -1108,59 +1183,23 @@ export default function NewCustomerPage() {
                 />
               </div>
             </div>
+            )}
           </div>
           )}
 
-          {/* Tab 2: Business Info (工商资质全景) */}
-          {activeTab === 'business' && (
-            <div className="bg-white rounded-2xl border border-[#EBEBEB] shadow-[0_2px_8px_rgba(0,0,0,0.06)] p-6">
-              <h3 className="text-[16px] font-semibold text-[#0A0A0A] mb-4">工商资质全景信息</h3>
-              {/* 第三方数据来源标注 */}
-              <div className="mb-4 px-4 py-2.5 bg-[#FFF8E1] border border-[#FFE082] rounded-lg flex items-center gap-2">
-                <svg className="w-4 h-4 text-[#F59E0B] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span className="text-sm text-[#92400E]">以下信息来源于企查查、天眼查等第三方企业信息平台自动拉取填充，无需手动录入</span>
-              </div>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {/* 从旧基本信息移入的工商字段 */}
-                <div><label className={FIELD_STYLES.label}>电话</label><input type="text" className={FIELD_STYLES.input} value={form.phone} onChange={(e) => updateField('phone', e.target.value)} /></div>
-                <div><label className={FIELD_STYLES.label}>登记状态</label><SearchableSelect value={form.registrationStatus} onChange={(v) => updateField('registrationStatus', v)} options={REGISTRATION_STATUS_OPTIONS} placeholder="请选择" /></div>
-                <div><label className={FIELD_STYLES.label}>法定代表人</label><input type="text" className={FIELD_STYLES.input} value={form.legalRepresentative} onChange={(e) => updateField('legalRepresentative', e.target.value)} /></div>
-                <div><label className={FIELD_STYLES.label}>邮箱</label><input type="text" className={FIELD_STYLES.input} value={form.email} onChange={(e) => updateField('email', e.target.value)} /></div>
-                <div><label className={FIELD_STYLES.label}>企业规模</label><SearchableSelect value={form.enterpriseScale} onChange={(v) => updateField('enterpriseScale', v)} options={ENTERPRISE_SCALE_OPTIONS} placeholder="请选择" /></div>
-                <div><label className={FIELD_STYLES.label}>注册资本</label><input type="text" className={FIELD_STYLES.input} value={form.registeredCapital} onChange={(e) => updateField('registeredCapital', e.target.value)} /></div>
-                <div><label className={FIELD_STYLES.label}>官网</label><input type="text" className={FIELD_STYLES.input} value={form.website} onChange={(e) => updateField('website', e.target.value)} /></div>
-                <div><label className={FIELD_STYLES.label}>成立日期</label><input type="text" className={FIELD_STYLES.input} value={form.establishmentDate} onChange={(e) => updateField('establishmentDate', e.target.value)} placeholder="YYYY-MM-DD" /></div>
-                <div><label className={FIELD_STYLES.label}>国家（地区）</label><input type="text" className={FIELD_STYLES.input} value={form.bizCountryRegion} onChange={(e) => updateField('bizCountryRegion', e.target.value)} /></div>
-                <div className="lg:col-span-2">
-                  <label className={FIELD_STYLES.label}>行业标签</label>
-                  <SearchableMultiSelect values={form.industryTags} onChange={(tags) => updateField('industryTags', tags)} options={INDUSTRY_TAG_OPTIONS} placeholder="添加标签..." searchPlaceholder="搜索标签..." emptyText="无匹配标签" />
-                </div>
-
-                {/* 原有的工商资质字段 */}
-                <div className="lg:col-span-4 mt-2"><div className="border-t border-[#EBEBEB] pt-3 text-xs font-semibold text-[#5A5A5A] uppercase tracking-wide mb-2">工商登记信息</div></div>
-                <div><label className={FIELD_STYLES.label}>实缴资本</label><input type="text" className={FIELD_STYLES.input} value={form.paidInCapital} onChange={(e) => updateField('paidInCapital', e.target.value)} /></div>
-                <div><label className={FIELD_STYLES.label}>组织机构代码</label><input type="text" className={FIELD_STYLES.input} value={form.organizationCode} onChange={(e) => updateField('organizationCode', e.target.value)} /></div>
-                <div><label className={FIELD_STYLES.label}>工商注册号</label><input type="text" className={FIELD_STYLES.input} value={form.businessRegistrationNumber} onChange={(e) => updateField('businessRegistrationNumber', e.target.value)} /></div>
-                <div><label className={FIELD_STYLES.label}>纳税人识别号</label><input type="text" className={FIELD_STYLES.input} value={form.taxpayerIdentificationNumber} onChange={(e) => updateField('taxpayerIdentificationNumber', e.target.value)} /></div>
-                <div><label className={FIELD_STYLES.label}>企业类型</label><SearchableSelect value={form.enterpriseType} onChange={(v) => updateField('enterpriseType', v)} options={ENTERPRISE_TYPE_OPTIONS} placeholder="请选择" /></div>
-                <div><label className={FIELD_STYLES.label}>营业期限</label><input type="text" className={FIELD_STYLES.input} value={form.businessTerm} onChange={(e) => updateField('businessTerm', e.target.value)} /></div>
-                <div><label className={FIELD_STYLES.label}>纳税人资质</label><SearchableSelect value={form.taxpayerQualification} onChange={(v) => updateField('taxpayerQualification', v)} options={TAXPAYER_QUALIFICATION_OPTIONS} placeholder="请选择" /></div>
-                <div><label className={FIELD_STYLES.label}>人员规模</label><input type="text" className={FIELD_STYLES.input} value={form.staffSize} onChange={(e) => updateField('staffSize', e.target.value)} /></div>
-                <div><label className={FIELD_STYLES.label}>参保人数</label><input type="text" className={FIELD_STYLES.input} value={form.insuredNumber} onChange={(e) => updateField('insuredNumber', e.target.value)} /></div>
-                <div><label className={FIELD_STYLES.label}>核准日期</label><input type="text" className={FIELD_STYLES.input} value={form.approvalDate} onChange={(e) => updateField('approvalDate', e.target.value)} /></div>
-                <div><label className={FIELD_STYLES.label}>所属地区</label><input type="text" className={FIELD_STYLES.input} value={form.region} onChange={(e) => updateField('region', e.target.value)} /></div>
-                <div><label className={FIELD_STYLES.label}>登记机关</label><input type="text" className={FIELD_STYLES.input} value={form.registrationAuthority} onChange={(e) => updateField('registrationAuthority', e.target.value)} /></div>
-                <div><label className={FIELD_STYLES.label}>英文名</label><input type="text" className={FIELD_STYLES.input} value={form.englishName} onChange={(e) => updateField('englishName', e.target.value)} /></div>
-                <div className="md:col-span-2"><label className={FIELD_STYLES.label}>注册地址</label><input type="text" className={FIELD_STYLES.input} value={form.registeredAddress} onChange={(e) => updateField('registeredAddress', e.target.value)} /></div>
-                <div className="md:col-span-2"><label className={FIELD_STYLES.label}>通信地址</label><input type="text" className={FIELD_STYLES.input} value={form.correspondenceAddress} onChange={(e) => updateField('correspondenceAddress', e.target.value)} /></div>
-                <div className="lg:col-span-4"><label className={FIELD_STYLES.label}>经营范围</label><Textarea value={form.businessScope} onChange={(e) => updateField('businessScope', e.target.value)} className="mt-0.5 min-h-[80px]" placeholder="请输入经营范围" /></div>
-              </div>
-            </div>
-          )}
+          {/* 工商资质全景 — 新建/草稿页不展示，仅查看/编辑页展示 */}
 
         </div>
+
+        {/* Contact management dialog */}
+        {pendingCustomerId && (
+          <ContactManagementDialog
+            open={contactDialogOpen}
+            onOpenChange={(open) => { setContactDialogOpen(open); if (!open) loadContacts(); }}
+            customerId={pendingCustomerId}
+            customerName={form.name || '新客户'}
+          />
+        )}
       </div>
   );
 }

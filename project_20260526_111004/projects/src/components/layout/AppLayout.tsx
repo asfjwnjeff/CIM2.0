@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useApp } from '@/lib/store';
 import { NAV_ITEMS, type NavItem } from '@/lib/navigation';
 import { GlobalSearchDialog } from './GlobalSearchDialog';
@@ -31,6 +31,82 @@ const HeaderIcons = {
     </svg>
   ),
 };
+
+// 跟进提醒 Bell 组件
+function ReminderBell() {
+  const router = useRouter();
+  const [count, setCount] = useState(0);
+  const [items, setItems] = useState<Array<{customerId:string;customerName:string;level:string;overdueDays:number}>>([]);
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  const fetchReminders = useCallback(async () => {
+    try {
+      const res = await fetch('/api/followup-reminders');
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        setItems(data);
+        setCount(data.length);
+      }
+    } catch { /* ignore */ }
+  }, []);
+
+  useEffect(() => {
+    fetchReminders();
+    const t = setInterval(fetchReminders, 60000); // 每分钟刷新
+    return () => clearInterval(t);
+  }, [fetchReminders]);
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        className="w-8 h-8 flex items-center justify-center rounded-md hover:bg-[#F5F5F5] transition-colors text-[#5A5A5A] relative"
+        onClick={() => { setOpen(!open); if (!open) fetchReminders(); }}
+      >
+        <HeaderIcons.Bell />
+        {count > 0 && (
+          <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-[#D63031] text-white text-[10px] font-bold rounded-full flex items-center justify-center leading-none">
+            {count > 99 ? '99+' : count}
+          </span>
+        )}
+      </button>
+
+      {open && (
+        <div className="absolute right-0 top-full mt-2 w-80 bg-white rounded-xl border border-[#EBEBEB] shadow-[0_8px_32px_rgba(0,0,0,0.12)] z-50 max-h-96 overflow-y-auto">
+          <div className="px-4 py-3 border-b border-[#EBEBEB]">
+            <span className="text-sm font-semibold text-[#0A0A0A]">待跟进提醒</span>
+            {count > 0 && <span className="ml-1 text-xs text-[#999]">({count})</span>}
+          </div>
+          {items.length === 0 ? (
+            <div className="px-4 py-8 text-center text-sm text-[#999]">暂无待跟进提醒</div>
+          ) : (
+            items.map((item) => (
+              <button
+                key={item.customerId}
+                className="w-full text-left px-4 py-3 hover:bg-[#F5F5F5] transition-colors border-b border-[#F5F5F5] last:border-0"
+                onClick={() => { router.push(`/customers/${item.customerId}`); setOpen(false); }}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-[#0A0A0A] truncate max-w-[180px]">{item.customerName}</span>
+                  <span className="text-xs px-1.5 py-0.5 rounded bg-[#F5F5F5] text-[#5A5A5A] font-medium">{item.level}</span>
+                </div>
+                <div className="text-xs text-[#D63031] mt-0.5">已逾期 {item.overdueDays} 天</div>
+              </button>
+            ))
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -130,7 +206,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [sidebarExpanded]);
 
-  const sidebarWidth = sidebarExpanded ? 'w-[240px]' : 'w-[56px]';
+  const sidebarWidth = sidebarExpanded ? 'w-[228px]' : 'w-[56px]';
 
   return (
     <div className="min-h-screen bg-[#FAFAFA]">
@@ -165,9 +241,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           </button>
 
           {/* 通知 */}
-          <button className="w-8 h-8 flex items-center justify-center rounded-md hover:bg-[#F5F5F5] transition-colors text-[#5A5A5A]">
-            <HeaderIcons.Bell />
-          </button>
+          <ReminderBell />
 
           {/* 用户 */}
           <div className="flex items-center gap-2 ml-1 pl-2 border-l border-[#EBEBEB]">
@@ -315,7 +389,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       {/* ====== 主内容区 ====== */}
       <main
         className={`pt-[87px] px-4 min-h-screen transition-[margin-left] duration-200 ease-out ${
-          sidebarExpanded ? 'ml-[256px]' : 'ml-[72px]'
+          sidebarExpanded ? 'ml-[244px]' : 'ml-[72px]'
         }`}
       >
         {children}

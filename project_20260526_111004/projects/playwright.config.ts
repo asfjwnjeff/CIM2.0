@@ -1,15 +1,28 @@
-import { defineConfig } from '@playwright/test';
+import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
-  testDir: './tests',
+  testDir: './e2e',
+  fullyParallel: false,
+  forbidOnly: !!process.env.CI,
+  retries: process.env.CI ? 2 : 0,
+  workers: 1,
+  reporter: 'html',
   timeout: 30000,
-  expect: { timeout: 10000 },
   use: {
     baseURL: 'http://localhost:5000',
-    channel: 'msedge',
-    headless: true,
-    screenshot: 'only-on-failure',
+    trace: 'on-first-retry',
   },
-  retries: 0,
-  reporter: [['html'], ['list']],
+  projects: [
+    {
+      name: 'chromium',
+      use: { ...devices['Desktop Chrome'] },
+    },
+  ],
+  webServer: {
+    command: 'pnpm dev',
+    url: 'http://localhost:5000',
+    reuseExistingServer: !process.env.CI,
+    cwd: '.',
+    timeout: 30000,
+  },
 });

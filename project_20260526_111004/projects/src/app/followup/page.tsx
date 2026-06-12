@@ -259,13 +259,14 @@ export default function FollowUpPage() {
   const getStatusLabel = (status?: string) => {
     if (!status) return '-';
     switch (status) {
-      case 'new': return '新需求';
-      case 'discussing': return '沟通中';
-      case 'promoting': return '推进中';
+      case 'new': return '新建需求';
+      case 'discussing': return '沟通方案';
+      case 'promoting': return '促单';
       case 'success': return '成功';
       case 'no_progress': return '无进展';
       case 'cancelled': return '需求取消';
       case 'terminated': return '合同终止';
+      case 'failed': return '失败';
       default: return status;
     }
   };

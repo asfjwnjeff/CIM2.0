@@ -17,9 +17,11 @@ import {
   getCustomerChainRoleLabel,
   getCustomerStatusColor,
 } from '@/lib/sample-data';
-import { ArrowLeft, Edit3, UserPlus, UserCheck, UserX } from 'lucide-react';
+import { ArrowLeft, Edit3, UserPlus, UserCheck, UserX, Plus, Phone } from 'lucide-react';
 import { useSentiment } from '@/hooks/useSentiment';
 import { SentimentList } from '@/components/sentiment/SentimentList';
+import ContactManagementDialog from '@/components/ContactManagementDialog';
+import type { Contact } from '@/lib/types';
 
 type TabType = 'basic' | 'business' | 'semiconductor' | 'relations' | 'products' | 'sentiment' | 'followup' | 'opportunities' | 'approvals' | 'config' | 'billing' | 'logs';
 
@@ -93,6 +95,23 @@ export default function CustomerDetailPage() {
     () => customers.find((c) => c.id === params.id),
     [params.id, customers],
   );
+
+  // Contact management state
+  const [contactDialogOpen, setContactDialogOpen] = useState(false);
+  const [contactList, setContactList] = useState<Contact[]>([]);
+
+  const loadContacts = useCallback(async () => {
+    if (!customer) return;
+    try {
+      const res = await fetch(`/api/contacts?customerId=${encodeURIComponent(customer.id)}`);
+      const data = await res.json();
+      if (Array.isArray(data)) setContactList(data);
+    } catch { /* ignore */ }
+  }, [customer]);
+
+  useEffect(() => {
+    if (customer) loadContacts();
+  }, [customer, loadContacts]);
 
   const customerFollowUps = useMemo(
     () => followUps.filter((fu) => fu.customerId === customer?.id),
@@ -218,14 +237,14 @@ export default function CustomerDetailPage() {
               <>
                 <button
                   onClick={() => { submitCustomer(customer.id); }}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#2D3BFF] text-white rounded-lg text-sm font-medium hover:bg-[#4338CA] transition-colors"
+                  className="inline-flex items-center gap-2 px-4 py-2 text-sm bg-[#2D3BFF] text-white rounded-xl hover:opacity-90 active:scale-[0.98] transition-all shadow-sm"
                 >
-                  <Edit3 className="w-4 h-4" />
+                  <Plus className="w-4 h-4" />
                   提交
                 </button>
                 <button
                   onClick={() => router.push(`/customers/${customer.id}/edit`)}
-                  className="inline-flex items-center gap-1.5 px-3 py-2 border border-[#EBEBEB] text-[#666] rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
+                  className="inline-flex items-center gap-2 px-3 py-2 text-sm border border-[#EBEBEB] text-[#5A5A5A] rounded-xl hover:bg-[#F5F5F5] transition-all"
                 >
                   <Edit3 className="w-4 h-4" />
                   编辑
@@ -275,7 +294,7 @@ export default function CustomerDetailPage() {
         {/* Tabs */}
         <div className="border-b border-[#EBEBEB] overflow-x-auto">
           <div className="flex space-x-1">
-            {(Object.keys(tabLabels) as TabType[]).map((tab) => (
+            {(Object.keys(tabLabels) as TabType[]).filter(tab => tab !== 'semiconductor' || customer?.basicInfo?.industryCategory === '半导体').map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
@@ -295,7 +314,136 @@ export default function CustomerDetailPage() {
         <div className="pb-8">
           {activeTab === 'basic' && (
             <div className="space-y-6">
-              {/* New fields: creator, owner, collaborators, progress */}
+              {/* 客户核心信息 */}
+              <div className="bg-white rounded-2xl border border-[#EBEBEB] shadow-[0_2px_8px_rgba(0,0,0,0.06)] p-6">
+                <h3 className="text-[16px] font-semibold text-[#0A0A0A] mb-4">客户核心信息</h3>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  <div>
+                    <label className="block text-[13px] text-[#5A5A5A] mb-1">客户LOGO</label>
+                    <div className="flex flex-wrap gap-1">
+                      {customer.basicInfo?.logoUrls?.length ? (
+                        customer.basicInfo.logoUrls.map((url, idx) => (
+                          <img key={idx} src={url} alt={`LOGO ${idx + 1}`} className="w-8 h-8 rounded object-cover border border-[#EBEBEB]" />
+                        ))
+                      ) : <span className="text-sm text-[#999999]">-</span>}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-[13px] text-[#5A5A5A] mb-1">客户名称</label>
+                    <p className="text-[13px] text-[#0A0A0A] font-medium">{customer.name || '-'}</p>
+                  </div>
+                  <div>
+                    <label className="block text-[13px] text-[#5A5A5A] mb-1">统一社会信用证代码</label>
+                    <p className="text-[13px] text-[#0A0A0A] font-mono">{customer.basicInfo?.unifiedSocialCreditCode || '-'}</p>
+                  </div>
+                  <div>
+                    <label className="block text-[13px] text-[#5A5A5A] mb-1">中文简称</label>
+                    <p className="text-[13px] text-[#0A0A0A]">{customer.basicInfo?.shortName || '-'}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* 其他企业信息 */}
+              <div className="bg-white rounded-2xl border border-[#EBEBEB] shadow-[0_2px_8px_rgba(0,0,0,0.06)] p-6">
+                <h3 className="text-[16px] font-semibold text-[#0A0A0A] mb-4">其他企业信息</h3>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  <div>
+                    <label className="block text-[13px] text-[#5A5A5A] mb-1">客户国（地）别</label>
+                    <p className="text-[13px] text-[#0A0A0A]">{customer.basicInfo?.countryRegion || '-'}</p>
+                  </div>
+                  <div>
+                    <label className="block text-[13px] text-[#5A5A5A] mb-1">产业分类</label>
+                    <p className="text-[13px] text-[#0A0A0A]">{customer.basicInfo?.industryCategory || '-'}</p>
+                  </div>
+                  <div>
+                    <label className="block text-[13px] text-[#5A5A5A] mb-1">主营产品工艺</label>
+                    <p className="text-[13px] text-[#0A0A0A]">{customer.basicInfo?.mainProducts || '-'}</p>
+                  </div>
+                  <div>
+                    <label className="block text-[13px] text-[#5A5A5A] mb-1">产业链业态</label>
+                    <p className="text-[13px] text-[#0A0A0A]">{customer.basicInfo?.industryChainFormat || '-'}</p>
+                  </div>
+                  <div>
+                    <label className="block text-[13px] text-[#5A5A5A] mb-1">供应链角色</label>
+                    <p className="text-[13px] text-[#0A0A0A]">{customer.basicInfo?.supplyChainRole || '-'}</p>
+                  </div>
+                  <div>
+                    <label className="block text-[13px] text-[#5A5A5A] mb-1">跨境模式</label>
+                    <p className="text-[13px] text-[#0A0A0A]">{customer.basicInfo?.crossBorderMode || '-'}</p>
+                  </div>
+                  <div>
+                    <label className="block text-[13px] text-[#5A5A5A] mb-1">客户渠道</label>
+                    <p className="text-[13px] text-[#0A0A0A]">{customer.basicInfo?.customerChannel || '-'}</p>
+                  </div>
+                  <div>
+                    <label className="block text-[13px] text-[#5A5A5A] mb-1">客户来源</label>
+                    <p className="text-[13px] text-[#0A0A0A]">{customer.basicInfo?.customerSource || '-'}</p>
+                  </div>
+                  <div>
+                    <label className="block text-[13px] text-[#5A5A5A] mb-1">客户等级</label>
+                    <p className="text-[13px] text-[#0A0A0A]">{customer.basicInfo?.customerLevel || '-'}</p>
+                  </div>
+                  <div>
+                    <label className="block text-[13px] text-[#5A5A5A] mb-1">潜在竞争对手</label>
+                    <p className="text-[13px] text-[#0A0A0A]">{customer.basicInfo?.potentialCompetitors || '-'}</p>
+                  </div>
+                  <div>
+                    <label className="block text-[13px] text-[#5A5A5A] mb-1">关联上下游企业</label>
+                    <p className="text-[13px] text-[#0A0A0A]">{customer.basicInfo?.relatedEnterprises || '-'}</p>
+                  </div>
+                  <div>
+                    <label className="block text-[13px] text-[#5A5A5A] mb-1">意向服务地区</label>
+                    <div className="flex flex-wrap gap-1">
+                      {customer.basicInfo?.intendedServiceRegions?.length ? (
+                        customer.basicInfo.intendedServiceRegions.map((city, idx) => (
+                          <span key={idx} className="px-2 py-0.5 rounded-full text-xs bg-[#E8EBFF] text-[#2D3BFF]">{city}</span>
+                        ))
+                      ) : <span className="text-sm text-[#999999]">-</span>}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-[13px] text-[#5A5A5A] mb-1">服务产品</label>
+                    <div className="flex flex-wrap gap-1 items-center">
+                      {customer.basicInfo?.serviceProducts?.length ? (
+                        <>
+                          <span className="px-2 py-0.5 rounded-full text-xs bg-[#E6F7F0] text-[#0D8A5E]">{customer.basicInfo.serviceProducts[0]}</span>
+                          {customer.basicInfo.serviceProducts[0] === '其他' && customer.basicInfo.otherServiceRequirement && (
+                            <span className="text-[13px] text-[#5A5A5A]">{customer.basicInfo.otherServiceRequirement}</span>
+                          )}
+                        </>
+                      ) : <span className="text-sm text-[#999999]">-</span>}
+                    </div>
+                  </div>
+                  <div className="lg:col-span-4">
+                    <label className="block text-[13px] text-[#5A5A5A] mb-1">公司营业地址</label>
+                    <p className="text-[13px] text-[#0A0A0A]">
+                      {[customer.basicInfo?.addressProvince, customer.basicInfo?.addressCity, customer.basicInfo?.addressDistrict, customer.basicInfo?.addressDetail].filter(Boolean).join(' ') || '-'}
+                    </p>
+                  </div>
+                  <div>
+                    <label className="block text-[13px] text-[#5A5A5A] mb-1">预计月均业务量（票）</label>
+                    <p className="text-[13px] text-[#0A0A0A]">{customer.basicInfo?.estimatedMonthlyVolume || '-'}</p>
+                  </div>
+                  <div>
+                    <label className="block text-[13px] text-[#5A5A5A] mb-1">仓库面积（㎡）</label>
+                    <p className="text-[13px] text-[#0A0A0A]">{customer.basicInfo?.warehouseArea || '-'}</p>
+                  </div>
+                  <div>
+                    <label className="block text-[13px] text-[#5A5A5A] mb-1">仓库温湿度要求</label>
+                    <p className="text-[13px] text-[#0A0A0A]">{customer.basicInfo?.warehouseConditions || '-'}</p>
+                  </div>
+                  <div className="lg:col-span-2">
+                    <label className="block text-[13px] text-[#5A5A5A] mb-1">我司优势简述</label>
+                    <p className="text-[13px] text-[#0A0A0A]">{customer.basicInfo?.ourAdvantage || '-'}</p>
+                  </div>
+                  <div className="lg:col-span-2">
+                    <label className="block text-[13px] text-[#5A5A5A] mb-1">我司劣势简述</label>
+                    <p className="text-[13px] text-[#0A0A0A]">{customer.basicInfo?.ourDisadvantage || '-'}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* 协同管理信息 */}
               <div className="bg-white rounded-2xl border border-[#EBEBEB] shadow-[0_2px_8px_rgba(0,0,0,0.06)] p-6">
                 <h3 className="text-[16px] font-semibold text-[#0A0A0A] mb-4">协同管理信息</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -407,128 +555,65 @@ export default function CustomerDetailPage() {
                 </div>
               </div>
 
-              {/* 企业基本信息 - new fields */}
-              <div className="bg-white rounded-2xl border border-[#EBEBEB] shadow-[0_2px_8px_rgba(0,0,0,0.06)] p-6">
-                <h3 className="text-[16px] font-semibold text-[#0A0A0A] mb-4">企业基本信息</h3>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                  <div>
-                    <label className="block text-[13px] text-[#5A5A5A] mb-1">客户LOGO</label>
-                    <div className="flex flex-wrap gap-1">
-                      {customer.basicInfo?.logoUrls?.length ? (
-                        customer.basicInfo.logoUrls.map((url, idx) => (
-                          <img key={idx} src={url} alt={`LOGO ${idx + 1}`} className="w-8 h-8 rounded object-cover border border-[#EBEBEB]" />
-                        ))
-                      ) : <span className="text-sm text-[#999999]">-</span>}
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-[13px] text-[#5A5A5A] mb-1">客户名称</label>
-                    <p className="text-[13px] text-[#0A0A0A] font-medium">{customer.name || '-'}</p>
-                  </div>
-                  <div>
-                    <label className="block text-[13px] text-[#5A5A5A] mb-1">统一社会信用证代码</label>
-                    <p className="text-[13px] text-[#0A0A0A] font-mono">{customer.basicInfo?.unifiedSocialCreditCode || '-'}</p>
-                  </div>
-                  <div>
-                    <label className="block text-[13px] text-[#5A5A5A] mb-1">客户国（地）别</label>
-                    <p className="text-[13px] text-[#0A0A0A]">{customer.basicInfo?.countryRegion || '-'}</p>
-                  </div>
-                  <div>
-                    <label className="block text-[13px] text-[#5A5A5A] mb-1">产业分类</label>
-                    <p className="text-[13px] text-[#0A0A0A]">{customer.basicInfo?.industryCategory || '-'}</p>
-                  </div>
-                  <div>
-                    <label className="block text-[13px] text-[#5A5A5A] mb-1">主营产品工艺</label>
-                    <p className="text-[13px] text-[#0A0A0A]">{customer.basicInfo?.mainProducts || '-'}</p>
-                  </div>
-                  <div>
-                    <label className="block text-[13px] text-[#5A5A5A] mb-1">产业链业态</label>
-                    <p className="text-[13px] text-[#0A0A0A]">{customer.basicInfo?.industryChainFormat || '-'}</p>
-                  </div>
-                  <div>
-                    <label className="block text-[13px] text-[#5A5A5A] mb-1">供应链角色</label>
-                    <p className="text-[13px] text-[#0A0A0A]">{customer.basicInfo?.supplyChainRole || '-'}</p>
-                  </div>
-                  <div>
-                    <label className="block text-[13px] text-[#5A5A5A] mb-1">跨境模式</label>
-                    <p className="text-[13px] text-[#0A0A0A]">{customer.basicInfo?.crossBorderMode || '-'}</p>
-                  </div>
-                  <div>
-                    <label className="block text-[13px] text-[#5A5A5A] mb-1">客户渠道</label>
-                    <p className="text-[13px] text-[#0A0A0A]">{customer.basicInfo?.customerChannel || '-'}</p>
-                  </div>
-                  <div>
-                    <label className="block text-[13px] text-[#5A5A5A] mb-1">客户来源</label>
-                    <p className="text-[13px] text-[#0A0A0A]">{customer.basicInfo?.customerSource || '-'}</p>
-                  </div>
-                  <div>
-                    <label className="block text-[13px] text-[#5A5A5A] mb-1">客户等级</label>
-                    <p className="text-[13px] text-[#0A0A0A]">{customer.basicInfo?.customerLevel || '-'}</p>
-                  </div>
-                  <div>
-                    <label className="block text-[13px] text-[#5A5A5A] mb-1">潜在竞争对手</label>
-                    <p className="text-[13px] text-[#0A0A0A]">{customer.basicInfo?.potentialCompetitors || '-'}</p>
-                  </div>
-                  <div>
-                    <label className="block text-[13px] text-[#5A5A5A] mb-1">关联上下游企业</label>
-                    <p className="text-[13px] text-[#0A0A0A]">{customer.basicInfo?.relatedEnterprises || '-'}</p>
-                  </div>
-                  <div>
-                    <label className="block text-[13px] text-[#5A5A5A] mb-1">意向服务地区</label>
-                    <div className="flex flex-wrap gap-1">
-                      {customer.basicInfo?.intendedServiceRegions?.length ? (
-                        customer.basicInfo.intendedServiceRegions.map((city, idx) => (
-                          <span key={idx} className="px-2 py-0.5 rounded-full text-xs bg-[#E8EBFF] text-[#2D3BFF]">{city}</span>
-                        ))
-                      ) : <span className="text-sm text-[#999999]">-</span>}
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-[13px] text-[#5A5A5A] mb-1">服务产品</label>
-                    <div className="flex flex-wrap gap-1 items-center">
-                      {customer.basicInfo?.serviceProducts?.length ? (
-                        <>
-                          <span className="px-2 py-0.5 rounded-full text-xs bg-[#E6F7F0] text-[#0D8A5E]">{customer.basicInfo.serviceProducts[0]}</span>
-                          {customer.basicInfo.serviceProducts[0] === '其他' && customer.basicInfo.otherServiceRequirement && (
-                            <span className="text-[13px] text-[#5A5A5A]">{customer.basicInfo.otherServiceRequirement}</span>
-                          )}
-                        </>
-                      ) : <span className="text-sm text-[#999999]">-</span>}
-                    </div>
-                  </div>
-                  <div className="lg:col-span-4">
-                    <label className="block text-[13px] text-[#5A5A5A] mb-1">公司营业地址</label>
-                    <p className="text-[13px] text-[#0A0A0A]">
-                      {[customer.basicInfo?.addressProvince, customer.basicInfo?.addressCity, customer.basicInfo?.addressDistrict, customer.basicInfo?.addressDetail].filter(Boolean).join(' ') || '-'}
-                    </p>
-                  </div>
-                  <div>
-                    <label className="block text-[13px] text-[#5A5A5A] mb-1">预计月均业务量（票）</label>
-                    <p className="text-[13px] text-[#0A0A0A]">{customer.basicInfo?.estimatedMonthlyVolume || '-'}</p>
-                  </div>
-                  <div>
-                    <label className="block text-[13px] text-[#5A5A5A] mb-1">仓库面积（㎡）</label>
-                    <p className="text-[13px] text-[#0A0A0A]">{customer.basicInfo?.warehouseArea || '-'}</p>
-                  </div>
-                  <div>
-                    <label className="block text-[13px] text-[#5A5A5A] mb-1">仓库温湿度要求</label>
-                    <p className="text-[13px] text-[#0A0A0A]">{customer.basicInfo?.warehouseConditions || '-'}</p>
-                  </div>
-                  <div className="lg:col-span-2">
-                    <label className="block text-[13px] text-[#5A5A5A] mb-1">我司优势简述</label>
-                    <p className="text-[13px] text-[#0A0A0A]">{customer.basicInfo?.ourAdvantage || '-'}</p>
-                  </div>
-                  <div className="lg:col-span-2">
-                    <label className="block text-[13px] text-[#5A5A5A] mb-1">我司劣势简述</label>
-                    <p className="text-[13px] text-[#0A0A0A]">{customer.basicInfo?.ourDisadvantage || '-'}</p>
-                  </div>
-                </div>
+            {/* 联系人卡片 */}
+            <div className="bg-white rounded-2xl border border-[#EBEBEB] shadow-[0_2px_8px_rgba(0,0,0,0.06)] p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-[16px] font-semibold text-[#0A0A0A]">联系人</h3>
+                <button
+                  onClick={() => setContactDialogOpen(true)}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs border border-[#EBEBEB] text-[#5A5A5A] rounded-xl hover:bg-[#F5F5F5] transition-colors"
+                >
+                  <Plus className="w-3.5 h-3.5" /> 添加联系人
+                </button>
               </div>
+              {contactList.length === 0 ? (
+                <div className="text-center py-6 text-sm text-[#999] border border-dashed border-[#EBEBEB] rounded-xl">
+                  暂无联系人，点击上方按钮添加
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {contactList.map((ct) => (
+                    <button
+                      key={ct.id}
+                      onClick={() => setContactDialogOpen(true)}
+                      className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-[#EBEBEB] hover:border-[#2D3BFF] hover:bg-[#E8EBFF] transition-all text-left bg-white"
+                    >
+                      <div className="w-9 h-9 rounded-full bg-[#F5F5F5] flex items-center justify-center text-sm font-semibold text-[#5A5A5A] shrink-0">
+                        {ct.name[0]}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-semibold text-[#0A0A0A]">{ct.name}</div>
+                        <div className="text-xs text-[#5A5A5A] mt-0.5">
+                          {ct.phone || '—'}
+                          {' · '}
+                          <span className="text-[#999]">{ct.gender === 'male' ? '男' : ct.gender === 'female' ? '女' : ''}</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        {ct.isKeyDecisionMaker && (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-semibold bg-[#E8EBFF] text-[#2D3BFF]">
+                            关键决策人
+                          </span>
+                        )}
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] text-[#999] bg-[#F5F5F5]">
+                          {ct.department} · {ct.position}
+                        </span>
+                      </div>
+                      <Phone className="w-3.5 h-3.5 text-[#999] shrink-0" />
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
             </div>
           )}
 
           {activeTab === 'business' && (
             <div className="space-y-6">
+              <div className="px-4 py-2.5 bg-[#FFF8E1] border border-[#FFE082] rounded-lg flex items-center gap-2">
+                <svg className="w-4 h-4 text-[#F59E0B] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                <span className="text-sm text-[#92400E]">以下信息来源于企查查、天眼查等第三方企业信息平台自动拉取填充，无需手动录入</span>
+              </div>
               {/* 企业工商信息（从旧基本信息移入） */}
               <div className="bg-white rounded-2xl border border-[#EBEBEB] shadow-[0_2px_8px_rgba(0,0,0,0.06)] p-6">
                 <h3 className="text-[16px] font-semibold text-[#0A0A0A] mb-4">企业工商信息</h3>
@@ -707,6 +792,14 @@ export default function CustomerDetailPage() {
           currentOwnerIds={customer.responsiblePersons}
           currentCollaboratorIds={customer.collaborators}
           onConfirm={handleDialogConfirm}
+        />
+
+        {/* Contact management dialog */}
+        <ContactManagementDialog
+          open={contactDialogOpen}
+          onOpenChange={(open) => { setContactDialogOpen(open); if (!open) loadContacts(); }}
+          customerId={customer.id}
+          customerName={customer.name}
         />
 
         {/* Delete confirmation dialog */}
@@ -1064,6 +1157,7 @@ function StatusBadgeSmall({ status }: { status?: string }) {
     no_progress: { bg: 'bg-[#F5F5F5]', text: 'text-[#5A5A5A]', label: '无进展' },
     cancelled: { bg: 'bg-[#FFEBEE]', text: 'text-[#D63031]', label: '需求取消' },
     terminated: { bg: 'bg-[#FFEBEE]', text: 'text-[#D63031]', label: '合同终止' },
+    failed: { bg: 'bg-[#FEF2F2]', text: 'text-[#DC2626]', label: '失败' },
   };
   const m = map[status || ''];
   if (!m) return <span className="px-2 py-0.5 text-xs whitespace-nowrap text-[#5A5A5A]">{status || '-'}</span>;

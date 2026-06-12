@@ -130,11 +130,12 @@ function OpportunityFormContent() {
     opportunityNumber: '',
     existingServiceContract: '',
     newSite: '',
-    newProduct: '',
+    newService: '',
     opportunityTitle: '',
     opportunityDate: '',
     opportunityContent: '',
     biddingProject: '',
+    biddingDocument: '',
     serviceProduct: '',
     serviceRequirement: '',
     intendedSite: '',
@@ -228,8 +229,8 @@ function OpportunityFormContent() {
 
   const handleClear = () => {
     setFormData({
-      customer: '', opportunityNumber: '', existingServiceContract: '', newSite: '', newProduct: '',
-      opportunityTitle: '', opportunityDate: '', opportunityContent: '', biddingProject: '',
+      customer: '', opportunityNumber: '', existingServiceContract: '', newSite: '', newService: '',
+      opportunityTitle: '', opportunityDate: '', opportunityContent: '', biddingProject: '', biddingDocument: '',
       serviceProduct: '', serviceRequirement: '', intendedSite: '', currency: '',
       estimatedMonthlyAmount: '', startTime: '', expectedEndTime: '', contact: '',
       responsiblePerson: '', collaborators: [], salesStage: '', otherServiceRequirement: '',
@@ -312,29 +313,29 @@ function OpportunityFormContent() {
                   <label className={labelClass}>已有服务合同 <span className="text-red-500">*</span></label>
                   <SearchableSelect
                     value={formData.existingServiceContract}
-                    onChange={(value) => handleInputChange('existingServiceContract', value)}
+                    onChange={(value) => {
+                      handleInputChange('existingServiceContract', value);
+                      if (value === '否') {
+                        handleInputChange('newSite', '');
+                        handleInputChange('newService', '');
+                      }
+                    }}
                     options={[{ value: '是', label: '是' }, { value: '否', label: '否' }]}
                     placeholder="请选择"
                   />
                 </div>
-                <div>
-                  <label className={labelClass}>新站点</label>
-                  <SearchableSelect
-                    value={formData.newSite}
-                    onChange={(value) => handleInputChange('newSite', value)}
-                    options={[{ value: '是', label: '是' }, { value: '否', label: '否' }]}
-                    placeholder="请选择"
-                  />
-                </div>
-                <div>
-                  <label className={labelClass}>新产品</label>
-                  <SearchableSelect
-                    value={formData.newProduct}
-                    onChange={(value) => handleInputChange('newProduct', value)}
-                    options={[{ value: '是', label: '是' }, { value: '否', label: '否' }]}
-                    placeholder="请选择"
-                  />
-                </div>
+                {formData.existingServiceContract === '是' && (
+                  <>
+                    <div>
+                      <label className={labelClass}>新站点 <span className="text-red-500">*</span></label>
+                      <input type="text" className={inputClass} value={formData.newSite} onChange={(e) => handleInputChange('newSite', e.target.value)} placeholder="请输入新站点" />
+                    </div>
+                    <div>
+                      <label className={labelClass}>新服务 <span className="text-red-500">*</span></label>
+                      <input type="text" className={inputClass} value={formData.newService || ''} onChange={(e) => handleInputChange('newService', e.target.value)} placeholder="请输入新服务" />
+                    </div>
+                  </>
+                )}
               </div>
             </div>
 
@@ -361,20 +362,40 @@ function OpportunityFormContent() {
                     <label className={labelClass}>招标项目</label>
                     <SearchableSelect
                       value={formData.biddingProject}
-                      onChange={(value) => handleInputChange('biddingProject', value)}
+                      onChange={(value) => {
+                        handleInputChange('biddingProject', value);
+                        if (value === '否') handleInputChange('biddingDocument', '');
+                      }}
                       options={[{ value: '是', label: '是' }, { value: '否', label: '否' }]}
                       placeholder="请选择"
                     />
                   </div>
                 </div>
+                {formData.biddingProject === '是' && (
+                  <div>
+                    <label className={labelClass}>招标文件 <span className="text-red-500">*</span></label>
+                    <input
+                      type="file"
+                      accept=".pdf,.doc,.docx,.xls,.xlsx,.zip,.rar"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) handleInputChange('biddingDocument', file.name);
+                      }}
+                      className="block w-full text-sm text-[#5A5A5A] file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-[#E8EBFF] file:text-[#2D3BFF] hover:file:bg-[#CDD1FF] file:cursor-pointer cursor-pointer"
+                    />
+                    {formData.biddingDocument && (
+                      <p className="text-xs text-[#0D8A5E] mt-1">已选择：{formData.biddingDocument}</p>
+                    )}
+                  </div>
+                )}
                 <div>
                   <label className={labelClass}>商机内容 <span className="text-red-500">*</span></label>
                   <textarea
                     placeholder="具体描述客户需求和商业背景"
                     value={formData.opportunityContent}
                     onChange={(e) => handleInputChange('opportunityContent', e.target.value)}
-                    rows={4}
-                    className={inputClass + " resize-none"}
+                    rows={5}
+                    className={FIELD_STYLES.textarea + " resize-none"}
                   />
                 </div>
               </div>
@@ -399,14 +420,14 @@ function OpportunityFormContent() {
                     </div>
                   )}
                 </div>
-                <div>
+                <div className="col-span-2">
                   <label className={labelClass}>服务要求 <span className="text-red-500">*</span></label>
-                  <input
-                    type="text"
+                  <textarea
                     placeholder="面积、温湿度、考核KPI等"
                     value={formData.serviceRequirement}
                     onChange={(e) => handleInputChange('serviceRequirement', e.target.value)}
-                    className={inputClass}
+                    rows={2}
+                    className={FIELD_STYLES.textarea + " resize-none"}
                   />
                 </div>
                 <div className="col-span-2">
@@ -506,19 +527,19 @@ function OpportunityFormContent() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className={labelClass}><span className="text-green-600">优势</span> <span className="text-red-500">*</span></label>
-                  <input type="text" placeholder="请输入" value={formData.advantages} onChange={(e) => handleInputChange('advantages', e.target.value)} className={inputClass} />
+                  <textarea placeholder="请输入" value={formData.advantages} onChange={(e) => handleInputChange('advantages', e.target.value)} rows={3} className={FIELD_STYLES.textarea + " resize-none"} />
                 </div>
                 <div>
                   <label className={labelClass}><span className="text-red-600">劣势</span> <span className="text-red-500">*</span></label>
-                  <input type="text" placeholder="请输入" value={formData.disadvantages} onChange={(e) => handleInputChange('disadvantages', e.target.value)} className={inputClass} />
+                  <textarea placeholder="请输入" value={formData.disadvantages} onChange={(e) => handleInputChange('disadvantages', e.target.value)} rows={3} className={FIELD_STYLES.textarea + " resize-none"} />
                 </div>
                 <div>
                   <label className={labelClass}><span className="text-blue-600">机会</span> <span className="text-red-500">*</span></label>
-                  <input type="text" placeholder="请输入" value={formData.opportunities} onChange={(e) => handleInputChange('opportunities', e.target.value)} className={inputClass} />
+                  <textarea placeholder="请输入" value={formData.opportunities} onChange={(e) => handleInputChange('opportunities', e.target.value)} rows={3} className={FIELD_STYLES.textarea + " resize-none"} />
                 </div>
                 <div>
                   <label className={labelClass}><span className="text-orange-600">威胁</span> <span className="text-red-500">*</span></label>
-                  <input type="text" placeholder="请输入" value={formData.threats} onChange={(e) => handleInputChange('threats', e.target.value)} className={inputClass} />
+                  <textarea placeholder="请输入" value={formData.threats} onChange={(e) => handleInputChange('threats', e.target.value)} rows={3} className={FIELD_STYLES.textarea + " resize-none"} />
                 </div>
               </div>
             </div>
@@ -530,8 +551,8 @@ function OpportunityFormContent() {
                 placeholder="请输入备注信息"
                 value={formData.remarks}
                 onChange={(e) => handleInputChange('remarks', e.target.value)}
-                rows={3}
-                className={inputClass + " resize-none"}
+                rows={4}
+                className={FIELD_STYLES.textarea + " resize-none"}
               />
             </div>
           </div>
@@ -634,13 +655,6 @@ function OpportunityFormContent() {
                   <button className="w-full border-2 border-dashed border-[#EBEBEB] rounded-xl px-4 py-6 text-sm text-[#999999] hover:border-[#2D3BFF]/30 hover:text-[#2D3BFF] transition-all flex flex-col items-center gap-2">
                     <UploadIcon />
                     <span>点击上传附件（最多9个）</span>
-                  </button>
-                </div>
-                <div>
-                  <label className={labelClass}>招标文件</label>
-                  <button className="w-full border-2 border-dashed border-[#EBEBEB] rounded-xl px-4 py-6 text-sm text-[#999999] hover:border-[#2D3BFF]/30 hover:text-[#2D3BFF] transition-all flex flex-col items-center gap-2">
-                    <FileIcon />
-                    <span>点击上传招标文件</span>
                   </button>
                 </div>
               </div>

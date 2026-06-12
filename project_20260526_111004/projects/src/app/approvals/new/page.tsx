@@ -10,6 +10,21 @@ import { RuleTriggeredApprover, ServiceProduct } from '@/lib/types';
 import ApprovalFlowVisual from '@/components/ApprovalFlowVisual';
 import ApprovalReport from '@/components/ApprovalReport';
 
+// 图标
+const SaveIcon = () => (
+  <svg className="w-4 h-4" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+    <polyline points="17 21 17 13 7 13 7 21"></polyline>
+    <polyline points="7 3 7 8 15 8"></polyline>
+  </svg>
+);
+const PlusIcon = () => (
+  <svg className="w-4 h-4" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="12" y1="5" x2="12" y2="19"></line>
+    <line x1="5" y1="12" x2="19" y2="12"></line>
+  </svg>
+);
+
 // 选项配置
 const SERVICE_PRODUCTS = ["货代", "关务", "仓库", "运输", "进出口", "维修", "合同物流", "一体化供应链", "其他"];
 const BUSINESS_TYPES = ["保税", "口岸完税", "免税", "试单", "其他"];
@@ -75,10 +90,7 @@ function RiskControlFormContent() {
     englishName: "",
     parentCompany: "",
     subsidiaryCompany: "",
-    riskControlPurpose: "",
-    relationshipWithHMG: "",
     businessCustomerIds: [] as string[],
-    suggestedSystemCode: "",
     opportunityId: "",
     invoiceInfoIds: [] as string[],
     settlementPeriod: "",
@@ -231,10 +243,7 @@ function RiskControlFormContent() {
     warehouseLeaseRequirement: formData.warehouseLeaseRequirement,
     customServiceRequirement: formData.customServiceRequirement,
     customRequirementDescription: formData.customRequirementDescription,
-    riskControlPurpose: formData.riskControlPurpose,
-    relationshipWithHMG: formData.relationshipWithHMG,
     businessCustomerIds: formData.businessCustomerIds,
-    suggestedSystemCode: formData.suggestedSystemCode,
     opportunityId: formData.opportunityId,
     invoiceInfoIds: formData.invoiceInfoIds,
     settlementPeriod: formData.settlementPeriod,
@@ -276,8 +285,12 @@ function RiskControlFormContent() {
             {draftMessage && (
               <span className="text-sm text-[#0D8A5E]">{draftMessage}</span>
             )}
-            <button type="button" onClick={handleSaveDraft} className="px-4 py-2 border border-[#EBEBEB] rounded-lg text-[#666] hover:bg-gray-50">暂存</button>
-            <button onClick={handleSubmit} className="px-6 py-2 bg-[#2D3BFF] text-white rounded-lg hover:shadow-lg hover:shadow-[#2D3BFF]/20 transition-all">提交</button>
+            <button type="button" onClick={handleSaveDraft} className="px-4 py-2 text-sm border border-[#EBEBEB] text-[#5A5A5A] rounded-xl hover:bg-[#F5F5F5] transition-all inline-flex items-center gap-2 disabled:opacity-50">
+              <SaveIcon /> 暂存
+            </button>
+            <button onClick={handleSubmit} className="px-4 py-2 text-sm bg-[#2D3BFF] text-white rounded-xl hover:opacity-90 active:scale-[0.98] transition-all inline-flex items-center gap-2 shadow-sm disabled:opacity-50">
+              <PlusIcon /> 提交
+            </button>
           </div>
         </div>
 
@@ -313,31 +326,6 @@ function RiskControlFormContent() {
                 </div>
               </div>
 
-              {/* 风控信息 */}
-              <div className="bg-white rounded-2xl shadow-sm p-6">
-                <h3 className="text-sm font-semibold text-[#0A0A0A] mb-4 pb-3 border-b border-[#EBEBEB]">风控信息</h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">风险控制目的 <span className="text-red-500">*</span></label>
-                    <SearchableSelect
-                      value={formData.riskControlPurpose}
-                      onChange={(value) => handleChange("riskControlPurpose", value)}
-                      options={RISK_PURPOSES.map((p) => ({ value: p, label: p }))}
-                      placeholder="请选择风险控制目的"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">此公司与HMG的关系 <span className="text-red-500">*</span></label>
-                    <SearchableSelect
-                      value={formData.relationshipWithHMG}
-                      onChange={(value) => handleChange("relationshipWithHMG", value)}
-                      options={HMG_RELATIONS.map((r) => ({ value: r, label: r }))}
-                      placeholder="请选择关系"
-                    />
-                  </div>
-                </div>
-              </div>
-
               {/* 关联信息 */}
               <div className="bg-white rounded-2xl shadow-sm p-6">
                 <h3 className="text-sm font-semibold text-[#0A0A0A] mb-4 pb-3 border-b border-[#EBEBEB]">关联信息</h3>
@@ -355,10 +343,6 @@ function RiskControlFormContent() {
                       </div>
                       <button type="button" onClick={() => { setSearchTerm(""); setSelectorOpen("businessCustomer"); }} className="w-full bg-white border border-dashed border-[#D5D5D5] rounded-xl px-4 py-3 text-sm text-[#999] hover:border-[#2D3BFF] hover:text-[#2D3BFF] transition-colors">+ 选择业务主客户</button>
                     </div>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">建议系统代码 <span className="text-red-500">*</span></label>
-                    <input type="text" value={formData.suggestedSystemCode} onChange={(e) => handleChange("suggestedSystemCode", e.target.value)} placeholder="请输入建议系统代码" className="w-full bg-[#F5F5F5] border-none rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30" />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">商机 <span className="text-red-500">*</span></label>
@@ -520,7 +504,7 @@ function RiskControlFormContent() {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">定制化需求描述 <span className="text-red-500">*</span></label>
-                    <textarea value={formData.customRequirementDescription} onChange={(e) => handleChange("customRequirementDescription", e.target.value)} placeholder="请输入定制化需求描述" rows={3} className="w-full bg-[#F5F5F5] border-none rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30 resize-none" />
+                    <textarea value={formData.customRequirementDescription} onChange={(e) => handleChange("customRequirementDescription", e.target.value)} placeholder="请输入定制化需求描述" rows={4} className="w-full bg-[#F5F5F5] border-none rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30 resize-none" />
                   </div>
                 </div>
               </div>

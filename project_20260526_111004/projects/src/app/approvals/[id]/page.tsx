@@ -600,15 +600,6 @@ export default function ApprovalDetailPage() {
                 </div>
               </div>
 
-              {/* 风控信息 */}
-              <div className="bg-white rounded-2xl shadow-sm p-6">
-                <h3 className="text-sm font-semibold text-[#0A0A0A] mb-4 pb-3 border-b border-[#EBEBEB]">风控信息</h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <div><label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">风险控制目的 <span className="text-red-500">*</span></label><div className="w-full bg-[#F5F5F5] rounded-xl px-4 py-3 text-sm text-[#0A0A0A]">{approval.riskControlPurpose}</div></div>
-                  <div><label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">此公司与HMG的关系 <span className="text-red-500">*</span></label><div className="w-full bg-[#F5F5F5] rounded-xl px-4 py-3 text-sm text-[#0A0A0A]">{approval.relationshipWithHMG}</div></div>
-                </div>
-              </div>
-
               {/* 关联信息 */}
               <div className="bg-white rounded-2xl shadow-sm p-6">
                 <h3 className="text-sm font-semibold text-[#0A0A0A] mb-4 pb-3 border-b border-[#EBEBEB]">关联信息</h3>
@@ -621,7 +612,6 @@ export default function ApprovalDetailPage() {
                       ))}
                     </div>
                   </div>
-                  <div><label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">建议系统代码 <span className="text-red-500">*</span></label><div className="w-full bg-[#F5F5F5] rounded-xl px-4 py-3 text-sm text-[#0A0A0A]">{approval.suggestedSystemCode}</div></div>
                   <div><label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">商机 <span className="text-red-500">*</span></label><div className="w-full bg-[#F5F5F5] rounded-xl px-4 py-3 text-sm text-[#2D3BFF]">{opportunityTitle}</div></div>
                   <div>
                     <label className="block text-sm font-medium text-[#5A5A5A] mb-1.5">客户开票信息 <span className="text-red-500">*</span></label>

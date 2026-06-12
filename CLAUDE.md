@@ -17,6 +17,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## 开发流程
 
 **每次开发前必须先生成测试验收标准**，列出功能点、边界情况、交互状态（加载/空/错误/极端数据）。验收时逐条对照通过，未通过标准前不得宣布完成。
+**复杂/大量改动时必须走 TDD 流程**（先写 Playwright E2E → 验证失败 → 实现 → 通过）。
 **只改动我让你修改的部分，其他的不要修改。
 
 ## Git 发布规则
@@ -47,7 +48,8 @@ CIM2.0/
 │   ├── prototype-design/              # HTML 原型生成
 │   └── domain-reference/              # 领域术语查询
 ├── docs/
-│   └── ui-specification.md            # UI 设计规范（需更新）
+│   ├── ui-specification.md            # UI 设计规范
+│   └── superpowers/specs/             # 功能设计文档
 ├── project_20260526_111004/projects/  # 主项目代码
 │   └── src/
 │       ├── app/                       # Next.js App Router 页面（48 页）
@@ -62,23 +64,25 @@ CIM2.0/
 │       │   ├── rules/                 # 账单规则
 │       │   ├── entities/              # 主体管理（签约/服务/结算）
 │       │   ├── approval/              # 审批流程配置（工作流/自动规则）
-│       │   ├── settings/              # 系统设置（用户/角色/权限/字典等 8 页）
+│       │   ├── settings/              # 系统设置（用户/角色/权限/字典/提醒配置等 9 页）
 │       │   ├── contracts/             # 合同管理
 │       │   ├── billing-fields/        # 结算字段配置
 │       │   ├── orders/                # 订单管理
 │       │   ├── test/                  # 测试页面
-│       │   └── api/                   # API 路由（9 个端点）
+│       │   └── api/                   # API 路由（15 个端点）
 │       ├── components/
 │       │   ├── ui/                    # shadcn/ui 组件（56 个）
 │       │   ├── layout/AppLayout.tsx   # 全局布局（侧栏+顶栏+内容区+搜索）
 │       │   ├── layout/GlobalSearchDialog.tsx # 全局搜索（Cmd+K）
-│       │   ├── ProgressStepper.tsx    # 6 阶段跟进步骤条
+│       │   ├── ProgressStepper.tsx    # 5 阶段跟进步骤条（自动流转）
 │       │   ├── CollaborationDialogs.tsx # 协同/分配/移交弹窗
 │       │   └── RuleGroupEditor.tsx    # 规则组编辑器
 │       ├── hooks/
 │       │   ├── useUnsavedChanges.ts   # 未保存更改保护
 │       │   ├── useKeyboardShortcuts.ts# 全局键盘快捷键
 │       │   └── use-mobile.ts
+├── e2e/                               # Playwright E2E 测试（28 个用例）
+├── playwright.config.ts
 │       ├── lib/
 │       │   ├── types.ts              # 全部类型定义
 │       │   ├── store.tsx             # 全局状态（useReducer + Context）

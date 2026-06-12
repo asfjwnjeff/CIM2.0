@@ -168,11 +168,14 @@ const followUpDataByCompany: Record<string, any> = {
 };
 
 const followUpStatusMap: Record<string, { label: string; color: string; bgColor: string }> = {
-  'new': { label: '新需求', color: '#2D3BFF', bgColor: '#E6EAFF' },
-  'discussing': { label: '沟通中', color: '#FF9500', bgColor: '#FFF4E6' },
-  'promoting': { label: '推进中', color: '#00B42A', bgColor: '#E8FFEE' },
+  'new': { label: '新建需求', color: '#2D3BFF', bgColor: '#E6EAFF' },
+  'discussing': { label: '沟通方案', color: '#FF9500', bgColor: '#FFF4E6' },
+  'promoting': { label: '促单', color: '#00B42A', bgColor: '#E8FFEE' },
   'success': { label: '成功', color: '#00B42A', bgColor: '#E8FFEE' },
-  'no_progress': { label: '无进展', color: '#F53F3F', bgColor: '#FFECE8' },
+  'no_progress': { label: '无进展', color: '#6B7280', bgColor: '#F3F4F6' },
+  'cancelled': { label: '需求取消', color: '#F53F3F', bgColor: '#FFECE8' },
+  'terminated': { label: '合同终止', color: '#7C3AED', bgColor: '#F3E8FF' },
+  'failed': { label: '失败', color: '#DC2626', bgColor: '#FEF2F2' },
 };
 
 const followUpTypeMap: Record<string, string> = {
@@ -270,7 +273,29 @@ export default function FollowUpDetailPage() {
                     {statusConfig.label}
                   </div>
                 </div>
-                
+
+                {/* 打卡记录 */}
+                {data.followUpMethod === 'onsite_visit' && data.checkInRecords && data.checkInRecords.length > 0 && (
+                  <div className="col-span-2">
+                    <label className="block text-sm font-medium text-[#5A5A5A] mb-2">上门打卡记录</label>
+                    {data.checkInRecords.map((rec: any, idx: number) => (
+                      <div key={idx} className="mb-2 p-3 bg-[#F5F5F5] rounded-lg text-xs">
+                        <div className="text-[#0D8A5E] font-medium">打卡 #{idx + 1}: {rec.address}</div>
+                        <div className="text-[#999] mt-0.5">{new Date(rec.timestamp).toLocaleString()}</div>
+                        {rec.photos && rec.photos.length > 0 && (
+                          <div className="flex gap-1.5 mt-2">
+                            {rec.photos.map((photo: string, pi: number) => (
+                              <div key={pi} className="w-16 h-16 rounded overflow-hidden bg-white border border-[#EBEBEB]">
+                                <img src={photo} alt="" className="w-full h-full object-cover" />
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+
                 <div>
                   <label className="block text-sm font-medium text-[#5A5A5A] mb-2">负责人</label>
                   <div className="w-full bg-[#F5F5F5] border-none rounded-xl px-4 py-2.5 text-sm text-[#0A0A0A]">

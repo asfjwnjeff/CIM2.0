@@ -223,6 +223,10 @@ export default function FollowUpEditPage() {
   const [contactId, setContactId] = useState(initialData.contactId);
   const [content, setContent] = useState(initialData.content);
   const [nextFollowUpDate, setNextFollowUpDate] = useState(initialData.nextFollowUpDate);
+  const [checkInRecords, setCheckInRecords] = useState<Array<{lat:number;lng:number;address:string;timestamp:string;photos:string[]}>>(initialData.checkInRecords || []);
+  const [checkInPhotos, setCheckInPhotos] = useState<string[]>([]);
+  const [checkingIn, setCheckingIn] = useState(false);
+  const [checkInError, setCheckInError] = useState('');
 
   // 录音相关
   const [isPlaying, setIsPlaying] = useState(false);
@@ -241,6 +245,58 @@ export default function FollowUpEditPage() {
   const [newTodo, setNewTodo] = useState('');
   const [newDecision, setNewDecision] = useState('');
   const [isRegenerating, setIsRegenerating] = useState(false);
+
+  const handleCheckIn = () => {
+    setCheckingIn(true);
+    setCheckInError('');
+    if (!navigator.geolocation) {
+      setCheckInError('浏览器不支持定位功能');
+      setCheckingIn(false);
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const { latitude: lat, longitude: lng } = pos.coords;
+        const now = new Date().toISOString();
+        fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&accept-language=zh`)
+          .then(r => r.json())
+          .then(data => {
+            setCheckInRecords(prev => [...prev, { lat, lng, address: data.display_name || `${lat.toFixed(4)}, ${lng.toFixed(4)}`, timestamp: now, photos: [] }]);
+            setCheckInPhotos([]);
+            setCheckingIn(false);
+          })
+          .catch(() => {
+            setCheckInRecords(prev => [...prev, { lat, lng, address: `${lat.toFixed(4)}, ${lng.toFixed(4)}`, timestamp: now, photos: [] }]);
+            setCheckInPhotos([]);
+            setCheckingIn(false);
+          });
+      },
+      (err) => {
+        setCheckInError('定位失败：' + (err.message || '请检查定位权限'));
+        setCheckingIn(false);
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  };
+
+  const handleCheckInPhoto = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      setCheckInPhotos(prev => {
+        const newPhotos = [...prev, reader.result as string];
+        setCheckInRecords(prevRecords => {
+          if (prevRecords.length === 0) return prevRecords;
+          const updated = [...prevRecords];
+          updated[updated.length - 1] = { ...updated[updated.length - 1], photos: newPhotos };
+          return updated;
+        });
+        return newPhotos;
+      });
+    };
+    reader.readAsDataURL(file);
+  };
 
   const handleSave = () => {
     if (!customerId) {
@@ -262,7 +318,7 @@ export default function FollowUpEditPage() {
         {/* 顶部 */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <button onClick={() => router.push(`/followup/${id}`)} className="p-2 rounded-lg hover:bg-[#F5F5F5]">
+            <button onClick={() => router.push('/followup')} className="p-2 rounded-lg hover:bg-[#F5F5F5]">
               <ArrowLeftIcon className="w-5 h-5 text-[#5A5A5A]" />
             </button>
             <div>
@@ -350,16 +406,62 @@ export default function FollowUpEditPage() {
                     value={followUpStatus}
                     onChange={(value) => setFollowUpStatus(value)}
                     options={[
-                      { value: 'new', label: '新需求' },
-                      { value: 'discussing', label: '沟通中' },
-                      { value: 'promoting', label: '推进中' },
+                      { value: 'new', label: '新建需求' },
+                      { value: 'discussing', label: '沟通方案' },
+                      { value: 'promoting', label: '促单' },
                       { value: 'success', label: '成功' },
                       { value: 'no_progress', label: '无进展' },
+                      { value: 'cancelled', label: '需求取消' },
+                      { value: 'terminated', label: '合同终止' },
+                      { value: 'failed', label: '失败' },
                     ]}
                     placeholder="请选择状态"
                   />
                 </div>
-                
+
+                {/* 打卡 — 仅上门拜访 */}
+                {followUpMethod === 'onsite_visit' && (
+                  <div className="col-span-2">
+                    <label className="block text-sm font-medium text-[#5A5A5A] mb-2">上门打卡</label>
+                    {checkInRecords.map((rec, idx) => (
+                      <div key={idx} className="mb-2 p-3 bg-[#F5F5F5] rounded-lg text-xs">
+                        <div className="text-[#0D8A5E] font-medium">打卡 #{idx + 1}: {rec.address}</div>
+                        <div className="text-[#999] mt-0.5">{new Date(rec.timestamp).toLocaleString()}</div>
+                        {rec.photos.length > 0 && (
+                          <div className="flex gap-1.5 mt-2">
+                            {rec.photos.map((photo, pi) => (
+                              <div key={pi} className="relative w-16 h-16 rounded overflow-hidden bg-white border border-[#EBEBEB]">
+                                <img src={photo} alt="" className="w-full h-full object-cover" />
+                                <button type="button" onClick={() => {
+                                  setCheckInRecords(prev => {
+                                    const updated = [...prev];
+                                    updated[idx] = { ...updated[idx], photos: updated[idx].photos.filter((_, j) => j !== pi) };
+                                    return updated;
+                                  });
+                                }} className="absolute top-0 right-0 w-4 h-4 bg-black/50 rounded-bl text-white text-[10px] flex items-center justify-center">×</button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                    <div className="flex items-center gap-3 mt-2">
+                      <button type="button" onClick={handleCheckIn} disabled={checkingIn}
+                        className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#0D8A5E] text-white rounded-xl text-sm font-medium hover:bg-[#0B7250] disabled:opacity-50 transition-colors">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                        {checkingIn ? '定位中...' : '打卡签到'}
+                      </button>
+                      {checkInRecords.length > 0 && (
+                        <label className="inline-flex items-center gap-1 px-3 py-2 border-2 border-dashed border-[#D5D5D5] rounded-lg text-xs text-[#999] cursor-pointer hover:border-[#2D3BFF] hover:text-[#2D3BFF]">
+                          <input type="file" accept="image/*" onChange={handleCheckInPhoto} className="hidden" />
+                          + 照片
+                        </label>
+                      )}
+                    </div>
+                    {checkInError && <p className="text-xs text-[#D63031] mt-1">{checkInError}</p>}
+                  </div>
+                )}
+
                 <div>
                   <label className="block text-sm font-medium text-[#5A5A5A] mb-2">负责人</label>
                   <div className="flex items-center gap-2">

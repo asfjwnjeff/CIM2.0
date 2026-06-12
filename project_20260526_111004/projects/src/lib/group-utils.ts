@@ -72,10 +72,10 @@ export const CUSTOMER_FIELD_META: GroupFieldMeta[] = [
 
 export const FOLLOWUP_FIELD_META: GroupFieldMeta[] = [
   { key: 'status', label: '跟进状态', type: 'select', options: [
-    { value: 'new', label: '新需求' }, { value: 'discussing', label: '沟通中' },
-    { value: 'promoting', label: '推进中' }, { value: 'completed', label: '成功' },
-    { value: 'cancelled', label: '无进展' }, { value: 'no_progress', label: '需求取消' },
-    { value: 'terminated', label: '合同终止' },
+    { value: 'new', label: '新建需求' }, { value: 'discussing', label: '沟通方案' },
+    { value: 'promoting', label: '促单' }, { value: 'success', label: '成功' },
+    { value: 'no_progress', label: '无进展' }, { value: 'cancelled', label: '需求取消' },
+    { value: 'terminated', label: '合同终止' }, { value: 'failed', label: '失败' },
   ]},
   { key: 'type', label: '跟进类型', type: 'select', options: [
     { value: 'kpi_not_met', label: 'KPI未达标' }, { value: 'contract_mgmt', label: '合同管理' },

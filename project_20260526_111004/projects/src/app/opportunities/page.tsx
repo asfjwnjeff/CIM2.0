@@ -414,7 +414,7 @@ export default function OpportunitiesPage() {
         {/* 列表视图 */}
         {viewMode === 'list' && (
           <div id="list-view" className="bg-white rounded-xl shadow-sm border border-[#EBEBEB] overflow-hidden">
-            <div className="grid grid-cols-10 px-4 py-3 bg-[#F5F5F5] text-xs font-semibold text-[#5A5A5A] uppercase tracking-wide">
+            <div className="grid grid-cols-[1.4fr_1.8fr_1.8fr_0.8fr_1fr_1fr_0.8fr_0.6fr_1fr_0.8fr] px-4 py-3 bg-[#F5F5F5] text-xs font-semibold text-[#5A5A5A] uppercase tracking-wide">
               <span>商机编号</span>
               <span>商机名称</span>
               <span>关联客户</span>
@@ -435,12 +435,12 @@ export default function OpportunitiesPage() {
                 filteredOpportunities.map((opportunity) => (
                   <div
                     key={opportunity.id}
-                    className="grid grid-cols-10 px-4 py-3 hover:bg-[#F5F5F5] transition-colors items-center"
+                    className="grid grid-cols-[1.4fr_1.8fr_1.8fr_0.8fr_1fr_1fr_0.8fr_0.6fr_1fr_0.8fr] px-4 py-3 hover:bg-[#F5F5F5] transition-colors items-center"
                   >
                     <span className="text-sm font-medium text-[#2D3BFF]">{opportunity.opportunityNumber || '-'}</span>
                     <span className="text-sm font-medium text-[#0A0A0A]">{opportunity.opportunityName || '-'}</span>
                     <span className="text-sm text-[#5A5A5A]">{opportunity.customerName}</span>
-                    <span className="text-sm text-[#5A5A5A]">{opportunity.serviceProduct}</span>
+                    <span className="text-sm text-[#5A5A5A]">{opportunity.serviceProduct || '-'}</span>
                     <span className="text-sm font-semibold text-[#2D3BFF]">
                       {opportunity.estimatedMonthlyAmount ? `¥${opportunity.estimatedMonthlyAmount.toLocaleString()}` : '-'}
                     </span>
@@ -452,7 +452,7 @@ export default function OpportunitiesPage() {
                     </span>
                     <span className="text-sm text-[#5A5A5A]">{opportunity.owner}</span>
                     <span className="text-sm text-[#5A5A5A]">{opportunity.createdAt.split(' ')[0]}</span>
-                    <div className="flex gap-2">
+                    <div className="flex gap-1">
                       <button
                         onClick={() => router.push(`/opportunities/${opportunity.id}`)}
                         className="text-[#2D3BFF] text-sm font-medium hover:underline w-fit"

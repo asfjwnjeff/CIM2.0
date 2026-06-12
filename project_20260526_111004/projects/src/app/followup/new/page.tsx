@@ -28,6 +28,14 @@ const PlusIcon = ({ className = '' }: { className?: string }) => (
   </svg>
 );
 
+const SaveIcon = ({ className = '' }: { className?: string }) => (
+  <svg className={className} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+    <polyline points="17 21 17 13 7 13 7 21"></polyline>
+    <polyline points="7 3 7 8 15 8"></polyline>
+  </svg>
+);
+
 const ArrowLeftIcon = ({ className = '' }: { className?: string }) => (
   <svg className={className} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <line x1="19" y1="12" x2="5" y2="12"></line>
@@ -111,6 +119,15 @@ function FollowupFormContent() {
   const [selectedMethod, setSelectedMethod] = useState<string>('');
   const [followupTime, setFollowupTime] = useState<string>('');
   const [nextFollowupTime, setNextFollowupTime] = useState<string>('');
+  const [selectedStatus, setSelectedStatus] = useState<string>('new');
+  const [selectedOwner, setSelectedOwner] = useState<string>('');
+  const [selectedContactId, setSelectedContactId] = useState<string>('');
+  const [checkInRecords, setCheckInRecords] = useState<Array<{lat:number;lng:number;address:string;timestamp:string;photos:string[]}>>([]);
+  const [checkInPhotos, setCheckInPhotos] = useState<string[]>([]);
+  const [checkingIn, setCheckingIn] = useState(false);
+  const [checkInError, setCheckInError] = useState('');
+  const [attachments, setAttachments] = useState<string[]>([]);
+  const [selectedCollaborators, setSelectedCollaborators] = useState<string[]>([]);
   const [isRecording, setIsRecording] = useState<boolean>(false);
   const [isPaused, setIsPaused] = useState<boolean>(false);
   const [recordingTime, setRecordingTime] = useState<string>('00:00:00');
@@ -160,18 +177,96 @@ function FollowupFormContent() {
   const buildFollowUpData = (status: string) => ({
     customerId: selectedCustomerId,
     customerName: selectedCustomer,
+    contactId: selectedContactId || undefined,
+    contactName: customers.find(c => c.id === selectedContactId)?.contact || undefined,
     type: (selectedType as any) || 'biz_meeting',
     method: (selectedMethod as any) || undefined,
     followUpDate: followupTime || undefined,
     nextFollowUpDate: nextFollowupTime || undefined,
     status: status as any,
+    owner: selectedOwner || undefined,
+    collaborators: selectedCollaborators.length > 0 ? selectedCollaborators : undefined,
     content: summary || undefined,
     keyPoints: keyPoints ? keyPoints.split('\n').filter(Boolean) : undefined,
     actionItems: toDos ? toDos.split('\n').filter(Boolean) : undefined,
     decisions: decisions ? decisions.split('\n').filter(Boolean) : undefined,
     transcript: transcriptSegments.length > 0 ? JSON.stringify(transcriptSegments) : undefined,
     meetingSummary: summary || undefined,
+    attachments: attachments.length > 0 ? attachments : undefined,
+    checkInRecords: checkInRecords.length > 0 ? checkInRecords : undefined,
   });
+
+  const handleCheckIn = () => {
+    setCheckingIn(true);
+    setCheckInError('');
+    if (!navigator.geolocation) {
+      setCheckInError('浏览器不支持定位功能');
+      setCheckingIn(false);
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const { latitude: lat, longitude: lng } = pos.coords;
+        const now = new Date().toISOString();
+        fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&accept-language=zh`)
+          .then(r => r.json())
+          .then(data => {
+            setCheckInRecords(prev => [...prev, { lat, lng, address: data.display_name || `${lat.toFixed(4)}, ${lng.toFixed(4)}`, timestamp: now, photos: [] }]);
+            setCheckInPhotos([]);
+            setCheckingIn(false);
+          })
+          .catch(() => {
+            setCheckInRecords(prev => [...prev, { lat, lng, address: `${lat.toFixed(4)}, ${lng.toFixed(4)}`, timestamp: now, photos: [] }]);
+            setCheckInPhotos([]);
+            setCheckingIn(false);
+          });
+      },
+      (err) => {
+        setCheckInError('定位失败：' + (err.message || '请检查定位权限'));
+        setCheckingIn(false);
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  };
+
+  const handleCheckInPhoto = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      setCheckInPhotos(prev => {
+        const newPhotos = [...prev, reader.result as string];
+        // Update the last check-in record with the new photos
+        setCheckInRecords(prevRecords => {
+          if (prevRecords.length === 0) return prevRecords;
+          const updated = [...prevRecords];
+          updated[updated.length - 1] = { ...updated[updated.length - 1], photos: newPhotos };
+          return updated;
+        });
+        return newPhotos;
+      });
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const removeCheckInPhoto = (index: number) => {
+    setCheckInPhotos(prev => {
+      const newPhotos = prev.filter((_, i) => i !== index);
+      setCheckInRecords(prevRecords => {
+        if (prevRecords.length === 0) return prevRecords;
+        const updated = [...prevRecords];
+        updated[updated.length - 1] = { ...updated[updated.length - 1], photos: newPhotos };
+        return updated;
+      });
+      return newPhotos;
+    });
+  };
+
+  const handleAttachmentUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setAttachments(prev => [...prev, file.name]);
+  };
 
   const handleSaveDraft = () => {
     setSaving(true);
@@ -186,7 +281,7 @@ function FollowupFormContent() {
     if (!selectedType) { alert('请选择跟进类型'); return; }
     if (!followupTime) { alert('请选择跟进时间'); return; }
     setSaving(true);
-    addFollowUp(buildFollowUpData('new') as Parameters<typeof addFollowUp>[0]);
+    addFollowUp(buildFollowUpData(selectedStatus || 'new') as Parameters<typeof addFollowUp>[0]);
     setSaving(false);
     router.push('/followup');
   };
@@ -216,7 +311,7 @@ function FollowupFormContent() {
               disabled={saving}
               className="px-4 py-2 text-sm border border-[#EBEBEB] text-[#5A5A5A] rounded-xl hover:bg-[#F5F5F5] transition-all inline-flex items-center gap-2 disabled:opacity-50"
             >
-              暂存
+              <SaveIcon /> 暂存
             </button>
             <button
               onClick={handleSubmit}
@@ -260,12 +355,12 @@ function FollowupFormContent() {
                     placeholder="请选择类型"
                   />
                   {selectedType === 'other_customer' && (
-                    <input
-                      type="text"
+                    <textarea
                       value={followupTypeOther}
                       onChange={(e) => setFollowupTypeOther(e.target.value)}
                       placeholder="请输入其他客户事项说明"
-                      className="mt-2 w-full bg-[#F5F5F5] border-none rounded-xl px-4 py-2.5 text-sm text-[#0A0A0A] focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30"
+                      rows={2}
+                      className="mt-2 w-full bg-[#F5F5F5] border-none rounded-xl px-4 py-3 text-sm text-[#0A0A0A] focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30 resize-none"
                     />
                   )}
                 </div>
@@ -296,6 +391,76 @@ function FollowupFormContent() {
                 </div>
                 
                 <div>
+                  <label className="block text-sm font-medium text-[#5A5A5A] mb-2">跟进状态</label>
+                  <SearchableSelect
+                    value={selectedStatus}
+                    onChange={(value) => setSelectedStatus(value)}
+                    options={[
+                      { value: 'new', label: '新建需求' },
+                      { value: 'discussing', label: '沟通方案' },
+                      { value: 'promoting', label: '促单' },
+                      { value: 'success', label: '成功' },
+                      { value: 'no_progress', label: '无进展' },
+                      { value: 'cancelled', label: '需求取消' },
+                      { value: 'terminated', label: '合同终止' },
+                      { value: 'failed', label: '失败' },
+                    ]}
+                    placeholder="请选择状态"
+                  />
+                </div>
+
+                {/* 打卡 — 仅上门拜访 */}
+                {selectedMethod === 'onsite_visit' && (
+                  <div className="col-span-2">
+                    <label className="block text-sm font-medium text-[#5A5A5A] mb-2">上门打卡</label>
+                    {/* 已打卡记录 */}
+                    {checkInRecords.map((rec, idx) => (
+                      <div key={idx} className="mb-3 p-3 bg-[#F5F5F5] rounded-lg text-xs">
+                        <div className="text-[#0D8A5E] font-medium">打卡 #{idx + 1}: {rec.address}</div>
+                        <div className="text-[#999] mt-0.5">{new Date(rec.timestamp).toLocaleString()}</div>
+                        {rec.photos.length > 0 && (
+                          <div className="flex gap-1.5 mt-2">
+                            {rec.photos.map((photo, pi) => (
+                              <div key={pi} className="relative w-16 h-16 rounded overflow-hidden bg-white border border-[#EBEBEB]">
+                                <img src={photo} alt="" className="w-full h-full object-cover" />
+                                <button type="button" onClick={() => {
+                                  setCheckInRecords(prev => {
+                                    const updated = [...prev];
+                                    updated[idx] = { ...updated[idx], photos: updated[idx].photos.filter((_, j) => j !== pi) };
+                                    return updated;
+                                  });
+                                }} className="absolute top-0 right-0 w-4 h-4 bg-black/50 rounded-bl text-white text-[10px] flex items-center justify-center">×</button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                    <div className="flex items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={handleCheckIn}
+                        disabled={checkingIn}
+                        className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#0D8A5E] text-white rounded-xl text-sm font-medium hover:bg-[#0B7250] disabled:opacity-50 transition-colors"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                        {checkingIn ? '定位中...' : '打卡签到'}
+                      </button>
+                      {checkInRecords.length > 0 && (
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-[#0D8A5E]">最新打卡完成</span>
+                          <label className="w-20 h-9 rounded-lg border-2 border-dashed border-[#D5D5D5] flex items-center justify-center cursor-pointer hover:border-[#2D3BFF] hover:bg-[#E8EBFF] transition-colors">
+                            <input type="file" accept="image/*" onChange={handleCheckInPhoto} className="hidden" />
+                            <span className="text-xs text-[#999]">+照片</span>
+                          </label>
+                        </div>
+                      )}
+                    </div>
+                    {checkInError && <p className="text-xs text-[#D63031] mt-1">{checkInError}</p>}
+                  </div>
+                )}
+
+                <div>
                   <label className="block text-sm font-medium text-[#5A5A5A] mb-2">下次跟进</label>
                   <input 
                     type="datetime-local"
@@ -304,6 +469,42 @@ function FollowupFormContent() {
                     className="w-full bg-[#F5F5F5] border-none rounded-xl px-4 py-2.5 text-sm text-[#0A0A0A] focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30"
                   />
                 </div>
+                <div>
+                  <label className="block text-sm font-medium text-[#5A5A5A] mb-2">联系人</label>
+                  <SearchableSelect
+                    value={selectedContactId}
+                    onChange={(value) => setSelectedContactId(value)}
+                    options={customers.filter(c => c.id === selectedCustomerId).map(c => ({ value: c.id, label: c.contact || '无联系人' }))}
+                    placeholder="请选择联系人"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-[#5A5A5A] mb-2">负责人</label>
+                  <input
+                    type="text"
+                    value={selectedOwner}
+                    onChange={(e) => setSelectedOwner(e.target.value)}
+                    placeholder="请输入负责人"
+                    className="w-full bg-[#F5F5F5] border-none rounded-xl px-4 py-2.5 text-sm text-[#0A0A0A] focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* 附件 */}
+            <div className="bg-white border border-[#EBEBEB] rounded-xl p-6 space-y-4">
+              <h3 className="text-sm font-semibold text-[#0A0A0A]">附件</h3>
+              <div className="flex flex-wrap gap-2">
+                {attachments.map((name, i) => (
+                  <span key={i} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#E8F4FF] text-[#2D3BFF] rounded-lg text-xs">
+                    {name}
+                    <button type="button" onClick={() => setAttachments(prev => prev.filter((_, j) => j !== i))} className="text-[#999] hover:text-red-500">×</button>
+                  </span>
+                ))}
+                <label className="inline-flex items-center gap-1 px-3 py-1.5 border-2 border-dashed border-[#D5D5D5] rounded-lg text-xs text-[#999] cursor-pointer hover:border-[#2D3BFF] hover:text-[#2D3BFF]">
+                  <input type="file" onChange={handleAttachmentUpload} className="hidden" />
+                  + 上传文件
+                </label>
               </div>
             </div>
 

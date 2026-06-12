@@ -629,7 +629,32 @@ function UserAvatar({ userId, size }: { userId: string; size?: 'sm' | 'md' }) {
 
 ---
 
-### 2.11 其他常用组件索引
+### 2.11 设置页表格模式
+
+系统设置中的配置类页面（字典管理、角色管理、跟进提醒配置等）使用统一的表格+弹窗编辑模式：
+
+**页面容器：** `max-w-[1440px] mx-auto space-y-6`
+**标题行：** `flex items-center justify-between`，左侧 `text-2xl font-bold` + 副标题 `text-sm text-[#5A5A5A] mt-1`，右侧可选操作按钮
+**表格卡片：** `bg-white rounded-xl shadow-sm border border-[#EBEBEB] overflow-hidden`
+**表头：** `<tr className="bg-[#F5F5F5] border-b border-[#EBEBEB]">`，`th` 使用 `text-left px-4 py-3 text-sm font-semibold text-[#0A0A0A] whitespace-nowrap`
+**表格行：** `border-b border-[#EBEBEB] hover:bg-[#F5F5F5] transition-colors`，`td` 使用 `px-4 py-3`
+**行操作按钮：** 文本链接样式 `text-sm font-medium text-[#2D3BFF] hover:text-[#4338CA] transition-colors`，不使用带边框的小按钮
+**编辑弹窗：** 使用自定义模态（非 Dialog 组件），遮罩 `fixed inset-0 bg-black/50 z-50`，内容 `bg-white rounded-xl shadow-xl max-w-sm mx-4`，header/body/footer 三段式布局，标准按钮样式
+
+### 2.12 表单操作按钮
+
+表单页面（新建/编辑）的底部操作区使用统一的按钮组：
+
+| 按钮 | 样式 | 图标 | 场景 |
+|------|------|:--:|------|
+| **提交** | `px-4 py-2 text-sm bg-[#2D3BFF] text-white rounded-xl hover:opacity-90 active:scale-[0.98] transition-all inline-flex items-center gap-2 shadow-sm` | PlusIcon | 新建/草稿提交 |
+| **暂存** | `px-4 py-2 text-sm border border-[#EBEBEB] text-[#5A5A5A] rounded-xl hover:bg-[#F5F5F5] transition-all inline-flex items-center gap-2` | SaveIcon (软盘) | 暂存不校验 |
+| **保存** | 同提交按钮样式 | SaveIcon | 编辑已有记录 |
+| **取消** | `px-4 py-2 border border-[#D5D5D5] text-[#5A5A5A] hover:bg-[#F5F5F5] rounded-lg text-sm font-medium transition-colors` | — | 返回上一页 |
+
+暂存图标：`SaveIcon` — 软盘图标 `<path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>`
+
+### 2.13 其他常用组件索引
 
 | 组件 | 文件 | 用途 |
 |------|------|------|
@@ -811,10 +836,10 @@ function UserAvatar({ userId, size }: { userId: string; size?: 'sm' | 'md' }) {
 | 顶部导航高度 | `h-[55px]` | 固定在顶部，`z-50` |
 | 顶部导航背景 | `bg-white` + `border-b border-[#EBEBEB]` | 纯白底+底部细线 |
 | 侧边栏宽度-收起 | `w-[56px]` | 仅显示图标，`z-40` |
-| 侧边栏宽度-展开 | `w-[240px]` | 完整菜单文本，浮层阴影 |
+| 侧边栏宽度-展开 | `w-[228px]` | 完整菜单文本，浮层阴影 |
 | 侧边栏背景 | `bg-[#1A1C1E]` | 深色底（暗色主题侧栏） |
-| 内容区左边距-收起 | `ml-[56px]` | 与收起侧栏对齐 |
-| 内容区左边距-展开 | `ml-[240px]` | 与展开侧栏对齐 |
+| 内容区左边距-收起 | `ml-[72px]` | 56+16px 间距 |
+| 内容区左边距-展开 | `ml-[244px]` | 228+16px 间距 |
 | 内容区上边距 | `pt-[55px]` | 避开顶栏高度 |
 | 页面底色 | `bg-[#FAFAFA]` | 微暖灰底色 |
 | 过渡动画 | `duration-200 ease-out` | 侧栏宽度和内容偏移同步过渡 |
@@ -851,7 +876,7 @@ export default function CustomersPage() {
 #### 侧边栏导航（瑞士现代设计）
 
 - **收起态 (56px)**：仅显示图标 `w-6 h-6`（24px），无文字
-- **展开态 (240px)**：图标缩小至 `w-5 h-5`（20px），显示完整菜单文字
+- **展开态 (228px)**：图标缩小至 `w-5 h-5`（20px），显示完整菜单文字
 - **延迟文字显示**：展开时图标→文字切换有 200ms 延迟（与宽度过渡同步），收起时文字立即隐藏
 - 一级菜单（无子菜单 / 叶子菜单）：直接 `<Link>` 导航
 - 一级菜单（有子菜单）：`<button>` 控制子菜单展开/折叠
@@ -1088,7 +1113,19 @@ useEffect(() => {
 </Button>
 ```
 
-### 5.5 列表页面视图切换
+### 5.5 跟进提醒通知
+
+Bell 图标（AppLayout 右上角）集成客户跟进提醒功能：
+
+- **红点 Badge**：红色圆形数字角标 `bg-[#D63031] text-white text-[10px] font-bold rounded-full`，显示当前所有超期客户数
+- **下拉面板**：`w-80 bg-white rounded-xl border shadow-[0_8px_32px_rgba(0,0,0,0.12)] max-h-96 overflow-y-auto`，每行显示客户名称/等级/逾期天数
+- **首页卡片**：黄色警告面板 `bg-[#FFFBEB] border-[#FFE8C0]`，与 Bell 数据同步
+- **刷新频率**：每 60 秒自动刷新
+- **空状态**："暂无待跟进提醒"
+
+提醒计算逻辑：客户提交（status=active）→ 每次跟进重置计时 → 逾期天数 = 今日 - 最后跟进日期 - 等级天数
+
+### 5.6 列表页面视图切换
 
 客户列表页支持卡片视图与表格视图切换（视图偏好存入 `localStorage`）：
 

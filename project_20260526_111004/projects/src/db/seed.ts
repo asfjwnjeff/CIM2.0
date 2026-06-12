@@ -12,6 +12,8 @@ import {
   riskApprovals,
   opportunities,
   followups,
+  followupReminderConfig,
+  contacts,
 } from './schema';
 import {
   users,
@@ -32,6 +34,7 @@ import {
   initialAutoApprovalRules,
   initialApprovalFields,
   initialRiskApprovals,
+  initialFollowUps,
 } from '@/lib/sample-data';
 import {
   DEFAULT_PERMISSIONS,
@@ -112,8 +115,15 @@ const CREATE_TABLES = [
     stage TEXT DEFAULT 'demand_confirmation', status TEXT DEFAULT 'draft',
     probability INTEGER, expected_close_date TEXT,
     service_products TEXT, service_product TEXT,
-    contacts TEXT, owner TEXT, owner_name TEXT, description TEXT,
+    contacts TEXT,
+    existing_service_contract TEXT, new_site TEXT, new_service TEXT,
+    bidding_project TEXT, bidding_document TEXT,
+    owner TEXT, owner_name TEXT, description TEXT,
     created_at TEXT, updated_at TEXT
+  )`,
+  `CREATE TABLE IF NOT EXISTS followup_reminder_config (
+    id TEXT PRIMARY KEY, level TEXT NOT NULL, days INTEGER NOT NULL DEFAULT 30,
+    updated_at TEXT
   )`,
   `CREATE TABLE IF NOT EXISTS followups (
     id TEXT PRIMARY KEY, customer_id TEXT, customer_name TEXT,
@@ -123,6 +133,16 @@ const CREATE_TABLES = [
     next_follow_up_date TEXT, recording_url TEXT, transcript TEXT,
     meeting_summary TEXT, key_points TEXT, action_items TEXT,
     decisions TEXT, attachments TEXT,
+    check_in_records TEXT,
+    created_at TEXT, updated_at TEXT
+  )`,
+  `CREATE TABLE IF NOT EXISTS contacts (
+    id TEXT PRIMARY KEY, customer_id TEXT NOT NULL,
+    name TEXT NOT NULL, english_name TEXT, phone TEXT,
+    is_key_decision_maker INTEGER DEFAULT 0, email TEXT, wechat TEXT,
+    address TEXT, department TEXT NOT NULL, position TEXT NOT NULL,
+    gender TEXT NOT NULL, birthday TEXT, age INTEGER,
+    hobbies TEXT, hometown TEXT, family_situation TEXT, zip_code TEXT,
     created_at TEXT, updated_at TEXT
   )`,
   `CREATE TABLE IF NOT EXISTS approval_fields (
@@ -199,6 +219,24 @@ export async function seed() {
   db.delete(riskApprovals).run();
   try { db.delete(opportunities).run(); } catch { /* 表可能尚不存在 */ }
   try { db.delete(followups).run(); } catch { /* 表可能尚不存在 */ }
+  try { db.delete(followupReminderConfig).run(); } catch { /* 表可能尚不存在 */ }
+  try { db.delete(contacts).run(); } catch { /* 表可能尚不存在 */ }
+
+  // 插入跟进提醒配置种子数据
+  const reminderConfigs = [
+    { id: 'cfg-K', level: 'K', days: 5 },
+    { id: 'cfg-A', level: 'A', days: 10 },
+    { id: 'cfg-B', level: 'B', days: 20 },
+    { id: 'cfg-C', level: 'C', days: 30 },
+    { id: 'cfg-D', level: 'D', days: 60 },
+  ];
+  for (const cfg of reminderConfigs) {
+    db.insert(followupReminderConfig).values({
+      id: cfg.id, level: cfg.level, days: cfg.days,
+      updatedAt: new Date().toISOString(),
+    }).run();
+  }
+  console.log(`  跟进提醒配置: ${reminderConfigs.length} 条`);
 
   // 插入审批字段
   for (const f of initialApprovalFields) {
@@ -241,6 +279,9 @@ export async function seed() {
       signingEntityIds: c.signingEntityIds ? JSON.stringify(c.signingEntityIds) : null, serviceEntityIds: c.serviceEntityIds ? JSON.stringify(c.serviceEntityIds) : null, settlementEntityIds: c.settlementEntityIds ? JSON.stringify(c.settlementEntityIds) : null,
       status: c.status,
       progressStatus: c.progressStatus ?? 'newly_acquired',
+      responsiblePersons: c.responsiblePersons ? JSON.stringify(c.responsiblePersons) : null,
+      collaborators: c.collaborators ? JSON.stringify(c.collaborators) : null,
+      createdBy: c.createdBy ?? null,
       basicInfo: c.basicInfo ? JSON.stringify(c.basicInfo) : null,
       businessInfo: c.businessInfo ? JSON.stringify(c.businessInfo) : null,
       semiconductorInfo: c.semiconductorInfo ? JSON.stringify(c.semiconductorInfo) : null,
@@ -363,8 +404,60 @@ export async function seed() {
   // 插入商机（空表初始化，待后续功能填充数据）
   console.log(`  商机: 0 条`);
 
-  // 插入跟进记录（空表初始化）
-  console.log(`  跟进记录: 0 条`);
+  // 插入跟进记录
+  for (const fu of initialFollowUps) {
+    db.insert(followups).values({
+      id: fu.id, customerId: fu.customerId, customerName: fu.customerName,
+      type: fu.type, method: fu.method, content: fu.content,
+      followUpDate: fu.followUpDate, status: fu.status,
+      owner: fu.owner, createdAt: fu.createdAt,
+    }).run();
+  }
+  console.log(`  跟进记录: ${initialFollowUps.length} 条`);
+
+  // 插入联系人种子数据
+  const seedContacts = [
+    {
+      id: 'contact-1', customerId: 'cust-001', name: '赵志远', englishName: 'David Zhao',
+      phone: '138****6789', isKeyDecisionMaker: true, email: 'david.zhao@huali.com',
+      wechat: 'david_zhao', address: '上海市浦东新区张江路18号',
+      department: '采购部', position: '采购总监', gender: 'male',
+      birthday: '1978-05-12', age: 47, hobbies: '高尔夫、阅读',
+      hometown: '江苏南京', familySituation: '已婚，一子一女', zipCode: '201203',
+      created_at: '2025-06-01', updated_at: '2025-11-15',
+    },
+    {
+      id: 'contact-2', customerId: 'cust-001', name: '钱雪梅', englishName: 'May Qian',
+      phone: '139****8901', isKeyDecisionMaker: false, email: 'may.qian@huali.com',
+      wechat: 'may_qian_021', address: '上海市浦东新区张江路18号',
+      department: '技术部', position: '高级工程师', gender: 'female',
+      birthday: '1985-11-23', age: 40, hobbies: '羽毛球、烘焙',
+      hometown: '浙江杭州', familySituation: '已婚，一女', zipCode: '201203',
+      created_at: '2025-06-15', updated_at: '2025-10-20',
+    },
+    {
+      id: 'contact-3', customerId: 'cust-001', name: '孙建国', englishName: 'Jack Sun',
+      phone: '137****3456', isKeyDecisionMaker: true, email: 'jack.sun@huali.com',
+      wechat: '', address: '上海市浦东新区张江路18号',
+      department: '供应链管理部', position: '部长', gender: 'male',
+      birthday: '1975-02-08', age: 51, hobbies: '登山、摄影',
+      hometown: '山东青岛', familySituation: '已婚，一子', zipCode: '201203',
+      created_at: '2025-07-01', updated_at: '2025-12-01',
+    },
+  ];
+  for (const c of seedContacts) {
+    db.insert(contacts).values({
+      id: c.id, customerId: c.customerId, name: c.name,
+      englishName: c.englishName, phone: c.phone,
+      isKeyDecisionMaker: c.isKeyDecisionMaker, email: c.email,
+      wechat: c.wechat, address: c.address,
+      department: c.department, position: c.position, gender: c.gender,
+      birthday: c.birthday, age: c.age, hobbies: c.hobbies,
+      hometown: c.hometown, familySituation: c.familySituation,
+      zipCode: c.zipCode, created_at: c.created_at, updated_at: c.updated_at,
+    }).run();
+  }
+  console.log(`  联系人: ${seedContacts.length} 条`);
 
   // ==================== IAM 种子数据 ====================
 

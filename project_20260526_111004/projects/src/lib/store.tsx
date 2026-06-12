@@ -319,7 +319,11 @@ function reducer(state: AppState, action: Action): AppState {
     case 'ADD_CUSTOMER':
       return {
         ...state,
-        customers: [...state.customers, { ...action.payload, id: `cust-${Date.now()}`, createdAt: new Date().toISOString() }],
+        customers: [...state.customers, {
+          ...action.payload,
+          id: (action.payload as Record<string, unknown>).id as string || `cust-${Date.now()}`,
+          createdAt: new Date().toISOString(),
+        }],
       };
     case 'UPDATE_CUSTOMER':
       return {

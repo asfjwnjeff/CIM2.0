@@ -92,6 +92,48 @@ function PendingCard({ label, count, href, color }: { label: string; count: numb
   );
 }
 
+// ==================== 跟进提醒面板 ====================
+
+function ReminderPanel() {
+  const [items, setItems] = React.useState<Array<{customerId:string;customerName:string;level:string;overdueDays:number}>>([]);
+
+  React.useEffect(() => {
+    fetch('/api/followup-reminders')
+      .then(r => r.json())
+      .then(data => { if (Array.isArray(data)) setItems(data); })
+      .catch(() => {});
+  }, []);
+
+  if (items.length === 0) return null;
+
+  return (
+    <div className="bg-white rounded-2xl border border-[#FFF4E8] shadow-[0_2px_8px_rgba(0,0,0,0.04)] overflow-hidden">
+      <div className="px-5 py-4 border-b border-[#FFE8C0] bg-[#FFFBEB] flex items-center gap-2">
+        <svg className="w-5 h-5 text-[#E8850C]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+        </svg>
+        <h2 className="text-[15px] font-semibold text-[#92400E]">待跟进提醒</h2>
+        <span className="text-xs text-[#B45309] ml-1">({items.length})</span>
+      </div>
+      <div className="divide-y divide-[#F5F5F5]">
+        {items.map((item) => (
+          <Link
+            key={item.customerId}
+            href={`/customers/${item.customerId}`}
+            className="flex items-center justify-between px-5 py-3 hover:bg-[#F5F5F5] transition-colors"
+          >
+            <div className="flex items-center gap-3 min-w-0">
+              <span className="text-sm font-medium text-[#0A0A0A] truncate max-w-[200px]">{item.customerName}</span>
+              <span className="text-xs px-1.5 py-0.5 rounded bg-[#F5F5F5] text-[#5A5A5A] font-medium shrink-0">{item.level}</span>
+            </div>
+            <span className="text-xs text-[#D63031] font-medium shrink-0 ml-3">已逾期 {item.overdueDays} 天</span>
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ==================== SVG 图标 ====================
 
 const Icons = {
@@ -293,6 +335,9 @@ export default function DashboardPage() {
           </ResponsiveContainer>
         </div>
       </div>
+
+      {/* 待跟进提醒 */}
+      <ReminderPanel />
 
       {/* 待处理事项 */}
       <div className="bg-white rounded-2xl border border-[#EBEBEB] shadow-[0_2px_8px_rgba(0,0,0,0.04)] p-5">

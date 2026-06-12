@@ -201,6 +201,11 @@ export const opportunities = sqliteTable('opportunities', {
   serviceProducts: text('service_products'),       // JSON
   serviceProduct: text('service_product'),
   contacts: text('contacts'),                       // JSON
+  existingServiceContract: text('existing_service_contract'),
+  newSite: text('new_site'),
+  newService: text('new_service'),
+  biddingProject: text('bidding_project'),
+  biddingDocument: text('bidding_document'),
   owner: text('owner'),
   ownerName: text('owner_name'),
   description: text('description'),
@@ -232,6 +237,39 @@ export const followups = sqliteTable('followups', {
   actionItems: text('action_items'),
   decisions: text('decisions'),
   attachments: text('attachments'),
+  checkInRecords: text('check_in_records'),         // JSON array
   createdAt: text('created_at'),
   updatedAt: text('updated_at'),
+});
+
+// 跟进提醒配置
+export const followupReminderConfig = sqliteTable('followup_reminder_config', {
+  id: text('id').primaryKey(),
+  level: text('level').notNull(),
+  days: integer('days').notNull().default(30),
+  updatedAt: text('updated_at'),
+});
+
+// 联系人
+export const contacts = sqliteTable('contacts', {
+  id: text('id').primaryKey(),
+  customerId: text('customer_id').notNull(),
+  name: text('name').notNull(),
+  englishName: text('english_name'),
+  phone: text('phone'),
+  isKeyDecisionMaker: integer('is_key_decision_maker', { mode: 'boolean' }).default(false),
+  email: text('email'),
+  wechat: text('wechat'),
+  address: text('address'),
+  department: text('department').notNull(),
+  position: text('position').notNull(),
+  gender: text('gender').notNull(),
+  birthday: text('birthday'),
+  age: integer('age'),
+  hobbies: text('hobbies'),
+  hometown: text('hometown'),
+  familySituation: text('family_situation'),
+  zipCode: text('zip_code'),
+  created_at: text('created_at'),
+  updated_at: text('updated_at'),
 });
