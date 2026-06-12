@@ -111,6 +111,7 @@ function RiskControlFormContent() {
   };
   // 动态字段值存储
   const [dynamicFieldValues, setDynamicFieldValues] = useState<Record<string, string>>({});
+  const [draftMessage, setDraftMessage] = useState('');
 
   // 根据服务产品获取动态字段（排除\"是否贸易代理\"，它是固定字段）
   const dynamicFields = useMemo(() => {
@@ -208,10 +209,10 @@ function RiskControlFormContent() {
   };
 
   const handleSaveDraft = () => {
-    if (!formData.companyName.trim()) { alert('请填写公司全称'); return; }
     const newId = `ra-${Date.now()}`;
     addRiskApproval({ ...buildApprovalData('草稿'), id: newId } as any);
-    router.push(`/approvals/${newId}`);
+    setDraftMessage('草稿已保存，您可以继续编辑');
+    setTimeout(() => setDraftMessage(''), 3000);
   };
 
   const buildApprovalData = (approvalStatus: string) => ({
@@ -271,9 +272,13 @@ function RiskControlFormContent() {
             <h1 className="text-2xl font-bold text-[#0A0A0A]">新建风控审批</h1>
             <p className="text-[#5A5A5A] mt-1">创建新的客户风险控制审批申请，填写业务和风控信息</p>
           </div>
-          <div className="flex-1" />
-          <button onClick={handleSaveDraft} className="px-4 py-2 border border-[#EBEBEB] rounded-lg text-[#666] hover:bg-gray-50">暂存</button>
-          <button onClick={handleSubmit} className="px-6 py-2 bg-[#2D3BFF] text-white rounded-lg hover:shadow-lg hover:shadow-[#2D3BFF]/20 transition-all">提交</button>
+          <div className="flex items-center gap-3">
+            {draftMessage && (
+              <span className="text-sm text-[#0D8A5E]">{draftMessage}</span>
+            )}
+            <button type="button" onClick={handleSaveDraft} className="px-4 py-2 border border-[#EBEBEB] rounded-lg text-[#666] hover:bg-gray-50">暂存</button>
+            <button onClick={handleSubmit} className="px-6 py-2 bg-[#2D3BFF] text-white rounded-lg hover:shadow-lg hover:shadow-[#2D3BFF]/20 transition-all">提交</button>
+          </div>
         </div>
 
         <form onSubmit={handleSubmit} className="mt-6">

@@ -52,10 +52,10 @@ export default function CustomerDetailPage() {
     signingEntities,
     serviceEntities,
     settlementEntities,
-    updateCustomerProgress,
     collaborateCustomer,
     assignCustomer,
     transferCustomer,
+    submitCustomer,
     addLog,
     deleteFollowUp,
     deleteOpportunity,
@@ -135,30 +135,6 @@ export default function CustomerDetailPage() {
   const createdByUser = getUserById(customer.createdBy);
 
   // Progress stepper handler
-  const handleAdvance = useCallback((status: ProgressStatus) => {
-    updateCustomerProgress(customer.id, status);
-    addLog({
-      action: 'advance',
-      operator: '系统管理员',
-      targetType: 'customer',
-      targetId: customer.id,
-      targetName: customer.name,
-      details: `跟进进度变更为：${PROGRESS_STATUS_LABELS[status]}`,
-    });
-  }, [customer.id, customer.name, updateCustomerProgress, addLog]);
-
-  const handleRollback = useCallback((status: ProgressStatus) => {
-    updateCustomerProgress(customer.id, status);
-    addLog({
-      action: 'rollback',
-      operator: '系统管理员',
-      targetType: 'customer',
-      targetId: customer.id,
-      targetName: customer.name,
-      details: `跟进进度回退为：${PROGRESS_STATUS_LABELS[status]}`,
-    });
-  }, [customer.id, customer.name, updateCustomerProgress, addLog]);
-
   // Collaboration dialog handlers
   const openDialog = useCallback((type: CollaborationDialogType) => {
     setDialogType(type);
@@ -238,34 +214,55 @@ export default function CustomerDetailPage() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <button
-              onClick={() => router.push(`/customers/${customer.id}/edit`)}
-              className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#2D3BFF] text-white rounded-lg text-sm font-medium hover:bg-[#4338CA] transition-colors"
-            >
-              <Edit3 className="w-4 h-4" />
-              编辑
-            </button>
-            <button
-              onClick={() => openDialog('collaborate')}
-              className="inline-flex items-center gap-1.5 px-3 py-2 bg-[#E8EBFF] text-[#2D3BFF] border border-[#C7CCFF] rounded-lg text-sm font-medium hover:bg-[#D8DCFF] transition-colors"
-            >
-              <UserPlus className="w-4 h-4" />
-              协同
-            </button>
-            <button
-              onClick={() => openDialog('assign')}
-              className="inline-flex items-center gap-1.5 px-3 py-2 bg-[#E6F7F0] text-[#0D8A5E] border border-[#B8E8D4] rounded-lg text-sm font-medium hover:bg-[#D0F0E4] transition-colors"
-            >
-              <UserCheck className="w-4 h-4" />
-              分配
-            </button>
-            <button
-              onClick={() => openDialog('transfer')}
-              className="inline-flex items-center gap-1.5 px-3 py-2 bg-[#FFF4E8] text-[#E8850C] border border-[#FFE0B2] rounded-lg text-sm font-medium hover:bg-[#FFECD0] transition-colors"
-            >
-              <UserX className="w-4 h-4" />
-              移交
-            </button>
+            {customer.status === 'draft' ? (
+              <>
+                <button
+                  onClick={() => { submitCustomer(customer.id); }}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#2D3BFF] text-white rounded-lg text-sm font-medium hover:bg-[#4338CA] transition-colors"
+                >
+                  <Edit3 className="w-4 h-4" />
+                  提交
+                </button>
+                <button
+                  onClick={() => router.push(`/customers/${customer.id}/edit`)}
+                  className="inline-flex items-center gap-1.5 px-3 py-2 border border-[#EBEBEB] text-[#666] rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
+                >
+                  <Edit3 className="w-4 h-4" />
+                  编辑
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={() => router.push(`/customers/${customer.id}/edit`)}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#2D3BFF] text-white rounded-lg text-sm font-medium hover:bg-[#4338CA] transition-colors"
+                >
+                  <Edit3 className="w-4 h-4" />
+                  编辑
+                </button>
+                <button
+                  onClick={() => openDialog('collaborate')}
+                  className="inline-flex items-center gap-1.5 px-3 py-2 bg-[#E8EBFF] text-[#2D3BFF] border border-[#C7CCFF] rounded-lg text-sm font-medium hover:bg-[#D8DCFF] transition-colors"
+                >
+                  <UserPlus className="w-4 h-4" />
+                  协同
+                </button>
+                <button
+                  onClick={() => openDialog('assign')}
+                  className="inline-flex items-center gap-1.5 px-3 py-2 bg-[#E6F7F0] text-[#0D8A5E] border border-[#B8E8D4] rounded-lg text-sm font-medium hover:bg-[#D0F0E4] transition-colors"
+                >
+                  <UserCheck className="w-4 h-4" />
+                  分配
+                </button>
+                <button
+                  onClick={() => openDialog('transfer')}
+                  className="inline-flex items-center gap-1.5 px-3 py-2 bg-[#FFF4E8] text-[#E8850C] border border-[#FFE0B2] rounded-lg text-sm font-medium hover:bg-[#FFECD0] transition-colors"
+                >
+                  <UserX className="w-4 h-4" />
+                  移交
+                </button>
+              </>
+            )}
           </div>
         </div>
 
@@ -273,8 +270,6 @@ export default function CustomerDetailPage() {
         <ProgressStepper
           readonly={true}
           currentStatus={customer.progressStatus}
-          onAdvance={handleAdvance}
-          onRollback={handleRollback}
         />
 
         {/* Tabs */}
@@ -490,11 +485,14 @@ export default function CustomerDetailPage() {
                   </div>
                   <div>
                     <label className="block text-[13px] text-[#5A5A5A] mb-1">服务产品</label>
-                    <div className="flex flex-wrap gap-1">
+                    <div className="flex flex-wrap gap-1 items-center">
                       {customer.basicInfo?.serviceProducts?.length ? (
-                        customer.basicInfo.serviceProducts.map((sp, idx) => (
-                          <span key={idx} className="px-2 py-0.5 rounded-full text-xs bg-[#E6F7F0] text-[#0D8A5E]">{sp}</span>
-                        ))
+                        <>
+                          <span className="px-2 py-0.5 rounded-full text-xs bg-[#E6F7F0] text-[#0D8A5E]">{customer.basicInfo.serviceProducts[0]}</span>
+                          {customer.basicInfo.serviceProducts[0] === '其他' && customer.basicInfo.otherServiceRequirement && (
+                            <span className="text-[13px] text-[#5A5A5A]">{customer.basicInfo.otherServiceRequirement}</span>
+                          )}
+                        </>
                       ) : <span className="text-sm text-[#999999]">-</span>}
                     </div>
                   </div>
@@ -515,10 +513,6 @@ export default function CustomerDetailPage() {
                   <div>
                     <label className="block text-[13px] text-[#5A5A5A] mb-1">仓库温湿度要求</label>
                     <p className="text-[13px] text-[#0A0A0A]">{customer.basicInfo?.warehouseConditions || '-'}</p>
-                  </div>
-                  <div>
-                    <label className="block text-[13px] text-[#5A5A5A] mb-1">客户系统代码</label>
-                    <p className="text-[13px] text-[#0A0A0A] font-mono">{customer.basicInfo?.customerSystemCode || '-'}</p>
                   </div>
                   <div className="lg:col-span-2">
                     <label className="block text-[13px] text-[#5A5A5A] mb-1">我司优势简述</label>

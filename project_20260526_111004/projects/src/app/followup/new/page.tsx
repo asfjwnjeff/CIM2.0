@@ -4,6 +4,7 @@ import React, { useState, Suspense } from 'react';
 
 export const dynamic = 'force-dynamic';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useApp } from '@/lib/store';
 import { SearchableSelect } from '@/components/ui/searchable-select';
 import type { SelectOption } from '@/components/ui/searchable-select';
 
@@ -152,7 +153,41 @@ function FollowupFormContent() {
     setSummary('本次会议主要讨论了项目的实施细节，双方就系统对接时间和试运行安排达成了初步共识。');
   };
 
-  const handleSave = () => {
+  const { addFollowUp } = useApp();
+  const [saving, setSaving] = useState(false);
+  const [draftMessage, setDraftMessage] = useState('');
+
+  const buildFollowUpData = (status: string) => ({
+    customerId: selectedCustomerId,
+    customerName: selectedCustomer,
+    type: (selectedType as any) || 'biz_meeting',
+    method: (selectedMethod as any) || undefined,
+    followUpDate: followupTime || undefined,
+    nextFollowUpDate: nextFollowupTime || undefined,
+    status: status as any,
+    content: summary || undefined,
+    keyPoints: keyPoints ? keyPoints.split('\n').filter(Boolean) : undefined,
+    actionItems: toDos ? toDos.split('\n').filter(Boolean) : undefined,
+    decisions: decisions ? decisions.split('\n').filter(Boolean) : undefined,
+    transcript: transcriptSegments.length > 0 ? JSON.stringify(transcriptSegments) : undefined,
+    meetingSummary: summary || undefined,
+  });
+
+  const handleSaveDraft = () => {
+    setSaving(true);
+    addFollowUp(buildFollowUpData('draft') as Parameters<typeof addFollowUp>[0]);
+    setDraftMessage('草稿已保存，您可以继续编辑');
+    setSaving(false);
+    setTimeout(() => setDraftMessage(''), 3000);
+  };
+
+  const handleSubmit = () => {
+    if (!selectedCustomerId) { alert('请选择关联客户'); return; }
+    if (!selectedType) { alert('请选择跟进类型'); return; }
+    if (!followupTime) { alert('请选择跟进时间'); return; }
+    setSaving(true);
+    addFollowUp(buildFollowUpData('new') as Parameters<typeof addFollowUp>[0]);
+    setSaving(false);
     router.push('/followup');
   };
 
@@ -176,11 +211,19 @@ function FollowupFormContent() {
             >
               取消
             </button>
-            <button 
-              onClick={handleSave} 
-              className="px-4 py-2 text-sm bg-[#2D3BFF] text-white rounded-xl hover:opacity-90 active:scale-[0.98] transition-all inline-flex items-center gap-2 shadow-sm"
+            <button
+              onClick={handleSaveDraft}
+              disabled={saving}
+              className="px-4 py-2 text-sm border border-[#EBEBEB] text-[#5A5A5A] rounded-xl hover:bg-[#F5F5F5] transition-all inline-flex items-center gap-2 disabled:opacity-50"
             >
-              <PlusIcon className="w-4 h-4" /> 保存
+              暂存
+            </button>
+            <button
+              onClick={handleSubmit}
+              disabled={saving}
+              className="px-4 py-2 text-sm bg-[#2D3BFF] text-white rounded-xl hover:opacity-90 active:scale-[0.98] transition-all inline-flex items-center gap-2 shadow-sm disabled:opacity-50"
+            >
+              <PlusIcon className="w-4 h-4" /> 提交
             </button>
           </div>
         </div>

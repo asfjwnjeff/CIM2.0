@@ -71,12 +71,14 @@ function ProgressBadge({ status }: { status: ProgressStatus }) {
 
 function StatusBadge({ status }: { status: string }) {
   const colorMap: Record<string, string> = {
+    draft: 'bg-[#F5F5F5] text-[#5A5A5A]',
     active: 'bg-[#E6F7F0] text-[#0D8A5E]',
     inactive: 'bg-[#EBEBEB] text-[#5A5A5A]',
     potential: 'bg-[#FFF4E8] text-[#E8850C]',
     frozen: 'bg-[#FFEBEE] text-[#D63031]',
   };
   const labelMap: Record<string, string> = {
+    draft: '草稿',
     active: '正常',
     inactive: '停用',
     potential: '潜在',
@@ -365,6 +367,7 @@ export default function CustomersPage() {
               className="px-3 py-2 h-[38px] border border-[#D5D5D5] rounded-lg text-sm bg-white focus:outline-none focus:border-[#2D3BFF] focus:ring-2 focus:ring-[#2D3BFF]/10"
             >
               <option value="all">全部客户状态</option>
+              <option value="draft">草稿</option>
               <option value="active">正常</option>
               <option value="inactive">停用</option>
               <option value="potential">潜在</option>

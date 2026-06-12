@@ -9,6 +9,7 @@ export const customers = sqliteTable('customers', {
   serviceEntityIds: text('service_entity_ids'),
   settlementEntityIds: text('settlement_entity_ids'),
   status: text('status').default('active'),
+  progressStatus: text('progress_status').default('newly_acquired'),
   basicInfo: text('basic_info'),       // JSON
   businessInfo: text('business_info'),  // JSON
   semiconductorInfo: text('semiconductor_info'), // JSON
@@ -178,6 +179,59 @@ export const autoApprovalRules = sqliteTable('auto_approval_rules', {
   remark: text('remark'),
   isSystem: integer('is_system', { mode: 'boolean' }).default(false),
   createdBy: text('created_by'),
+  createdAt: text('created_at'),
+  updatedAt: text('updated_at'),
+});
+
+// 商机
+export const opportunities = sqliteTable('opportunities', {
+  id: text('id').primaryKey(),
+  customerId: text('customer_id').notNull(),
+  customerName: text('customer_name'),
+  name: text('name').notNull(),
+  title: text('title'),
+  opportunityNumber: text('opportunity_number'),
+  amount: real('amount'),
+  estimatedMonthlyAmount: real('estimated_monthly_amount'),
+  currency: text('currency').default('CNY'),
+  stage: text('stage').default('demand_confirmation'),
+  status: text('status').default('draft'),
+  probability: integer('probability'),
+  expectedCloseDate: text('expected_close_date'),
+  serviceProducts: text('service_products'),       // JSON
+  serviceProduct: text('service_product'),
+  contacts: text('contacts'),                       // JSON
+  owner: text('owner'),
+  ownerName: text('owner_name'),
+  description: text('description'),
+  createdAt: text('created_at'),
+  updatedAt: text('updated_at'),
+});
+
+// 跟进记录
+export const followups = sqliteTable('followups', {
+  id: text('id').primaryKey(),
+  customerId: text('customer_id'),
+  customerName: text('customer_name'),
+  contactId: text('contact_id'),
+  contactName: text('contact_name'),
+  opportunityId: text('opportunity_id'),
+  opportunityName: text('opportunity_name'),
+  type: text('type'),
+  method: text('method'),
+  content: text('content'),
+  followUpDate: text('follow_up_date'),
+  status: text('status').default('draft'),
+  owner: text('owner'),
+  collaborators: text('collaborators'),
+  nextFollowUpDate: text('next_follow_up_date'),
+  recordingUrl: text('recording_url'),
+  transcript: text('transcript'),
+  meetingSummary: text('meeting_summary'),
+  keyPoints: text('key_points'),
+  actionItems: text('action_items'),
+  decisions: text('decisions'),
+  attachments: text('attachments'),
   createdAt: text('created_at'),
   updatedAt: text('updated_at'),
 });

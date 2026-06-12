@@ -106,7 +106,7 @@ export function SearchableMultiSelect<T extends string = string>({
           <CommandList>
             <CommandEmpty className="text-[#999999] text-sm py-6">{emptyText}</CommandEmpty>
             <CommandGroup>
-              <ScrollArea className="h-[240px]">
+              <ScrollArea className="h-[280px]">
                 {options.map((option) => {
                   const isSelected = values.includes(option.value);
                   return (

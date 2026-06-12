@@ -26,6 +26,7 @@ import type {
   AutoApprovalRule,
   AITranscription,
   ProgressStatus,
+  CustomerStatus,
   ApprovalField,
 } from './types';
 import { currentUser } from './types';
@@ -132,7 +133,10 @@ export interface AppContextType {
   deleteFollowUp: (id: string) => void;
 
   // 商机管理
+  addOpportunity: (opportunity: Omit<Opportunity, 'id' | 'createdAt'>) => void;
+  updateOpportunity: (id: string, updates: Partial<Opportunity>) => void;
   deleteOpportunity: (id: string) => void;
+  submitCustomer: (id: string) => void;
 
   // 客户协同操作
   updateCustomerProgress: (id: string, status: ProgressStatus) => void;
@@ -240,7 +244,10 @@ type Action =
   | { type: 'ADD_FOLLOWUP'; payload: Omit<FollowUpRecord, 'id' | 'createdAt'> }
   | { type: 'UPDATE_FOLLOWUP'; payload: { id: string; updates: Partial<FollowUpRecord> } }
   | { type: 'DELETE_FOLLOWUP'; payload: string }
+  | { type: 'ADD_OPPORTUNITY'; payload: Omit<Opportunity, 'id' | 'createdAt'> }
+  | { type: 'UPDATE_OPPORTUNITY'; payload: { id: string; updates: Partial<Opportunity> } }
   | { type: 'DELETE_OPPORTUNITY'; payload: string }
+  | { type: 'SUBMIT_CUSTOMER'; payload: string }
   | { type: 'ADD_SIGNING_ENTITY'; payload: Omit<SigningEntity, 'id' | 'createdAt'> }
   | { type: 'UPDATE_SIGNING_ENTITY'; payload: { id: string; updates: Partial<SigningEntity> } }
   | { type: 'DELETE_SIGNING_ENTITY'; payload: string }
@@ -489,13 +496,34 @@ function reducer(state: AppState, action: Action): AppState {
           updatedAt: new Date().toISOString(),
         }],
       };
-    case 'UPDATE_RISK_APPROVAL':
-      return {
-        ...state,
-        riskApprovals: state.riskApprovals.map((ra: RiskApproval) =>
-          ra.id === action.payload.id ? { ...ra, ...action.payload.updates, updatedAt: new Date().toISOString() } : ra
-        ),
-      };
+    case 'UPDATE_RISK_APPROVAL': {
+      const updatedApprovals = state.riskApprovals.map((ra: RiskApproval) =>
+        ra.id === action.payload.id ? { ...ra, ...action.payload.updates, updatedAt: new Date().toISOString() } : ra
+      );
+      // 审批通过时，联动推进客户进度为「商机确认」
+      const updates = action.payload.updates;
+      if (updates.status === 'approved') {
+        const approval = state.riskApprovals.find((ra: RiskApproval) => ra.id === action.payload.id);
+        const oppId = approval?.opportunityId;
+        if (oppId) {
+          const opp = state.opportunities.find((o: Opportunity) => o.id === oppId);
+          if (opp?.customerId) {
+            const updatedCustomers = state.customers.map((c) => {
+              if (c.id !== opp.customerId) return c;
+              const levels: ProgressStatus[] = ['newly_acquired', 'pending_followup', 'preliminary_intent', 'opportunity_confirmed', 'deal_closed', 'invalid'];
+              const currentLevel = levels.indexOf(c.progressStatus);
+              const targetLevel = levels.indexOf('opportunity_confirmed');
+              if (currentLevel < targetLevel) {
+                return { ...c, progressStatus: 'opportunity_confirmed' as ProgressStatus, updatedAt: new Date().toISOString() };
+              }
+              return c;
+            });
+            return { ...state, riskApprovals: updatedApprovals, customers: updatedCustomers };
+          }
+        }
+      }
+      return { ...state, riskApprovals: updatedApprovals };
+    }
     case 'DELETE_RISK_APPROVAL':
       return {
         ...state,
@@ -518,10 +546,44 @@ function reducer(state: AppState, action: Action): AppState {
         ...state,
         followUps: state.followUps.filter((fu: FollowUpRecord) => fu.id !== action.payload),
       };
+    case 'ADD_OPPORTUNITY': {
+      const newOpp = { ...action.payload, id: `opp-${Date.now()}`, createdAt: new Date().toISOString() };
+      const customerId = action.payload.customerId;
+      return {
+        ...state,
+        opportunities: [...state.opportunities, newOpp],
+        customers: state.customers.map((c) => {
+          if (c.id !== customerId) return c;
+          const levels: ProgressStatus[] = ['newly_acquired', 'pending_followup', 'preliminary_intent', 'opportunity_confirmed', 'deal_closed', 'invalid'];
+          const currentLevel = levels.indexOf(c.progressStatus);
+          const targetLevel = levels.indexOf('preliminary_intent');
+          if (currentLevel < targetLevel) {
+            return { ...c, progressStatus: 'preliminary_intent' as ProgressStatus, updatedAt: new Date().toISOString() };
+          }
+          return c;
+        }),
+      };
+    }
+    case 'UPDATE_OPPORTUNITY':
+      return {
+        ...state,
+        opportunities: state.opportunities.map((opp: Opportunity) =>
+          opp.id === action.payload.id ? { ...opp, ...action.payload.updates, updatedAt: new Date().toISOString() } : opp
+        ),
+      };
     case 'DELETE_OPPORTUNITY':
       return {
         ...state,
         opportunities: state.opportunities.filter((opp: Opportunity) => opp.id !== action.payload),
+      };
+    case 'SUBMIT_CUSTOMER':
+      return {
+        ...state,
+        customers: state.customers.map((c) =>
+          c.id === action.payload
+            ? { ...c, status: 'active' as CustomerStatus, progressStatus: 'pending_followup' as ProgressStatus, updatedAt: new Date().toISOString() }
+            : c
+        ),
       };
     case 'ADD_SIGNING_ENTITY':
       return {
@@ -867,8 +929,20 @@ export function AppProvider({ children }: { children: ReactNode }) {
     dispatch({ type: 'DELETE_FOLLOWUP', payload: id });
   }, []);
 
+  const addOpportunity = useCallback((opportunity: Omit<Opportunity, 'id' | 'createdAt'>) => {
+    dispatch({ type: 'ADD_OPPORTUNITY', payload: opportunity });
+  }, []);
+
+  const updateOpportunity = useCallback((id: string, updates: Partial<Opportunity>) => {
+    dispatch({ type: 'UPDATE_OPPORTUNITY', payload: { id, updates } });
+  }, []);
+
   const deleteOpportunity = useCallback((id: string) => {
     dispatch({ type: 'DELETE_OPPORTUNITY', payload: id });
+  }, []);
+
+  const submitCustomer = useCallback((id: string) => {
+    dispatch({ type: 'SUBMIT_CUSTOMER', payload: id });
   }, []);
 
   // 审批字段配置管理
@@ -984,7 +1058,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
         addFollowUp,
         updateFollowUp,
         deleteFollowUp,
+        addOpportunity,
+        updateOpportunity,
         deleteOpportunity,
+        submitCustomer,
         updateCustomerProgress,
         collaborateCustomer,
         assignCustomer,

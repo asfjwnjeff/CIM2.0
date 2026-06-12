@@ -10,6 +10,8 @@ import {
   autoApprovalRules,
   approvalFields,
   riskApprovals,
+  opportunities,
+  followups,
 } from './schema';
 import {
   users,
@@ -41,7 +43,7 @@ const CREATE_TABLES = [
   `CREATE TABLE IF NOT EXISTS customers (
     id TEXT PRIMARY KEY, name TEXT NOT NULL, customer_code TEXT,
     signing_entity_ids TEXT, service_entity_ids TEXT, settlement_entity_ids TEXT,
-    status TEXT DEFAULT 'active',
+    status TEXT DEFAULT 'active', progress_status TEXT DEFAULT 'newly_acquired',
     basic_info TEXT, business_info TEXT, semiconductor_info TEXT,
     related_companies TEXT, products TEXT, billing_entities TEXT,
     rule_ids TEXT, audit_logs TEXT,
@@ -103,6 +105,26 @@ const CREATE_TABLES = [
     submit_time TEXT, approved_by TEXT, approved_at TEXT, reject_reason TEXT,
     created_at TEXT, updated_at TEXT
   )`,
+  `CREATE TABLE IF NOT EXISTS opportunities (
+    id TEXT PRIMARY KEY, customer_id TEXT NOT NULL, customer_name TEXT,
+    name TEXT NOT NULL, title TEXT, opportunity_number TEXT,
+    amount REAL, estimated_monthly_amount REAL, currency TEXT DEFAULT 'CNY',
+    stage TEXT DEFAULT 'demand_confirmation', status TEXT DEFAULT 'draft',
+    probability INTEGER, expected_close_date TEXT,
+    service_products TEXT, service_product TEXT,
+    contacts TEXT, owner TEXT, owner_name TEXT, description TEXT,
+    created_at TEXT, updated_at TEXT
+  )`,
+  `CREATE TABLE IF NOT EXISTS followups (
+    id TEXT PRIMARY KEY, customer_id TEXT, customer_name TEXT,
+    contact_id TEXT, contact_name TEXT, opportunity_id TEXT, opportunity_name TEXT,
+    type TEXT, method TEXT, content TEXT, follow_up_date TEXT,
+    status TEXT DEFAULT 'draft', owner TEXT, collaborators TEXT,
+    next_follow_up_date TEXT, recording_url TEXT, transcript TEXT,
+    meeting_summary TEXT, key_points TEXT, action_items TEXT,
+    decisions TEXT, attachments TEXT,
+    created_at TEXT, updated_at TEXT
+  )`,
   `CREATE TABLE IF NOT EXISTS approval_fields (
     id TEXT PRIMARY KEY, name TEXT NOT NULL, field_key TEXT NOT NULL,
     field_type TEXT DEFAULT 'text', service_products TEXT DEFAULT '[]',
@@ -147,6 +169,7 @@ const MIGRATIONS = [
   `ALTER TABLE customers ADD COLUMN responsible_persons TEXT`,
   `ALTER TABLE customers ADD COLUMN collaborators TEXT`,
   `ALTER TABLE customers ADD COLUMN created_by TEXT`,
+  `ALTER TABLE customers ADD COLUMN progress_status TEXT DEFAULT 'newly_acquired'`,
 ];
 
 export async function seed() {
@@ -174,6 +197,8 @@ export async function seed() {
   db.delete(autoApprovalRules).run();
   db.delete(approvalFields).run();
   db.delete(riskApprovals).run();
+  try { db.delete(opportunities).run(); } catch { /* 表可能尚不存在 */ }
+  try { db.delete(followups).run(); } catch { /* 表可能尚不存在 */ }
 
   // 插入审批字段
   for (const f of initialApprovalFields) {
@@ -215,6 +240,7 @@ export async function seed() {
       id: c.id, name: c.name, customerCode: c.customerCode ?? null,
       signingEntityIds: c.signingEntityIds ? JSON.stringify(c.signingEntityIds) : null, serviceEntityIds: c.serviceEntityIds ? JSON.stringify(c.serviceEntityIds) : null, settlementEntityIds: c.settlementEntityIds ? JSON.stringify(c.settlementEntityIds) : null,
       status: c.status,
+      progressStatus: c.progressStatus ?? 'newly_acquired',
       basicInfo: c.basicInfo ? JSON.stringify(c.basicInfo) : null,
       businessInfo: c.businessInfo ? JSON.stringify(c.businessInfo) : null,
       semiconductorInfo: c.semiconductorInfo ? JSON.stringify(c.semiconductorInfo) : null,
@@ -333,6 +359,12 @@ export async function seed() {
     }
   }
   console.log(`  风控审批: ${initialRiskApprovals?.length ?? 0} 条`);
+
+  // 插入商机（空表初始化，待后续功能填充数据）
+  console.log(`  商机: 0 条`);
+
+  // 插入跟进记录（空表初始化）
+  console.log(`  跟进记录: 0 条`);
 
   // ==================== IAM 种子数据 ====================
 

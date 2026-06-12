@@ -181,9 +181,9 @@ export const RELATION_LABELS: Record<string, string> = {
 
 export const PROGRESS_STEPS = [
   'newly_acquired',
-  'preliminary_intent',
   'pending_followup',
-  'new_opportunity',
+  'preliminary_intent',
+  'opportunity_confirmed',
   'deal_closed',
   'invalid',
 ] as const;
@@ -192,7 +192,7 @@ export const PROGRESS_STATUS_LABELS: Record<string, string> = {
   newly_acquired: '新获取',
   preliminary_intent: '初步意向',
   pending_followup: '待跟进',
-  new_opportunity: '新商机',
+  opportunity_confirmed: '商机确认',
   deal_closed: '成交',
   invalid: '失效',
 };
@@ -201,7 +201,7 @@ export const PROGRESS_STATUS_COLORS: Record<string, { bg: string; text: string; 
   newly_acquired: { bg: 'bg-blue-100', text: 'text-blue-700', dot: 'bg-blue-500' },
   preliminary_intent: { bg: 'bg-cyan-100', text: 'text-cyan-700', dot: 'bg-cyan-500' },
   pending_followup: { bg: 'bg-orange-100', text: 'text-orange-700', dot: 'bg-orange-500' },
-  new_opportunity: { bg: 'bg-purple-100', text: 'text-purple-700', dot: 'bg-purple-500' },
+  opportunity_confirmed: { bg: 'bg-purple-100', text: 'text-purple-700', dot: 'bg-purple-500' },
   deal_closed: { bg: 'bg-green-100', text: 'text-green-700', dot: 'bg-green-500' },
   invalid: { bg: 'bg-gray-100', text: 'text-gray-700', dot: 'bg-gray-400' },
 };
@@ -232,7 +232,9 @@ export const getCustomerStatusColor = (status: string) => {
   switch (status) {
     case 'active': return 'bg-[#E6F7F0] text-[#00A870]';
     case 'inactive': return 'bg-[#EEEEEE] text-[#666666]';
-    case 'pending': return 'bg-[#FFF4E8] text-[#FF8A00]';
+    case 'draft': return 'bg-[#F5F5F5] text-[#5A5A5A]';
+    case 'potential': return 'bg-[#FFF4E8] text-[#E8850C]';
+    case 'frozen': return 'bg-[#FFEBEE] text-[#D63031]';
     default: return 'bg-[#EEEEEE] text-[#666666]';
   }
 };
@@ -1687,7 +1689,7 @@ export const initialCustomers: Customer[] = [
     createdBy: 'user-1',
     responsiblePersons: ['user-3'],
     collaborators: [],
-    progressStatus: 'new_opportunity',
+    progressStatus: 'opportunity_confirmed',
     createdAt: '2024-01-01',
     basicInfo: {
       unifiedSocialCreditCode: '91310000MA1FL6YY2Y',
@@ -2187,7 +2189,7 @@ export const initialCustomers: Customer[] = [
     createdBy: 'user-1',
     responsiblePersons: ['user-5'],
     collaborators: ['user-3', 'user-6'],
-    progressStatus: 'new_opportunity',
+    progressStatus: 'opportunity_confirmed',
     createdAt: '2024-01-05',
     basicInfo: {
       unifiedSocialCreditCode: '91310000607400XXXX',

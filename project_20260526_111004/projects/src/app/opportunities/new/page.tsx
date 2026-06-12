@@ -4,6 +4,7 @@ import React, { useState, Suspense } from 'react';
 
 export const dynamic = 'force-dynamic';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useApp } from '@/lib/store';
 import { SearchableSelect } from '@/components/ui/searchable-select';
 import type { SelectOption } from '@/components/ui/searchable-select';
 import { FIELD_STYLES } from '@/lib/ui-constants';
@@ -145,7 +146,7 @@ function OpportunityFormContent() {
     responsiblePerson: '',
     collaborators: [] as string[],
     salesStage: '',
-    otherServiceProducts: '',
+    otherServiceRequirement: '',
     relationshipLoyalty: '',
     peerInfluence: '',
     advantages: '',
@@ -177,8 +178,47 @@ function OpportunityFormContent() {
     setCollaboratorModalOpen(false);
   };
 
-  const handleSave = () => {
-    console.log('保存商机:', formData);
+  const { addOpportunity, addLog, customers } = useApp();
+  const [saving, setSaving] = useState(false);
+  const [draftMessage, setDraftMessage] = useState('');
+
+  const buildOppData = (status: string) => ({
+    customerId: formData.customer ? `cust-${formData.customer}` : '',
+    customerName: formData.customer,
+    name: formData.opportunityTitle || '未命名商机',
+    title: formData.opportunityTitle || undefined,
+    opportunityNumber: formData.opportunityNumber || undefined,
+    stage: formData.salesStage || 'demand_confirmation',
+    status,
+    estimatedMonthlyAmount: formData.estimatedMonthlyAmount ? parseFloat(formData.estimatedMonthlyAmount) : undefined,
+    currency: formData.currency || 'CNY',
+    expectedCloseDate: formData.expectedEndTime || undefined,
+    serviceProduct: formData.serviceProduct || undefined,
+    serviceProducts: formData.serviceProduct ? [formData.serviceProduct] : undefined,
+    description: formData.serviceProduct === '其他'
+      ? (formData.otherServiceRequirement || formData.opportunityContent || undefined)
+      : (formData.opportunityContent || undefined),
+    owner: formData.responsiblePerson || undefined,
+  });
+
+  const handleSaveDraft = () => {
+    setSaving(true);
+    addOpportunity(buildOppData('draft') as Parameters<typeof addOpportunity>[0]);
+    addLog({ action: 'create', operator: '系统管理员', targetType: 'opportunity', targetName: formData.opportunityTitle || '未命名商机', details: `暂存商机草稿` });
+    setDraftMessage('草稿已保存，您可以继续编辑');
+    setSaving(false);
+    setTimeout(() => setDraftMessage(''), 3000);
+  };
+
+  const handleSubmit = () => {
+    // 校验必填项
+    if (!formData.customer) { alert('请选择关联客户'); return; }
+    if (!formData.opportunityTitle.trim()) { alert('请填写商机标题'); return; }
+    if (!formData.responsiblePerson) { alert('请选择负责人'); return; }
+    setSaving(true);
+    addOpportunity(buildOppData('active') as Parameters<typeof addOpportunity>[0]);
+    addLog({ action: 'create', operator: '系统管理员', targetType: 'opportunity', targetName: formData.opportunityTitle, details: `创建新商机` });
+    setSaving(false);
     router.push('/opportunities');
   };
 
@@ -192,7 +232,7 @@ function OpportunityFormContent() {
       opportunityTitle: '', opportunityDate: '', opportunityContent: '', biddingProject: '',
       serviceProduct: '', serviceRequirement: '', intendedSite: '', currency: '',
       estimatedMonthlyAmount: '', startTime: '', expectedEndTime: '', contact: '',
-      responsiblePerson: '', collaborators: [], salesStage: '', otherServiceProducts: '',
+      responsiblePerson: '', collaborators: [], salesStage: '', otherServiceRequirement: '',
       relationshipLoyalty: '', peerInfluence: '', advantages: '', disadvantages: '',
       opportunities: '', threats: '', attachments: [], biddingDocuments: [], remarks: '',
     });
@@ -219,6 +259,12 @@ function OpportunityFormContent() {
             </div>
           </div>
           <div className="flex items-center gap-3">
+            {draftMessage && (
+              <span className="flex items-center gap-1 text-sm text-[#0D8A5E]">
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="20 6 9 17 4 12"/></svg>
+                {draftMessage}
+              </span>
+            )}
             <button
               onClick={handleCancel}
               className="px-4 py-2 text-sm bg-white border border-[#EBEBEB] text-[#0A0A0A] rounded-xl hover:bg-[#F5F5F5] transition-all"
@@ -226,10 +272,18 @@ function OpportunityFormContent() {
               取消
             </button>
             <button
-              onClick={handleSave}
-              className="px-4 py-2 text-sm bg-[#2D3BFF] text-white rounded-xl hover:opacity-90 active:scale-[0.98] transition-all inline-flex items-center gap-2 shadow-sm"
+              onClick={handleSaveDraft}
+              disabled={saving}
+              className="px-4 py-2 text-sm border border-[#EBEBEB] text-[#5A5A5A] rounded-xl hover:bg-[#F5F5F5] transition-all inline-flex items-center gap-2 disabled:opacity-50"
             >
-              <PlusIcon /> 保存
+              <SaveIcon /> 暂存
+            </button>
+            <button
+              onClick={handleSubmit}
+              disabled={saving}
+              className="px-4 py-2 text-sm bg-[#2D3BFF] text-white rounded-xl hover:opacity-90 active:scale-[0.98] transition-all inline-flex items-center gap-2 shadow-sm disabled:opacity-50"
+            >
+              <PlusIcon /> 提交
             </button>
           </div>
         </div>
@@ -334,10 +388,16 @@ function OpportunityFormContent() {
                   <label className={labelClass}>服务产品 <span className="text-red-500">*</span></label>
                   <SearchableSelect
                     value={formData.serviceProduct}
-                    onChange={(value) => handleInputChange('serviceProduct', value)}
+                    onChange={(value) => { handleInputChange('serviceProduct', value); if (value !== '其他') handleInputChange('otherServiceRequirement', ''); }}
                     options={serviceProducts.map(p => ({ value: p, label: p }))}
                     placeholder="请选择"
                   />
+                  {formData.serviceProduct === '其他' && (
+                    <div className="mt-3">
+                      <label className={labelClass}>其他服务产品需求</label>
+                      <input type="text" className={inputClass} value={formData.otherServiceRequirement} onChange={(e) => handleInputChange('otherServiceRequirement', e.target.value)} placeholder="请描述服务产品需求" />
+                    </div>
+                  )}
                 </div>
                 <div>
                   <label className={labelClass}>服务要求 <span className="text-red-500">*</span></label>
@@ -418,16 +478,6 @@ function OpportunityFormContent() {
                       ) : null;
                     })()}
                   </div>
-                </div>
-                <div>
-                  <label className={labelClass}>其他服务产品</label>
-                  <input
-                    type="text"
-                    placeholder="请输入"
-                    value={formData.otherServiceProducts}
-                    onChange={(e) => handleInputChange('otherServiceProducts', e.target.value)}
-                    className={inputClass}
-                  />
                 </div>
                 <div>
                   <label className={labelClass}>关系与忠诚度 <span className="text-red-500">*</span></label>
@@ -602,8 +652,9 @@ function OpportunityFormContent() {
         <div className="flex items-center justify-between bg-white border border-[#EBEBEB] rounded-xl p-4">
           <div className="flex items-center gap-3">
             <button
-              onClick={handleSave}
-              className="px-4 py-2 text-sm border border-[#EBEBEB] text-[#5A5A5A] rounded-xl hover:bg-[#F5F5F5] transition-all inline-flex items-center gap-2"
+              onClick={handleSaveDraft}
+              disabled={saving}
+              className="px-4 py-2 text-sm border border-[#EBEBEB] text-[#5A5A5A] rounded-xl hover:bg-[#F5F5F5] transition-all inline-flex items-center gap-2 disabled:opacity-50"
             >
               <SaveIcon /> 暂存
             </button>
@@ -622,7 +673,7 @@ function OpportunityFormContent() {
               取消
             </button>
             <button
-              onClick={handleSave}
+              onClick={handleSubmit}
               className="px-4 py-2 text-sm bg-[#2D3BFF] text-white rounded-xl hover:opacity-90 active:scale-[0.98] transition-all inline-flex items-center gap-2 shadow-sm"
             >
               <PlusIcon /> 提交

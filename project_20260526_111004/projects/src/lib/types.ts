@@ -135,6 +135,8 @@ export interface CompanyBasicInfo {
   intendedServiceRegions?: string[];
   // 服务产品需求：货代/关务/仓储/运输/进出口/维修/合同物流/一体化供应链/其他
   serviceProducts?: string[];
+  // 其他服务产品需求（当服务产品选"其他"时）
+  otherServiceRequirement?: string;
   // 预计月均业务量（票）
   estimatedMonthlyVolume?: string;
   // 仓库面积（平方米）
@@ -253,11 +255,11 @@ export interface CustomerAuditLog {
 
 // ==================== 跟进进度 ====================
 
-export type ProgressStatus = 'newly_acquired' | 'preliminary_intent' | 'pending_followup' | 'new_opportunity' | 'deal_closed' | 'invalid';
+export type ProgressStatus = 'newly_acquired' | 'pending_followup' | 'preliminary_intent' | 'opportunity_confirmed' | 'deal_closed' | 'invalid';
 
 export type OperationAction = 'create' | 'update' | 'delete' | 'associate' | 'disassociate' | 'advance' | 'rollback' | 'collaborate' | 'assign' | 'transfer';
 
-export type CustomerStatus = 'active' | 'inactive' | 'potential' | 'frozen';
+export type CustomerStatus = 'draft' | 'active' | 'inactive' | 'potential' | 'frozen';
 export type RelationshipLoyalty = 'strategic' | 'important' | 'normal' | 'tobe_developed';
 export type CustomerLevel = 'vip' | 'key' | 'normal' | 'small';
 
@@ -371,7 +373,7 @@ export interface OrderMapping {
 // ==================== 客户 ====================
 
 export type FollowUpType = 'kpi_not_met' | 'contract_mgmt' | 'biz_meeting' | 'other_customer';
-export type FollowUpStatus = 'new' | 'discussing' | 'promoting' | 'completed' | 'cancelled' | 'success' | 'no_progress' | 'terminated';
+export type FollowUpStatus = 'draft' | 'new' | 'discussing' | 'promoting' | 'completed' | 'cancelled' | 'success' | 'no_progress' | 'terminated';
 export type FollowUpMethod = 'phone_visit' | 'onsite_visit' | 'online_visit' | 'hmg_meeting';
 
 export interface FollowUpRecord {
@@ -409,13 +411,16 @@ export interface FollowUpRecord {
 
 // ==================== 商机 ====================
 
-export type SalesStage = 
-  | 'demand_confirmation' | 'requirements_confirmation' 
+export type SalesStage =
+  | 'demand_confirmation' | 'requirements_confirmation'
   | 'solution_quotation' | 'business_negotiation'
-  | 'following_up' | 'following' 
+  | 'following_up' | 'following'
   | 'won' | 'lost';
 
+export type OpportunityStatus = 'draft' | 'active';
+
 export interface Opportunity {
+  status?: OpportunityStatus;
   id: string;
   customerId: string;
   customerName?: string;

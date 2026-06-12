@@ -58,7 +58,7 @@ export const CUSTOMER_FIELD_META: GroupFieldMeta[] = [
   ]},
   { key: 'progressStatus', label: '跟进进度', type: 'select', options: [
     { value: 'newly_acquired', label: '新客户' }, { value: 'preliminary_intent', label: '初步意向' },
-    { value: 'pending_followup', label: '待跟进' }, { value: 'new_opportunity', label: '新商机' },
+    { value: 'pending_followup', label: '待跟进' }, { value: 'opportunity_confirmed', label: '商机确认' },
     { value: 'deal_closed', label: '已成交' }, { value: 'invalid', label: '无效' },
   ]},
   { key: 'level', label: '客户等级', type: 'select', options: [

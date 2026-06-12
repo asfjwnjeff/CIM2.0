@@ -3,9 +3,9 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useApp } from '@/lib/store';
-import { MOCK_USERS, PROGRESS_STATUS_LABELS } from '@/lib/sample-data';
+import { MOCK_USERS, PROGRESS_STATUS_LABELS, PROGRESS_STATUS_COLORS } from '@/lib/sample-data';
 import type { ProgressStatus, IndustryChainLevel, IndustryChainRole, CustomerStatus } from '@/lib/types';
-import { ArrowLeft, Plus, X, Search as SearchIcon, Building2, Upload } from 'lucide-react';
+import { ArrowLeft, Plus, X, Search as SearchIcon, Building2, Upload, Check } from 'lucide-react';
 import { SearchableSelect } from '@/components/ui/searchable-select';
 import type { SelectOption } from '@/components/ui/searchable-select';
 import { SearchableMultiSelect } from '@/components/ui/searchable-multi-select';
@@ -53,11 +53,11 @@ interface FormData {
   addressDistrict: string;
   addressDetail: string;
   intendedServiceRegions: string[];
-  serviceProducts: string[];
+  serviceProduct: string;
+  otherServiceRequirement: string;
   estimatedMonthlyVolume: string;
   warehouseArea: string;
   warehouseConditions: string;
-  customerSystemCode: string;
   customerLevel: string;
   ourAdvantage: string;
   ourDisadvantage: string;
@@ -318,9 +318,9 @@ const USER_OPTIONS: SelectOption[] = MOCK_USERS.map((u) => ({ value: u.id, label
 
 // 企业基本信息 - 下拉选项
 const COUNTRY_REGION_OPTIONS: SelectOption[] = ['中企', '美企', '日企', '韩企', '台企', '港企', '新加坡', '德国', '法国', '英国', '其他'].map((v) => ({ value: v, label: v }));
-const INDUSTRY_CATEGORY_OPTIONS: SelectOption[] = ['半导体', '消费品', '工业工程', '医疗健康', '新能源'].map((v) => ({ value: v, label: v }));
-const INDUSTRY_CHAIN_FORMAT_OPTIONS: SelectOption[] = ['制造业', '贸易业', '服务业', '科技业', '物流业', '金融业', '建筑地产业'].map((v) => ({ value: v, label: v }));
-const SUPPLY_CHAIN_ROLE_OPTIONS: SelectOption[] = ['原材料供应商', '零部件供应商', '生产制造商', '品牌商', '分销商', '零售商', '物流服务商', '技术服务商'].map((v) => ({ value: v, label: v }));
+const INDUSTRY_CATEGORY_OPTIONS: SelectOption[] = ['半导体', '高科技', '工业工程', '新能源', '医疗健康', '消费品', '其他'].map((v) => ({ value: v, label: v }));
+const INDUSTRY_CHAIN_FORMAT_OPTIONS: SelectOption[] = ['设计研发', '装备制造', '工业生产', '商贸服务', '机构组织', '平台组织'].map((v) => ({ value: v, label: v }));
+const SUPPLY_CHAIN_ROLE_OPTIONS: SelectOption[] = ['供应商', '采购商', '中间商', '服务商'].map((v) => ({ value: v, label: v }));
 const CROSS_BORDER_MODE_OPTIONS: SelectOption[] = ['口岸', '直通', '保税仓库', '保税区域', '普通仓库', '其他'].map((v) => ({ value: v, label: v }));
 const CUSTOMER_CHANNEL_OPTIONS: SelectOption[] = ['直客', '代理', '同行'].map((v) => ({ value: v, label: v }));
 const CUSTOMER_SOURCE_OPTIONS: SelectOption[] = ['公司资源', '自主开拓', '电话咨询', '客户推荐'].map((v) => ({ value: v, label: v }));
@@ -344,7 +344,7 @@ const EMPTY_FORM: FormData = {
   signingEntityIds: [],
   serviceEntityIds: [],
   settlementEntityIds: [],
-  status: 'active',
+  status: 'draft',
   createdBy: 'user-1',
   responsiblePersons: [],
   collaborators: [],
@@ -369,11 +369,11 @@ const EMPTY_FORM: FormData = {
   addressDistrict: '',
   addressDetail: '',
   intendedServiceRegions: [],
-  serviceProducts: [],
+  serviceProduct: '',
+  otherServiceRequirement: '',
   estimatedMonthlyVolume: '',
   warehouseArea: '',
   warehouseConditions: '',
-  customerSystemCode: '',
   customerLevel: '',
   ourAdvantage: '',
   ourDisadvantage: '',
@@ -452,6 +452,8 @@ export default function NewCustomerPage() {
   const [form, setForm] = useState<FormData>({ ...EMPTY_FORM });
   const [isDirty, setIsDirty] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDrafting, setIsDrafting] = useState(false);
+  const [draftMessage, setDraftMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const hasShownWarning = useRef(false);
 
@@ -541,11 +543,11 @@ export default function NewCustomerPage() {
       signingEntityIds: form.signingEntityIds.length > 0 ? form.signingEntityIds : undefined,
       serviceEntityIds: form.serviceEntityIds.length > 0 ? form.serviceEntityIds : undefined,
       settlementEntityIds: form.settlementEntityIds.length > 0 ? form.settlementEntityIds : undefined,
-      status: form.status,
+      status: 'active' as CustomerStatus,
       createdBy: form.createdBy,
       responsiblePersons: form.responsiblePersons,
       collaborators: form.collaborators,
-      progressStatus: form.progressStatus,
+      progressStatus: 'pending_followup' as ProgressStatus,
       basicInfo: {
         logoUrls: form.logoUrls.length > 0 ? form.logoUrls : undefined,
         unifiedSocialCreditCode: form.unifiedSocialCreditCode.trim() || undefined,
@@ -564,11 +566,9 @@ export default function NewCustomerPage() {
         addressDistrict: form.addressDistrict || undefined,
         addressDetail: form.addressDetail.trim() || undefined,
         intendedServiceRegions: form.intendedServiceRegions.length > 0 ? form.intendedServiceRegions : undefined,
-        serviceProducts: form.serviceProducts.length > 0 ? form.serviceProducts : undefined,
+        serviceProducts: form.serviceProduct ? [form.serviceProduct] : undefined,
+        otherServiceRequirement: form.serviceProduct === '其他' ? form.otherServiceRequirement.trim() || undefined : undefined,
         estimatedMonthlyVolume: form.estimatedMonthlyVolume.trim() || undefined,
-        warehouseArea: form.warehouseArea.trim() || undefined,
-        warehouseConditions: form.warehouseConditions.trim() || undefined,
-        customerSystemCode: form.customerSystemCode.trim() || undefined,
         customerLevel: form.customerLevel || undefined,
         ourAdvantage: form.ourAdvantage.trim() || undefined,
         ourDisadvantage: form.ourDisadvantage.trim() || undefined,
@@ -622,6 +622,96 @@ export default function NewCustomerPage() {
     router.push('/customers');
   }, [form, addCustomer, addLog, router]);
 
+  const handleSaveDraft = useCallback(async () => {
+    setIsDrafting(true);
+    setErrorMessage('');
+
+    const newCustomer = {
+      name: form.name.trim() || '未命名客户',
+      customerCode: form.customerCode.trim() || undefined,
+      signingEntityIds: form.signingEntityIds.length > 0 ? form.signingEntityIds : undefined,
+      serviceEntityIds: form.serviceEntityIds.length > 0 ? form.serviceEntityIds : undefined,
+      settlementEntityIds: form.settlementEntityIds.length > 0 ? form.settlementEntityIds : undefined,
+      status: 'draft' as CustomerStatus,
+      createdBy: form.createdBy,
+      responsiblePersons: form.responsiblePersons,
+      collaborators: form.collaborators,
+      progressStatus: 'newly_acquired' as ProgressStatus,
+      basicInfo: {
+        logoUrls: form.logoUrls.length > 0 ? form.logoUrls : undefined,
+        unifiedSocialCreditCode: form.unifiedSocialCreditCode.trim() || undefined,
+        countryRegion: form.countryRegion || undefined,
+        industryCategory: form.industryCategory || undefined,
+        mainProducts: form.mainProducts.trim() || undefined,
+        industryChainFormat: form.industryChainFormat || undefined,
+        supplyChainRole: form.supplyChainRole || undefined,
+        crossBorderMode: form.crossBorderMode || undefined,
+        customerChannel: form.customerChannel || undefined,
+        customerSource: form.customerSource || undefined,
+        potentialCompetitors: form.potentialCompetitors.trim() || undefined,
+        relatedEnterprises: form.relatedEnterprises.trim() || undefined,
+        addressProvince: form.addressProvince || undefined,
+        addressCity: form.addressCity || undefined,
+        addressDistrict: form.addressDistrict || undefined,
+        addressDetail: form.addressDetail.trim() || undefined,
+        intendedServiceRegions: form.intendedServiceRegions.length > 0 ? form.intendedServiceRegions : undefined,
+        serviceProducts: form.serviceProduct ? [form.serviceProduct] : undefined,
+        otherServiceRequirement: form.serviceProduct === '其他' ? form.otherServiceRequirement.trim() || undefined : undefined,
+        estimatedMonthlyVolume: form.estimatedMonthlyVolume.trim() || undefined,
+        customerLevel: form.customerLevel || undefined,
+        ourAdvantage: form.ourAdvantage.trim() || undefined,
+        ourDisadvantage: form.ourDisadvantage.trim() || undefined,
+      },
+      businessInfo: {
+        paidInCapital: form.paidInCapital.trim(),
+        organizationCode: form.organizationCode.trim(),
+        businessRegistrationNumber: form.businessRegistrationNumber.trim(),
+        taxpayerIdentificationNumber: form.taxpayerIdentificationNumber.trim(),
+        enterpriseType: form.enterpriseType,
+        businessTerm: form.businessTerm.trim(),
+        taxpayerQualification: form.taxpayerQualification,
+        staffSize: form.staffSize.trim(),
+        insuredNumber: form.insuredNumber.trim(),
+        approvalDate: form.approvalDate.trim(),
+        region: form.region.trim(),
+        registrationAuthority: form.registrationAuthority.trim(),
+        englishName: form.englishName.trim(),
+        registeredAddress: form.registeredAddress.trim(),
+        correspondenceAddress: form.correspondenceAddress.trim(),
+        businessScope: form.businessScope.trim(),
+        phone: form.phone.trim() || undefined,
+        registrationStatus: form.registrationStatus || undefined,
+        legalRepresentative: form.legalRepresentative.trim() || undefined,
+        email: form.email.trim() || undefined,
+        enterpriseScale: form.enterpriseScale || undefined,
+        registeredCapital: form.registeredCapital.trim() || undefined,
+        website: form.website.trim() || undefined,
+        establishmentDate: form.establishmentDate.trim() || undefined,
+        countryRegion: form.bizCountryRegion || undefined,
+        industryTags: form.industryTags.length > 0 ? form.industryTags : undefined,
+      },
+      semiconductorInfo: form.industryChainLevel ? {
+        industryChainLevel: form.industryChainLevel as IndustryChainLevel,
+        industryChainRole: form.industryChainRole as IndustryChainRole | '',
+        industryTags: form.semiIndustryTags,
+      } : undefined,
+    };
+
+    addCustomer(newCustomer as Parameters<typeof addCustomer>[0]);
+    addLog({
+      action: 'create',
+      operator: '系统管理员',
+      targetType: 'customer',
+      targetName: form.name.trim() || '未命名客户',
+      details: `暂存草稿客户: ${form.name.trim() || '未命名客户'}`,
+    });
+
+    setDraftMessage('草稿已保存，您可以继续编辑');
+    setIsDrafting(false);
+    setIsDirty(false);
+    setTimeout(() => setDraftMessage(''), 3000);
+  }, [form, addCustomer, addLog]);
+
   const handleBack = useCallback(() => {
     if (isDirty && !hasShownWarning.current) {
       hasShownWarning.current = true;
@@ -644,8 +734,16 @@ export default function NewCustomerPage() {
             <h1 className="text-2xl font-bold text-[#0A0A0A]">新增客户</h1>
           </div>
           <div className="flex items-center gap-3">
+            {draftMessage && (
+              <span className="flex items-center gap-1 text-sm text-[#0D8A5E]">
+                <Check className="w-4 h-4" /> {draftMessage}
+              </span>
+            )}
             <button onClick={handleBack} className="px-4 py-2 border border-[#D5D5D5] text-[#5A5A5A] hover:bg-[#F5F5F5] rounded-lg text-sm font-medium transition-colors">
               取消
+            </button>
+            <button onClick={handleSaveDraft} disabled={isDrafting} className="px-4 py-2 border border-[#EBEBEB] text-[#666] hover:bg-gray-50 rounded-lg text-sm font-medium transition-colors disabled:opacity-50">
+              {isDrafting ? '保存中...' : '暂存'}
             </button>
             <button onClick={handleSubmit} disabled={isSubmitting} className="px-6 py-2 bg-[#2D3BFF] text-white hover:bg-[#4338CA] rounded-lg text-sm font-semibold transition-colors disabled:opacity-50">
               {isSubmitting ? '保存中...' : '提交'}
@@ -720,49 +818,11 @@ export default function NewCustomerPage() {
                     />
                   </div>
                   <div>
-                    <label className={FIELD_STYLES.label}>跟进进度</label>
-                    <SearchableSelect value={form.progressStatus} onChange={(v) => updateField('progressStatus', v as ProgressStatus)} options={PROGRESS_STATUS_OPTIONS} placeholder="请选择跟进进度" />
-                  </div>
-                  <div>
-                    <label className={FIELD_STYLES.label}>客户代码</label>
-                    <input type="text" className={FIELD_STYLES.input} value={form.customerCode} onChange={(e) => updateField('customerCode', e.target.value)} placeholder="请输入客户代码" />
-                  </div>
-                  <div>
-                    <label className={FIELD_STYLES.label}>客户状态</label>
-                    <SearchableSelect<CustomerStatus> value={form.status} onChange={(v) => updateField('status', v)} options={CUSTOMER_STATUS_OPTIONS} placeholder="请选择客户状态" />
-                  </div>
-                  <div>
-                    <label className={FIELD_STYLES.label}>签约主体</label>
-                    <SearchableMultiSelect
-                      values={form.signingEntityIds}
-                      onChange={(ids) => updateField('signingEntityIds', ids)}
-                      options={getSigningEntityOptions(signingEntities)}
-                      placeholder="搜索并选择签约主体..."
-                      searchPlaceholder="搜索签约主体..."
-                      emptyText="未找到签约主体"
-                    />
-                  </div>
-                  <div>
-                    <label className={FIELD_STYLES.label}>服务主体</label>
-                    <SearchableMultiSelect
-                      values={form.serviceEntityIds}
-                      onChange={(ids) => updateField('serviceEntityIds', ids)}
-                      options={getServiceEntityOptions(serviceEntities)}
-                      placeholder="搜索并选择服务主体..."
-                      searchPlaceholder="搜索服务主体..."
-                      emptyText="未找到服务主体"
-                    />
-                  </div>
-                  <div>
-                    <label className={FIELD_STYLES.label}>结算主体</label>
-                    <SearchableMultiSelect
-                      values={form.settlementEntityIds}
-                      onChange={(ids) => updateField('settlementEntityIds', ids)}
-                      options={getSettlementEntityOptions(settlementEntities)}
-                      placeholder="搜索并选择结算主体..."
-                      searchPlaceholder="搜索结算主体..."
-                      emptyText="未找到结算主体"
-                    />
+                    <label className={FIELD_STYLES.label}>跟进进度 <span className="text-xs text-[#999]">（系统自动判断）</span></label>
+                    <div className={`${FIELD_STYLES.input} bg-[#F5F5F5] text-[#5A5A5A] flex items-center gap-2 cursor-default`}>
+                      <span className={`inline-block w-2.5 h-2.5 rounded-full ${PROGRESS_STATUS_COLORS[form.progressStatus]?.dot || 'bg-gray-400'}`} />
+                      {PROGRESS_STATUS_LABELS[form.progressStatus] || form.progressStatus}
+                    </div>
                   </div>
                   <div>
                     <label className="text-xs font-semibold text-[#5A5A5A] mb-1.5 block">联系人</label>
@@ -960,17 +1020,21 @@ export default function NewCustomerPage() {
                     />
                   </div>
 
-                  {/* 服务产品（多选） */}
+                  {/* 服务产品（单选） */}
                   <div>
                     <label className={FIELD_STYLES.label}>服务产品</label>
-                    <SearchableMultiSelect
-                      values={form.serviceProducts}
-                      onChange={(v) => updateField('serviceProducts', v)}
+                    <SearchableSelect
+                      value={form.serviceProduct}
+                      onChange={(v) => { updateField('serviceProduct', v); if (v !== '其他') updateField('otherServiceRequirement', ''); }}
                       options={SERVICE_PRODUCT_OPTIONS}
-                      placeholder="选择服务产品..."
-                      searchPlaceholder="搜索..."
-                      emptyText="未找到"
+                      placeholder="请选择服务产品"
                     />
+                    {form.serviceProduct === '其他' && (
+                      <div className="mt-3">
+                        <label className={FIELD_STYLES.label}>其他服务产品需求</label>
+                        <input type="text" className={FIELD_STYLES.input} value={form.otherServiceRequirement} onChange={(e) => updateField('otherServiceRequirement', e.target.value)} placeholder="请描述服务产品需求" />
+                      </div>
+                    )}
                   </div>
 
                   {/* 公司营业地址 - 省/市/区 级联 */}
@@ -1003,30 +1067,6 @@ export default function NewCustomerPage() {
                         placeholder="请输入详细地址"
                       />
                     </div>
-                  </div>
-
-                  {/* 预计月均业务量 */}
-                  <div>
-                    <label className={FIELD_STYLES.label}>预计月均业务量（票）</label>
-                    <input type="text" className={FIELD_STYLES.input} value={form.estimatedMonthlyVolume} onChange={(e) => updateField('estimatedMonthlyVolume', e.target.value)} placeholder="请输入" />
-                  </div>
-
-                  {/* 仓库面积 */}
-                  <div>
-                    <label className={FIELD_STYLES.label}>仓库面积（平方米）</label>
-                    <input type="text" className={FIELD_STYLES.input} value={form.warehouseArea} onChange={(e) => updateField('warehouseArea', e.target.value)} placeholder="请输入" />
-                  </div>
-
-                  {/* 仓库温湿度要求 */}
-                  <div>
-                    <label className={FIELD_STYLES.label}>仓库温湿度要求</label>
-                    <input type="text" className={FIELD_STYLES.input} value={form.warehouseConditions} onChange={(e) => updateField('warehouseConditions', e.target.value)} placeholder="请输入温湿度要求" />
-                  </div>
-
-                  {/* 客户系统代码（只读） */}
-                  <div>
-                    <label className={FIELD_STYLES.label}>客户系统代码</label>
-                    <input type="text" className={`${FIELD_STYLES.input} bg-[#F5F5F5] text-[#999999] cursor-not-allowed`} value={form.customerSystemCode} readOnly placeholder="风控审批通过后自动生成" />
                   </div>
 
                   {/* 我司优势简述 */}
