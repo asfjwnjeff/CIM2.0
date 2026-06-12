@@ -417,6 +417,7 @@ export async function seed() {
 
   // 插入联系人种子数据
   const seedContacts = [
+    // cust-001: 应用材料（中国）有限公司 — 3人
     {
       id: 'contact-1', customerId: 'cust-001', name: '赵志远', englishName: 'David Zhao',
       phone: '138****6789', isKeyDecisionMaker: true, email: 'david.zhao@huali.com',
@@ -443,6 +444,73 @@ export async function seed() {
       birthday: '1975-02-08', age: 51, hobbies: '登山、摄影',
       hometown: '山东青岛', familySituation: '已婚，一子', zipCode: '201203',
       created_at: '2025-07-01', updated_at: '2025-12-01',
+    },
+    // cust-002: 金鹰国际货运代理有限公司 — 2人
+    {
+      id: 'contact-4', customerId: 'cust-002', name: '陈丽华', englishName: 'Lisa Chen',
+      phone: '136****2345', isKeyDecisionMaker: true, email: 'lisa.chen@jinying.com',
+      wechat: 'lisa_chen_sh', address: '上海市长宁区虹桥路2550号',
+      department: '物流部', position: '物流总监', gender: 'female',
+      birthday: '1982-03-18', age: 44, hobbies: '瑜伽、茶道',
+      hometown: '江苏苏州', familySituation: '已婚，一子', zipCode: '200335',
+      created_at: '2025-08-01', updated_at: '2025-12-10',
+    },
+    {
+      id: 'contact-5', customerId: 'cust-002', name: '王志强', englishName: 'Michael Wang',
+      phone: '185****7890', isKeyDecisionMaker: false, email: 'michael.wang@jinying.com',
+      wechat: '', address: '上海市长宁区虹桥路2550号',
+      department: '运营部', position: '运营经理', gender: 'male',
+      birthday: '1990-07-22', age: 35, hobbies: '篮球、电竞',
+      hometown: '安徽合肥', familySituation: '未婚', zipCode: '200335',
+      created_at: '2025-08-15', updated_at: '2025-11-20',
+    },
+    // cust-003: 苏斯贸易（上海）有限公司 — 2人
+    {
+      id: 'contact-6', customerId: 'cust-003', name: '周明辉', englishName: 'Martin Zhou',
+      phone: '159****4321', isKeyDecisionMaker: true, email: 'martin.zhou@sus.com',
+      wechat: 'martin_zhou', address: '上海市静安区南京西路1515号',
+      department: '贸易部', position: '副总经理', gender: 'male',
+      birthday: '1976-11-08', age: 49, hobbies: '高尔夫、品酒',
+      hometown: '浙江宁波', familySituation: '已婚，一子一女', zipCode: '200040',
+      created_at: '2025-09-01', updated_at: '2025-12-01',
+    },
+    {
+      id: 'contact-7', customerId: 'cust-003', name: '林晓芳', englishName: 'Shirley Lin',
+      phone: '177****5678', isKeyDecisionMaker: false, email: 'shirley.lin@sus.com',
+      wechat: 'shirley_lin021', address: '上海市静安区南京西路1515号',
+      department: '采购部', position: '采购主管', gender: 'female',
+      birthday: '1988-04-15', age: 38, hobbies: '旅行、烹饪',
+      hometown: '福建厦门', familySituation: '已婚，一女', zipCode: '200040',
+      created_at: '2025-09-10', updated_at: '2025-11-25',
+    },
+    // cust-005: 昇先创科技（深圳）有限公司 — 2人
+    {
+      id: 'contact-8', customerId: 'cust-005', name: '黄伟杰', englishName: 'Kevin Huang',
+      phone: '135****9012', isKeyDecisionMaker: true, email: 'kevin.huang@sxs.com',
+      wechat: 'kevin_huang_sz', address: '深圳市南山区科技园南路18号',
+      department: '技术部', position: '技术总监', gender: 'male',
+      birthday: '1983-09-25', age: 42, hobbies: '编程、徒步',
+      hometown: '广东广州', familySituation: '已婚，一子', zipCode: '518057',
+      created_at: '2025-07-20', updated_at: '2025-12-05',
+    },
+    {
+      id: 'contact-9', customerId: 'cust-005', name: '郑文静', englishName: 'Wendy Zheng',
+      phone: '186****3456', isKeyDecisionMaker: false, email: 'wendy.zheng@sxs.com',
+      wechat: 'wendy_zheng', address: '深圳市南山区科技园南路18号',
+      department: '采购部', position: '采购专员', gender: 'female',
+      birthday: '1992-01-12', age: 34, hobbies: '健身、看电影',
+      hometown: '湖南长沙', familySituation: '未婚', zipCode: '518057',
+      created_at: '2025-08-05', updated_at: '2025-11-15',
+    },
+    // cust-007: 上海华力集成电路有限公司 — 1人
+    {
+      id: 'contact-10', customerId: 'cust-007', name: '吴建平', englishName: 'Peter Wu',
+      phone: '137****7890', isKeyDecisionMaker: true, email: 'peter.wu@huali-ic.com',
+      wechat: 'peter_wu_021', address: '上海市浦东新区张江路505号',
+      department: '生产部', position: '生产部长', gender: 'male',
+      birthday: '1979-06-30', age: 46, hobbies: '围棋、书法',
+      hometown: '江苏无锡', familySituation: '已婚，一子一女', zipCode: '201203',
+      created_at: '2025-06-20', updated_at: '2025-12-10',
     },
   ];
   for (const c of seedContacts) {

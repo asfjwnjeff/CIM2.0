@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, Suspense } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 
 export const dynamic = 'force-dynamic';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -85,15 +85,6 @@ const customers = [
   { id: '5', name: '卡尔蔡司（上海）管理有限公司' },
 ];
 
-// Mock联系人数据
-const contacts = [
-  { id: '1', name: '陈女士', phone: '', address: '' },
-  { id: '2', name: '张正阳', phone: '+86-18168762777', address: '' },
-  { id: '3', name: '丁慧', phone: '', address: '' },
-  { id: '4', name: '许悦', phone: '', address: '' },
-  { id: '5', name: 'Peggy', phone: '+86-13764061373', address: '' },
-];
-
 // Mock负责人数据
 const responsiblePersons = ['孙颖菁', '孙敏敏', '章小玉', '倪萍', '吴佳敏', '夏赟帆', '费斌'];
 
@@ -143,7 +134,7 @@ function OpportunityFormContent() {
     estimatedMonthlyAmount: '',
     startTime: '',
     expectedEndTime: '',
-    contact: '',
+    contactIds: [] as string[],
     responsiblePerson: '',
     collaborators: [] as string[],
     salesStage: '',
@@ -161,6 +152,19 @@ function OpportunityFormContent() {
 
   const [collaboratorModalOpen, setCollaboratorModalOpen] = useState(false);
   const [selectedCollaborators, setSelectedCollaborators] = useState<string[]>([]);
+  const [customerContacts, setCustomerContacts] = useState<Array<{id:string;name:string;phone:string}>>([]);
+
+  // 当客户变化时加载该客户的联系人
+  useEffect(() => {
+    const customerId = formData.customer;
+    if (!customerId) { setCustomerContacts([]); setFormData(prev => ({ ...prev, contactIds: [] })); return; }
+    fetch(`/api/contacts?customerId=${encodeURIComponent(customerId)}`)
+      .then(r => r.json())
+      .then(data => {
+        if (Array.isArray(data)) setCustomerContacts(data.map((c: any) => ({ id: c.id, name: c.name, phone: c.phone || '' })));
+      })
+      .catch(() => setCustomerContacts([]));
+  }, [formData.customer]);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -200,6 +204,9 @@ function OpportunityFormContent() {
       ? (formData.otherServiceRequirement || formData.opportunityContent || undefined)
       : (formData.opportunityContent || undefined),
     owner: formData.responsiblePerson || undefined,
+    contacts: formData.contactIds.length > 0
+      ? customerContacts.filter(c => formData.contactIds.includes(c.id)).map(c => ({ id: c.id, name: c.name, phone: c.phone }))
+      : undefined,
   });
 
   const handleSaveDraft = () => {
@@ -232,15 +239,13 @@ function OpportunityFormContent() {
       customer: '', opportunityNumber: '', existingServiceContract: '', newSite: '', newService: '',
       opportunityTitle: '', opportunityDate: '', opportunityContent: '', biddingProject: '', biddingDocument: '',
       serviceProduct: '', serviceRequirement: '', intendedSite: '', currency: '',
-      estimatedMonthlyAmount: '', startTime: '', expectedEndTime: '', contact: '',
+      estimatedMonthlyAmount: '', startTime: '', expectedEndTime: '', contactIds: [],
       responsiblePerson: '', collaborators: [], salesStage: '', otherServiceRequirement: '',
       relationshipLoyalty: '', peerInfluence: '', advantages: '', disadvantages: '',
       opportunities: '', threats: '', attachments: [], biddingDocuments: [], remarks: '',
     });
     setSelectedCollaborators([]);
   };
-
-  const selectedContact = contacts.find(c => c.id === formData.contact);
 
   const inputClass = FIELD_STYLES.input;
   const labelClass = FIELD_STYLES.label;
@@ -562,27 +567,51 @@ function OpportunityFormContent() {
             {/* 联系人信息 */}
             <div className="bg-white border border-[#EBEBEB] rounded-xl p-6 space-y-4">
               <h3 className={sectionTitleClass}>联系人信息</h3>
-              <div>
-                <label className={labelClass}>联系人 <span className="text-red-500">*</span></label>
-                <SearchableSelect
-                  value={formData.contact}
-                  onChange={(value) => handleInputChange('contact', value)}
-                  options={contacts.map(c => ({ value: c.id, label: c.name }))}
-                  placeholder="请选择联系人"
-                />
-              </div>
-              {selectedContact && (
-                <div className="bg-[#F5F5F5] rounded-xl p-4 space-y-3">
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 bg-[#2D3BFF] rounded-full flex items-center justify-center text-white text-sm font-medium">
-                      {selectedContact.name.charAt(0)}
-                    </div>
-                    <div>
-                      <div className="text-sm font-medium text-[#0A0A0A]">{selectedContact.name}</div>
-                      {selectedContact.phone && <div className="text-xs text-[#5A5A5A]">{selectedContact.phone}</div>}
-                    </div>
+              {!formData.customer ? (
+                <p className="text-sm text-[#999]">请先选择客户</p>
+              ) : customerContacts.length === 0 ? (
+                <p className="text-sm text-[#999]">该客户暂无联系人</p>
+              ) : (
+                <>
+                  <div className="space-y-1.5 max-h-64 overflow-y-auto">
+                    {customerContacts.map((ct) => {
+                      const isSelected = formData.contactIds.includes(ct.id);
+                      return (
+                        <button
+                          key={ct.id}
+                          type="button"
+                          onClick={() => {
+                            setFormData(prev => ({
+                              ...prev,
+                              contactIds: isSelected
+                                ? prev.contactIds.filter(id => id !== ct.id)
+                                : [...prev.contactIds, ct.id],
+                            }));
+                          }}
+                          className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-all border ${
+                            isSelected ? 'bg-[#E8EBFF] border-[#2D3BFF]' : 'bg-white border-[#EBEBEB] hover:bg-[#F5F5F5]'
+                          }`}
+                        >
+                          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold ${
+                            isSelected ? 'bg-[#2D3BFF] text-white' : 'bg-[#F5F5F5] text-[#5A5A5A]'
+                          }`}>
+                            {ct.name[0]}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="text-sm font-medium text-[#0A0A0A]">{ct.name}</div>
+                            {ct.phone && <div className="text-xs text-[#999]">{ct.phone}</div>}
+                          </div>
+                          {isSelected && (
+                            <svg className="w-5 h-5 text-[#2D3BFF] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                          )}
+                        </button>
+                      );
+                    })}
                   </div>
-                </div>
+                  {formData.contactIds.length > 0 && (
+                    <div className="text-xs text-[#5A5A5A]">已选择 {formData.contactIds.length} 位联系人</div>
+                  )}
+                </>
               )}
             </div>
 

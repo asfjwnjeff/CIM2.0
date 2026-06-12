@@ -1,8 +1,8 @@
 # CIM系统V3.0 PRD调研过程记录
 
-**版本**: v1.0
-**日期**: 2026-05-12
-**说明**: 本文档记录了CIM系统V3.0 PRD的完整调研过程，采用引导式设计方法，分步递进、逐步收敛。用户发言均原样保留。
+**版本**: v2.0
+**日期**: 2026-06-12
+**说明**: 本文档记录了CIM系统V3.0 PRD的完整调研过程。v2.0 新增附录：CIM2.0 系统字段规格（完整字段定义、类型、必填、可选值）。
 
 ---
 
@@ -537,3 +537,245 @@
 | 客户管理列表仅有基础搜索和筛选（第1-12阶段） | 增加联系人/电话搜索、跟进进度筛选、卡片/列表双视图切换 |
 | 无创建人/负责人/协同人概念 | 新增三个字段，新增协同/分配/移交操作 |
 | 无跟进进度追踪 | 6阶段流程图手动推进 |
+
+---
+
+# 附录：CIM2.0 系统字段规格（v2.0 正式版）
+
+> **最后更新**: 2026-06-12  
+> **依据**: `src/lib/types.ts` + 实际实现代码
+
+---
+
+## A. 客户管理模块
+
+### A.1 客户基本信息 (CompanyBasicInfo)
+
+| 字段 | 标识 | 类型 | 必填 | 可选值/说明 |
+|------|------|------|:--:|------|
+| 客户LOGO | logoUrls | string[] | | 多图上传 |
+| 统一社会信用代码 | unifiedSocialCreditCode | string | | 18位，录入后自动拉取企查查数据 |
+| 中文简称 | shortName | string | | |
+| 客户国（地）别 | countryRegion | string | | 中企/美企/日企/韩企/台企等 |
+| 产业分类 | industryCategory | string | | 半导体/高科技/工业工程/新能源/医疗健康/消费品/其他 |
+| 主营产品工艺 | mainProducts | string | | |
+| 产业链业态 | industryChainFormat | string | | 设计研发/装备制造/工业生产/商贸服务/机构组织/平台组织 |
+| 供应链角色 | supplyChainRole | string | | 供应商/采购商/中间商/服务商 |
+| 跨境模式 | crossBorderMode | string | | 口岸/直通/保税仓库/保税区域/普通仓库/其他 |
+| 客户渠道 | customerChannel | string | | 直客/代理/同行 |
+| 客户来源 | customerSource | string | | 公司资源/自主开拓/电话咨询/客户推荐 |
+| 潜在竞争对手 | potentialCompetitors | textarea | | rows=3 多行文本 |
+| 关联上下游企业 | relatedEnterprises | textarea | | rows=3 多行文本 |
+| 公司营业地址-省 | addressProvince | string | | 级联选择 |
+| 公司营业地址-市 | addressCity | string | | 级联选择 |
+| 公司营业地址-区 | addressDistrict | string | | 级联选择 |
+| 公司营业地址-详细 | addressDetail | textarea | | rows=2 多行文本 |
+| 意向服务地区 | intendedServiceRegions | string[] | | 多选国内城市 |
+| 服务产品 | serviceProducts | string | ✅ | **单选**: 货代/关务/仓储/运输/进出口/维修/合同物流/一体化供应链/其他 |
+| 其他服务需求 | otherServiceRequirement | string | | 选「其他」时展开输入框 |
+| 预计月均业务量 | estimatedMonthlyVolume | string | | 票 |
+| 仓库面积 | warehouseArea | string | | ㎡ |
+| 仓库温湿度要求 | warehouseConditions | string | | |
+| 客户等级 | customerLevel | string | | K/A/B/C/D |
+| 我司优势简述 | ourAdvantage | textarea | | rows=3 多行文本 |
+| 我司劣势简述 | ourDisadvantage | textarea | | rows=3 多行文本 |
+
+**页面规则**:
+- 新增/草稿页: 不显示客户状态、客户代码、签约/服务/结算主体、预计月均业务量、仓库面积/温湿度
+- 编辑/查看页: 以上字段显示，客户状态仅可选「正常」/「停用」
+- 半导体产业链定位: 仅产业分类=「半导体」时显示独立Tab
+
+### A.2 联系人 (Contact)
+
+| 字段 | 标识 | 类型 | 必填 | 可选值/说明 |
+|------|------|------|:--:|------|
+| 姓名 | name | string | ✅ | |
+| 英文名 | englishName | string | | |
+| 手机号 | phone | string | | |
+| 是否关键决策人 | isKeyDecisionMaker | boolean | ✅ | 是/否 Radio |
+| 邮箱 | email | string | | |
+| 微信 | wechat | string | | |
+| 地址 | address | string | | |
+| 部门 | department | string | ✅ | |
+| 职务 | position | string | ✅ | |
+| 性别 | gender | 'male'\|'female' | ✅ | 男/女 Radio |
+| 生日 | birthday | date | | |
+| 年龄 | age | number | | |
+| 爱好 | hobbies | string | | |
+| 籍贯 | hometown | string | | |
+| 家庭情况 | familySituation | string | | |
+| 邮政编码 | zipCode | string | | |
+
+**交互**: Dialog 左右分栏（左侧260px联系人列表 + 右侧16字段表单），支持增删改。客户页以紧凑卡片展示（姓名+手机+性别+关键决策人Badge+部门·职务）。
+
+### A.3 客户主表 (Customer)
+
+| 字段 | 标识 | 类型 | 必填 | 可选值/说明 |
+|------|------|------|:--:|------|
+| 客户名称 | name | string | ✅ | |
+| 客户代码 | customerCode | string | | 系统自动生成 |
+| 客户状态 | status | CustomerStatus | | draft/active/inactive/potential/frozen |
+| 跟进进度 | progressStatus | ProgressStatus | | 系统自动流转(仅「失效」可手动) |
+| 创建人 | createdBy | string | ✅ | 系统自动填入当前用户 |
+| 负责人 | responsiblePersons | string[] | ✅ | 至少1人，多选 |
+| 协同人 | collaborators | string[] | | 多选 |
+| 签约主体 | signingEntityIds | string[] | | |
+| 服务主体 | serviceEntityIds | string[] | | |
+| 结算主体 | settlementEntityIds | string[] | | |
+
+### A.4 跟进进度流转 (ProgressStatus)
+
+| 值 | 标签 | 触发事件 |
+|------|------|------|
+| `newly_acquired` | 新获取 | 客户新建（默认） |
+| `pending_followup` | 待跟进 | 客户首次提交(status: draft→active) |
+| `preliminary_intent` | 初步意向 | 创建商机（仅当前级别低于此级时推进） |
+| `opportunity_confirmed` | 商机确认 | 风控审批通过 |
+| `deal_closed` | 成交 | 暂不实现 |
+| `invalid` | 失效 | 手动操作（唯一可手动修改的状态） |
+
+---
+
+## B. 商机管理模块
+
+### B.1 商机 (Opportunity)
+
+| 字段 | 标识 | 类型 | 必填 | 可选值/说明 |
+|------|------|------|:--:|------|
+| 关联客户 | customerId | string | ✅ | SearchableSelect |
+| 商机编号 | opportunityNumber | string | | 系统自动生成 |
+| 已有服务合同 | existingServiceContract | string | ✅ | 是/否 |
+| 新站点 | newSite | string | 条件 | 已有服务合同=「是」时显示且必填 |
+| 新服务 | newService | string | 条件 | 已有服务合同=「是」时显示且必填 |
+| 商机标题 | opportunityTitle | string | ✅ | |
+| 商机获取日期 | opportunityDate | date | ✅ | |
+| 招标项目 | biddingProject | string | | 是/否 |
+| 招标文件 | biddingDocument | file | 条件 | 招标项目=「是」时显示上传控件 |
+| 商机内容 | opportunityContent | textarea | ✅ | rows=5 |
+| 服务产品 | serviceProduct | string | ✅ | 单选: 货代/关务/仓储/运输/进出口/维修/合同物流/一体化供应链/其他 |
+| 服务要求 | serviceRequirement | textarea | ✅ | rows=2 |
+| 意向站点 | intendedSite | string | | |
+| 预估月度结算金额 | estimatedMonthlyAmount | number | | |
+| 货币 | currency | string | | 人民币/美元/欧元/日元 |
+| 销售阶段 | salesStage | SalesStage | | 需求确认/方案报价/商务谈判/跟进中/赢单/输单 |
+| 联系人 | contacts | Contact[] | | **多选，从客户联系人加载** |
+| SWOT-优势 | advantages | textarea | ✅ | rows=3 |
+| SWOT-劣势 | disadvantages | textarea | ✅ | rows=3 |
+| SWOT-机会 | opportunities | textarea | ✅ | rows=3 |
+| SWOT-威胁 | threats | textarea | ✅ | rows=3 |
+| 备注 | remarks | textarea | | rows=4 |
+
+**列表页列宽**: `grid-cols-[1.4fr_1.8fr_1.8fr_0.8fr_1fr_1fr_0.8fr_0.6fr_1fr_0.8fr]`
+
+---
+
+## C. 跟进记录模块
+
+### C.1 跟进记录 (FollowUpRecord)
+
+| 字段 | 标识 | 类型 | 必填 | 可选值/说明 |
+|------|------|------|:--:|------|
+| 关联客户 | customerId | string | ✅ | SearchableSelect |
+| 跟进类型 | type | FollowUpType | ✅ | KPI未达标/合同管理/业务会议/其他客户事项 |
+| 跟进方式 | method | FollowUpMethod | | 电话拜访/上门拜访/网络拜访/HMG现场会议 |
+| 跟进时间 | followUpDate | datetime | ✅ | |
+| 跟进状态 | status | FollowUpStatus | | **可选**: 新建需求/沟通方案/促单/成功/无进展/需求取消/合同终止/失败 |
+| 联系人 | contactId | string | | 从客户联系人加载 |
+| 负责人 | owner | string | | |
+| 下次跟进 | nextFollowUpDate | datetime | | |
+| 跟进内容 | content | textarea | | rows=6 |
+| 会议纪要-关键要点 | keyPoints | string[] | | |
+| 会议纪要-待办事项 | actionItems | string[] | | |
+| 会议纪要-决策事项 | decisions | string[] | | |
+| AI录音 | recordingUrl | string | | |
+| AI转写 | transcript | string | | |
+| 会议摘要 | meetingSummary | textarea | | |
+| 附件 | attachments | file[] | | |
+| 打卡记录 | checkInRecords | array | | 仅上门拜访: [{lat,lng,address,timestamp,photos}] |
+
+### C.2 跟进方式 (FollowUpMethod)
+
+| 值 | 标签 | 打卡功能 |
+|------|------|:--:|
+| `phone_visit` | 电话拜访 | |
+| `onsite_visit` | 上门拜访 | ✅ GPS定位+照片 |
+| `online_visit` | 网络拜访 | |
+| `hmg_meeting` | HMG现场会议 | |
+
+### C.3 跟进状态 (FollowUpStatus)
+
+| 值 | 标签 | 说明 |
+|------|------|------|
+| `draft` | 草稿 | 暂存状态 |
+| `new` | 新建需求 | |
+| `discussing` | 沟通方案 | |
+| `promoting` | 促单 | |
+| `success` | 成功 | |
+| `no_progress` | 无进展 | |
+| `cancelled` | 需求取消 | |
+| `terminated` | 合同终止 | |
+| `failed` | 失败 | |
+
+---
+
+## D. 风控审批模块
+
+已删除字段: 风险控制目的、此公司与HMG关系、建议系统代码。
+
+### D.1 风控审批 (RiskApproval)
+
+| 字段 | 标识 | 类型 | 必填 | 可选值/说明 |
+|------|------|------|:--:|------|
+| 公司名称 | companyName | string | ✅ | |
+| 服务产品 | serviceProduct | string | | 单选 |
+| 是否为货代 | isTradeAgent | string | | 是/否 |
+| 业务类型 | businessType | string | | |
+| 审批状态 | approvalStatus | string | | 草稿/审批中/已通过/已驳回 |
+| 英文名称 | englishName | string | | |
+| 母公司 | parentCompany | string | | |
+| 子公司 | subsidiaryCompany | string | | |
+| 货物类型 | goodsType | string | | |
+| 月均业务量 | monthlyBusinessVolume | string | | |
+| 月均订单量 | monthlyOrders | string | | |
+| 月均开票金额 | monthlyInvoiceAmount | string | | |
+| 通关KPI要求 | customsKpiRequirement | textarea | | rows=3 |
+| 运输KPI要求 | transportKpiRequirement | textarea | | rows=3 |
+| 仓库租赁要求 | warehouseLeaseRequirement | textarea | | rows=3 |
+| 定制化需求描述 | customRequirementDescription | textarea | | rows=4 |
+| 结算账期 | settlementPeriod | string | | |
+| 联系人 | contactName | string | | |
+| 关联商机 | opportunityId | string | | |
+| 关联客户 | businessCustomerIds | string[] | | |
+| 开票信息 | invoiceInfoIds | string[] | | |
+
+---
+
+## E. 通用交互规范
+
+### E.1 草稿/提交按钮
+
+| 场景 | 按钮 |
+|------|------|
+| 新建/草稿表单 | `[暂存]` 灰色边框 + `[提交]` 蓝色填充 |
+| 已提交记录编辑 | `[保存]` 蓝色填充 |
+
+- **暂存**: 不校验必填项，留在表单页
+- **提交**: 校验必填项，跳转到列表页
+
+### E.2 表单输入框尺寸
+
+| 类型 | 样式 |
+|------|------|
+| 单行 input | `FIELD_STYLES.input` (h-[38px]) |
+| 多行 textarea | `FIELD_STYLES.textarea` (min-h-[80px], resize-none) |
+
+### E.3 紧凑联系人卡片
+
+展示: 头像字母 + 姓名 + 手机号 + 性别 + 关键决策人蓝色Badge + 部门·职务灰色Badge
+
+### E.4 跟进提醒通知
+
+- Bell红点badge + 下拉列表 + 首页黄色卡片
+- 60秒自动刷新
+- 配置入口: 系统设置 → 跟进提醒配置
+- 等级-天数: K=5, A=10, B=20, C=30, D=60

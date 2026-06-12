@@ -40,11 +40,12 @@ export async function GET(req: Request) {
       return Response.json(parseRecord(record as Record<string, unknown>));
     }
 
-    let data = db.select().from(contacts).all();
-    if (customerId) {
-      data = data.filter((c: Record<string, unknown>) => c.customer_id === customerId);
-    }
-    return Response.json(data.map((c) => parseRecord(c as Record<string, unknown>)));
+    const data = db.select().from(contacts).all();
+    // Drizzle 返回 camelCase 键名
+    const filtered = customerId
+      ? data.filter((c: Record<string, unknown>) => c.customerId === customerId)
+      : data;
+    return Response.json(filtered.map((c) => parseRecord(c as Record<string, unknown>)));
   } catch (e) {
     return Response.json({ error: String(e) }, { status: 500 });
   }
