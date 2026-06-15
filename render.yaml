@@ -4,7 +4,7 @@ services:
     runtime: node
     repo: https://github.com/asfjwnjeff/CIM2.0
     rootDir: project_20260526_111004/projects
-    buildCommand: bash ./scripts/build.sh
+    buildCommand: npm install -g pnpm && bash ./scripts/build.sh
     startCommand: bash ./scripts/start.sh
     nodeVersion: 20
     plan: starter
@@ -17,5 +17,3 @@ services:
         value: "5000"
       - key: HOSTNAME
         value: "0.0.0.0"
-      - key: COZE_WORKSPACE_PATH
-        value: /opt/render/project/src/project_20260526_111004/projects
