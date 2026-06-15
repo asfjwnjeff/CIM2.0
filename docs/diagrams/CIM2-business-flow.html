@@ -107,6 +107,7 @@ body {
   font-size: 20px; font-weight: 700;
   flex-shrink: 0;
 }
+.phase-num.purple { background: #7C3AED; }
 .phase-num.green { background: var(--green); }
 .phase-num.amber { background: var(--amber); }
 
@@ -204,7 +205,7 @@ body {
     <!-- ═══ Phase 1: Customer Onboarding ═══ -->
     <div class="phase">
       <div class="phase-header">
-        <div class="phase-num">1</div>
+        <div class="phase-num purple">1</div>
         <div class="phase-label">客户准入</div>
         <div class="phase-operator">操作者: 客服</div>
       </div>
@@ -218,7 +219,8 @@ body {
               <b>新建客户</b><br>
               填写名称 · 信用代码 · 产业分类 · 服务产品<br>
               <span class="condition">[暂存] → draft 草稿</span><br>
-              <span class="condition">[提交] → 校验名称+负责人</span>
+              <span class="condition">[暂存] → 不校验必填项，留在表单页</span><br>
+              <span class="condition">[提交] → 校验必填项，跳转列表页</span>
             </div>
           </div>
           <div class="step">
@@ -254,7 +256,7 @@ body {
     <!-- ═══ Phase 2: Opportunity & Follow-up ═══ -->
     <div class="phase">
       <div class="phase-header">
-        <div class="phase-num">2</div>
+        <div class="phase-num green">2</div>
         <div class="phase-label">商机跟进</div>
         <div class="phase-operator">操作者: 业务·客服</div>
       </div>
@@ -334,7 +336,7 @@ body {
     <!-- ═══ Phase 4: Risk Approval ═══ -->
     <div class="phase">
       <div class="phase-header">
-        <div class="phase-num">4</div>
+        <div class="phase-num amber">4</div>
         <div class="phase-label">风控审批</div>
         <div class="phase-operator">操作者: 客服→审批人</div>
       </div>
@@ -427,7 +429,9 @@ body {
 
   <!-- ====== LEGEND ====== -->
   <div class="legend">
-    <div class="legend-item"><div class="legend-dot" style="background:var(--brand);"></div>CIM 系统阶段</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#7C3AED;"></div>阶段①</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--green);"></div>阶段②</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--amber);"></div>阶段④</div>
     <div class="legend-item"><div class="legend-dot" style="background:var(--amber);"></div>CPQ 系统阶段 / 交接点</div>
     <div class="legend-item"><div class="legend-dot" style="background:#CCC;"></div>已迁移模块 (CIM不再承担)</div>
     <div class="legend-item"><span style="color:var(--brand);font-weight:700;">―</span> 主线流转</div>
