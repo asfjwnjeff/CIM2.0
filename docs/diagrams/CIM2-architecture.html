@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CIM 2.0 — System Architecture</title>
+<style>
+/* ====== Design Philosophy: "Gridded Cartography" ====== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --paper: #FAFBFD;
+  --ink: #0F1117;
+  --grid: #E8EBF2;
+  --brand: #2D3BFF;
+  --brand-glass: rgba(45, 59, 255, 0.06);
+  --cim-zone: #EEF0FF;
+  --cim-border: #D0D4FF;
+  --cpq-zone: #FFF8F0;
+  --cpq-border: #FFD9A8;
+  --cos-zone: #EDF8F2;
+  --cos-border: #B7E4CF;
+  --migrated: #F2F2F2;
+  --migrated-text: #B0B0B0;
+  --accent-green: #0D8A5E;
+  --accent-red: #DC2626;
+  --accent-amber: #E8850C;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --shadow-subtle: 0 1px 3px rgba(0,0,0,0.04);
+  --shadow-card: 0 2px 8px rgba(0,0,0,0.06);
+  --font: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+  --font-mono: 'SF Mono', 'Cascadia Code', 'Consolas', monospace;
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font);
+  -webkit-font-smoothing: antialiased;
+  display: flex; justify-content: center; align-items: center;
+  min-height: 100vh; padding: 40px 0;
+}
+
+/* ====== Canvas ====== */
+.canvas {
+  width: 1400px;
+  background:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 40px 40px;
+  background-position: -1px -1px;
+  padding: 40px 44px 60px;
+}
+
+/* ====== Header ====== */
+.header { display: flex; align-items: baseline; gap: 10px; margin-bottom: 36px; }
+.header h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
+.header .sub { font-size: 13px; color: #888; }
+.header .ver { font-size: 10px; padding: 2px 8px; background: #F0F1F5; border-radius: 99px; color: #AAA; font-family: var(--font-mono); margin-left: 6px; }
+
+/* ====== Layout Grid ====== */
+.main-grid {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 36px;
+}
+
+/* ====== Left Sidebar ====== */
+.sidebar { display: flex; flex-direction: column; gap: 32px; }
+
+.ext-box {
+  border: 2px solid; border-radius: var(--radius-lg);
+  padding: 18px 20px; background: white; box-shadow: var(--shadow-card);
+}
+.ext-box .tag {
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 2px; margin-bottom: 6px; display: block;
+}
+.ext-box h2 { font-size: 16px; font-weight: 700; margin-bottom: 2px; }
+.ext-box .subtitle { font-size: 12px; color: #666; margin-bottom: 10px; }
+.ext-box .detail { font-size: 11px; color: #777; line-height: 1.7; }
+
+.ext-cos { border-color: var(--cos-border); background: var(--cos-zone); }
+.ext-cos .tag { color: var(--accent-green); }
+.ext-cpq { border-color: var(--cpq-border); background: var(--cpq-zone); }
+.ext-cpq .tag { color: var(--accent-amber); }
+
+.side-arrow {
+  display: flex; align-items: center; justify-content: center;
+  gap: 8px; padding: 16px 0; font-size: 11px; color: #999;
+  font-family: var(--font-mono);
+}
+.side-arrow .line {
+  flex: 1; height: 0;
+}
+.side-arrow .line.solid { border-top: 1.5px solid var(--accent-amber); }
+.side-arrow .line.dashed { border-top: 1px dashed #CCC; }
+.side-arrow .line.green { border-top: 1.5px solid var(--accent-green); }
+
+/* ====== CIM Zone ====== */
+.cim-zone {
+  border: 2px dashed var(--cim-border);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, var(--cim-zone) 0%, rgba(238,240,255,0.3) 100%);
+  padding: 20px 24px 24px;
+  position: relative;
+}
+.cim-badge {
+  position: absolute; top: -14px; left: 20px;
+  background: var(--brand); color: white; font-size: 12px; font-weight: 700;
+  padding: 5px 18px; border-radius: 99px; letter-spacing: 1px;
+}
+
+/* ====== Module Grid (inside CIM) ====== */
+.mod-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.mod-card {
+  background: white; border: 1.5px solid #E0E3F2;
+  border-radius: var(--radius-md); padding: 14px 16px;
+  box-shadow: var(--shadow-subtle);
+}
+.mod-card h3 { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+.mod-card .en { font-size: 11px; color: #888; margin-bottom: 8px; }
+.mod-card .badges { display: flex; gap: 4px; flex-wrap: wrap; }
+.badge {
+  font-size: 10px; padding: 2px 8px; border-radius: 99px;
+  background: #F0F1F5; color: #666; font-weight: 500;
+  white-space: nowrap;
+}
+.badge.new { background: #E6F7F0; color: var(--accent-green); }
+.badge.warn { background: #FFF4E8; color: var(--accent-amber); }
+
+/* ====== Migrated Modules ====== */
+.migrated-section {
+  border-top: 2px dotted #D0D0D0;
+  padding-top: 16px;
+  margin-top: 16px;
+  position: relative;
+}
+.migrated-section::before {
+  content: "──── 系统边界 · 以下已移交 CPQ ────";
+  position: absolute; top: -11px; right: 20px;
+  font-size: 10px; color: #B0B0B0; font-family: var(--font-mono);
+  background: linear-gradient(135deg, var(--cim-zone) 0%, rgba(238,240,255,0.3) 100%);
+  padding: 0 10px;
+}
+.mod-grid.migrated .mod-card {
+  opacity: 0.55; border-style: dashed; background: var(--migrated);
+}
+.mod-grid.migrated .mod-card h3 { text-decoration: line-through; color: #999; }
+.mod-grid.migrated .en { color: #BBB; }
+.mod-grid.migrated .badge { background: #E8E8E8; color: #AAA; }
+
+/* ====== Config section (wide card) ====== */
+.config-row {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 16px; margin-bottom: 16px;
+}
+.config-card {
+  background: white; border: 1.5px solid #E0E3F2;
+  border-radius: var(--radius-md); padding: 14px 16px;
+  box-shadow: var(--shadow-subtle);
+}
+
+/* Data flow table */
+.flow-table {
+  width: 100%; font-size: 11px; margin-top: 8px;
+  border-collapse: collapse;
+}
+.flow-table td {
+  padding: 4px 8px; border-bottom: 1px solid #EEE;
+}
+.flow-table .num { color: var(--brand); font-weight: 600; width: 20px; }
+.flow-table .from { font-weight: 600; color: #555; }
+.flow-table .dir { color: #AAA; padding: 0 4px; }
+
+/* ====== Legend ====== */
+.legend {
+  display: flex; gap: 18px; flex-wrap: wrap;
+  margin-top: 28px; padding-top: 16px;
+  border-top: 1px solid #EEE;
+}
+.legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: #888; }
+.legend-dot { width: 10px; height: 10px; border-radius: 3px; }
+.legend-dash { width: 16px; height: 0; border-top: 2px dashed #CCC; }
+.legend-line { width: 16px; height: 0; border-top: 1.5px solid var(--brand); }
+
+/* Footer */
+.footer {
+  margin-top: 24px; font-size: 9px; color: #CCC;
+  font-family: var(--font-mono); text-align: right;
+}
+</style>
+</head>
+<body>
+
+<div class="canvas">
+
+  <!-- ====== HEADER ====== -->
+  <div class="header">
+    <h1>CIM 2.0 系统架构图</h1>
+    <span class="sub">System Architecture</span>
+    <span class="ver">v3.7.0 · 2026-06</span>
+  </div>
+
+  <!-- ====== MAIN LAYOUT ====== -->
+  <div class="main-grid">
+
+    <!-- ====== LEFT SIDEBAR: External Systems ====== -->
+    <div class="sidebar">
+
+      <!-- COS -->
+      <div class="ext-box ext-cos">
+        <span class="tag">▸ 外部系统</span>
+        <h2>COS</h2>
+        <div class="subtitle">订单系统</div>
+        <div class="detail">
+          · 客服录入订单字段<br>
+          · 读取 CIM 字段配置<br>
+          · 字段标准化为下拉选择<br>
+          · 回传标准化订单数据
+        </div>
+      </div>
+
+      <!-- Arrow: COS ↔ CIM -->
+      <div class="side-arrow">
+        <span class="line green"></span>
+        <span>读取配置 ← → 标准数据</span>
+        <span class="line green"></span>
+      </div>
+
+      <!-- Arrow: CIM → CPQ -->
+      <div class="side-arrow">
+        <span class="line solid"></span>
+        <span>推送客户·商机·审批数据 ↓</span>
+        <span class="line solid"></span>
+      </div>
+
+      <!-- CPQ -->
+      <div class="ext-box ext-cpq">
+        <span class="tag">▸ 外部系统</span>
+        <h2>CPQ</h2>
+        <div class="subtitle">报价计费系统</div>
+        <div class="detail">
+          · 售前报价 + 客户H5确认<br>
+          · 合同签署管理<br>
+          · 正式计费引擎<br>
+          · 读取 CIM 规则拆分账单
+        </div>
+      </div>
+
+      <!-- Arrow: CPQ reads CIM -->
+      <div class="side-arrow">
+        <span class="line dashed"></span>
+        <span>读取 CIM 账单规则 ↑</span>
+        <span class="line dashed"></span>
+      </div>
+    </div>
+
+    <!-- ====== RIGHT: CIM Zone ====== -->
+    <div class="cim-zone">
+      <div class="cim-badge">CIM 2.0 · 客户信息管理系统</div>
+
+      <!-- Row 1: Core Business Modules -->
+      <div class="mod-grid" style="margin-top:28px;">
+        <div class="mod-card">
+          <h3>👥 客户管理</h3>
+          <div class="en">Customer Management</div>
+          <div class="badges">
+            <span class="badge">12标签页</span>
+            <span class="badge">草稿/提交</span>
+            <span class="badge">进度流转</span>
+          </div>
+        </div>
+        <div class="mod-card">
+          <h3>🎯 商机管理</h3>
+          <div class="en">Opportunity Management</div>
+          <div class="badges">
+            <span class="badge">联系人API多选</span>
+            <span class="badge">SWOT分析</span>
+            <span class="badge">条件字段</span>
+          </div>
+        </div>
+        <div class="mod-card">
+          <h3>⚙️ 配置模块</h3>
+          <div class="en">Configuration</div>
+          <div class="badges">
+            <span class="badge">字典管理</span>
+            <span class="badge">账单拆分字段</span>
+            <span class="badge">账单主体规则</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Row 2 -->
+      <div class="mod-grid">
+        <div class="mod-card">
+          <h3>📇 联系人</h3>
+          <div class="en">Contacts</div>
+          <div class="badges">
+            <span class="badge new">NEW</span>
+            <span class="badge">16字段</span>
+            <span class="badge">Dialog管理</span>
+          </div>
+        </div>
+        <div class="mod-card">
+          <h3>📝 跟进记录</h3>
+          <div class="en">Follow-up Records</div>
+          <div class="badges">
+            <span class="badge new">打卡签到</span>
+            <span class="badge">AI听记</span>
+            <span class="badge">8状态统一</span>
+          </div>
+        </div>
+        <div class="mod-card">
+          <h3>🔧 系统设置</h3>
+          <div class="en">System Settings</div>
+          <div class="badges">
+            <span class="badge">用户/角色/权限</span>
+            <span class="badge new">跟进提醒配置</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Row 3 -->
+      <div class="mod-grid">
+        <div class="mod-card">
+          <h3>🏢 客户主体管理</h3>
+          <div class="en">Entity Management</div>
+          <div class="badges">
+            <span class="badge">签约主体</span>
+            <span class="badge">结算主体</span>
+            <span class="badge">服务主体</span>
+          </div>
+        </div>
+        <div class="mod-card">
+          <h3>🛡️ 风控审批</h3>
+          <div class="en">Risk Approval</div>
+          <div class="badges">
+            <span class="badge new">自动审批报告</span>
+            <span class="badge">钉钉集成</span>
+          </div>
+        </div>
+        <div class="mod-card">
+          <h3>🔔 跟进提醒</h3>
+          <div class="en">Follow-up Reminders</div>
+          <div class="badges">
+            <span class="badge new">NEW</span>
+            <span class="badge">Bell红点</span>
+            <span class="badge">首页卡片</span>
+            <span class="badge">K/A/B/C/D</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ====== Data Flow ====== -->
+      <div class="config-row">
+        <div class="config-card">
+          <h3 style="font-size:13px;font-weight:600;">🔄 数据流向</h3>
+          <table class="flow-table">
+            <tr><td class="num">①</td><td class="from">COS</td><td class="dir">←</td><td>读取 CIM 字段配置 → 订单字段标准化</td></tr>
+            <tr><td class="num">②</td><td class="from">CIM</td><td class="dir">→</td><td>推送客户+商机+审批 → CPQ 数据包</td></tr>
+            <tr><td class="num">③</td><td class="from">CPQ</td><td class="dir">←</td><td>读取 CIM 账单规则 → 自动拆分账单</td></tr>
+            <tr><td class="num">④</td><td class="from">CIM</td><td class="dir">→</td><td>持续推送变(客户/规则/联系人) → CPQ</td></tr>
+          </table>
+        </div>
+        <div class="config-card">
+          <h3 style="font-size:13px;font-weight:600;">边界说明</h3>
+          <div style="font-size:11px;color:#666;line-height:2;margin-top:6px;">
+            CIM 2.0 系统边界止于 <b style="color:var(--brand);">风控审批通过</b><br>
+            之后售前报价 · 合同签署 · 正式计费<br>
+            均由 <b style="color:var(--accent-amber);">CPQ</b> 承担
+          </div>
+        </div>
+      </div>
+
+      <!-- ====== Migrated Section ====== -->
+      <div class="migrated-section">
+        <div class="mod-grid migrated">
+          <div class="mod-card">
+            <h3>📊 售前报价</h3>
+            <div class="en">Quote Management</div>
+            <div class="badges">
+              <span class="badge">已迁移至CPQ</span>
+            </div>
+          </div>
+          <div class="mod-card">
+            <h3>📄 合同签署</h3>
+            <div class="en">Contract Management</div>
+            <div class="badges">
+              <span class="badge">已迁移至CPQ</span>
+            </div>
+          </div>
+          <div></div>
+        </div>
+      </div>
+
+    </div><!-- /cim-zone -->
+
+  </div><!-- /main-grid -->
+
+  <!-- ====== LEGEND ====== -->
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:var(--brand);"></div>CIM 模块</div>
+    <div class="legend-item"><div class="legend-dash"></div>系统边界</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--accent-green);"></div>COS 外部系统</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--accent-amber);"></div>CPQ 外部系统</div>
+    <div class="legend-item"><span class="badge new">NEW</span>新增模块</div>
+    <div class="legend-item"><span class="badge" style="background:#E8E8E8;color:#AAA;">已迁移至CPQ</span>废弃模块</div>
+  </div>
+
+  <!-- ====== FOOTER ====== -->
+  <div class="footer">
+    CIM 2.0 System Architecture · v3.7.0 · 2026-06-15 · Gridded Cartography
+  </div>
+
+</div>
+
+</body>
+</html>
