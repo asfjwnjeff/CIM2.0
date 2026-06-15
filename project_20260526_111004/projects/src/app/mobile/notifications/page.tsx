@@ -67,7 +67,7 @@ export default function MobileNotificationsPage() {
 
       <div className="flex gap-2 overflow-x-auto pb-1">
         {[{ value: 'all', label: '全部' }, { value: 'approval_pending', label: '审批' }, { value: 'followup_reminder', label: '提醒' }, { value: 'system', label: '系统' }].map((t) => (
-          <button key={t.value} className={`shrink-0 px-3 py-2 rounded-lg text-xs font-medium min-h-[36px] ${filter === t.value ? 'bg-[#2D3BFF] text-white' : 'bg-white text-[#5A5A5A] border border-[#EBEBEB]'}`} onClick={() => setFilter(t.value as FilterType)}>{t.label}</button>
+          <button key={t.value} className={`shrink-0 px-4 py-1 rounded-full text-xs font-medium min-h-[36px] ${filter === t.value ? 'bg-[#2D3BFF] text-white' : 'bg-white text-[#5A5A5A] border border-[#EBEBEB]'}`} onClick={() => setFilter(t.value as FilterType)}>{t.label}</button>
         ))}
       </div>
 

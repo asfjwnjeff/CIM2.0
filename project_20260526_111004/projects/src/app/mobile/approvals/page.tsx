@@ -101,7 +101,7 @@ export default function MobileApprovalsPage() {
         {FILTER_OPTIONS.map((opt) => (
           <button
             key={opt.value}
-            className={`shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+            className={`shrink-0 px-4 py-1 rounded-full text-xs font-medium transition-colors ${
               filter === opt.value
                 ? 'bg-[#2D3BFF] text-white'
                 : 'bg-white text-[#5A5A5A] border border-[#EBEBEB]'

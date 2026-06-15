@@ -261,7 +261,7 @@ export default function MobileNewApprovalPage() {
           {selectedCustomerLabels.length > 0 && (
             <div className="flex flex-wrap gap-1.5 mt-1.5">
               {selectedCustomerLabels.map((name) => (
-                <span key={name} className="text-xs px-2 py-1 bg-[#E8EBFF] text-[#2D3BFF] rounded-md">{name}</span>
+                <span key={name} className="text-xs px-2 py-1 bg-[#E8EBFF] text-[#2D3BFF] rounded-full">{name}</span>
               ))}
             </div>
           )}

@@ -66,7 +66,7 @@ export default function MobileFollowupsPage() {
             <button key={f.id} className="w-full bg-white rounded-xl border border-[#EBEBEB] px-4 py-3.5 active:bg-[#F5F5F5] text-left" onClick={() => router.push(`/mobile/followups/${f.id}`)}>
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-[#0A0A0A] truncate flex-1 mr-2">{f.displayCustomerName}</span>
-                {f.status && <span className={`text-xs px-2 py-0.5 rounded-md font-medium whitespace-nowrap ${getFollowupStatusColor(f.status)}`}>{STATUS_LABELS[f.status] || f.status}</span>}
+                {f.status && <span className={`text-xs px-2 py-0.5 rounded-full font-medium whitespace-nowrap ${getFollowupStatusColor(f.status)}`}>{STATUS_LABELS[f.status] || f.status}</span>}
               </div>
               {f.content && <p className="text-xs text-[#5A5A5A] mt-1.5 line-clamp-2">{f.content}</p>}
               <div className="flex items-center gap-2 mt-2 text-xs text-[#999999] flex-wrap">
@@ -86,5 +86,5 @@ export default function MobileFollowupsPage() {
 }
 
 function FilterChip({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
-  return <button className={`shrink-0 px-3 py-2 rounded-lg text-xs font-medium min-h-[36px] transition-colors ${active ? 'bg-[#2D3BFF] text-white' : 'bg-white text-[#5A5A5A] border border-[#EBEBEB]'}`} onClick={onClick}>{label}</button>;
+  return <button className={`shrink-0 px-4 py-1 rounded-full text-xs font-medium min-h-[36px] transition-colors ${active ? 'bg-[#2D3BFF] text-white' : 'bg-white text-[#5A5A5A] border border-[#EBEBEB]'}`} onClick={onClick}>{label}</button>;
 }
