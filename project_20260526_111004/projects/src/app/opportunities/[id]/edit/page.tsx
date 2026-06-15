@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { SearchableSelect } from '@/components/ui/searchable-select';
 import type { SelectOption } from '@/components/ui/searchable-select';
@@ -65,15 +65,6 @@ const customers = [
   { id: '2', name: '飞雅贸易(上海)有限公司' },
   { id: '3', name: '荏原机械(中国)有限公司' },
   { id: '4', name: '昇先创(上海)贸易有限公司' },
-];
-
-// Mock联系人数据
-const contacts = [
-  { id: '1', name: '李总', phone: '+86-138-0000-0001' },
-  { id: '2', name: '王经理', phone: '+86-139-0000-0002' },
-  { id: '3', name: '张总监', phone: '+86-137-0000-0003' },
-  { id: '4', name: '刘总', phone: '+86-136-0000-0004' },
-  { id: '5', name: '陈总监', phone: '+86-135-0000-0005' },
 ];
 
 // Mock负责人数据
@@ -323,6 +314,19 @@ export default function EditOpportunityPage() {
 
   const [collaboratorModalOpen, setCollaboratorModalOpen] = useState(false);
   const [selectedCollaborators, setSelectedCollaborators] = useState<string[]>(opportunity.collaborators);
+  const [customerContacts, setCustomerContacts] = useState<Array<{id:string;name:string;phone:string}>>([]);
+
+  // 切换客户时重新加载该客户的联系人
+  useEffect(() => {
+    const customerId = formData.customer;
+    if (!customerId) { setCustomerContacts([]); return; }
+    fetch(`/api/contacts?customerId=${encodeURIComponent(customerId)}`)
+      .then(r => r.json())
+      .then(data => {
+        if (Array.isArray(data)) setCustomerContacts(data.map((c: any) => ({ id: c.id, name: c.name, phone: c.phone || '' })));
+      })
+      .catch(() => setCustomerContacts([]));
+  }, [formData.customer]);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -350,7 +354,7 @@ export default function EditOpportunityPage() {
     router.push('/opportunities');
   };
 
-  const selectedContact = contacts.find(c => c.id === formData.contact);
+  const selectedContact = customerContacts.find(c => c.id === formData.contact);
 
   const inputClass = FIELD_STYLES.input;
   const labelClass = FIELD_STYLES.label;
@@ -625,7 +629,7 @@ export default function EditOpportunityPage() {
                 <SearchableSelect
                   value={formData.contact}
                   onChange={(value) => handleInputChange('contact', value)}
-                  options={contacts.map(c => ({ value: c.id, label: c.name }))}
+                  options={customerContacts.map(c => ({ value: c.id, label: c.name }))}
                   placeholder="请选择联系人"
                 />
               </div>

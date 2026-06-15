@@ -215,6 +215,7 @@ export default function FollowUpEditPage() {
   // 基本信息
   const [customerId, setCustomerId] = useState(initialData.customerId);
   const [followUpType, setFollowUpType] = useState<string>(initialData.followUpType);
+  const [followUpTypeOther, setFollowUpTypeOther] = useState<string>('');
   const [followUpMethod, setFollowUpMethod] = useState<string>(initialData.followUpMethod);
   const [followUpDate, setFollowUpDate] = useState(initialData.followUpDate);
   const [followUpStatus, setFollowUpStatus] = useState<string>(initialData.followUpStatus);
@@ -373,8 +374,17 @@ export default function FollowUpEditPage() {
                     ]}
                     placeholder="请选择类型"
                   />
+                  {followUpType === 'other_customer' && (
+                    <textarea
+                      value={followUpTypeOther}
+                      onChange={(e) => setFollowUpTypeOther(e.target.value)}
+                      placeholder="请输入其他客户事项说明"
+                      rows={2}
+                      className="mt-2 w-full bg-[#F5F5F5] border-none rounded-xl px-4 py-3 text-sm text-[#0A0A0A] focus:outline-none focus:ring-2 focus:ring-[#2D3BFF]/30 resize-none"
+                    />
+                  )}
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-[#5A5A5A] mb-2">跟进方式</label>
                   <SearchableSelect

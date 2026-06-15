@@ -832,16 +832,10 @@ export default function EditCustomerPage() {
                     <label className={FIELD_STYLES.label}>服务产品</label>
                     <SearchableSelect
                       value={form.serviceProduct}
-                      onChange={(v) => { updateField('serviceProduct', v); if (v !== '其他') updateField('otherServiceRequirement', ''); }}
+                      onChange={(v) => updateField('serviceProduct', v)}
                       options={SERVICE_PRODUCT_OPTIONS}
                       placeholder="请选择服务产品"
                     />
-                    {form.serviceProduct === '其他' && (
-                      <div className="mt-3">
-                        <label className={FIELD_STYLES.label}>其他服务产品需求</label>
-                        <input type="text" className={FIELD_STYLES.input} value={form.otherServiceRequirement} onChange={(e) => updateField('otherServiceRequirement', e.target.value)} placeholder="请描述服务产品需求" />
-                      </div>
-                    )}
                   </div>
 
                   {/* 公司营业地址 - 省/市/区 级联 */}
@@ -1101,8 +1095,21 @@ export default function EditCustomerPage() {
                                 type="date"
                                 value={rel.validTo}
                                 onChange={(e) => updateRelatedCompany(rel.id, 'validTo', e.target.value)}
-                                className="w-[130px] h-[34px] px-2 border border-[#D5D5D5] rounded-lg text-sm text-[#0A0A0A] focus:outline-none focus:border-[#2D3BFF]"
+                                disabled={(rel as any).isLongTerm}
+                                className={`w-[130px] h-[34px] px-2 border border-[#D5D5D5] rounded-lg text-sm focus:outline-none focus:border-[#2D3BFF] ${(rel as any).isLongTerm ? 'bg-[#F5F5F5] text-[#CCC] cursor-not-allowed' : 'text-[#0A0A0A]'}`}
                               />
+                              <label className="inline-flex items-center gap-1.5 text-xs text-[#5A5A5A] cursor-pointer select-none whitespace-nowrap">
+                                <input
+                                  type="checkbox"
+                                  checked={(rel as any).isLongTerm || false}
+                                  onChange={(e) => {
+                                    updateRelatedCompany(rel.id, 'isLongTerm' as any, e.target.checked as any);
+                                    if (e.target.checked) updateRelatedCompany(rel.id, 'validTo', '');
+                                  }}
+                                  className="w-3.5 h-3.5 accent-[#2D3BFF] cursor-pointer"
+                                />
+                                长期有效
+                              </label>
                             </div>
                           </td>
                           <td className="px-3 py-2.5 text-center">

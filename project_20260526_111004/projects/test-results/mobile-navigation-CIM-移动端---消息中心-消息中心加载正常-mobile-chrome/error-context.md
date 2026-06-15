@@ -1,0 +1,224 @@
+# Instructions
+
+- Following Playwright test failed.
+- Explain why, be concise, respect Playwright best practices.
+- Provide a snippet of code with the fix, if possible.
+
+# Test info
+
+- Name: mobile-navigation.spec.ts >> CIM 移动端 - 消息中心 >> 消息中心加载正常
+- Location: e2e\mobile-navigation.spec.ts:89:7
+
+# Error details
+
+```
+Error: expect(locator).toBeVisible() failed
+
+Locator: locator('text=审批')
+Expected: visible
+Error: strict mode violation: locator('text=审批') resolved to 2 elements:
+    1) <button data-inspector-line="148" data-inspector-column="10" data-inspector-relative-path="src\\app\\mobile\\notifications\\page.tsx" class="shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-colors bg-white text-[#5A5A5A] border border-[#EBEBEB]">审批</button> aka getByRole('button', { name: '审批' })
+    2) <span data-inspector-line="82" data-inspector-column="12" class="text-[11px] font-medium " data-inspector-relative-path="src\\components\\mobile\\BottomTabBar.tsx">审批</span> aka getByRole('link', { name: '审批' })
+
+Call log:
+  - Expect "toBeVisible" with timeout 5000ms
+  - waiting for locator('text=审批')
+
+```
+
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - banner [ref=e4]:
+      - generic [ref=e6]: CIM 2.0
+    - main [ref=e7]:
+      - generic [ref=e8]:
+        - generic [ref=e9]:
+          - heading "消息中心" [level=1] [ref=e10]
+          - button "全部已读" [ref=e11]
+        - generic [ref=e12]:
+          - button "全部" [ref=e13]
+          - button "审批" [ref=e14]
+          - button "提醒" [ref=e15]
+          - button "系统" [ref=e16]
+        - generic [ref=e17]:
+          - button "新的审批待办 应用材料(中国)有限公司 的货代服务审批需要您处理 2小时前 审批待办" [ref=e18]:
+            - img [ref=e20]
+            - generic [ref=e22]:
+              - generic [ref=e24]: 新的审批待办
+              - paragraph [ref=e26]: 应用材料(中国)有限公司 的货代服务审批需要您处理
+              - generic [ref=e27]: 2小时前
+            - generic [ref=e28]: 审批待办
+          - button "审批已通过 飞雅贸易(上海)有限公司 的仓库服务审批已通过 1天前 审批结果" [ref=e29]:
+            - img [ref=e31]
+            - generic [ref=e33]:
+              - generic [ref=e35]: 审批已通过
+              - paragraph [ref=e36]: 飞雅贸易(上海)有限公司 的仓库服务审批已通过
+              - generic [ref=e37]: 1天前
+            - generic [ref=e38]: 审批结果
+          - button "跟进提醒 荏原机械(中国)有限公司 已有 5 天未跟进 2天前 跟进提醒" [ref=e39]:
+            - img [ref=e41]
+            - generic [ref=e43]:
+              - generic [ref=e45]: 跟进提醒
+              - paragraph [ref=e46]: 荏原机械(中国)有限公司 已有 5 天未跟进
+              - generic [ref=e47]: 2天前
+            - generic [ref=e48]: 跟进提醒
+          - button "系统通知 CIM 移动端已上线，请在钉钉工作台体验新功能 3天前 系统通知" [ref=e49]:
+            - img [ref=e51]
+            - generic [ref=e53]:
+              - generic [ref=e55]: 系统通知
+              - paragraph [ref=e57]: CIM 移动端已上线，请在钉钉工作台体验新功能
+              - generic [ref=e58]: 3天前
+            - generic [ref=e59]: 系统通知
+    - navigation [ref=e61]:
+      - link "首页" [ref=e62] [cursor=pointer]:
+        - /url: /mobile
+        - img [ref=e64]
+        - generic [ref=e66]: 首页
+      - link "审批" [ref=e67] [cursor=pointer]:
+        - /url: /mobile/approvals
+        - img [ref=e69]
+        - generic [ref=e71]: 审批
+      - link "消息" [ref=e72] [cursor=pointer]:
+        - /url: /mobile/notifications
+        - img [ref=e74]
+        - generic [ref=e76]: 消息
+      - link "跟进" [ref=e77] [cursor=pointer]:
+        - /url: /mobile/followups
+        - img [ref=e79]
+        - generic [ref=e81]: 跟进
+  - button "Open Next.js Dev Tools" [ref=e87] [cursor=pointer]:
+    - img [ref=e88]
+  - alert [ref=e91]
+```
+
+# Test source
+
+```ts
+  1   | import { test, expect } from '@playwright/test';
+  2   | 
+  3   | test.describe('CIM 移动端 - 底部导航', () => {
+  4   |   test('移动首页加载并显示底部导航栏', async ({ page }) => {
+  5   |     await page.goto('/mobile');
+  6   | 
+  7   |     // 验证页面标题
+  8   |     await expect(page.locator('text=CIM 2.0')).toBeVisible();
+  9   | 
+  10  |     // 验证底部导航栏四个 tab
+  11  |     await expect(page.locator('text=首页').last()).toBeVisible();
+  12  |     await expect(page.locator('text=审批').last()).toBeVisible();
+  13  |     await expect(page.locator('text=消息').last()).toBeVisible();
+  14  |     await expect(page.locator('text=跟进').last()).toBeVisible();
+  15  |   });
+  16  | 
+  17  |   test('底部导航 tab 切换正常', async ({ page }) => {
+  18  |     await page.goto('/mobile');
+  19  | 
+  20  |     // 点击审批 tab
+  21  |     await page.locator('a[href="/mobile/approvals"]').first().click();
+  22  |     await expect(page).toHaveURL(/\/mobile\/approvals/);
+  23  |     await expect(page.locator('text=审批中心')).toBeVisible();
+  24  | 
+  25  |     // 点击消息 tab
+  26  |     await page.locator('a[href="/mobile/notifications"]').first().click();
+  27  |     await expect(page).toHaveURL(/\/mobile\/notifications/);
+  28  |     await expect(page.locator('text=消息中心')).toBeVisible();
+  29  | 
+  30  |     // 点击跟进 tab
+  31  |     await page.locator('a[href="/mobile/followups"]').first().click();
+  32  |     await expect(page).toHaveURL(/\/mobile\/followups/);
+  33  |     await expect(page.locator('text=客户跟进')).toBeVisible();
+  34  | 
+  35  |     // 回到首页
+  36  |     await page.locator('a[href="/mobile"]').first().click();
+  37  |     await expect(page).toHaveURL(/\/mobile(\?|$)/);
+  38  |   });
+  39  | 
+  40  |   test('移动首页统计卡片显示正常', async ({ page }) => {
+  41  |     await page.goto('/mobile');
+  42  | 
+  43  |     // 验证四个统计卡片
+  44  |     await expect(page.locator('text=待审批')).toBeVisible();
+  45  |     await expect(page.locator('text=今日待跟进')).toBeVisible();
+  46  |     await expect(page.locator('text=逾期提醒')).toBeVisible();
+  47  |     await expect(page.locator('text=未读消息')).toBeVisible();
+  48  | 
+  49  |     // 验证快捷操作按钮
+  50  |     await expect(page.locator('text=新建审批')).toBeVisible();
+  51  |     await expect(page.locator('text=新建跟进')).toBeVisible();
+  52  |   });
+  53  | 
+  54  |   test('桌面布局不显示底栏', async ({ page }) => {
+  55  |     await page.goto('/');
+  56  |     // 桌面端不应出现移动端底部导航
+  57  |     await expect(page.locator('a[href="/mobile"]').first()).not.toBeVisible();
+  58  |   });
+  59  | });
+  60  | 
+  61  | test.describe('CIM 移动端 - 审批列表', () => {
+  62  |   test('审批列表页加载正常', async ({ page }) => {
+  63  |     await page.goto('/mobile/approvals');
+  64  | 
+  65  |     await expect(page.locator('text=审批中心')).toBeVisible();
+  66  | 
+  67  |     // 验证筛选按钮
+  68  |     await expect(page.locator('text=全部')).toBeVisible();
+  69  |     await expect(page.locator('text=审批中')).toBeVisible();
+  70  | 
+  71  |     // 验证搜索框
+  72  |     await expect(page.locator('input[placeholder*="搜索"]')).toBeVisible();
+  73  |   });
+  74  | 
+  75  |   test('审批详情页可从列表进入', async ({ page }) => {
+  76  |     await page.goto('/mobile/approvals');
+  77  | 
+  78  |     // 如果有审批记录，点击第一个卡片
+  79  |     const firstCard = page.locator('[class*="rounded-xl"]').filter({ hasText: /公司|审批/ }).first();
+  80  |     if (await firstCard.isVisible()) {
+  81  |       await firstCard.click();
+  82  |       // 应跳转到详情页
+  83  |       await expect(page).toHaveURL(/\/mobile\/approvals\//);
+  84  |     }
+  85  |   });
+  86  | });
+  87  | 
+  88  | test.describe('CIM 移动端 - 消息中心', () => {
+  89  |   test('消息中心加载正常', async ({ page }) => {
+  90  |     await page.goto('/mobile/notifications');
+  91  | 
+  92  |     await expect(page.locator('text=消息中心')).toBeVisible();
+  93  | 
+  94  |     // 验证筛选标签
+  95  |     await expect(page.locator('text=全部')).toBeVisible();
+> 96  |     await expect(page.locator('text=审批')).toBeVisible();
+      |                                           ^ Error: expect(locator).toBeVisible() failed
+  97  |     await expect(page.locator('text=系统')).toBeVisible();
+  98  |   });
+  99  | });
+  100 | 
+  101 | test.describe('CIM 移动端 - 新建审批', () => {
+  102 |   test('新建审批页加载正常', async ({ page }) => {
+  103 |     await page.goto('/mobile/approvals/new');
+  104 | 
+  105 |     await expect(page.locator('text=新建审批')).toBeVisible();
+  106 | 
+  107 |     // 验证必填字段
+  108 |     await expect(page.locator('text=公司名称')).toBeVisible();
+  109 |     await expect(page.locator('text=服务产品')).toBeVisible();
+  110 | 
+  111 |     // 验证底部按钮
+  112 |     await expect(page.locator('text=暂存草稿')).toBeVisible();
+  113 |     await expect(page.locator('text=提交审批')).toBeVisible();
+  114 |   });
+  115 | 
+  116 |   test('公司名称为空时提交被禁用', async ({ page }) => {
+  117 |     await page.goto('/mobile/approvals/new');
+  118 | 
+  119 |     const submitBtn = page.locator('text=提交审批');
+  120 |     await expect(submitBtn).toBeDisabled();
+  121 |   });
+  122 | });
+  123 | 
+```

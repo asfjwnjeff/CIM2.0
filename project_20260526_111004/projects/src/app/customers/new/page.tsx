@@ -1001,16 +1001,10 @@ export default function NewCustomerPage() {
                     <label className={FIELD_STYLES.label}>服务产品</label>
                     <SearchableSelect
                       value={form.serviceProduct}
-                      onChange={(v) => { updateField('serviceProduct', v); if (v !== '其他') updateField('otherServiceRequirement', ''); }}
+                      onChange={(v) => updateField('serviceProduct', v)}
                       options={SERVICE_PRODUCT_OPTIONS}
                       placeholder="请选择服务产品"
                     />
-                    {form.serviceProduct === '其他' && (
-                      <div className="mt-3">
-                        <label className={FIELD_STYLES.label}>其他服务产品需求</label>
-                        <input type="text" className={FIELD_STYLES.input} value={form.otherServiceRequirement} onChange={(e) => updateField('otherServiceRequirement', e.target.value)} placeholder="请描述服务产品需求" />
-                      </div>
-                    )}
                   </div>
 
                   {/* 公司营业地址 - 省/市/区 级联 */}
