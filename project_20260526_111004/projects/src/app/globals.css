@@ -186,15 +186,18 @@
 
 /* 移动端统一表单控件 */
 .mobile-input {
-  @apply w-full h-10 px-3 border border-[#EBEBEB] rounded-lg text-sm bg-white;
+  @apply w-full h-10 px-3 border border-[#EBEBEB] rounded-lg bg-white;
   @apply focus:outline-none focus:border-[#2D3BFF] focus:ring-1 focus:ring-[#2D3BFF];
   @apply placeholder:text-[#999999];
+  /* iOS 防缩放：字号 >= 16px */
+  font-size: 16px;
 }
 
 .mobile-textarea {
-  @apply w-full px-3 py-2 border border-[#EBEBEB] rounded-lg text-sm bg-white resize-none;
+  @apply w-full px-3 py-2 border border-[#EBEBEB] rounded-lg bg-white resize-none;
   @apply focus:outline-none focus:border-[#2D3BFF] focus:ring-1 focus:ring-[#2D3BFF];
   @apply placeholder:text-[#999999];
+  font-size: 16px;
 }
 
 @keyframes mobileFadeIn {
