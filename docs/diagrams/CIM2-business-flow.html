@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CIM 2.0 — End-to-End Business Flow</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --paper: #FAFBFD;
+  --ink: #0F1117;
+  --grid: #E8EBF2;
+  --brand: #2D3BFF;
+  --brand-light: #EEF0FF;
+  --green: #0D8A5E;
+  --green-light: #EDF8F2;
+  --amber: #E8850C;
+  --amber-light: #FFF8F0;
+  --red: #DC2626;
+  --red-light: #FEF2F2;
+  --grey: #999;
+  --grey-light: #F5F5F5;
+  --border: #E0E3F2;
+  --migrated-border: #E0E0E0;
+  --migrated-bg: #FAFAFA;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --shadow-card: 0 2px 8px rgba(0,0,0,0.06);
+  --font: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+  --font-mono: 'SF Mono', 'Cascadia Code', 'Consolas', monospace;
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font);
+  -webkit-font-smoothing: antialiased;
+  display: flex; justify-content: center;
+  min-height: 100vh; padding: 40px 0;
+}
+
+.canvas {
+  width: 1300px;
+  background:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 40px 40px;
+  background-position: -1px -1px;
+  padding: 40px 44px 60px;
+}
+
+/* Header */
+.header { display: flex; align-items: baseline; gap: 10px; margin-bottom: 32px; }
+.header h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
+.header .sub { font-size: 13px; color: #888; }
+.header .ver { font-size: 10px; padding: 2px 8px; background: #F0F1F5; border-radius: 99px; color: #AAA; font-family: var(--font-mono); margin-left: 6px; }
+
+/* ====== Phase Flow ====== */
+.flow { display: flex; flex-direction: column; gap: 0; }
+
+/* Phase connector arrow between phases */
+.phase-arrow {
+  display: flex; align-items: center; justify-content: center;
+  padding: 8px 0 8px 40px;
+  position: relative; z-index: 1;
+}
+.phase-arrow .vline {
+  width: 2px; height: 32px; background: var(--brand);
+}
+.phase-arrow .vline.dashed { background: repeating-linear-gradient(0deg, var(--grey) 0px, var(--grey) 6px, transparent 6px, transparent 10px); width: 2px; }
+.phase-arrow .vline.cpq { background: var(--amber); }
+.phase-arrow .bubble {
+  position: absolute; left: 60px;
+  font-size: 10px; color: var(--grey); font-family: var(--font-mono);
+  background: var(--paper); padding: 2px 8px;
+}
+
+/* ====== Phase Card ====== */
+.phase {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: 24px;
+  padding: 20px 24px;
+  border-radius: var(--radius-lg);
+  border: 1.5px solid var(--border);
+  background: white;
+  box-shadow: var(--shadow-card);
+  position: relative;
+}
+
+.phase.migrated {
+  opacity: 0.5;
+  border-style: dashed;
+  border-color: var(--migrated-border);
+  background: var(--migrated-bg);
+}
+.phase.migrated .phase-num { background: #E0E0E0; color: #AAA; }
+
+/* Phase number circle */
+.phase-header { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; }
+.phase-num {
+  width: 48px; height: 48px; border-radius: 50%;
+  background: var(--brand); color: white;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; font-weight: 700;
+  flex-shrink: 0;
+}
+.phase-num.green { background: var(--green); }
+.phase-num.amber { background: var(--amber); }
+
+.phase-label { font-size: 12px; font-weight: 600; color: #666; text-align: center; }
+.phase-operator { font-size: 10px; color: #AAA; text-align: center; font-family: var(--font-mono); }
+
+/* Phase body */
+.phase-body h3 { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+.phase-body .sys { font-size: 11px; color: var(--grey); margin-bottom: 12px; }
+.phase-body .sys span { background: var(--brand-light); color: var(--brand); padding: 2px 8px; border-radius: 99px; font-weight: 500; }
+.phase-body .sys span.cpq-tag { background: var(--amber-light); color: var(--amber); }
+
+/* Steps inside a phase */
+.steps { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.steps.col3 { grid-template-columns: 1fr 1fr 1fr; }
+.step {
+  padding: 10px 12px; border-radius: var(--radius-sm);
+  border: 1px solid #EEE; font-size: 12px;
+  background: #FAFBFC;
+}
+.step .step-num { font-size: 10px; font-weight: 700; color: var(--brand); margin-bottom: 2px; }
+.step .step-desc { color: #555; line-height: 1.6; }
+
+/* Output strip */
+.output {
+  margin-top: 12px; padding: 8px 12px;
+  background: var(--green-light); border-radius: var(--radius-sm);
+  font-size: 11px; color: var(--green);
+  display: flex; align-items: center; gap: 8px;
+}
+.output .out-label { font-weight: 700; white-space: nowrap; }
+.output .out-items { color: #555; }
+
+/* Condition note */
+.condition {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 10px; padding: 2px 8px; border-radius: 99px;
+  background: var(--amber-light); color: var(--amber);
+  font-weight: 500; margin-top: 4px;
+}
+
+/* ====== CPQ Handoff ====== */
+.handoff {
+  display: flex; align-items: center; gap: 20px;
+  padding: 20px 30px; margin: 12px 0 12px 40px;
+  border: 2px solid var(--amber); border-radius: var(--radius-lg);
+  background: var(--amber-light);
+}
+.handoff-icon {
+  width: 44px; height: 44px; border-radius: 50%;
+  background: var(--amber); color: white;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; flex-shrink: 0;
+}
+.handoff-text { flex: 1; }
+.handoff-text h4 { font-size: 14px; font-weight: 700; color: var(--amber); margin-bottom: 2px; }
+.handoff-text p { font-size: 12px; color: #8B6914; line-height: 1.6; }
+.handoff-items {
+  display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px;
+}
+.handoff-items .hi {
+  font-size: 10px; padding: 3px 10px; border-radius: 99px;
+  background: white; color: var(--amber); font-weight: 500;
+}
+
+/* ====== Legend ====== */
+.legend {
+  display: flex; gap: 18px; flex-wrap: wrap;
+  margin-top: 32px; padding-top: 16px;
+  border-top: 1px solid #EEE;
+}
+.legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: #888; }
+.legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+.footer {
+  margin-top: 20px; font-size: 9px; color: #CCC;
+  font-family: var(--font-mono); text-align: right;
+}
+</style>
+</head>
+<body>
+
+<div class="canvas">
+
+  <!-- ====== HEADER ====== -->
+  <div class="header">
+    <h1>CIM 2.0 端到端业务流程图</h1>
+    <span class="sub">End-to-End Business Flow</span>
+    <span class="ver">v3.7.0 · 2026-06</span>
+  </div>
+
+  <!-- ====== FLOW ====== -->
+  <div class="flow">
+
+    <!-- ═══ Phase 1: Customer Onboarding ═══ -->
+    <div class="phase">
+      <div class="phase-header">
+        <div class="phase-num">1</div>
+        <div class="phase-label">客户准入</div>
+        <div class="phase-operator">操作者: 客服</div>
+      </div>
+      <div class="phase-body">
+        <h3>客户准入 · Customer Onboarding</h3>
+        <div class="sys"><span>CIM 客户管理</span> <span>联系人模块</span></div>
+        <div class="steps col3">
+          <div class="step">
+            <div class="step-num">STEP 1</div>
+            <div class="step-desc">
+              <b>新建客户</b><br>
+              填写名称 · 信用代码 · 产业分类 · 服务产品<br>
+              <span class="condition">[暂存] → draft 草稿</span><br>
+              <span class="condition">[提交] → 校验名称+负责人</span>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">STEP 2</div>
+            <div class="step-desc">
+              <b>企查查拉取</b><br>
+              统一社会信用代码 → 触发企查查<br>
+              自动填充工商资质信息<br>
+              已存客户支持「刷新同步」
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">STEP 3</div>
+            <div class="step-desc">
+              <b>录入联系人</b><br>
+              Dialog弹窗 · 左右分栏<br>
+              16字段 · 必填5项<br>
+              支持多位联系人<br>
+              标记关键决策人
+            </div>
+          </div>
+        </div>
+        <div class="output">
+          <span class="out-label">产出:</span>
+          <span class="out-items">active 客户 + N 条联系人 + 工商基础数据 · progressStatus: 待跟进(pending_followup)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Arrow 1→2 -->
+    <div class="phase-arrow"><div class="vline"></div></div>
+
+    <!-- ═══ Phase 2: Opportunity & Follow-up ═══ -->
+    <div class="phase">
+      <div class="phase-header">
+        <div class="phase-num">2</div>
+        <div class="phase-label">商机跟进</div>
+        <div class="phase-operator">操作者: 业务·客服</div>
+      </div>
+      <div class="phase-body">
+        <h3>商机跟进 · Opportunity & Follow-up</h3>
+        <div class="sys"><span>CIM 商机管理</span> <span>跟进记录</span></div>
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">STEP 4</div>
+            <div class="step-desc">
+              <b>创建商机</b><br>
+              绑定客户 · 选服务产品<br>
+              联系人 — 从客户API多选勾选<br>
+              条件字段: 已有合同→新站点/新服务<br>
+              招标项目→上传招标文件<br>
+              填写 SWOT 分析(优势/劣势/机会/威胁)
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">STEP 5</div>
+            <div class="step-desc">
+              <b>持续跟进</b>（可反复进行）<br>
+              电话拜访 / <b>上门拜访→打卡签到</b><br>
+              &nbsp;&nbsp;GPS定位 + 多条现场照片<br>
+              网络拜访 / HMG现场会议<br>
+              AI听记: 实时录音 + 转写 + 摘要<br>
+              <span class="condition">每次跟进 → 重置提醒计时器</span>
+            </div>
+          </div>
+        </div>
+        <div class="output">
+          <span class="out-label">产出:</span>
+          <span class="out-items">商机 + 多条跟进记录 + 打卡数据 · progressStatus: 初步意向(preliminary_intent)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Arrow 2→3 -->
+    <div class="phase-arrow"><div class="vline"></div></div>
+
+    <!-- ═══ Phase 3: Quote (Migrated to CPQ) ═══ -->
+    <div class="phase migrated">
+      <div class="phase-header">
+        <div class="phase-num">3</div>
+        <div class="phase-label">售前报价</div>
+        <div class="phase-operator">操作者: 经理·客服</div>
+      </div>
+      <div class="phase-body">
+        <h3><s>售前报价</s> — 已迁移至 CPQ</h3>
+        <div class="sys"><span class="cpq-tag">CPQ 报价计费系统</span></div>
+        <div class="steps">
+          <div class="step" style="opacity:0.6;">
+            <div class="step-num">STEP 6 <span style="color:#AAA;">(CPQ)</span></div>
+            <div class="step-desc">
+              <b><s>创建报价单 → 发起报价</s></b><br>
+              <s>选模板 · 调费用 · 设折扣税率</s><br>
+              <s>生成PDF + H5加密链接</s><br>
+              <s>客户H5确认 → 客服二次确认 → 已接受</s>
+            </div>
+          </div>
+          <div class="step" style="opacity:0.6;">
+            <div class="step-num">STEP 7 <span style="color:#AAA;">(CPQ)</span></div>
+            <div class="step-desc">
+              <b><s>多轮报价</s></b><br>
+              <s>调整价格 → 发起新一轮 → 轮次快照</s><br>
+              <s>旧轮次H5链接自动失效</s><br>
+              <s>报价历史完整可回溯</s>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Arrow 3→4 -->
+    <div class="phase-arrow"><div class="vline dashed"></div><div class="bubble">售前报价在CPQ完成后 → 回到CIM发起风控</div></div>
+
+    <!-- ═══ Phase 4: Risk Approval ═══ -->
+    <div class="phase">
+      <div class="phase-header">
+        <div class="phase-num">4</div>
+        <div class="phase-label">风控审批</div>
+        <div class="phase-operator">操作者: 客服→审批人</div>
+      </div>
+      <div class="phase-body">
+        <h3>风控审批 · Risk Approval ⭐ 自动审批报告辅助</h3>
+        <div class="sys"><span>CIM 风控审批</span></div>
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">STEP 8</div>
+            <div class="step-desc">
+              <b>发起审批</b><br>
+              必须绑定商机（阶段=赢单）<br>
+              填写业务信息: KPI · 货物类型 · 业务量<br>
+              填写客户信息: 公司 · 开票 · 结算
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">STEP 9</div>
+            <div class="step-desc">
+              <b>自动审批报告</b> ⭐<br>
+              按服务产品匹配审批人<br>
+              逐项跑自动化规则<br>
+              &nbsp;&nbsp;企业规模 · 出货地区 · 业务类型<br>
+              &nbsp;&nbsp;存储类型 · 作业时间 · KPI时效…<br>
+              <span class="condition">全部通过 → 系统直接标记已通过</span>
+            </div>
+          </div>
+        </div>
+        <div class="output">
+          <span class="out-label">产出:</span>
+          <span class="out-items">审批通过 + 自动审批报告 · progressStatus: 商机确认(opportunity_confirmed)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Arrow 4→5 -->
+    <div class="phase-arrow"><div class="vline dashed"></div><div class="bubble">审批通过后 → 转入CPQ处理</div></div>
+
+    <!-- ═══ Phase 5: Contract (Migrated to CPQ) ═══ -->
+    <div class="phase migrated">
+      <div class="phase-header">
+        <div class="phase-num">5</div>
+        <div class="phase-label">合同签署</div>
+        <div class="phase-operator">操作者: 客服·财务</div>
+      </div>
+      <div class="phase-body">
+        <h3><s>合同签署</s> — 已迁移至 CPQ</h3>
+        <div class="sys"><span class="cpq-tag">CPQ 报价计费系统</span></div>
+        <div class="steps">
+          <div class="step" style="opacity:0.6;">
+            <div class="step-num">STEP 10 <span style="color:#AAA;">(CPQ)</span></div>
+            <div class="step-desc">
+              <b><s>合同签署</s></b><br>
+              <s>新合同: 风控后签署 · 绑定签约/结算主体</s><br>
+              <s>老合同: 上传 + 大模型提取字段</s><br>
+              <s>合同条款 · 金额 · 币种 · 日期</s>
+            </div>
+          </div>
+          <div class="step" style="opacity:0.6;">
+            <div class="step-num">STEP 11 <span style="color:#AAA;">(CPQ)</span></div>
+            <div class="step-desc">
+              <b><s>计费 → 开票 → 回款</s></b><br>
+              <s>读取CIM账单拆分规则</s><br>
+              <s>自动拆分为对应账单</s><br>
+              <s>对账 · 开票 · 回款闭环</s>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ CPQ Handoff ═══ -->
+    <div class="handoff">
+      <div class="handoff-icon">↗</div>
+      <div class="handoff-text">
+        <h4>CIM → CPQ 系统交接</h4>
+        <p>CIM 2.0 系统边界止于风控审批通过。CIM 推送客户数据包至 CPQ 后，售前报价、合同签署、正式计费均由 CPQ 承担。</p>
+        <div class="handoff-items">
+          <span class="hi">客户信息</span>
+          <span class="hi">签约/结算主体</span>
+          <span class="hi">联系人</span>
+          <span class="hi">商机信息</span>
+          <span class="hi">风控审批报告</span>
+          <span class="hi">账单拆分规则</span>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /flow -->
+
+  <!-- ====== LEGEND ====== -->
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:var(--brand);"></div>CIM 系统阶段</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--amber);"></div>CPQ 系统阶段 / 交接点</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#CCC;"></div>已迁移模块 (CIM不再承担)</div>
+    <div class="legend-item"><span style="color:var(--brand);font-weight:700;">―</span> 主线流转</div>
+    <div class="legend-item"><span style="color:#CCC;font-weight:700;">- -</span> 跨系统/条件流转</div>
+    <div class="legend-item" style="margin-left:auto; color:#AAA; font-family:var(--font-mono); font-size:10px;">CIM 2.0 Business Flow · v3.7.0</div>
+  </div>
+
+  <!-- ====== FOOTER ====== -->
+  <div class="footer">
+    CIM 2.0 End-to-End Business Flow · v3.7.0 · 2026-06-15
+  </div>
+
+</div>
+
+</body>
+</html>
