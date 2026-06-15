@@ -242,6 +242,18 @@ export const followups = sqliteTable('followups', {
   updatedAt: text('updated_at'),
 });
 
+// 消息通知
+export const notifications = sqliteTable('notifications', {
+  id: text('id').primaryKey(),
+  userId: text('user_id').notNull(),
+  type: text('type').notNull(),         // approval_pending | approval_result | followup_reminder | system
+  title: text('title').notNull(),
+  summary: text('summary').default(''),
+  targetUrl: text('target_url'),
+  isRead: integer('is_read', { mode: 'boolean' }).default(false),
+  createdAt: text('created_at').default('2024-01-01'),
+});
+
 // 跟进提醒配置
 export const followupReminderConfig = sqliteTable('followup_reminder_config', {
   id: text('id').primaryKey(),

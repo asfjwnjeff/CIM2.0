@@ -609,6 +609,21 @@ export interface Quote {
 // ==================== 风控审批 ====================
 
 export type RiskApprovalStatus = 'draft' | 'in_review' | 'approved' | 'rejected';
+
+// ==================== 消息通知 ====================
+
+export type NotificationType = 'approval_pending' | 'approval_result' | 'followup_reminder' | 'system';
+
+export interface Notification {
+  id: string;
+  userId: string;
+  type: NotificationType;
+  title: string;
+  summary: string;
+  targetUrl?: string;
+  isRead: boolean;
+  createdAt: string;
+}
 export type ApprovalNodeType = 'initiator' | 'department_manager' | 'functional' | 'finance' | 'general_manager' | 'it_ops';
 
 export interface ApprovalNodeApprover {

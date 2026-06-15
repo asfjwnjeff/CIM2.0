@@ -148,6 +148,69 @@
   }
 }
 
+/* === 移动端 CSS 令牌 === */
+
+:root {
+  --mobile-safe-top: env(safe-area-inset-top, 0px);
+  --mobile-safe-bottom: env(safe-area-inset-bottom, 0px);
+  --mobile-tab-height: 56px;
+  --mobile-header-height: 48px;
+  --mobile-card-radius: 12px;
+  --mobile-touch-min: 44px;
+}
+
+/* 移动端触控优化 */
+@media (max-width: 767px) {
+  /* 增大触控区域 */
+  button, a, [role="button"] {
+    min-height: var(--mobile-touch-min);
+  }
+
+  /* 移动端隐藏桌面端元素的通用类 */
+  .hide-on-mobile {
+    display: none !important;
+  }
+}
+
+@media (min-width: 768px) {
+  /* 桌面端隐藏移动端元素的通用类 */
+  .show-on-mobile {
+    display: none !important;
+  }
+}
+
+/* 移动端页面转场 */
+.mobile-page-enter {
+  animation: mobileFadeIn 0.2s ease-out;
+}
+
+/* 移动端统一表单控件 */
+.mobile-input {
+  @apply w-full h-10 px-3 border border-[#EBEBEB] rounded-lg text-sm bg-white;
+  @apply focus:outline-none focus:border-[#2D3BFF] focus:ring-1 focus:ring-[#2D3BFF];
+  @apply placeholder:text-[#999999];
+}
+
+.mobile-textarea {
+  @apply w-full px-3 py-2 border border-[#EBEBEB] rounded-lg text-sm bg-white resize-none;
+  @apply focus:outline-none focus:border-[#2D3BFF] focus:ring-1 focus:ring-[#2D3BFF];
+  @apply placeholder:text-[#999999];
+}
+
+@keyframes mobileFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* 底部安全区域适配 */
+.mobile-safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.mobile-safe-top {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
 /* === 动画关键帧 === */
 
 @keyframes fadeIn {

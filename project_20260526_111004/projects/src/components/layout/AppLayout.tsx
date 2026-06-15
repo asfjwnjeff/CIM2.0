@@ -118,6 +118,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const sidebarRef = useRef<HTMLDivElement>(null);
   const textTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  /* 移动端路由：跳过桌面布局（侧栏 + 顶栏），直接渲染内容 */
+  const isMobileRoute = pathname.startsWith('/mobile');
+
   /* 初始化权限：管理员默认拥有全部权限 */
   useEffect(() => {
     async function initPermissions() {
@@ -207,6 +210,15 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   }, [sidebarExpanded]);
 
   const sidebarWidth = sidebarExpanded ? 'w-[228px]' : 'w-[56px]';
+
+  /* 移动端路由：只渲染子组件，不渲染桌面 chrome */
+  if (isMobileRoute) {
+    return (
+      <div className="min-h-screen bg-[#FAFAFA]">
+        {children}
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#FAFAFA]">
