@@ -161,11 +161,6 @@
 
 /* 移动端触控优化 */
 @media (max-width: 767px) {
-  /* 增大触控区域 */
-  button, a, [role="button"] {
-    min-height: var(--mobile-touch-min);
-  }
-
   /* 移动端隐藏桌面端元素的通用类 */
   .hide-on-mobile {
     display: none !important;
