@@ -375,10 +375,46 @@ body {
     <!-- Arrow 4→5 -->
     <div class="phase-arrow"><div class="vline dashed"></div><div class="bubble">审批通过后 → 转入CPQ处理</div></div>
 
-    <!-- ═══ Phase 5: Contract (Migrated to CPQ) ═══ -->
+    <!-- ═══ Phase 5: Entity Management (CPQ) ═══ -->
     <div class="phase migrated">
       <div class="phase-header">
         <div class="phase-num">5</div>
+        <div class="phase-label">客户主体管理</div>
+        <div class="phase-operator">操作者: CPQ侧</div>
+      </div>
+      <div class="phase-body">
+        <h3><s>客户主体管理</s> — CPQ 功能 · CIM 接收</h3>
+        <div class="sys"><span class="cpq-tag">CPQ 报价计费系统</span></div>
+        <div class="steps">
+          <div class="step" style="opacity:0.6;">
+            <div class="step-num">STEP 10 <span style="color:#AAA;">(CPQ)</span></div>
+            <div class="step-desc">
+              <b><s>主体管理</s></b><br>
+              <s>签约主体管理: 签合同的主体，关联客户</s><br>
+              <s>结算主体管理: 付款/收款主体，含银行账号</s><br>
+              <s>服务主体管理: 客户本身（不需单独管理）</s>
+            </div>
+          </div>
+          <div class="step" style="opacity:0.6;">
+            <div class="step-num">&nbsp;</div>
+            <div class="step-desc">
+              <b>CIM 侧接收</b><br>
+              接受 CPQ 传过来的主体信息<br>
+              客户详情页展示关联的签约/结算/服务主体<br>
+              支持查看 · 不承担主体创建和维护
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Arrow 5→6 -->
+    <div class="phase-arrow"><div class="vline dashed"></div><div class="bubble">CPQ 主体配置完成 → 合同签署</div></div>
+
+    <!-- ═══ Phase 6: Contract (Migrated to CPQ) ═══ -->
+    <div class="phase migrated">
+      <div class="phase-header">
+        <div class="phase-num">6</div>
         <div class="phase-label">合同签署</div>
         <div class="phase-operator">操作者: 客服·财务</div>
       </div>
@@ -387,7 +423,7 @@ body {
         <div class="sys"><span class="cpq-tag">CPQ 报价计费系统</span></div>
         <div class="steps">
           <div class="step" style="opacity:0.6;">
-            <div class="step-num">STEP 10 <span style="color:#AAA;">(CPQ)</span></div>
+            <div class="step-num">STEP 11 <span style="color:#AAA;">(CPQ)</span></div>
             <div class="step-desc">
               <b><s>合同签署</s></b><br>
               <s>新合同: 风控后签署 · 绑定签约/结算主体</s><br>
@@ -396,7 +432,7 @@ body {
             </div>
           </div>
           <div class="step" style="opacity:0.6;">
-            <div class="step-num">STEP 11 <span style="color:#AAA;">(CPQ)</span></div>
+            <div class="step-num">STEP 12 <span style="color:#AAA;">(CPQ)</span></div>
             <div class="step-desc">
               <b><s>计费 → 开票 → 回款</s></b><br>
               <s>读取CIM账单拆分规则</s><br>
@@ -413,14 +449,14 @@ body {
       <div class="handoff-icon">↗</div>
       <div class="handoff-text">
         <h4>CIM → CPQ 系统交接</h4>
-        <p>CIM 2.0 系统边界止于风控审批通过。CIM 推送客户数据包至 CPQ 后，售前报价、合同签署、正式计费均由 CPQ 承担。</p>
+        <p>CIM 2.0 系统边界止于风控审批通过。CIM 推送客户数据包至 CPQ 后，售前报价、客户主体管理、合同签署、正式计费均由 CPQ 承担。CIM 接收CPQ回传的主体信息并展示。</p>
         <div class="handoff-items">
           <span class="hi">客户信息</span>
-          <span class="hi">签约/结算主体</span>
           <span class="hi">联系人</span>
           <span class="hi">商机信息</span>
           <span class="hi">风控审批报告</span>
           <span class="hi">账单拆分规则</span>
+          <span class="hi">← CPQ回传主体</span>
         </div>
       </div>
     </div>
