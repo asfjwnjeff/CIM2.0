@@ -86,5 +86,5 @@ export default function MobileFollowupsPage() {
 }
 
 function FilterChip({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
-  return <button className={`shrink-0 px-4 py-1 rounded-full text-xs font-medium min-h-[36px] transition-colors ${active ? 'bg-[#2D3BFF] text-white' : 'bg-white text-[#5A5A5A] border border-[#EBEBEB]'}`} onClick={onClick}>{label}</button>;
+  return <button className={`shrink-0 px-4 py-1 rounded-full text-xs font-medium transition-colors ${active ? 'bg-[#2D3BFF] text-white' : 'bg-white text-[#5A5A5A] border border-[#EBEBEB]'}`} onClick={onClick}>{label}</button>;
 }
