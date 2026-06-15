@@ -105,11 +105,11 @@ export default function MobileSelectSheet({
             </svg>
             <input
               type="text"
-              className="w-full h-10 pl-9 pr-3 bg-[#F5F5F5] rounded-lg text-sm focus:outline-none focus:bg-white focus:ring-1 focus:ring-[#2D3BFF]"
+              className="w-full h-10 pl-9 pr-3 bg-[#F5F5F5] rounded-lg focus:outline-none focus:bg-white focus:ring-1 focus:ring-[#2D3BFF]"
+              style={{ fontSize: '16px' }}
               placeholder={searchPlaceholder}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              autoFocus
             />
           </div>
         </div>

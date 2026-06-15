@@ -30,8 +30,6 @@ export default function MobileNewFollowupPage() {
   const router = useRouter();
   const { addFollowUp, customers, currentUser } = useApp();
   const [saving, setSaving] = useState(false);
-  const [showRecording, setShowRecording] = useState(false);
-
   const [form, setForm] = useState({
     customerId: '', type: 'biz_meeting' as FollowUpType, method: 'phone_visit' as FollowUpMethod,
     followUpDate: new Date().toISOString().slice(0, 16), status: 'new' as FollowUpStatus,
@@ -112,15 +110,10 @@ export default function MobileNewFollowupPage() {
         <div className="bg-white rounded-xl border border-[#EBEBEB] p-4"><CheckInCard records={checkInRecords} onRecordsChange={setCheckInRecords} /></div>
       )}
 
-      {/* AI听记：默认折叠，点击展开 */}
-      {!showRecording ? (
-        <button className="bg-white rounded-xl border border-dashed border-[#D5D5D5] p-4 text-center active:bg-[#F5F5F5]" onClick={() => setShowRecording(true)}>
-          <span className="text-sm text-[#2D3BFF] font-medium">🎙️ 开启 AI 听记</span>
-          <p className="text-xs text-[#999999] mt-1">会议录音 + 自动转写 + 生成纪要</p>
-        </button>
-      ) : (
-        <div className="bg-white rounded-xl border border-[#EBEBEB] p-4"><AIRecordingCard onDataChange={setAiData} /></div>
-      )}
+      {/* AI听记 */}
+      <div className="bg-white rounded-xl border border-[#EBEBEB] p-4">
+        <AIRecordingCard onDataChange={setAiData} />
+      </div>
 
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-[#EBEBEB] px-4 py-3 z-40" style={{ paddingBottom: 'calc(12px + env(safe-area-inset-bottom, 0px) + 56px)' }}>
         <button className="w-full h-11 bg-[#2D3BFF] text-white rounded-xl text-sm font-semibold active:bg-[#4338CA] disabled:opacity-50" onClick={handleSubmit} disabled={saving}>{saving ? '保存中...' : '保存跟进'}</button>
