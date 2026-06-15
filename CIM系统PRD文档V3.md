@@ -195,7 +195,7 @@ Step 7  人工审批（如需）
          ├→ 售前报价（CPQ 侧）
          ├→ 合同签署（CPQ 侧）
          ├→ 正式计费引擎
-         ├→ 读取 CIM 账单拆分规则 → 自动拆分到对应账单
+         ├→ 读取 COS 账单拆分结果 → 自动拆分到对应账单
          ├→ 对账 → 开票 → 回款
          └→ 持续从 CIM 拉取更新（客户变更 / 规则变更 / 联系人变更）
 ```
@@ -210,17 +210,22 @@ Step 7  人工审批（如需）
   │  [提交] 校验 → status: active
   ▼
 活跃(active) ─────────────────────────────┐
-  │                                        │
+  │                                       │
   │ 每次跟进 → 更新最后跟进时间             │
-  │ 创建商机 → progressStatus: 初步意向    │
+  │ 创建商机 → progressStatus: 初步意向     │
   │ 风控审批通过 → progressStatus: 商机确认 │
-  │                                        │
-  ├── 手动停用 → inactive(停用)            │
-  ├── 手动冻结 → frozen(冻结)              │
+  │                                       │
+  ├── 手动停用 → inactive(停用)            │             │
   └── 手动失效 → progressStatus: invalid   │
 ```
 
-**跟进进度(ProgressStatus)自动流转规则**:
+**跟进进度(ProgressStatus)状态流转链**:
+
+`新获取(newly_acquired)` → `待跟进(pending_followup)` → `初步意向(preliminary_intent)` → `商机确认(opportunity_confirmed)` → `成交(deal_closed)` → `失效(invalid)`
+
+> 除「失效(invalid)」可手动设置外，其余状态由系统根据业务事件自动推进。步骤条在表单中只读显示（标注「系统自动判断」）。
+
+**自动流转规则**:
 
 | 触发事件 | progressStatus | 说明 |
 |----------|---------------|------|
@@ -229,8 +234,6 @@ Step 7  人工审批（如需）
 | 创建商机 | `preliminary_intent` 初步意向 | 仅当当前进度低于此级别时推进 |
 | 风控审批通过 | `opportunity_confirmed` 商机确认 | — |
 | 手动操作 | `invalid` 失效 | **唯一可手动设置的状态** |
-
-> 步骤条在表单中为只读显示（标注「系统自动判断」），不可手动修改除「失效」以外的状态。
 
 ### 3.3 CIM/CPQ 边界
 
