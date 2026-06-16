@@ -215,16 +215,16 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   /* 移动端路由：只渲染子组件，不渲染桌面 chrome */
   if (isMobileRoute) {
     return (
-      <div className="min-h-screen bg-[var(--bg-page)]">
+      <div className="min-h-screen bg-page">
         {children}
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[var(--bg-page)]">
+    <div className="min-h-screen bg-page">
       {/* ====== 顶栏 (纯白 + 底部细线) ====== */}
-      <header className="h-[55px] bg-[var(--bg-surface)] border-b border-[var(--border-light)] flex items-center justify-between px-4 fixed top-0 left-0 right-0 z-50">
+      <header className="h-[55px] bg-surface border-b border-light flex items-center justify-between px-4 fixed top-0 left-0 right-0 z-50">
         <div className="flex items-center gap-3">
           <button
             onClick={() => setSidebarExpanded(!sidebarExpanded)}

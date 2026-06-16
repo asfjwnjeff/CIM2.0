@@ -15,7 +15,7 @@ export default function ThemeToggle() {
 
   return (
     <button
-      className="w-8 h-8 flex items-center justify-center rounded-md hover:bg-[var(--bg-hover)] transition-colors text-[var(--text-secondary)]"
+      className="w-8 h-8 flex items-center justify-center rounded-md hover:bg-hover transition-colors text-secondary"
       onClick={() => setTheme(isDark ? 'light' : 'dark')}
       aria-label={isDark ? '切换浅色模式' : '切换深色模式'}
     >

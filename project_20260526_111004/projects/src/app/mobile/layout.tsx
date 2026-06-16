@@ -6,16 +6,16 @@ import ThemeToggle from '@/components/ThemeToggle';
 
 export default function MobileLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-[var(--bg-page)] pb-[calc(56px+env(safe-area-inset-bottom,0px))]">
+    <div className="min-h-screen bg-page pb-[calc(56px+env(safe-area-inset-bottom,0px))]">
       {/* 移动端顶部状态栏 */}
       <header
-        className="sticky top-0 z-40 bg-[var(--bg-surface)] border-b border-[var(--border-light)] flex items-center justify-between px-4"
+        className="sticky top-0 z-40 bg-surface border-b border-light flex items-center justify-between px-4"
         style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}
       >
         <div className="w-8" />
         <div className="h-12 flex items-center">
-          <span className="text-[15px] font-bold tracking-tight text-[var(--text-primary)]">
-            CIM <span className="font-normal text-[var(--text-secondary)]">2.0</span>
+          <span className="text-[15px] font-bold tracking-tight text-primary">
+            CIM <span className="font-normal text-secondary">2.0</span>
           </span>
         </div>
         <ThemeToggle />
