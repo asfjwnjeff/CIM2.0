@@ -194,8 +194,8 @@
 
 /* === 暗色模式 Tailwind 工具类覆盖 === */
 .dark .bg-white,
-.dark .bg-\[\#FAFAFA\],
-.dark .bg-\[\#F5F5F5\] { background-color: #1C1C1E; }
+.dark .bg-\[\#FAFAFA\] { background-color: #1C1C1E; }
+.dark .bg-\[\#F5F5F5\] { background-color: #2C2C2E; }
 
 .dark .text-\[\#0A0A0A\] { color: #FFFFFF; }
 .dark .text-\[\#5A5A5A\] { color: #98989E; }
@@ -249,17 +249,13 @@
 .dark .focus\:border-\[\#165DFF\]:focus { border-color: #0A84FF; }
 
 /* 输入框/文本域非聚焦态边框提亮 — 避免与暗色背景融为一体 */
-.dark input[type="text"],
-.dark input[type="number"],
-.dark input[type="datetime-local"],
-.dark textarea,
-.dark select { border-color: #8E8E93 !important; }
 .dark .mobile-input,
-.dark .mobile-textarea { border-color: #8E8E93 !important; }
-.dark .border-input { border-color: #8E8E93 !important; }
-.dark input:focus,
-.dark textarea:focus,
-.dark select:focus { border-color: #0A84FF !important; }
+.dark .mobile-textarea { border-color: #545458; }
+.dark input[type="text"]:not([class*="border-"]),
+.dark input[type="number"]:not([class*="border-"]),
+.dark textarea:not([class*="border-"]) { border-color: #545458; }
+.dark select:not([class*="border-"]) { border-color: #545458; }
+.dark .border-input { border-color: #545458; }
 .dark .text-\[\#0D8A5E\] { color: #30D158; }
 .dark .text-\[\#D63031\] { color: #FF453A; }
 .dark .text-\[\#E8850C\] { color: #FFD60A; }
