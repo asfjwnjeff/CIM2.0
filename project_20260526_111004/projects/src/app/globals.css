@@ -220,6 +220,33 @@
 .dark .text-\[\#2D3BFF\] { color: #0A84FF; }
 .dark .border-\[\#2D3BFF\] { border-color: #0A84FF; }
 .dark .border-\[\#2D3BFF\]\/20 { border-color: rgba(10,132,255,0.2); }
+
+/* Tailwind 灰色系（RuleGroupEditor/test/客户详情等） */
+.dark .border-gray-100 { border-color: #2C2C2E; }
+.dark .border-gray-200 { border-color: #38383A; }
+.dark .border-gray-300 { border-color: #48484A; }
+
+/* 功能状态色 */
+.dark .border-\[\#D63031\] { border-color: #FF453A; }
+.dark .border-\[\#E8850C\] { border-color: #FFD60A; }
+.dark .border-\[\#E8850C\]\/30 { border-color: rgba(255,214,10,0.3); }
+.dark .border-\[\#3B82F6\] { border-color: #0A84FF; }
+.dark .border-\[\#165DFF\] { border-color: #0A84FF; }
+.dark .border-\[\#0D8A5E\] { border-color: #30D158; }
+
+/* 语义标签/按钮色 */
+.dark .border-\[\#C7CCFF\] { border-color: #2A3050; }
+.dark .border-\[\#B8E8D4\] { border-color: #1A3A2A; }
+.dark .border-\[\#FFE0B2\] { border-color: #4A3A15; }
+.dark .border-\[\#FFCDD2\] { border-color: #4A2028; }
+.dark .border-\[\#FDE0B8\] { border-color: #4A3A15; }
+.dark .border-\[\#C8CEFF\] { border-color: #2A3050; }
+.dark .border-\[\#FFE8C0\] { border-color: #4A3A15; }
+
+/* 聚焦态补充 */
+.dark .focus\:border-\[\#E8850C\]:focus { border-color: #FFD60A; }
+.dark .focus\:border-\[\#3B82F6\]:focus { border-color: #0A84FF; }
+.dark .focus\:border-\[\#165DFF\]:focus { border-color: #0A84FF; }
 .dark .text-\[\#0D8A5E\] { color: #30D158; }
 .dark .text-\[\#D63031\] { color: #FF453A; }
 .dark .text-\[\#E8850C\] { color: #FFD60A; }
