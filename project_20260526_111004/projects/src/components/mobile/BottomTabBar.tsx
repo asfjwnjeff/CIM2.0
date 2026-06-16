@@ -40,13 +40,28 @@ const TabIcons = {
 
 const TABS: TabItem[] = [
   { label: '首页', href: '/mobile', icon: TabIcons.Home },
-  { label: '审批', href: '/mobile/approvals', icon: TabIcons.Clipboard },
+  { label: '风控', href: '/mobile/approvals', icon: TabIcons.Clipboard },
   { label: '消息', href: '/mobile/notifications', icon: TabIcons.Bell },
   { label: '跟进', href: '/mobile/followups', icon: TabIcons.StickyNote },
 ];
 
 export default function BottomTabBar() {
   const pathname = usePathname();
+  const [unreadCount, setUnreadCount] = React.useState(0);
+
+  React.useEffect(() => {
+    const fetchUnread = () => {
+      fetch('/api/notifications?unreadOnly=true')
+        .then((r) => r.json())
+        .then((data) => {
+          if (data.success && Array.isArray(data.data)) setUnreadCount(data.data.length);
+        })
+        .catch(() => {});
+    };
+    fetchUnread();
+    const t = setInterval(fetchUnread, 30000);
+    return () => clearInterval(t);
+  }, []);
 
   const isActive = (href: string) => {
     if (href === '/mobile') return pathname === '/mobile';
@@ -73,9 +88,9 @@ export default function BottomTabBar() {
           >
             <div className="relative">
               {tab.icon(active)}
-              {typeof tab.badge === 'number' && tab.badge > 0 && (
+              {(tab.label === '消息' ? unreadCount : tab.badge || 0) > 0 && (
                 <span className="absolute -top-1 -right-2 min-w-[16px] h-4 bg-[#D63031] text-white text-[10px] font-bold rounded-full flex items-center justify-center leading-none px-0.5">
-                  {tab.badge > 99 ? '99+' : tab.badge}
+                  {tab.label === '消息' ? (unreadCount > 99 ? '99+' : unreadCount) : (tab.badge && tab.badge > 99 ? '99+' : tab.badge)}
                 </span>
               )}
             </div>

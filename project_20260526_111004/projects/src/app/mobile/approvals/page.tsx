@@ -60,7 +60,12 @@ export default function MobileApprovalsPage() {
   return (
     <div className="flex flex-col gap-3">
       {/* 页面标题 */}
-      <h1 className="text-lg font-bold text-[#0A0A0A]">审批中心</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-lg font-bold text-[#0A0A0A]">风控审批</h1>
+        <button className="w-10 h-10 bg-[#2D3BFF] text-white rounded-lg flex items-center justify-center active:bg-[#4338CA]" onClick={() => router.push('/mobile/approvals/new')}>
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
+        </button>
+      </div>
 
       {/* 搜索框 */}
       <div className="relative">

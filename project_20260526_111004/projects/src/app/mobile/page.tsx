@@ -59,11 +59,10 @@ export default function MobileHomePage() {
         </div>
       </div>
 
-      {/* 统计卡片 */}
-      <div className="grid grid-cols-2 gap-3">
+      {/* 统计卡片 — 3 格 */}
+      <div className="grid grid-cols-3 gap-3">
         <StatCard label="待审批" value={dashboard.pendingApprovalCount} color="warning" href="/mobile/approvals" onClick={() => router.push('/mobile/approvals')} />
-        <StatCard label="今日待跟进" value={dashboard.todayFollowupCount} color="info" href="/mobile/followups" onClick={() => router.push('/mobile/followups')} />
-        <StatCard label="逾期提醒" value={dashboard.overdueReminderCount} color="danger" emphasis href="/mobile/followups" onClick={() => router.push('/mobile/followups')} />
+        <StatCard label="待跟进" value={dashboard.todayFollowupCount + dashboard.overdueReminderCount} color={dashboard.overdueReminderCount > 0 ? 'danger' : 'info'} emphasis={dashboard.overdueReminderCount > 0} href="/mobile/followups" onClick={() => router.push('/mobile/followups')} />
         <StatCard label="未读消息" value={dashboard.unreadNotificationCount} color="success" href="/mobile/notifications" onClick={() => router.push('/mobile/notifications')} />
       </div>
 

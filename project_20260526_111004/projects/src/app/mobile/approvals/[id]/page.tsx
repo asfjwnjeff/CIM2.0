@@ -240,7 +240,7 @@ export default function MobileApprovalDetailPage() {
           </>
         )}
         {isRejected && (
-          <button className="flex-1 h-11 bg-[#2D3BFF] text-white rounded-xl text-sm font-semibold active:bg-[#4338CA]" onClick={() => router.push(`/approvals/${approval.id}/edit`)}>
+          <button className="flex-1 h-11 bg-[#2D3BFF] text-white rounded-xl text-sm font-semibold active:bg-[#4338CA]" onClick={() => router.push(`/mobile/approvals/${approval.id}/edit`)}>
             编辑并重新发起
           </button>
         )}
