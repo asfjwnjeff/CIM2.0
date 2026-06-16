@@ -247,6 +247,15 @@
 .dark .focus\:border-\[\#E8850C\]:focus { border-color: #FFD60A; }
 .dark .focus\:border-\[\#3B82F6\]:focus { border-color: #0A84FF; }
 .dark .focus\:border-\[\#165DFF\]:focus { border-color: #0A84FF; }
+
+/* 输入框/文本域非聚焦态边框提亮 — 避免与暗色背景融为一体 */
+.dark .mobile-input,
+.dark .mobile-textarea { border-color: #545458; }
+.dark input[type="text"]:not([class*="border-"]),
+.dark input[type="number"]:not([class*="border-"]),
+.dark textarea:not([class*="border-"]) { border-color: #545458; }
+.dark select:not([class*="border-"]) { border-color: #545458; }
+.dark .border-input { border-color: #545458; }
 .dark .text-\[\#0D8A5E\] { color: #30D158; }
 .dark .text-\[\#D63031\] { color: #FF453A; }
 .dark .text-\[\#E8850C\] { color: #FFD60A; }
