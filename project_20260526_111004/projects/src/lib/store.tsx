@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useReducer, useCallback, useEffect, ReactNode } from 'react';
-import { initialSplitFields, initialBillingEntities, initialBillingRules, initialCustomers, initialQuotes, initialApprovalWorkflows, initialAutoApprovalRules, initialQuoteTemplates, initialSigningEntities, initialServiceEntities, initialSettlementEntities, initialApprovalFields, initialRiskApprovals } from './sample-data';
+import { initialSplitFields, initialBillingEntities, initialBillingRules, initialCustomers, initialQuotes, initialApprovalWorkflows, initialAutoApprovalRules, initialQuoteTemplates, initialSigningEntities, initialServiceEntities, initialSettlementEntities, initialApprovalFields, initialRiskApprovals, initialFollowUps } from './sample-data';
 import type {
   RuleGroup,
   SplitField,
@@ -162,7 +162,7 @@ const defaultState = {
   quotes: initialQuotes,
   salesQuotes: initialQuotes,
   operationLogs: [] as OperationLog[],
-  followUps: [] as FollowUpRecord[],
+  followUps: initialFollowUps as FollowUpRecord[],
   opportunities: [] as Opportunity[],
   contacts: [] as Contact[],
   contracts: [] as Contract[],

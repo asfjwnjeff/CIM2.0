@@ -60,7 +60,9 @@ export default function BottomTabBar() {
     };
     fetchUnread();
     const t = setInterval(fetchUnread, 30000);
-    return () => clearInterval(t);
+    const handleUpdate = () => fetchUnread();
+    window.addEventListener('notifications-updated', handleUpdate);
+    return () => { clearInterval(t); window.removeEventListener('notifications-updated', handleUpdate); };
   }, []);
 
   const isActive = (href: string) => {

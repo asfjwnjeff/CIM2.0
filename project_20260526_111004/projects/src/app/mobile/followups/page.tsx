@@ -4,12 +4,8 @@ import React, { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useApp } from '@/lib/store';
 import type { FollowUpType } from '@/lib/types';
-import { formatShortDateTime, getFollowupTypeLabel, getFollowupMethodLabel, getFollowupStatusColor } from '@/lib/mobile-utils';
+import { formatShortDateTime, getFollowupTypeLabel, getFollowupMethodLabel, getFollowupStatusColor, FOLLOWUP_STATUS_LABELS } from '@/lib/mobile-utils';
 
-const STATUS_LABELS: Record<string, string> = {
-  'new': '新建需求', 'discussing': '沟通方案', 'promoting': '促单', 'success': '成功',
-  'no_progress': '无进展', 'cancelled': '需求取消', 'terminated': '合同终止', 'failed': '失败',
-};
 const TYPE_LABELS: Record<string, string> = {
   'kpi_not_met': 'KPI未达标', 'contract_mgmt': '合同管理', 'biz_meeting': '业务会议', 'other_customer': '其他客户事项',
 };
@@ -66,7 +62,7 @@ export default function MobileFollowupsPage() {
             <button key={f.id} className="w-full bg-white rounded-xl border border-[#EBEBEB] px-4 py-3.5 active:bg-[#F5F5F5] text-left" onClick={() => router.push(`/mobile/followups/${f.id}`)}>
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-[#0A0A0A] truncate flex-1 mr-2">{f.displayCustomerName}</span>
-                {f.status && <span className={`text-xs px-2 py-0.5 rounded-full font-medium whitespace-nowrap ${getFollowupStatusColor(f.status)}`}>{STATUS_LABELS[f.status] || f.status}</span>}
+                {f.status && <span className={`text-xs px-2 py-0.5 rounded-full font-medium whitespace-nowrap ${getFollowupStatusColor(f.status)}`}>{FOLLOWUP_STATUS_LABELS[f.status] || f.status}</span>}
               </div>
               {f.content && <p className="text-xs text-[#5A5A5A] mt-1.5 line-clamp-2">{f.content}</p>}
               <div className="flex items-center gap-2 mt-2 text-xs text-[#999999] flex-wrap">

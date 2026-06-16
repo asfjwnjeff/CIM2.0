@@ -3,11 +3,7 @@
 import React, { useMemo } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useApp } from '@/lib/store';
-import { formatShortDateTime, getFollowupTypeLabel, getFollowupStatusColor, getFollowupMethodLabel } from '@/lib/mobile-utils';
-
-const STATUS_LABELS: Record<string, string> = {
-  'new': '新建需求', 'discussing': '沟通方案', 'promoting': '促单', 'success': '成功', 'no_progress': '无进展', 'cancelled': '需求取消', 'terminated': '合同终止', 'failed': '失败',
-};
+import { formatShortDateTime, getFollowupTypeLabel, getFollowupStatusColor, getFollowupMethodLabel, FOLLOWUP_STATUS_LABELS } from '@/lib/mobile-utils';
 
 export default function MobileFollowupDetailPage() {
   const router = useRouter();
@@ -46,7 +42,7 @@ export default function MobileFollowupDetailPage() {
         </button>
         <div className="flex-1">
           <h1 className="text-base font-bold text-[#0A0A0A] truncate">{followup.customerName || customer?.name || '跟进详情'}</h1>
-          <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${getFollowupStatusColor(followup.status || '')}`}>{STATUS_LABELS[followup.status || ''] || followup.status}</span>
+          <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${getFollowupStatusColor(followup.status || '')}`}>{FOLLOWUP_STATUS_LABELS[followup.status || ''] || followup.status}</span>
         </div>
       </div>
 

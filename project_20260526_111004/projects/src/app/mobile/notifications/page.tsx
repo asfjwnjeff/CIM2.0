@@ -44,6 +44,7 @@ export default function MobileNotificationsPage() {
       try {
         await fetch('/api/notifications', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ids: [item.id] }) });
         setNotifications((p) => p.map((n) => n.id === item.id ? { ...n, isRead: true } : n));
+        window.dispatchEvent(new CustomEvent('notifications-updated'));
       } catch {}
     }
     if (item.targetUrl) router.push(item.targetUrl);
@@ -53,6 +54,7 @@ export default function MobileNotificationsPage() {
     try {
       await fetch('/api/notifications', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ markAllRead: true }) });
       setNotifications((p) => p.map((n) => ({ ...n, isRead: true })));
+      window.dispatchEvent(new CustomEvent('notifications-updated'));
       toast.success('已全部标记为已读');
     } catch { toast.error('操作失败'); }
     setConfirmMarkAll(false);
@@ -62,7 +64,10 @@ export default function MobileNotificationsPage() {
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
         <h1 className="text-lg font-bold text-[#0A0A0A]">消息中心</h1>
-        {unreadCount > 0 && <button className="text-xs text-[#2D3BFF] font-medium" onClick={() => setConfirmMarkAll(true)}>全部已读</button>}
+        <button
+          className={`text-xs font-medium px-3 py-1.5 rounded-lg transition-colors ${unreadCount > 0 ? 'text-[#2D3BFF] bg-[#E8EBFF] active:bg-[#D0D5FF]' : 'text-[#B5B5B5] bg-[#F5F5F5] cursor-not-allowed'}`}
+          onClick={() => unreadCount > 0 && setConfirmMarkAll(true)}
+        >全部已读</button>
       </div>
 
       <div className="flex gap-2 overflow-x-auto pb-1">

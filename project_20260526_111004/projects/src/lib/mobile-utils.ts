@@ -76,9 +76,13 @@ export function getFollowupMethodLabel(method: string): string {
   return map[method] || method;
 }
 
-/**
- * 跟进类型中文标签
- */
+/** 跟进状态中文标签（PRD §5.4 8值） */
+export const FOLLOWUP_STATUS_LABELS: Record<string, string> = {
+  'new': '新建需求', 'discussing': '沟通方案', 'promoting': '促单', 'success': '成功',
+  'no_progress': '无进展', 'cancelled': '需求取消', 'terminated': '合同终止', 'failed': '失败',
+};
+
+/** 跟进类型中文标签 */
 export function getFollowupTypeLabel(type: string): string {
   const map: Record<string, string> = {
     kpi_not_met: 'KPI未达标',
