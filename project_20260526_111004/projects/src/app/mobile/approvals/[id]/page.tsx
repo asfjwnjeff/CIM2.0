@@ -222,9 +222,14 @@ export default function MobileApprovalDetailPage() {
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-[#EBEBEB] px-4 py-3 flex gap-3 z-40"
         style={{ paddingBottom: 'calc(12px + env(safe-area-inset-bottom, 0px) + 56px)' }}>
         {isDraft && (
-          <button className="flex-1 h-11 bg-[#2D3BFF] text-white rounded-xl text-sm font-semibold active:bg-[#4338CA] disabled:opacity-50" onClick={handleSubmit} disabled={actionLoading !== null}>
-            {actionLoading === 'submit' ? '处理中...' : '发起审批'}
-          </button>
+          <>
+            <button className="flex-1 h-11 bg-white border border-[#EBEBEB] text-[#5A5A5A] rounded-xl text-sm font-semibold active:bg-[#F5F5F5] disabled:opacity-50" onClick={() => router.push(`/mobile/approvals/${approval.id}/edit`)}>
+              编辑
+            </button>
+            <button className="flex-1 h-11 bg-[#2D3BFF] text-white rounded-xl text-sm font-semibold active:bg-[#4338CA] disabled:opacity-50" onClick={handleSubmit} disabled={actionLoading !== null}>
+              {actionLoading === 'submit' ? '处理中...' : '发起审批'}
+            </button>
+          </>
         )}
         {isInReview && (
           <>

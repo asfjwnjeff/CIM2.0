@@ -2944,5 +2944,15 @@ export const initialFollowUps = [
   { id: 'fu-seed-6', customerId: 'cust-007', customerName: '上海华力集成电路有限公司', type: 'biz_meeting', method: 'hmg_meeting', content: '28nm工艺产能协调会议', followUpDate: daysAgo(2), status: 'completed', owner: 'user-4', createdAt: daysAgo(2) },
   { id: 'fu-seed-7', customerId: 'cust-008', customerName: '上海荏原精密机械有限公司', type: 'contract_mgmt', method: 'online_visit', content: 'CMP设备维保合同签订', followUpDate: daysAgo(1), status: 'completed', owner: 'user-1', createdAt: daysAgo(1) },
   { id: 'fu-seed-8', customerId: 'cust-009', customerName: '岛津企业管理（中国）有限公司', type: 'other_customer', method: 'phone_visit', content: '分析仪器进口报关咨询', followUpDate: daysAgo(35), status: 'new', owner: 'user-1', createdAt: daysAgo(35) },
+  // 今日待跟进（供移动端首页仪表统计）
+  { id: 'fu-seed-9', customerId: 'cust-001', customerName: '应用材料（中国）有限公司', type: 'contract_mgmt', method: 'onsite_visit', content: '年度合同续签谈判', followUpDate: daysAgo(0), status: 'discussing', owner: 'user-1', contactName: '张总', nextFollowUpDate: daysAgo(-7), collaborators: 'user-2,user-5', createdAt: daysAgo(0),
+    checkInRecords: [{ lat: 31.2304, lng: 121.4737, address: '上海市浦东新区张江高科技园区', timestamp: new Date().toISOString(), photos: [] }],
+    meetingSummary: '客户确认续签2026年度货代服务合同，主要讨论内容包括：新增半导体设备运输线路、价格调整方案、KPI考核标准修订。客户对现有服务基本满意，希望在新合同中增加实时追踪功能。',
+    keyPoints: ['客户希望新增成都-重庆运输线路', '价格需在现有基础上浮5%以覆盖新增线路成本', 'KPI中通关时效从24小时调整为18小时', '客户承诺下周一前提供新线路的预估货量数据'],
+    actionItems: ['下周一前收到客户货量预估数据', '准备新版合同草案', '内部评估新增线路的运营可行性'],
+    decisions: ['同意新增成都-重庆线路', '合同续签期限定为3年', '价格上浮5%纳入正式报价'],
+  },
+  { id: 'fu-seed-10', customerId: 'cust-003', customerName: '中芯国际集成电路制造有限公司', type: 'biz_meeting', method: 'phone_visit', content: '跟进上次会议关于光刻设备进口方案', followUpDate: daysAgo(0), status: 'promoting', owner: 'user-1', createdAt: daysAgo(0) },
+  { id: 'fu-seed-11', customerId: 'cust-005', customerName: '苏斯贸易（上海）有限公司', type: 'kpi_not_met', method: 'online_visit', content: 'KPI未达标沟通，分析原因并制定改善方案', followUpDate: daysAgo(0), status: 'new', owner: 'user-1', createdAt: daysAgo(0) },
 ];
 
