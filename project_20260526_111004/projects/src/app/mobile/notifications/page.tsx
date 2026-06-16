@@ -45,7 +45,7 @@ export default function MobileNotificationsPage() {
         await fetch('/api/notifications', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ids: [item.id] }) });
         setNotifications((p) => p.map((n) => n.id === item.id ? { ...n, isRead: true } : n));
         window.dispatchEvent(new CustomEvent('notifications-updated'));
-      } catch {}
+      } catch (e) { console.error('[消息] 标记已读失败:', e); }
     }
     if (item.targetUrl) router.push(item.targetUrl);
   };
@@ -56,7 +56,7 @@ export default function MobileNotificationsPage() {
       setNotifications((p) => p.map((n) => ({ ...n, isRead: true })));
       window.dispatchEvent(new CustomEvent('notifications-updated'));
       toast.success('已全部标记为已读');
-    } catch { toast.error('操作失败'); }
+    } catch (e) { console.error('[消息] 全部已读失败:', e); toast.error('操作失败'); }
     setConfirmMarkAll(false);
   };
 

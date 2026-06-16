@@ -4,11 +4,21 @@ import React, { useMemo } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useApp } from '@/lib/store';
 import { formatShortDateTime, getFollowupTypeLabel, getFollowupStatusColor, getFollowupMethodLabel, FOLLOWUP_STATUS_LABELS } from '@/lib/mobile-utils';
+import { Section, InfoRow } from '@/components/mobile/SharedComponents';
 
 export default function MobileFollowupDetailPage() {
   const router = useRouter();
   const params = useParams();
   const id = params.id as string;
+
+  if (!id || Array.isArray(id)) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20">
+        <h2 className="text-base font-semibold text-[#0A0A0A]">无效的跟进 ID</h2>
+        <button className="mt-4 text-sm text-[#2D3BFF] font-medium" onClick={() => router.push('/mobile/followups')}>返回列表</button>
+      </div>
+    );
+  }
   const { followUps, customers } = useApp();
 
   const followup = useMemo(() => followUps.find((f) => f.id === id), [followUps, id]);
@@ -96,11 +106,3 @@ export default function MobileFollowupDetailPage() {
   );
 }
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
-  return <div className="bg-white rounded-xl border border-[#EBEBEB] overflow-hidden"><div className="px-4 py-3 border-b border-[#EBEBEB]"><h3 className="text-sm font-semibold text-[#0A0A0A]">{title}</h3></div><div className="px-4 py-3">{children}</div></div>;
-}
-
-function InfoRow({ label, value }: { label: string; value?: string | null }) {
-  if (!value) return null;
-  return <div className="flex justify-between items-start py-1.5 text-sm"><span className="text-[#999999] shrink-0 mr-3">{label}</span><span className="text-[#0A0A0A] text-right">{value}</span></div>;
-}

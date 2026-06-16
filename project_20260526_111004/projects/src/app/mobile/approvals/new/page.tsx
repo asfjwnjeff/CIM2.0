@@ -9,6 +9,7 @@ import MobileFormSection from '@/components/mobile/MobileFormSection';
 import MobileDynamicFields from '@/components/mobile/MobileDynamicFields';
 import ApprovalReportMini from '@/components/mobile/ApprovalReportMini';
 import MobileSelectSheet from '@/components/mobile/MobileSelectSheet';
+import { Field } from '@/components/mobile/SharedComponents';
 
 // ====== PRD §5.6 严格对齐的枚举（与桌面端完全一致） ======
 const SERVICE_PRODUCTS = ['货代', '关务', '仓库', '运输', '进出口', '维修', '合同物流', '一体化供应链', '其他'];
@@ -225,7 +226,8 @@ export default function MobileNewApprovalPage() {
       addRiskApproval(newApproval);
       toast.success(draft ? '草稿已保存' : '审批已提交');
       router.push('/mobile/approvals');
-    } catch {
+    } catch (e) {
+      console.error('[新建审批] 提交失败:', e);
       toast.error('提交失败，请重试');
     } finally {
       setSaving(false);
@@ -395,20 +397,6 @@ export default function MobileNewApprovalPage() {
         <button className="flex-1 h-11 bg-[#2D3BFF] text-white rounded-xl text-sm font-semibold active:bg-[#4338CA] disabled:opacity-50"
           onClick={() => handleSubmit(false)} disabled={saving}>提交审批</button>
       </div>
-    </div>
-  );
-}
-
-// ====== 辅助 ======
-
-function Field({ label, required, error, children }: { label: string; required?: boolean; error?: boolean; children: React.ReactNode }) {
-  return (
-    <div data-error={error ? 'true' : undefined}>
-      <label className={`text-sm font-medium block mb-1.5 ${error ? 'text-[#D63031]' : 'text-[#0A0A0A]'}`}>
-        {label}{required && <span className="text-[#D63031] ml-0.5">*</span>}
-      </label>
-      {children}
-      {error && <p className="text-xs text-[#D63031] mt-1">请填写{label}</p>}
     </div>
   );
 }

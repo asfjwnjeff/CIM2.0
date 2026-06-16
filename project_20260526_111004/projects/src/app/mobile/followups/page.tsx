@@ -17,9 +17,11 @@ export default function MobileFollowupsPage() {
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState<FilterType>('all');
 
+  const customerMap = useMemo(() => new Map(customers.map((c) => [c.id, c])), [customers]);
+
   const enriched = useMemo(() => {
     let list = followUps.map((f) => {
-      const customer = customers.find((c) => c.id === f.customerId);
+      const customer = customerMap.get(f.customerId);
       return { ...f, displayCustomerName: f.customerName || customer?.name || '未知客户', displayDate: f.followUpDate || f.date || f.createdAt, displayType: f.type || f.followUpType || 'other_customer' };
     });
     if (search.trim()) {
@@ -28,7 +30,7 @@ export default function MobileFollowupsPage() {
     }
     if (typeFilter !== 'all') list = list.filter((f) => f.displayType === typeFilter);
     return list.sort((a, b) => (b.displayDate || '').localeCompare(a.displayDate || ''));
-  }, [followUps, customers, search, typeFilter]);
+  }, [followUps, customerMap, search, typeFilter]);
 
   return (
     <div className="flex flex-col gap-3">

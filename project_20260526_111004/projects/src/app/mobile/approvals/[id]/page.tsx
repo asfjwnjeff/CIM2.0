@@ -8,12 +8,22 @@ import ApprovalFlowMini from '@/components/mobile/ApprovalFlowMini';
 import ApprovalReportMini from '@/components/mobile/ApprovalReportMini';
 import StatusBadge, { getStatusColor } from '@/components/mobile/StatusBadge';
 import ConfirmDialog from '@/components/mobile/ConfirmDialog';
+import { Section, InfoRow } from '@/components/mobile/SharedComponents';
 import { formatShortDateTime } from '@/lib/mobile-utils';
 
 export default function MobileApprovalDetailPage() {
   const router = useRouter();
   const params = useParams();
   const id = params.id as string;
+
+  if (!id || Array.isArray(id)) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20">
+        <h2 className="text-base font-semibold text-[#0A0A0A]">无效的审批 ID</h2>
+        <button className="mt-4 text-sm text-[#2D3BFF] font-medium" onClick={() => router.push('/mobile/approvals')}>返回列表</button>
+      </div>
+    );
+  }
   const { riskApprovals, updateRiskApproval, currentUser, autoApprovalRules, approvalFields } = useApp();
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [rejectReason, setRejectReason] = useState('');
@@ -73,7 +83,7 @@ export default function MobileApprovalDetailPage() {
       updateRiskApproval(approval.id, { approvalSteps: updatedSteps, status: allDone ? 'approved' : 'in_review', approvalStatus: allDone ? '审批完成' : '审批中', updatedAt: new Date().toISOString(), history: [...(approval.history || []), historyEntry] });
       toast.success('审批已通过');
       router.push('/mobile/approvals');
-    } catch { toast.error('操作失败'); }
+    } catch (e) { console.error('[审批详情] 通过失败:', e); toast.error('操作失败'); }
     finally { setActionLoading(null); }
   };
 
@@ -89,7 +99,7 @@ export default function MobileApprovalDetailPage() {
       updateRiskApproval(approval.id, { approvalSteps: updatedSteps, status: 'rejected', approvalStatus: '已驳回', updatedAt: new Date().toISOString(), history: [...(approval.history || []), historyEntry] });
       toast.success('审批已驳回');
       router.push('/mobile/approvals');
-    } catch { toast.error('操作失败'); }
+    } catch (e) { console.error('[审批详情] 驳回失败:', e); toast.error('操作失败'); }
     finally { setActionLoading(null); setShowRejectInput(false); setRejectReason(''); }
   };
 
@@ -106,7 +116,7 @@ export default function MobileApprovalDetailPage() {
       updateRiskApproval(approval.id, { approvalSteps: updatedSteps, status: 'in_review', approvalStatus: '审批中', updatedAt: new Date().toISOString(), submitTime: new Date().toISOString(), history: [...(approval.history || []), historyEntry] });
       toast.success('审批已提交');
       router.push('/mobile/approvals');
-    } catch { toast.error('操作失败'); }
+    } catch (e) { console.error('[审批详情] 提交失败:', e); toast.error('操作失败'); }
     finally { setActionLoading(null); }
   };
 
@@ -122,7 +132,7 @@ export default function MobileApprovalDetailPage() {
       updateRiskApproval(approval.id, { approvalSteps: updatedSteps, status: 'draft', approvalStatus: '草稿', updatedAt: new Date().toISOString(), history: [...(approval.history || []), historyEntry] });
       toast.success('审批已撤回');
       router.push('/mobile/approvals');
-    } catch { toast.error('操作失败'); }
+    } catch (e) { console.error('[审批详情] 撤回失败:', e); toast.error('操作失败'); }
     finally { setActionLoading(null); setConfirmAction(null); }
   };
 
@@ -260,21 +270,3 @@ export default function MobileApprovalDetailPage() {
   );
 }
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <div className="bg-white rounded-xl border border-[#EBEBEB] overflow-hidden">
-      <div className="px-4 py-3 border-b border-[#EBEBEB]"><h3 className="text-sm font-semibold text-[#0A0A0A]">{title}</h3></div>
-      <div className="px-4 py-3">{children}</div>
-    </div>
-  );
-}
-
-function InfoRow({ label, value }: { label: string; value?: string | null }) {
-  if (!value) return null;
-  return (
-    <div className="flex justify-between items-start py-1.5 text-sm">
-      <span className="text-[#999999] shrink-0 mr-3">{label}</span>
-      <span className="text-[#0A0A0A] text-right">{value}</span>
-    </div>
-  );
-}

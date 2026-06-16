@@ -8,6 +8,7 @@ import type { RiskApproval } from '@/lib/types';
 import MobileFormSection from '@/components/mobile/MobileFormSection';
 import MobileDynamicFields from '@/components/mobile/MobileDynamicFields';
 import ApprovalReportMini from '@/components/mobile/ApprovalReportMini';
+import { Field } from '@/components/mobile/SharedComponents';
 
 const SERVICE_PRODUCTS = ['货代', '关务', '仓库', '运输', '进出口', '维修', '合同物流', '一体化供应链', '其他'];
 const BUSINESS_TYPES = ['保税', '口岸完税', '免税', '试单', '其他'];
@@ -20,6 +21,16 @@ export default function MobileEditApprovalPage() {
   const router = useRouter();
   const params = useParams();
   const id = params.id as string;
+
+  if (!id || Array.isArray(id)) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20">
+        <h2 className="text-base font-semibold text-[#0A0A0A]">无效的审批 ID</h2>
+        <button className="mt-4 text-sm text-[#2D3BFF] font-medium" onClick={() => router.push('/mobile/approvals')}>返回列表</button>
+      </div>
+    );
+  }
+
   const { riskApprovals, updateRiskApproval, currentUser, approvalFields, autoApprovalRules } = useApp();
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState<Set<string>>(new Set());
@@ -126,7 +137,7 @@ export default function MobileEditApprovalPage() {
       });
       toast.success(draft ? '草稿已保存' : '已重新提交审批');
       router.push(`/mobile/approvals/${id}`);
-    } catch { toast.error('保存失败'); }
+    } catch (e) { console.error('[审批编辑] 保存失败:', e); toast.error('保存失败'); }
     finally { setSaving(false); }
   };
 
@@ -174,8 +185,4 @@ export default function MobileEditApprovalPage() {
       </div>
     </div>
   );
-}
-
-function Field({ label, required, error, children }: { label: string; required?: boolean; error?: boolean; children: React.ReactNode }) {
-  return <div data-error={error ? 'true' : undefined}><label className={`text-sm font-medium block mb-1.5 ${error ? 'text-[#D63031]' : 'text-[#0A0A0A]'}`}>{label}{required && <span className="text-[#D63031] ml-0.5">*</span>}</label>{children}{error && <p className="text-xs text-[#D63031] mt-1">请填写{label}</p>}</div>;
 }

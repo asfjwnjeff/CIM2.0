@@ -8,6 +8,7 @@ import type { FollowUpRecord, FollowUpType, FollowUpMethod, FollowUpStatus } fro
 import MobileFormSection from '@/components/mobile/MobileFormSection';
 import CheckInCard from '@/components/mobile/CheckInCard';
 import AIRecordingCard from '@/components/mobile/AIRecordingCard';
+import { Field } from '@/components/mobile/SharedComponents';
 
 const FOLLOWUP_TYPES: { value: FollowUpType; label: string }[] = [
   { value: 'kpi_not_met', label: 'KPI未达标' }, { value: 'contract_mgmt', label: '合同管理' },
@@ -67,7 +68,7 @@ export default function MobileNewFollowupPage() {
       });
       toast.success('跟进已保存');
       router.push('/mobile/followups');
-    } catch { toast.error('保存失败'); }
+    } catch (e) { console.error('[新建跟进] 保存失败:', e); toast.error('保存失败'); }
     finally { setSaving(false); }
   };
 
@@ -122,6 +123,3 @@ export default function MobileNewFollowupPage() {
   );
 }
 
-function Field({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
-  return <div><label className="text-sm font-medium text-[#0A0A0A] block mb-1.5">{label}{required && <span className="text-[#D63031] ml-0.5">*</span>}</label>{children}</div>;
-}
