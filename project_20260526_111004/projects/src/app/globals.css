@@ -218,6 +218,8 @@
 .dark .active\:bg-\[\#F5F5F5\]:active { background-color: #2C2C2E; }
 
 .dark .text-\[\#2D3BFF\] { color: #0A84FF; }
+.dark .border-\[\#2D3BFF\] { border-color: #0A84FF; }
+.dark .border-\[\#2D3BFF\]\/20 { border-color: rgba(10,132,255,0.2); }
 .dark .text-\[\#0D8A5E\] { color: #30D158; }
 .dark .text-\[\#D63031\] { color: #FF453A; }
 .dark .text-\[\#E8850C\] { color: #FFD60A; }
@@ -226,6 +228,18 @@
 .dark .bg-\[\#4338CA\] { background-color: #409CFF; }
 .dark .bg-\[\#D63031\] { background-color: #FF453A; }
 .dark .bg-\[\#0D8A5E\] { background-color: #30D158; }
+
+/* 审批流程组件专用 */
+.dark .bg-\[\#F0F1FF\] { background-color: #1A2030; }
+.dark .border-\[\#C7CAFF\] { border-color: #2A3050; }
+.dark .bg-\[\#FEF2F2\] { background-color: #2E1A1D; }
+.dark .border-\[\#FEE2E2\] { border-color: #4A2028; }
+.dark .bg-\[\#FFF9EB\] { background-color: #2E2A10; }
+.dark .border-\[\#FDE68A\] { border-color: #4A3A15; }
+.dark .text-\[\#DC2626\] { color: #FF453A; }
+.dark .shadow-\[0_0_0_4px_rgba\(45\,59\,255\,0\.15\)\] { box-shadow: 0 0 0 4px rgba(10,132,255,0.25); }
+.dark .shadow-\[0_0_0_3px_rgba\(45\,59\,255\,0\.15\)\] { box-shadow: 0 0 0 3px rgba(10,132,255,0.25); }
+.dark .bg-\[\#2D3BFF\]\/30 { background-color: rgba(10,132,255,0.3); }
 
 /* === 移动端 CSS 令牌 === */
 
