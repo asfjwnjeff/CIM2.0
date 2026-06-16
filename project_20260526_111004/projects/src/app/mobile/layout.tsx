@@ -2,20 +2,23 @@
 
 import React from 'react';
 import BottomTabBar from '@/components/mobile/BottomTabBar';
+import ThemeToggle from '@/components/ThemeToggle';
 
 export default function MobileLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-[#FAFAFA] pb-[calc(56px+env(safe-area-inset-bottom,0px))]">
+    <div className="min-h-screen bg-[var(--bg-page)] pb-[calc(56px+env(safe-area-inset-bottom,0px))]">
       {/* 移动端顶部状态栏 */}
       <header
-        className="sticky top-0 z-40 bg-white border-b border-[#EBEBEB] flex items-center justify-center"
+        className="sticky top-0 z-40 bg-[var(--bg-surface)] border-b border-[var(--border-light)] flex items-center justify-between px-4"
         style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}
       >
+        <div className="w-8" />
         <div className="h-12 flex items-center">
-          <span className="text-[15px] font-bold tracking-tight text-[#0A0A0A]">
-            CIM <span className="font-normal text-[#5A5A5A]">2.0</span>
+          <span className="text-[15px] font-bold tracking-tight text-[var(--text-primary)]">
+            CIM <span className="font-normal text-[var(--text-secondary)]">2.0</span>
           </span>
         </div>
+        <ThemeToggle />
       </header>
 
       {/* 页面内容 */}

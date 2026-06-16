@@ -6,6 +6,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useApp } from '@/lib/store';
 import { NAV_ITEMS, type NavItem } from '@/lib/navigation';
 import { GlobalSearchDialog } from './GlobalSearchDialog';
+import ThemeToggle from '@/components/ThemeToggle';
 
 /* ====== Header 专用图标 ====== */
 
@@ -214,16 +215,16 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   /* 移动端路由：只渲染子组件，不渲染桌面 chrome */
   if (isMobileRoute) {
     return (
-      <div className="min-h-screen bg-[#FAFAFA]">
+      <div className="min-h-screen bg-[var(--bg-page)]">
         {children}
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA]">
+    <div className="min-h-screen bg-[var(--bg-page)]">
       {/* ====== 顶栏 (纯白 + 底部细线) ====== */}
-      <header className="h-[55px] bg-white border-b border-[#EBEBEB] flex items-center justify-between px-4 fixed top-0 left-0 right-0 z-50">
+      <header className="h-[55px] bg-[var(--bg-surface)] border-b border-[var(--border-light)] flex items-center justify-between px-4 fixed top-0 left-0 right-0 z-50">
         <div className="flex items-center gap-3">
           <button
             onClick={() => setSidebarExpanded(!sidebarExpanded)}
@@ -240,6 +241,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         </div>
 
         <div className="flex items-center gap-2">
+          {/* 主题切换 */}
+          <ThemeToggle />
+
           {/* 全局搜索按钮 */}
           <button
             className="hidden sm:flex items-center gap-2 h-8 px-3 text-xs text-[#999999] bg-[#F5F5F5] hover:bg-[#EBEBEB] rounded-md transition-colors border border-transparent hover:border-[#D5D5D5]"

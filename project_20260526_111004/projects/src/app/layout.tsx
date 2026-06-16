@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google';
 import './globals.css';
 import AppLayout from '@/components/layout/AppLayout';
 import { AppProvider } from '@/lib/store';
+import { ThemeProvider } from '@/components/ThemeProvider';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -22,11 +23,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="zh-CN">
+    <html lang="zh-CN" suppressHydrationWarning>
       <body className={inter.className}>
-        <AppProvider>
-          <AppLayout>{children}</AppLayout>
-        </AppProvider>
+        <ThemeProvider>
+          <AppProvider>
+            <AppLayout>{children}</AppLayout>
+          </AppProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
