@@ -5,8 +5,8 @@ import { eq } from 'drizzle-orm';
 function parseRecord(record: Record<string, unknown>) {
   const parsed = { ...record };
   // isKeyDecisionMaker is stored as integer, convert to boolean
-  if (parsed['is_key_decision_maker'] !== undefined) {
-    parsed['isKeyDecisionMaker'] = parsed['is_key_decision_maker'] === 1;
+  if (typeof parsed['isKeyDecisionMaker'] === 'number') {
+    parsed['isKeyDecisionMaker'] = parsed['isKeyDecisionMaker'] === 1;
   }
   // snake_case → camelCase mapping for all fields
   const keyMap: Record<string, string> = {
