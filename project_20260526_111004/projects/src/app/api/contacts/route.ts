@@ -4,25 +4,9 @@ import { eq } from 'drizzle-orm';
 
 function parseRecord(record: Record<string, unknown>) {
   const parsed = { ...record };
-  // isKeyDecisionMaker is stored as integer, convert to boolean
+  // Drizzle mode:'boolean' 可能返回 0/1（取决于驱动），统一转为 boolean
   if (typeof parsed['isKeyDecisionMaker'] === 'number') {
     parsed['isKeyDecisionMaker'] = parsed['isKeyDecisionMaker'] === 1;
-  }
-  // snake_case → camelCase mapping for all fields
-  const keyMap: Record<string, string> = {
-    customer_id: 'customerId',
-    english_name: 'englishName',
-    is_key_decision_maker: 'isKeyDecisionMaker',
-    zip_code: 'zipCode',
-    family_situation: 'familySituation',
-    created_at: 'createdAt',
-    updated_at: 'updatedAt',
-  };
-  for (const [dbKey, camelKey] of Object.entries(keyMap)) {
-    if (parsed[dbKey] !== undefined) {
-      parsed[camelKey] = parsed[dbKey];
-      if (dbKey !== camelKey) delete parsed[dbKey];
-    }
   }
   return parsed;
 }
@@ -103,33 +87,19 @@ export async function PUT(req: Request) {
     if (!body.id) return Response.json({ error: 'Missing id' }, { status: 400 });
 
     const now = new Date().toISOString();
-    const updates: Record<string, unknown> = { updated_at: now };
+    const updates: Record<string, unknown> = { updatedAt: now };
 
-    const STRING_FIELDS = [
+    // Drizzle .set() 接收 JavaScript 属性名（camelCase），内部映射到数据库列名
+    const FIELDS = [
       'customerId', 'name', 'englishName', 'phone', 'email',
       'wechat', 'address', 'department', 'position', 'gender',
       'birthday', 'hobbies', 'hometown', 'familySituation', 'zipCode',
+      'age', 'isKeyDecisionMaker',
     ];
-    const NUM_FIELDS = ['age'];
-    const BOOL_FIELDS = ['isKeyDecisionMaker'];
 
-    for (const f of STRING_FIELDS) {
+    for (const f of FIELDS) {
       if (body[f] !== undefined) {
-        // Convert camelCase to snake_case for DB
-        const dbKey = f.replace(/([A-Z])/g, '_$1').toLowerCase();
-        updates[dbKey] = body[f];
-      }
-    }
-    for (const f of NUM_FIELDS) {
-      if (body[f] !== undefined) {
-        const dbKey = f.replace(/([A-Z])/g, '_$1').toLowerCase();
-        updates[dbKey] = body[f];
-      }
-    }
-    for (const f of BOOL_FIELDS) {
-      if (body[f] !== undefined) {
-        const dbKey = f.replace(/([A-Z])/g, '_$1').toLowerCase();
-        updates[dbKey] = body[f] ? 1 : 0;
+        updates[f] = body[f];
       }
     }
 
