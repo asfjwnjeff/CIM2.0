@@ -24,17 +24,16 @@ export const customers = sqliteTable('customers', {
   createdAt: text('created_at').default('2024-01-01'),
   updatedAt: text('updated_at').default('2024-01-01'),
   // 主体类型与 CPQ 集成
-  entityTypes: text('entity_types'),         // JSON array
+  entityTypes: text('entity_types'),                // JSON array
   sourceSystem: text('source_system'),
-  boundCustomers: text('bound_customers'),   // JSON array
+  boundCustomers: text('bound_customers'),          // JSON array
+  blacklistInfo: text('blacklist_info'),            // JSON object
   domesticFlag: text('domestic_flag'),
   settlementCycle: text('settlement_cycle'),
   invoiceAddress: text('invoice_address'),
-  bankAccounts: text('bank_accounts'),       // JSON array
+  bankAccounts: text('bank_accounts'),              // JSON array
   settlementRelationType: text('settlement_relation_type'),
   settlementRelationName: text('settlement_relation_name'),
-  // 黑名单
-  blacklistInfo: text('blacklist_info'),     // JSON
 });
 
 // 账单主体

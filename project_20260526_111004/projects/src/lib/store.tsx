@@ -255,6 +255,8 @@ type Action =
   | { type: 'RESET_APPROVAL_WORKFLOWS' }
   | { type: 'RESET_AUTO_APPROVAL_RULES' }
   | { type: 'RESET_APPROVAL_FIELDS' }
+  | { type: 'RESET_CONTACTS' }
+  | { type: 'ADD_CONTACT'; payload: Contact }
   | { type: 'ADD_FOLLOWUP'; payload: Omit<FollowUpRecord, 'id' | 'createdAt'> }
   | { type: 'UPDATE_FOLLOWUP'; payload: { id: string; updates: Partial<FollowUpRecord> } }
   | { type: 'DELETE_FOLLOWUP'; payload: string }
@@ -604,6 +606,10 @@ function reducer(state: AppState, action: Action): AppState {
       return { ...state, autoApprovalRules: [] };
     case 'RESET_APPROVAL_FIELDS':
       return { ...state, approvalFields: [] };
+    case 'RESET_CONTACTS':
+      return { ...state, contacts: [] };
+    case 'ADD_CONTACT':
+      return { ...state, contacts: [...state.contacts, action.payload] };
     case 'ADD_RISK_APPROVAL':
       return {
         ...state,
@@ -802,6 +808,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         { url: '/api/approval-workflows', resetType: 'RESET_APPROVAL_WORKFLOWS', addType: 'ADD_APPROVAL_WORKFLOW' },
         { url: '/api/auto-approval-rules', resetType: 'RESET_AUTO_APPROVAL_RULES', addType: 'ADD_AUTO_APPROVAL_RULE' },
         { url: '/api/approval-fields', resetType: 'RESET_APPROVAL_FIELDS', addType: 'ADD_APPROVAL_FIELD' },
+        { url: '/api/contacts', resetType: 'RESET_CONTACTS', addType: 'ADD_CONTACT' },
       ];
       for (const api of apis) {
         try {

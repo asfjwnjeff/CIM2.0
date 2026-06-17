@@ -51,7 +51,11 @@ const CREATE_TABLES = [
     related_companies TEXT, products TEXT, billing_entities TEXT,
     rule_ids TEXT, audit_logs TEXT,
     responsible_persons TEXT, collaborators TEXT, created_by TEXT,
-    created_at TEXT, updated_at TEXT
+    created_at TEXT, updated_at TEXT,
+    entity_types TEXT, source_system TEXT, bound_customers TEXT,
+    blacklist_info TEXT, domestic_flag TEXT, settlement_cycle TEXT,
+    invoice_address TEXT, bank_accounts TEXT,
+    settlement_relation_type TEXT, settlement_relation_name TEXT
   )`,
   `CREATE TABLE IF NOT EXISTS billing_entities (
     id TEXT PRIMARY KEY, name TEXT NOT NULL, code TEXT,
@@ -190,6 +194,16 @@ const MIGRATIONS = [
   `ALTER TABLE customers ADD COLUMN collaborators TEXT`,
   `ALTER TABLE customers ADD COLUMN created_by TEXT`,
   `ALTER TABLE customers ADD COLUMN progress_status TEXT DEFAULT 'newly_acquired'`,
+  `ALTER TABLE customers ADD COLUMN entity_types TEXT`,
+  `ALTER TABLE customers ADD COLUMN source_system TEXT`,
+  `ALTER TABLE customers ADD COLUMN bound_customers TEXT`,
+  `ALTER TABLE customers ADD COLUMN blacklist_info TEXT`,
+  `ALTER TABLE customers ADD COLUMN domestic_flag TEXT`,
+  `ALTER TABLE customers ADD COLUMN settlement_cycle TEXT`,
+  `ALTER TABLE customers ADD COLUMN invoice_address TEXT`,
+  `ALTER TABLE customers ADD COLUMN bank_accounts TEXT`,
+  `ALTER TABLE customers ADD COLUMN settlement_relation_type TEXT`,
+  `ALTER TABLE customers ADD COLUMN settlement_relation_name TEXT`,
 ];
 
 export async function seed() {
@@ -272,15 +286,37 @@ export async function seed() {
   }
   console.log(`  账单主体: ${initialBillingEntities.length} 条`);
 
-  // 插入客户 — 自动根据值类型判断是否 JSON.stringify
-  const SCALAR_FIELDS = new Set(['id','name','customerCode','status','progressStatus','createdBy','createdAt','updatedAt','sourceSystem','domesticFlag','settlementCycle','invoiceAddress','settlementRelationType','settlementRelationName']);
+  // 插入客户
   for (const c of initialCustomers) {
-    const values: Record<string, unknown> = {};
-    for (const [key, val] of Object.entries(c)) {
-      if (val === undefined || val === null) { values[key] = null; continue; }
-      values[key] = SCALAR_FIELDS.has(key) ? val : JSON.stringify(val);
-    }
-    db.insert(customers).values(values as never).run();
+    db.insert(customers).values({
+      id: c.id, name: c.name, customerCode: c.customerCode ?? null,
+      signingEntityIds: c.signingEntityIds ? JSON.stringify(c.signingEntityIds) : null, serviceEntityIds: c.serviceEntityIds ? JSON.stringify(c.serviceEntityIds) : null, settlementEntityIds: c.settlementEntityIds ? JSON.stringify(c.settlementEntityIds) : null,
+      status: c.status,
+      progressStatus: c.progressStatus ?? 'newly_acquired',
+      responsiblePersons: c.responsiblePersons ? JSON.stringify(c.responsiblePersons) : null,
+      collaborators: c.collaborators ? JSON.stringify(c.collaborators) : null,
+      createdBy: c.createdBy ?? null,
+      basicInfo: c.basicInfo ? JSON.stringify(c.basicInfo) : null,
+      businessInfo: c.businessInfo ? JSON.stringify(c.businessInfo) : null,
+      semiconductorInfo: c.semiconductorInfo ? JSON.stringify(c.semiconductorInfo) : null,
+      relatedCompanies: (c as any).relatedCompanies ? JSON.stringify((c as any).relatedCompanies) : null,
+      products: (c as any).products ? JSON.stringify((c as any).products) : null,
+      billingEntities: (c as any).billingEntities ? JSON.stringify((c as any).billingEntities) : null,
+      ruleIds: (c as any).ruleIds ? JSON.stringify((c as any).ruleIds) : null,
+      auditLogs: (c as any).auditLogs ? JSON.stringify((c as any).auditLogs) : null,
+      entityTypes: (c as any).entityTypes ? JSON.stringify((c as any).entityTypes) : null,
+      sourceSystem: (c as any).sourceSystem ?? null,
+      boundCustomers: (c as any).boundCustomers ? JSON.stringify((c as any).boundCustomers) : null,
+      blacklistInfo: (c as any).blacklistInfo ? JSON.stringify((c as any).blacklistInfo) : null,
+      domesticFlag: (c as any).domesticFlag ?? null,
+      settlementCycle: (c as any).settlementCycle ?? null,
+      invoiceAddress: (c as any).invoiceAddress ?? null,
+      bankAccounts: (c as any).bankAccounts ? JSON.stringify((c as any).bankAccounts) : null,
+      settlementRelationType: (c as any).settlementRelationType ?? null,
+      settlementRelationName: (c as any).settlementRelationName ?? null,
+      updatedAt: (c as any).updatedAt ?? null,
+      createdAt: c.createdAt,
+    }).run();
   }
   console.log(`  客户: ${initialCustomers.length} 条`);
 
