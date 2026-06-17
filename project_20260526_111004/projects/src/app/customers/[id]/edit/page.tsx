@@ -455,6 +455,7 @@ export default function EditCustomerPage() {
   const nameInputRef = useRef<HTMLInputElement>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
+  const previousProgressRef = useRef<ProgressStatus>('pending_followup');
 
   useEffect(() => {
     if (customer && !initialized.current) {
@@ -890,12 +891,7 @@ export default function EditCustomerPage() {
                       {form.progressStatus === 'invalid' ? (
                         <button
                           type="button"
-                          onClick={() => {
-                            const restoreTo = (customer?.sourceSystem === 'cpq' && (customer?.entityTypes?.includes('service') || customer?.entityTypes?.includes('settlement')))
-                              ? 'deal_closed'
-                              : 'pending_followup';
-                            updateField('progressStatus', restoreTo as ProgressStatus);
-                          }}
+                          onClick={() => updateField('progressStatus', previousProgressRef.current)}
                           className="shrink-0 px-3 py-2 text-xs font-medium text-[#0D8A5E] border border-[#B8E8D4] rounded-lg hover:bg-[#E6F7F0] transition-colors whitespace-nowrap"
                         >
                           恢复
@@ -903,7 +899,10 @@ export default function EditCustomerPage() {
                       ) : (
                         <button
                           type="button"
-                          onClick={() => updateField('progressStatus', 'invalid' as ProgressStatus)}
+                          onClick={() => {
+                            previousProgressRef.current = form.progressStatus;
+                            updateField('progressStatus', 'invalid' as ProgressStatus);
+                          }}
                           className="shrink-0 px-3 py-2 text-xs font-medium text-[#D63031] border border-[#FFCDD2] rounded-lg hover:bg-[#FFEBEE] transition-colors whitespace-nowrap"
                         >
                           标记为失效
