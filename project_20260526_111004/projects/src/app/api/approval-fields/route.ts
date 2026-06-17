@@ -1,4 +1,4 @@
-import { getDb } from '@/db';
+import { getDb, saveDb } from '@/db';
 import { approvalFields } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 
@@ -41,6 +41,7 @@ export async function POST(req: Request) {
       updatedAt: now,
     };
     db.insert(approvalFields).values(record).run();
+    saveDb();
     return Response.json({ ...record, serviceProducts: body.serviceProducts, options: body.options, isRequired: body.isRequired }, { status: 201 });
   } catch (e) {
     return Response.json({ error: String(e) }, { status: 500 });
@@ -70,6 +71,7 @@ export async function PUT(req: Request) {
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (db.update(approvalFields) as any).set(updateData).where(eq(approvalFields.id, body.id)).run();
+    saveDb();
     return Response.json({ success: true });
   } catch (e) {
     return Response.json({ error: String(e) }, { status: 500 });
@@ -83,6 +85,7 @@ export async function DELETE(req: Request) {
     const id = searchParams.get('id');
     if (!id) return Response.json({ error: 'Missing id' }, { status: 400 });
     db.delete(approvalFields).where(eq(approvalFields.id, id)).run();
+    saveDb();
     return Response.json({ success: true });
   } catch (e) {
     return Response.json({ error: String(e) }, { status: 500 });

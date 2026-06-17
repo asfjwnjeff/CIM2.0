@@ -246,6 +246,15 @@ type Action =
   | { type: 'UPDATE_RISK_APPROVAL'; payload: { id: string; updates: Partial<RiskApproval> } }
   | { type: 'DELETE_RISK_APPROVAL'; payload: string }
   | { type: 'RESET_RISK_APPROVALS' }
+  | { type: 'RESET_CUSTOMERS' }
+  | { type: 'RESET_OPPORTUNITIES' }
+  | { type: 'RESET_FOLLOWUPS' }
+  | { type: 'RESET_BILLING_ENTITIES' }
+  | { type: 'RESET_BILLING_RULES' }
+  | { type: 'RESET_QUOTES' }
+  | { type: 'RESET_APPROVAL_WORKFLOWS' }
+  | { type: 'RESET_AUTO_APPROVAL_RULES' }
+  | { type: 'RESET_APPROVAL_FIELDS' }
   | { type: 'ADD_FOLLOWUP'; payload: Omit<FollowUpRecord, 'id' | 'createdAt'> }
   | { type: 'UPDATE_FOLLOWUP'; payload: { id: string; updates: Partial<FollowUpRecord> } }
   | { type: 'DELETE_FOLLOWUP'; payload: string }
@@ -577,6 +586,24 @@ function reducer(state: AppState, action: Action): AppState {
       };
     case 'RESET_RISK_APPROVALS':
       return { ...state, riskApprovals: [] };
+    case 'RESET_CUSTOMERS':
+      return { ...state, customers: [] };
+    case 'RESET_OPPORTUNITIES':
+      return { ...state, opportunities: [] };
+    case 'RESET_FOLLOWUPS':
+      return { ...state, followUps: [] };
+    case 'RESET_BILLING_ENTITIES':
+      return { ...state, billingEntities: [] };
+    case 'RESET_BILLING_RULES':
+      return { ...state, billingRules: [] };
+    case 'RESET_QUOTES':
+      return { ...state, quotes: [], salesQuotes: [] };
+    case 'RESET_APPROVAL_WORKFLOWS':
+      return { ...state, approvalWorkflows: [] };
+    case 'RESET_AUTO_APPROVAL_RULES':
+      return { ...state, autoApprovalRules: [] };
+    case 'RESET_APPROVAL_FIELDS':
+      return { ...state, approvalFields: [] };
     case 'ADD_RISK_APPROVAL':
       return {
         ...state,
@@ -760,24 +787,36 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 export function AppProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(reducer, { ...defaultState, currentUser });
 
-  // 启动时从数据库加载风控审批数据
+  // 启动时从数据库加载全部数据
   useEffect(() => {
     let cancelled = false;
     const loadFromDb = async () => {
-      try {
-        const res = await fetch('/api/risk-approvals');
-        if (res.ok && !cancelled) {
-          const dbData = await res.json();
-          if (Array.isArray(dbData) && dbData.length > 0) {
-            // 清除初始示例数据，再加载 DB 数据，避免重复
-            dispatch({ type: 'RESET_RISK_APPROVALS' });
-            dbData.forEach((ra: Record<string, unknown>) => {
-              dispatch({ type: 'ADD_RISK_APPROVAL', payload: ra as unknown as Omit<RiskApproval, 'id' | 'createdAt'> });
-            });
+      const apis: Array<{url:string; resetType:string; addType:string}> = [
+        { url: '/api/customers', resetType: 'RESET_CUSTOMERS', addType: 'ADD_CUSTOMER' },
+        { url: '/api/risk-approvals', resetType: 'RESET_RISK_APPROVALS', addType: 'ADD_RISK_APPROVAL' },
+        { url: '/api/opportunities', resetType: 'RESET_OPPORTUNITIES', addType: 'ADD_OPPORTUNITY' },
+        { url: '/api/followups', resetType: 'RESET_FOLLOWUPS', addType: 'ADD_FOLLOWUP' },
+        { url: '/api/billing-entities', resetType: 'RESET_BILLING_ENTITIES', addType: 'ADD_BILLING_ENTITY' },
+        { url: '/api/billing-rules', resetType: 'RESET_BILLING_RULES', addType: 'ADD_BILLING_RULE' },
+        { url: '/api/quotes', resetType: 'RESET_QUOTES', addType: 'ADD_QUOTE' },
+        { url: '/api/approval-workflows', resetType: 'RESET_APPROVAL_WORKFLOWS', addType: 'ADD_APPROVAL_WORKFLOW' },
+        { url: '/api/auto-approval-rules', resetType: 'RESET_AUTO_APPROVAL_RULES', addType: 'ADD_AUTO_APPROVAL_RULE' },
+        { url: '/api/approval-fields', resetType: 'RESET_APPROVAL_FIELDS', addType: 'ADD_APPROVAL_FIELD' },
+      ];
+      for (const api of apis) {
+        try {
+          const res = await fetch(api.url);
+          if (res.ok && !cancelled) {
+            const json = await res.json();
+            const dbData = json.data || json;
+            if (Array.isArray(dbData) && dbData.length > 0) {
+              dispatch({ type: api.resetType as never });
+              dbData.forEach((item: Record<string,unknown>) => {
+                dispatch({ type: api.addType as never, payload: item as never });
+              });
+            }
           }
-        }
-      } catch {
-        // 数据库不可用时使用示例数据（已通过defaultState加载）
+        } catch { /* DB不可用时使用示例数据 */ }
       }
     };
     loadFromDb();
@@ -798,38 +837,47 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const addBillingEntity = useCallback((entity: Omit<BillingEntity, 'id' | 'createdAt'>) => {
     dispatch({ type: 'ADD_BILLING_ENTITY', payload: entity });
+    fetch('/api/billing-entities', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(entity) }).catch(() => {});
   }, []);
 
   const updateBillingEntity = useCallback((id: string, updates: Partial<BillingEntity>) => {
     dispatch({ type: 'UPDATE_BILLING_ENTITY', payload: { id, updates } });
+    fetch('/api/billing-entities', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, ...updates }) }).catch(() => {});
   }, []);
 
   const deleteBillingEntity = useCallback((id: string) => {
     dispatch({ type: 'DELETE_BILLING_ENTITY', payload: id });
+    fetch(`/api/billing-entities?id=${encodeURIComponent(id)}`, { method: 'DELETE' }).catch(() => {});
   }, []);
 
   const addBillingRule = useCallback((rule: Omit<BillingRule, 'id' | 'createdAt' | 'createdBy'>) => {
     dispatch({ type: 'ADD_BILLING_RULE', payload: rule });
+    fetch('/api/billing-rules', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(rule) }).catch(() => {});
   }, []);
 
   const updateBillingRule = useCallback((id: string, updates: Partial<BillingRule>) => {
     dispatch({ type: 'UPDATE_BILLING_RULE', payload: { id, updates } });
+    fetch('/api/billing-rules', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, ...updates }) }).catch(() => {});
   }, []);
 
   const deleteBillingRule = useCallback((id: string) => {
     dispatch({ type: 'DELETE_BILLING_RULE', payload: id });
+    fetch(`/api/billing-rules?id=${encodeURIComponent(id)}`, { method: 'DELETE' }).catch(() => {});
   }, []);
 
   const addCustomer = useCallback((customer: Omit<Customer, 'id' | 'createdAt'>) => {
     dispatch({ type: 'ADD_CUSTOMER', payload: customer });
+    fetch('/api/customers', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(customer) }).catch(() => {});
   }, []);
 
   const updateCustomer = useCallback((id: string, updates: Partial<Customer>) => {
     dispatch({ type: 'UPDATE_CUSTOMER', payload: { id, updates } });
+    fetch('/api/customers', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, ...updates }) }).catch(() => {});
   }, []);
 
   const deleteCustomer = useCallback((id: string) => {
     dispatch({ type: 'DELETE_CUSTOMER', payload: id });
+    fetch(`/api/customers?id=${encodeURIComponent(id)}`, { method: 'DELETE' }).catch(() => {});
   }, []);
 
   const addLog = useCallback((log: Omit<OperationLog, 'id' | 'timestamp'>) => {
@@ -838,14 +886,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const addQuote = useCallback((quote: Omit<Quote, 'id' | 'createdAt' | 'updatedAt'>) => {
     dispatch({ type: 'ADD_QUOTE', payload: quote });
+    fetch('/api/quotes', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(quote) }).catch(() => {});
   }, []);
 
   const updateQuote = useCallback((id: string, updates: Partial<Quote>) => {
     dispatch({ type: 'UPDATE_QUOTE', payload: { id, updates } });
+    fetch('/api/quotes', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, ...updates }) }).catch(() => {});
   }, []);
 
   const deleteQuote = useCallback((id: string) => {
     dispatch({ type: 'DELETE_QUOTE', payload: id });
+    fetch(`/api/quotes?id=${encodeURIComponent(id)}`, { method: 'DELETE' }).catch(() => {});
   }, []);
 
   const addApprovalWorkflow = useCallback((workflow: Omit<ApprovalWorkflow, 'id' | 'createdAt' | 'updatedAt'>) => {
@@ -895,10 +946,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
   // 跟进记录管理
   const addFollowUp = useCallback((followUp: Omit<FollowUpRecord, 'id' | 'createdAt'>) => {
     dispatch({ type: 'ADD_FOLLOWUP', payload: followUp });
+    fetch('/api/followups', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(followUp) }).catch(() => {});
   }, []);
 
   const updateFollowUp = useCallback((id: string, updates: Partial<FollowUpRecord>) => {
     dispatch({ type: 'UPDATE_FOLLOWUP', payload: { id, updates } });
+    fetch('/api/followups', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, ...updates }) }).catch(() => {});
   }, []);
 
   // 签约主体管理
@@ -1018,18 +1071,22 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const deleteFollowUp = useCallback((id: string) => {
     dispatch({ type: 'DELETE_FOLLOWUP', payload: id });
+    fetch(`/api/followups?id=${encodeURIComponent(id)}`, { method: 'DELETE' }).catch(() => {});
   }, []);
 
   const addOpportunity = useCallback((opportunity: Omit<Opportunity, 'id' | 'createdAt'>) => {
     dispatch({ type: 'ADD_OPPORTUNITY', payload: opportunity });
+    fetch('/api/opportunities', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(opportunity) }).catch(() => {});
   }, []);
 
   const updateOpportunity = useCallback((id: string, updates: Partial<Opportunity>) => {
     dispatch({ type: 'UPDATE_OPPORTUNITY', payload: { id, updates } });
+    fetch('/api/opportunities', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, ...updates }) }).catch(() => {});
   }, []);
 
   const deleteOpportunity = useCallback((id: string) => {
     dispatch({ type: 'DELETE_OPPORTUNITY', payload: id });
+    fetch(`/api/opportunities?id=${encodeURIComponent(id)}`, { method: 'DELETE' }).catch(() => {});
   }, []);
 
   const submitCustomer = useCallback((id: string) => {
