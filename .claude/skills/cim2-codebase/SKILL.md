@@ -19,19 +19,43 @@
 
 ## 数据库注意事项 ⚠️
 
-### 核心约束
+### Schema 演进机制（autoMigrate + 动态字段映射）
 
-1. **修改 `src/db/schema.ts` 后必须同步更新 `src/db/seed.ts`** 的 CREATE TABLE 语句。列名不一致会导致 seed 静默失败，Drizzle INSERT 报 `no such column`。
-2. **DB 文件修改后必须重启 dev server**。`getDb()` 是内存单例，不会自动感知文件变更。
-3. **seed.ts 的原始 SQL 是 Drizzle ORM 的补充**，用于建表。Drizzle 不负责 CREATE TABLE，只负责 CRUD。
+系统的 ORM 层（Drizzle schema）是**唯一真相源**。新增字段只需改 2 处，其余自动处理：
+
+```
+1. src/lib/types.ts          ← 加 TS 类型字段
+2. src/db/schema.ts          ← 加 Drizzle 列定义
+   → 启动时 autoMigrate() 自动 ALTER TABLE ADD COLUMN
+   → seed 用 Object.entries() 动态遍历写入
+   → API 用 buildDbData() 动态映射读写
+```
+
+**不再需要**手动同步 seed.ts CREATE TABLE、ALTER TABLE 数组、字段白名单。
+
+### autoMigrate() 自动补列
+
+`seed.ts` 中的 `autoMigrate()` 函数在每次启动时执行：
+1. `PRAGMA table_info(customers)` 读取 DB 中已有列
+2. 对比 schema 中定义的列 → 缺失列自动 `ALTER TABLE ADD COLUMN`
+3. 已存在列跳过不报错
+
+### 动态字段映射
+
+| 位置 | 机制 |
+|------|------|
+| seed 插入 | `Object.entries(c)` 遍历所有字段，`typeof === 'object' → JSON.stringify`，其余直接赋值 |
+| API GET | 遍历结果所有字段，值以 `{` 或 `[` 开头 → `JSON.parse` 尝试解析 |
+| API POST/PUT | `buildDbData()` 遍历 body，`object → JSON.stringify`，其余直接赋值 |
 
 ### 数据库重建步骤
 
 ```bash
 rm -f data/cim.db                          # 删除旧库
-npx tsx src/db/seed.ts                     # 建表 + 插入种子数据
-# 重启 dev server（ctrl+c 后重新 pnpm dev）
+# 重启 dev server（seed 自动建表+插数据）
 ```
+
+**注意**: DB 文件修改后必须重启 dev server。`getDb()` 是内存单例。
 
 ### 种子数据架构
 
@@ -103,6 +127,13 @@ src/app/
 - **禁止 `sample-data.ts` 中的数据分散到各页面的局部常量**。
   所有初始数据必须在 `sample-data.ts` 中统一导出。跨页面需要同一份数据时，各页面从 sample-data 导入，不允许各自维护一份副本。违反 → 数据不同步、改一处漏一处。
 
+- **禁止在 seed.ts 或 API route 中手写字段白名单**。
+  seed 已改为 `Object.entries()` 动态遍历，API 已改为 `buildDbData()`。新增字段无需手动同步到这些位置。手写白名单 = 遗留字段漏同步 → 数据丢失。
+
+- **禁止给 `useState` 传 `localStorage` 相关的函数调用而不加 lazy initializer**。
+  `useState(getStoredValue())` 每次渲染都执行 → SSR 返回默认值、客户端返回 localStorage 值 → hydration mismatch。
+  正确写法：`useState(() => getStoredValue())`，函数只在初始化时调用一次。
+
 - **禁止把 `sample-data.ts` 当成 mock 数据随意修改**。
   它是**生产数据库种子文件**，store 用它初始化内存状态，seed 用它初始化 SQLite。改它 = 改生产数据。任何改动必须在 Plan Mode 中获用户确认。
 
@@ -146,6 +177,8 @@ src/app/
 |------|---------|------|
 | 编辑保存后列表不变 | DB 未连接 / server 缓存旧 DB | 重建 DB + 重启 server |
 | seed 报 `no such column` | CREATE TABLE 列名与 Drizzle schema 不一致 | 对齐 seed.ts 的 SQL 列名 |
+| 新增字段后数据不显示 | 旧 DB 缺少列（未运行 autoMigrate） | 重启 server，autoMigrate 自动补列 |
+| `hydration mismatch` 错误 | `useState(fn())` 缺少 `() =>` lazy initializer | 改为 `useState(() => fn())` |
 | API 返回 `no such table` | seed 未运行或表被跳过 | 检查 seed 输出，确保所有表创建成功 |
 | 页面数据不更新 | store 与 API 不同步 | 检查 API 是否返回正确数据，store reducer 是否正确匹配 ID |
 | 修改 schema 后插入失败 | 未同步更新 seed.ts CREATE TABLE | schema.ts 和 seed.ts 必须同时修改 |
