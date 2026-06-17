@@ -62,7 +62,11 @@ export function SearchableMultiSelect<T extends string = string>({
             <div className="flex flex-wrap gap-1.5 py-1.5">
               {selectedOptions.map((option) => {
                 if (renderBadge) {
-                  return renderBadge(option, () => toggleOption(option.value));
+                  return (
+                    <span key={String(option.value)}>
+                      {renderBadge(option, () => toggleOption(option.value))}
+                    </span>
+                  );
                 }
                 return (
                   <span
@@ -70,16 +74,18 @@ export function SearchableMultiSelect<T extends string = string>({
                     className="inline-flex items-center gap-1 bg-[#E8EBFF] text-[#2D3BFF] rounded-md text-xs font-medium px-2 py-0.5"
                   >
                     <span>{option.label}</span>
-                    <button
-                      type="button"
+                    <span
+                      role="button"
+                      tabIndex={0}
                       onClick={(e) => {
                         e.stopPropagation();
                         toggleOption(option.value);
                       }}
-                      className="rounded-full hover:bg-[#2D3BFF]/20 p-0.5"
+                      onKeyDown={(e) => { if (e.key === 'Enter') toggleOption(option.value); }}
+                      className="rounded-full hover:bg-[#2D3BFF]/20 p-0.5 cursor-pointer"
                     >
                       <X className="w-3 h-3" />
-                    </button>
+                    </span>
                   </span>
                 );
               })}
