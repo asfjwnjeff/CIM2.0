@@ -7,8 +7,6 @@ import type { Customer, ProgressStatus, IndustryChainLevel } from '@/lib/types';
 import { useGroupFilter, GroupTabs, GroupManageDialog } from '@/components/groups';
 import { FIELD_META_MAP } from '@/lib/group-utils';
 import {
-  INDUSTRY_CHAIN_LEVEL_LABELS,
-  INDUSTRY_CHAIN_LEVEL_COLORS,
   PROGRESS_STATUS_LABELS,
   PROGRESS_STATUS_COLORS,
   MOCK_USERS,
@@ -448,8 +446,6 @@ export default function CustomersPage() {
         {viewMode === 'card' && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredCustomers.map((customer) => {
-              const chainLevel = customer.semiconductorInfo?.industryChainLevel || 'upstream';
-              const levelColors = INDUSTRY_CHAIN_LEVEL_COLORS[chainLevel];
               const ownerUsers = customer.responsiblePersons.map((id) => getUserById(id)).filter(Boolean);
               const collabUsers = customer.collaborators.map((id) => getUserById(id)).filter(Boolean);
               const createdByUser = getUserById(customer.createdBy);
@@ -486,7 +482,7 @@ export default function CustomersPage() {
                             </div>
                           </label>
                         </div>
-                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold ${levelColors.bg} ${levelColors.text}`}>
+                        <div className="w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold bg-[#E8EBFF] text-[#2D3BFF]">
                           {customer.name.charAt(0)}
                         </div>
                         <div className="min-w-0">
@@ -515,9 +511,6 @@ export default function CustomersPage() {
 
                     {/* Tags */}
                     <div className="flex flex-wrap items-center gap-1.5 mb-3">
-                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${levelColors.bg} ${levelColors.text}`}>
-                        {INDUSTRY_CHAIN_LEVEL_LABELS[chainLevel]}
-                      </span>
                       <ProgressBadge status={customer.progressStatus} />
                       {/* 主体类型标签 */}
                       {(customer.entityTypes && customer.entityTypes.length > 0
@@ -581,10 +574,11 @@ export default function CustomersPage() {
                         <div className="flex items-center gap-1.5">
                           <span className="text-xs text-[#999999] shrink-0">负责人</span>
                           {ownerUsers.length > 0 ? (
-                            <div className="flex flex-wrap gap-1">
-                              {ownerUsers.map((u) => (
+                            <div className="flex flex-wrap gap-1 items-center">
+                              {ownerUsers.slice(0, 3).map((u) => (
                                 <span key={u!.id} className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-[#E6F7F0] text-[#0D8A5E] border border-[#B8E8D4]">{u!.name}</span>
                               ))}
+                              {ownerUsers.length > 3 && <span className="text-xs text-[#999999]">等{ownerUsers.length}人</span>}
                             </div>
                           ) : (
                             <span className="text-xs text-[#999999]">未分配</span>
@@ -594,10 +588,11 @@ export default function CustomersPage() {
                         <div className="flex items-center gap-1.5">
                           <span className="text-xs text-[#999999] shrink-0">协同人</span>
                           {collabUsers.length > 0 ? (
-                            <div className="flex flex-wrap gap-1">
-                              {collabUsers.map((u) => (
+                            <div className="flex flex-wrap gap-1 items-center">
+                              {collabUsers.slice(0, 3).map((u) => (
                                 <span key={u!.id} className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-[#E8EBFF] text-[#2D3BFF] border border-[#C7CCFF]">{u!.name}</span>
                               ))}
+                              {collabUsers.length > 3 && <span className="text-xs text-[#999999]">等{collabUsers.length}人</span>}
                             </div>
                           ) : (
                             <span className="text-xs text-[#999999]">无</span>
@@ -608,7 +603,7 @@ export default function CustomersPage() {
 
                     {/* Footer */}
                     <div className="pt-3 border-t border-[#EBEBEB] flex items-center justify-between text-xs text-[#999999]">
-                      <span>{createdByUser?.name || '-'} 创建于 {customer.createdAt?.slice(0, 10)}</span>
+                      <span>{createdByUser?.name || '-'} 创建于 {customer.createdAt?.slice(0, 10).replace(/-/g, '.')}</span>
                       {/* Actions menu (stop propagation) */}
                       <div className="relative" onClick={(e) => e.stopPropagation()}>
                         <button
@@ -682,7 +677,6 @@ export default function CustomersPage() {
                     <th className="px-3 py-3 text-left text-[11px] font-semibold uppercase text-[#5A5A5A]">客户名称</th>
                     <th className="px-3 py-3 text-left text-[11px] font-semibold uppercase text-[#5A5A5A]">主体类型</th>
                     <th className="px-3 py-3 text-left text-[11px] font-semibold uppercase text-[#5A5A5A]">关联主体</th>
-                    <th className="px-3 py-3 text-left text-[11px] font-semibold uppercase text-[#5A5A5A]">产业链层级</th>
                     <th className="px-3 py-3 text-left text-[11px] font-semibold uppercase text-[#5A5A5A]">联系人</th>
                     <th className="px-3 py-3 text-left text-[11px] font-semibold uppercase text-[#5A5A5A]">联系电话</th>
                     <th className="px-3 py-3 text-left text-[11px] font-semibold uppercase text-[#5A5A5A]">负责人</th>
@@ -695,8 +689,6 @@ export default function CustomersPage() {
                 </thead>
                 <tbody>
                   {filteredCustomers.map((customer) => {
-                    const chainLevel = customer.semiconductorInfo?.industryChainLevel || 'upstream';
-                    const levelColors = INDUSTRY_CHAIN_LEVEL_COLORS[chainLevel];
                     const ownerUsers = customer.responsiblePersons.map((id) => getUserById(id)).filter(Boolean);
                     const isSelected = selectedIds.has(customer.id);
                     const collabUsers = customer.collaborators.map(getUserById).filter(Boolean);
@@ -804,11 +796,6 @@ export default function CustomersPage() {
                             <span className="text-xs text-[#B5B5B5]">-</span>
                           )}
                         </td>
-                        <td className="px-3 py-3">
-                          <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${levelColors.bg} ${levelColors.text}`}>
-                            {INDUSTRY_CHAIN_LEVEL_LABELS[chainLevel]}
-                          </span>
-                        </td>
                         <td className="px-3 py-3 text-[13px] text-[#0A0A0A]">
                           {customer.businessInfo?.legalRepresentative || '-'}
                         </td>
@@ -817,10 +804,11 @@ export default function CustomersPage() {
                         </td>
                         <td className="px-3 py-3">
                           {ownerUsers.length > 0 ? (
-                            <div className="flex flex-wrap gap-1">
-                              {ownerUsers.map((u) => (
+                            <div className="flex flex-wrap gap-1 items-center">
+                              {ownerUsers.slice(0, 3).map((u) => (
                                 <span key={u!.id} className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-[#E6F7F0] text-[#0D8A5E] border border-[#B8E8D4]">{u!.name}</span>
                               ))}
+                              {ownerUsers.length > 3 && <span className="text-xs text-[#999999]">等{ownerUsers.length}人</span>}
                             </div>
                           ) : (
                             <span className="text-sm text-[#999999]">-</span>
@@ -828,10 +816,11 @@ export default function CustomersPage() {
                         </td>
                         <td className="px-3 py-3">
                           {collabUsers.length > 0 ? (
-                            <div className="flex flex-wrap gap-1">
-                              {collabUsers.map((u) => (
+                            <div className="flex flex-wrap gap-1 items-center">
+                              {collabUsers.slice(0, 3).map((u) => (
                                 <span key={u!.id} className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-[#E8EBFF] text-[#2D3BFF] border border-[#C7CCFF]">{u!.name}</span>
                               ))}
+                              {collabUsers.length > 3 && <span className="text-xs text-[#999999]">等{collabUsers.length}人</span>}
                             </div>
                           ) : (
                             <span className="text-sm text-[#999999]">-</span>
@@ -844,7 +833,7 @@ export default function CustomersPage() {
                           <StatusBadge status={customer.status} />
                         </td>
                         <td className="px-3 py-3 text-[13px] text-[#5A5A5A]">
-                          {customer.createdAt?.slice(0, 10)}
+                          {customer.createdAt?.slice(0, 10).replace(/-/g, '.')}
                         </td>
                         <td className="px-3 py-3">
                           <div className="relative">
