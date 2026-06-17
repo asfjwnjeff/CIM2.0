@@ -285,16 +285,16 @@ export default function CustomerDetailPage() {
           </div>
         </div>
 
-        {/* Progress stepper — CPQ主体仅允许成交↔失效 */}
+        {/* Progress stepper — 所有主体可切换至失效；CPQ主体额外可切回成交 */}
         {(() => {
           const isCpq = customer.sourceSystem === 'cpq' && (customer.entityTypes?.includes('service') || customer.entityTypes?.includes('settlement'));
           return (
             <ProgressStepper
-              readonly={!isCpq}
+              readonly={false}
               currentStatus={customer.progressStatus}
-              onAdvance={isCpq ? (status) => {
+              onAdvance={(status) => {
                 if (status === 'invalid') updateCustomerProgress(customer.id, 'invalid');
-              } : undefined}
+              }}
               onRollback={isCpq ? (status) => {
                 if (status === 'deal_closed') updateCustomerProgress(customer.id, 'deal_closed');
               } : undefined}

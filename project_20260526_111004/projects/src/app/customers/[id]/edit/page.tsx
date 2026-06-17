@@ -36,9 +36,6 @@ interface EditFormData {
   // 协同管理信息
   name: string;
   customerCode: string;
-  signingEntityIds: string[];
-  serviceEntityIds: string[];
-  settlementEntityIds: string[];
   status: CustomerStatus;
   responsiblePersons: string[];
   collaborators: string[];
@@ -119,9 +116,6 @@ function buildFormData(customer: ReturnType<typeof useApp>['customers'][number])
   return {
     name: customer.name || '',
     customerCode: customer.customerCode || '',
-    signingEntityIds: customer.signingEntityIds || [],
-    serviceEntityIds: customer.serviceEntityIds || [],
-    settlementEntityIds: customer.settlementEntityIds || [],
     status: customer.status || 'active',
     responsiblePersons: customer.responsiblePersons || [],
     collaborators: customer.collaborators || [],
@@ -385,16 +379,6 @@ const SERVICE_PRODUCT_OPTIONS: SelectOption[] = ['货代', '关务', '仓储', '
 const CUSTOMER_LEVEL_OPTIONS: SelectOption[] = ['K', 'A', 'B', 'C', 'D'].map((v) => ({ value: v, label: v }));
 const INTENDED_CITY_OPTIONS: SelectOption[] = ['北京', '上海', '广州', '深圳', '天津', '重庆', '杭州', '南京', '苏州', '武汉', '成都', '西安', '青岛', '大连', '宁波', '厦门', '东莞', '佛山', '合肥', '长沙', '郑州', '济南', '沈阳', '福州', '无锡', '珠海', '中山', '惠州'].map((v) => ({ value: v, label: v }));
 
-function getSigningEntityOptions(signingEntities: ReturnType<typeof useApp>['signingEntities']): SelectOption[] {
-  return signingEntities.map((e) => ({ value: e.id, label: e.name }));
-}
-function getServiceEntityOptions(serviceEntities: ReturnType<typeof useApp>['serviceEntities']): SelectOption[] {
-  return serviceEntities.map((e) => ({ value: e.id, label: e.name }));
-}
-function getSettlementEntityOptions(settlementEntities: ReturnType<typeof useApp>['settlementEntities']): SelectOption[] {
-  return settlementEntities.map((e) => ({ value: e.id, label: e.name }));
-}
-
 function getUserById(id: string) {
   return MOCK_USERS.find((u) => u.id === id);
 }
@@ -599,9 +583,6 @@ export default function EditCustomerPage() {
     updateCustomer(customer.id, {
       name: form.name.trim(),
       customerCode: form.customerCode.trim() || undefined,
-      signingEntityIds: form.signingEntityIds.length > 0 ? form.signingEntityIds : undefined,
-      serviceEntityIds: form.serviceEntityIds.length > 0 ? form.serviceEntityIds : undefined,
-      settlementEntityIds: form.settlementEntityIds.length > 0 ? form.settlementEntityIds : undefined,
       status: form.status,
       responsiblePersons: form.responsiblePersons,
       collaborators: form.collaborators,
@@ -901,21 +882,21 @@ export default function EditCustomerPage() {
                   </div>
                   <div>
                     <label className={FIELD_STYLES.label}>跟进进度 {customer?.sourceSystem !== 'cpq' && <span className="text-xs text-[#999]">（系统自动判断）</span>}</label>
-                    {customer?.sourceSystem === 'cpq' && (customer.entityTypes?.includes('service') || customer.entityTypes?.includes('settlement')) ? (
-                      <select
-                        value={form.progressStatus}
-                        onChange={(e) => updateField('progressStatus', e.target.value as ProgressStatus)}
-                        className={FIELD_STYLES.input}
-                      >
-                        <option value="deal_closed">{PROGRESS_STATUS_LABELS.deal_closed}</option>
-                        <option value="invalid">{PROGRESS_STATUS_LABELS.invalid}</option>
-                      </select>
-                    ) : (
-                      <div className={`${FIELD_STYLES.input} bg-[#F5F5F5] text-[#5A5A5A] flex items-center gap-2 cursor-default`}>
+                    <div className="flex items-center gap-2">
+                      <div className={`${FIELD_STYLES.input} bg-[#F5F5F5] text-[#5A5A5A] flex items-center gap-2 cursor-default flex-1`}>
                         <span className={`inline-block w-2.5 h-2.5 rounded-full ${PROGRESS_STATUS_COLORS[form.progressStatus]?.dot || 'bg-gray-400'}`} />
                         {PROGRESS_STATUS_LABELS[form.progressStatus] || form.progressStatus}
                       </div>
-                    )}
+                      {form.progressStatus !== 'invalid' && (
+                        <button
+                          type="button"
+                          onClick={() => updateField('progressStatus', 'invalid' as ProgressStatus)}
+                          className="shrink-0 px-3 py-2 text-xs font-medium text-[#D63031] border border-[#FFCDD2] rounded-lg hover:bg-[#FFEBEE] transition-colors whitespace-nowrap"
+                        >
+                          标记为失效
+                        </button>
+                      )}
+                    </div>
                   </div>
                   <div>
                     <label className={FIELD_STYLES.label}>客户代码</label>
@@ -929,19 +910,33 @@ export default function EditCustomerPage() {
                       <SearchableSelect<CustomerStatus> value={form.status} onChange={(v) => updateField('status', v)} options={CUSTOMER_STATUS_OPTIONS} placeholder="请选择客户状态" />
                     )}
                   </div>
-                  <div>
-                    <label className={FIELD_STYLES.label}>签约主体</label>
-                    <SearchableMultiSelect values={form.signingEntityIds} onChange={(ids) => updateField('signingEntityIds', ids)} options={getSigningEntityOptions(signingEntities)} placeholder="搜索并选择签约主体..." searchPlaceholder="搜索签约主体..." emptyText="未找到签约主体" />
-                  </div>
-                  <div>
-                    <label className={FIELD_STYLES.label}>服务主体</label>
-                    <SearchableMultiSelect values={form.serviceEntityIds} onChange={(ids) => updateField('serviceEntityIds', ids)} options={getServiceEntityOptions(serviceEntities)} placeholder="搜索并选择服务主体..." searchPlaceholder="搜索服务主体..." emptyText="未找到服务主体" />
-                  </div>
-                  <div>
-                    <label className={FIELD_STYLES.label}>结算主体</label>
-                    <SearchableMultiSelect values={form.settlementEntityIds} onChange={(ids) => updateField('settlementEntityIds', ids)} options={getSettlementEntityOptions(settlementEntities)} placeholder="搜索并选择结算主体..." searchPlaceholder="搜索结算主体..." emptyText="未找到结算主体" />
-                  </div>
                 </div>
+
+                {/* 绑定关系（只读，来自 CPQ） */}
+                {customer.boundCustomers && customer.boundCustomers.length > 0 && (
+                  <div className="mb-3">
+                    <label className={FIELD_STYLES.label}>绑定关系</label>
+                    <div className="space-y-1.5">
+                      {customer.boundCustomers.map((bc) => {
+                        const bcColor = getEntityTypeColor(bc.entityType);
+                        return (
+                          <div
+                            key={bc.customerId}
+                            className="flex items-center gap-2 px-3 py-2 rounded-lg border border-[#EBEBEB] bg-[#F5F5F5]"
+                          >
+                            <span
+                              className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium shrink-0"
+                              style={{ backgroundColor: bcColor.light, color: bcColor.text }}
+                            >
+                              {getEntityTypeLabel(bc.entityType)}
+                            </span>
+                            <span className="text-sm text-[#0A0A0A] truncate">{bc.customerName}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* CPQ 专属字段（仅 sourceSystem='cpq' + 服务/结算主体时显示） */}
