@@ -1629,6 +1629,14 @@ React UI → useReducer dispatch → fetch API → Drizzle ORM → SQLite (sql.j
 - `saveDb()` 将 SQL.js 内存数据库导出写入 `data/cim.db` 文件
 - `startAutoSave(5000)` 每 5 秒自动保存
 
+**Schema 演进机制**：
+- `seed.ts` 中的 `autoMigrate()` 函数在每次启动时自动对比 Drizzle schema 与 DB 实际列，缺失列自动 `ALTER TABLE ADD COLUMN`
+- 种子脚本和 API 路由不再维护字段白名单，改为动态遍历：
+  - seed 插入：`Object.entries()` 遍历所有字段，`typeof object → JSON.stringify`，其余直接赋值
+  - API GET：遍历结果字段，值以 `{` 或 `[` 开头 → `JSON.parse` 尝试解析
+  - API POST/PUT：`buildDbData()` 遍历 body 字段自动映射
+- **新增 Customer 字段只需 2 步**：改 `types.ts` + 改 `schema.ts`，其余全自动
+
 ---
 
 ### 6.1 数据权限
