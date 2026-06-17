@@ -343,6 +343,26 @@ export default function CustomersPage() {
           onManage={groupFilter.openCreateDialog}
         />
 
+        {/* 主体类型筛选（复用分组标签栏样式） */}
+        <div className="flex items-center gap-0 overflow-x-auto scrollbar-hide -mt-1">
+          {(['all', 'signing', 'service', 'settlement'] as const).map((type) => (
+            <button
+              key={type}
+              onClick={() => setFilterEntityType(type)}
+              className={`relative shrink-0 px-3 py-2 text-xs font-medium transition-colors whitespace-nowrap ${
+                filterEntityType === type
+                  ? 'text-[#2D3BFF]'
+                  : 'text-[#666666] hover:text-[#0A0A0A]'
+              }`}
+            >
+              {type === 'all' ? '全部主体' : getEntityTypeLabel(type)}
+              {filterEntityType === type && (
+                <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-4 h-[2px] bg-[#2D3BFF] rounded-full" />
+              )}
+            </button>
+          ))}
+        </div>
+
         {/* Search & Filters */}
         <div className="bg-white rounded-2xl border border-[#EBEBEB] shadow-[0_2px_8px_rgba(0,0,0,0.06)] p-4">
           <div className="flex flex-wrap gap-3">
@@ -389,24 +409,6 @@ export default function CustomersPage() {
               ))}
             </select>
           </div>
-        </div>
-
-        {/* 主体类型快速分组 */}
-        <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-xs text-[#999999] mr-1">主体类型：</span>
-          {(['all', 'signing', 'service', 'settlement'] as const).map((type) => (
-            <button
-              key={type}
-              onClick={() => setFilterEntityType(type)}
-              className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
-                filterEntityType === type
-                  ? 'bg-[#2D3BFF] text-white'
-                  : 'bg-[#F5F5F5] text-[#5A5A5A] hover:bg-[#EBEBEB]'
-              }`}
-            >
-              {type === 'all' ? '全部主体' : getEntityTypeLabel(type)}
-            </button>
-          ))}
         </div>
 
         {/* Batch operations toolbar */}
