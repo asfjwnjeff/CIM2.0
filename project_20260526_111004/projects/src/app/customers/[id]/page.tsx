@@ -285,22 +285,17 @@ export default function CustomerDetailPage() {
           </div>
         </div>
 
-        {/* Progress stepper — 所有主体可切换至失效；CPQ主体额外可切回成交 */}
-        {(() => {
-          const isCpq = customer.sourceSystem === 'cpq' && (customer.entityTypes?.includes('service') || customer.entityTypes?.includes('settlement'));
-          return (
-            <ProgressStepper
-              readonly={false}
-              currentStatus={customer.progressStatus}
-              onAdvance={(status) => {
-                if (status === 'invalid') updateCustomerProgress(customer.id, 'invalid');
-              }}
-              onRollback={isCpq ? (status) => {
-                if (status === 'deal_closed') updateCustomerProgress(customer.id, 'deal_closed');
-              } : undefined}
-            />
-          );
-        })()}
+        {/* Progress stepper — 所有主体可切换至失效，也可从失效切回成交 */}
+        <ProgressStepper
+          readonly={false}
+          currentStatus={customer.progressStatus}
+          onAdvance={(status) => {
+            if (status === 'invalid') updateCustomerProgress(customer.id, 'invalid');
+          }}
+          onRollback={(status) => {
+            if (status === 'deal_closed') updateCustomerProgress(customer.id, 'deal_closed');
+          }}
+        />
 
         {/* 信息补全横幅（仅CPQ来源的服务/结算主体） */}
         {(() => {

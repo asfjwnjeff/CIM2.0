@@ -887,7 +887,20 @@ export default function EditCustomerPage() {
                         <span className={`inline-block w-2.5 h-2.5 rounded-full ${PROGRESS_STATUS_COLORS[form.progressStatus]?.dot || 'bg-gray-400'}`} />
                         {PROGRESS_STATUS_LABELS[form.progressStatus] || form.progressStatus}
                       </div>
-                      {form.progressStatus !== 'invalid' && (
+                      {form.progressStatus === 'invalid' ? (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const restoreTo = (customer?.sourceSystem === 'cpq' && (customer?.entityTypes?.includes('service') || customer?.entityTypes?.includes('settlement')))
+                              ? 'deal_closed'
+                              : 'pending_followup';
+                            updateField('progressStatus', restoreTo as ProgressStatus);
+                          }}
+                          className="shrink-0 px-3 py-2 text-xs font-medium text-[#0D8A5E] border border-[#B8E8D4] rounded-lg hover:bg-[#E6F7F0] transition-colors whitespace-nowrap"
+                        >
+                          恢复
+                        </button>
+                      ) : (
                         <button
                           type="button"
                           onClick={() => updateField('progressStatus', 'invalid' as ProgressStatus)}

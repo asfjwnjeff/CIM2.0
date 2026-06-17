@@ -203,7 +203,7 @@ export const PROGRESS_STATUS_COLORS: Record<string, { bg: string; text: string; 
   pending_followup: { bg: 'bg-orange-100', text: 'text-orange-700', dot: 'bg-orange-500' },
   opportunity_confirmed: { bg: 'bg-purple-100', text: 'text-purple-700', dot: 'bg-purple-500' },
   deal_closed: { bg: 'bg-green-100', text: 'text-green-700', dot: 'bg-green-500' },
-  invalid: { bg: 'bg-gray-100', text: 'text-gray-700', dot: 'bg-gray-400' },
+  invalid: { bg: 'bg-gray-200', text: 'text-gray-500', dot: 'bg-gray-400' },
 };
 
 // ==================== 模拟用户列表 ====================
