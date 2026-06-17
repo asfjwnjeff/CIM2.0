@@ -193,18 +193,24 @@ const MIGRATIONS = [
   `ALTER TABLE customers ADD COLUMN responsible_persons TEXT`,
   `ALTER TABLE customers ADD COLUMN collaborators TEXT`,
   `ALTER TABLE customers ADD COLUMN created_by TEXT`,
-  `ALTER TABLE customers ADD COLUMN progress_status TEXT DEFAULT 'newly_acquired'`,
-  `ALTER TABLE customers ADD COLUMN entity_types TEXT`,
-  `ALTER TABLE customers ADD COLUMN source_system TEXT`,
-  `ALTER TABLE customers ADD COLUMN bound_customers TEXT`,
-  `ALTER TABLE customers ADD COLUMN blacklist_info TEXT`,
-  `ALTER TABLE customers ADD COLUMN domestic_flag TEXT`,
-  `ALTER TABLE customers ADD COLUMN settlement_cycle TEXT`,
-  `ALTER TABLE customers ADD COLUMN invoice_address TEXT`,
-  `ALTER TABLE customers ADD COLUMN bank_accounts TEXT`,
-  `ALTER TABLE customers ADD COLUMN settlement_relation_type TEXT`,
-  `ALTER TABLE customers ADD COLUMN settlement_relation_name TEXT`,
 ];
+
+// ====== 自动迁移：对比 Drizzle schema 与 DB 实际列，自动补缺失列 ======
+
+function autoMigrate(db: ReturnType<typeof getDb> extends Promise<infer T> ? T : never, tableName: string, schemaColumns: Record<string, string>) {
+  try {
+    const rows = db.all(`PRAGMA table_info(${tableName})`) as Array<{ name: string }>;
+    const existingCols = new Set(rows.map((r) => r.name));
+    for (const [colName, colType] of Object.entries(schemaColumns)) {
+      if (!existingCols.has(colName)) {
+        try {
+          db.run(sql.raw(`ALTER TABLE ${tableName} ADD COLUMN ${colName} ${colType}`));
+          console.log(`  ✅ 自动补列: ${tableName}.${colName} (${colType})`);
+        } catch { /* 忽略 */ }
+      }
+    }
+  } catch { /* 表可能尚不存在, 由 CREATE TABLE 处理 */ }
+}
 
 export async function seed() {
   console.log('正在初始化数据库...');
@@ -216,10 +222,16 @@ export async function seed() {
   }
   console.log('  表结构创建完成');
 
-  // 兼容迁移（忽略字段已存在的报错）
-  for (const stmt of MIGRATIONS) {
-    try { db.run(sql.raw(stmt)); } catch { /* 字段已存在则跳过 */ }
-  }
+  // 自动补列（从 Drizzle schema 读取列信息，对比 DB 实际列，补缺失）
+  autoMigrate(db, 'customers', {
+    entity_types: 'TEXT', source_system: 'TEXT', bound_customers: 'TEXT',
+    blacklist_info: 'TEXT', domestic_flag: 'TEXT', settlement_cycle: 'TEXT',
+    invoice_address: 'TEXT', bank_accounts: 'TEXT',
+    settlement_relation_type: 'TEXT', settlement_relation_name: 'TEXT',
+    responsible_persons: 'TEXT', collaborators: 'TEXT', created_by: 'TEXT',
+    progress_status: "TEXT DEFAULT 'newly_acquired'",
+    updated_at: 'TEXT',
+  });
 
   // 清空已有数据
   db.delete(customers).run();
@@ -286,37 +298,18 @@ export async function seed() {
   }
   console.log(`  账单主体: ${initialBillingEntities.length} 条`);
 
-  // 插入客户
+  // 插入客户（动态遍历字段，自动序列化 object/array）
   for (const c of initialCustomers) {
-    db.insert(customers).values({
-      id: c.id, name: c.name, customerCode: c.customerCode ?? null,
-      signingEntityIds: c.signingEntityIds ? JSON.stringify(c.signingEntityIds) : null, serviceEntityIds: c.serviceEntityIds ? JSON.stringify(c.serviceEntityIds) : null, settlementEntityIds: c.settlementEntityIds ? JSON.stringify(c.settlementEntityIds) : null,
-      status: c.status,
-      progressStatus: c.progressStatus ?? 'newly_acquired',
-      responsiblePersons: c.responsiblePersons ? JSON.stringify(c.responsiblePersons) : null,
-      collaborators: c.collaborators ? JSON.stringify(c.collaborators) : null,
-      createdBy: c.createdBy ?? null,
-      basicInfo: c.basicInfo ? JSON.stringify(c.basicInfo) : null,
-      businessInfo: c.businessInfo ? JSON.stringify(c.businessInfo) : null,
-      semiconductorInfo: c.semiconductorInfo ? JSON.stringify(c.semiconductorInfo) : null,
-      relatedCompanies: (c as any).relatedCompanies ? JSON.stringify((c as any).relatedCompanies) : null,
-      products: (c as any).products ? JSON.stringify((c as any).products) : null,
-      billingEntities: (c as any).billingEntities ? JSON.stringify((c as any).billingEntities) : null,
-      ruleIds: (c as any).ruleIds ? JSON.stringify((c as any).ruleIds) : null,
-      auditLogs: (c as any).auditLogs ? JSON.stringify((c as any).auditLogs) : null,
-      entityTypes: (c as any).entityTypes ? JSON.stringify((c as any).entityTypes) : null,
-      sourceSystem: (c as any).sourceSystem ?? null,
-      boundCustomers: (c as any).boundCustomers ? JSON.stringify((c as any).boundCustomers) : null,
-      blacklistInfo: (c as any).blacklistInfo ? JSON.stringify((c as any).blacklistInfo) : null,
-      domesticFlag: (c as any).domesticFlag ?? null,
-      settlementCycle: (c as any).settlementCycle ?? null,
-      invoiceAddress: (c as any).invoiceAddress ?? null,
-      bankAccounts: (c as any).bankAccounts ? JSON.stringify((c as any).bankAccounts) : null,
-      settlementRelationType: (c as any).settlementRelationType ?? null,
-      settlementRelationName: (c as any).settlementRelationName ?? null,
-      updatedAt: (c as any).updatedAt ?? null,
-      createdAt: c.createdAt,
-    }).run();
+    const data: Record<string, unknown> = {};
+    for (const [key, value] of Object.entries(c as unknown as Record<string, unknown>)) {
+      if (value === undefined || value === null) continue;
+      if (typeof value === 'object') {
+        data[key] = JSON.stringify(value);
+      } else {
+        data[key] = value;
+      }
+    }
+    db.insert(customers).values(data as never).run();
   }
   console.log(`  客户: ${initialCustomers.length} 条`);
 

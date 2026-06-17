@@ -21,19 +21,17 @@ export async function GET() {
       });
     }
 
-    const jsonFields = ['basicInfo','businessInfo','semiconductorInfo','relatedCompanies','products',
-      'billingEntities','ruleIds','auditLogs','responsiblePersons','collaborators',
-      'signingEntityIds','serviceEntityIds','settlementEntityIds','entityTypes',
-      'boundCustomers','bankAccounts','blacklistInfo'];
+    // 动态 JSON 解析：遍历所有字段，尝试解析字符串为 JSON
     const parsed = filteredData.map(c => {
       const result: Record<string,unknown> = { ...c };
-      for (const f of jsonFields) {
-        if (typeof result[f] === 'string') {
-          try { result[f] = JSON.parse(result[f] as string); } catch { /* keep as is */ }
-        } else if (result[f] === null || result[f] === undefined) {
-          result[f] = f === 'responsiblePersons' || f === 'collaborators' ? [] : null;
+      for (const [key, val] of Object.entries(result)) {
+        if (typeof val === 'string' && (val.startsWith('{') || val.startsWith('['))) {
+          try { result[key] = JSON.parse(val as string); } catch { /* 保持原值 */ }
         }
       }
+      // 数组字段默认值
+      if (!result.responsiblePersons) result.responsiblePersons = [];
+      if (!result.collaborators) result.collaborators = [];
       return result;
     });
 
@@ -44,31 +42,33 @@ export async function GET() {
   }
 }
 
-const jsonFields = ['basicInfo','businessInfo','semiconductorInfo','relatedCompanies','products',
-  'billingEntities','ruleIds','auditLogs','responsiblePersons','collaborators',
-  'signingEntityIds','serviceEntityIds','settlementEntityIds','entityTypes',
-  'boundCustomers','bankAccounts','blacklistInfo'];
-const stringFields = ['name','customerCode','status','level','relationshipLoyalty',
-  'industry','region','address','website','description','createdBy',
-  'progressStatus','domesticFlag','settlementCycle','invoiceAddress',
-  'settlementRelationType','settlementRelationName','sourceSystem'];
+function buildDbData(body: Record<string, unknown>, isInsert: boolean): Record<string, unknown> {
+  const data: Record<string, unknown> = {};
+  if (isInsert) {
+    data.id = body.id || `cust-${Date.now()}`;
+    data.created_at = new Date().toISOString();
+  }
+  data.updated_at = new Date().toISOString();
+
+  for (const [key, value] of Object.entries(body)) {
+    if (value === undefined) continue;
+    if (key === 'id' && isInsert) continue; // insert 时 id 已设置
+    if (typeof value === 'object') {
+      data[key] = JSON.stringify(value);
+    } else {
+      data[key] = value;
+    }
+  }
+  return data;
+}
 
 export async function PUT(request: NextRequest) {
   try {
     const db = await getDb();
     const body = await request.json();
     if (!body.id) return NextResponse.json({ success: false, error: '缺少客户 ID' }, { status: 400 });
-    const now = new Date().toISOString();
-    const updateData: Record<string, unknown> = { updated_at: now };
-
-    for (const f of stringFields) {
-      if (body[f] !== undefined) updateData[f] = body[f];
-    }
-    for (const f of jsonFields) {
-      if (body[f] !== undefined) updateData[f] = JSON.stringify(body[f]);
-    }
-
-    db.update(customers).set(updateData as never).where(eq(customers.id, body.id)).run();
+    const updateData = buildDbData(body, false);
+    db.update(customers).set(updateData as never).where(eq(customers.id, body.id as string)).run();
     saveDb();
     return NextResponse.json({ success: true });
   } catch (error) {
@@ -81,20 +81,10 @@ export async function POST(request: NextRequest) {
   try {
     const db = await getDb();
     const body = await request.json();
-    const id = body.id || `cust-${Date.now()}`;
-    const now = new Date().toISOString();
-
-    const data: Record<string, unknown> = { id, created_at: now, updated_at: now };
-    for (const f of stringFields) {
-      if (body[f] !== undefined) data[f] = body[f];
-    }
-    for (const f of jsonFields) {
-      data[f] = body[f] !== undefined ? JSON.stringify(body[f]) : (f === 'responsiblePersons' || f === 'collaborators' ? '[]' : null);
-    }
-
+    const data = buildDbData(body, true);
     db.insert(customers).values(data as never).run();
     saveDb();
-    return NextResponse.json({ success: true, id }, { status: 201 });
+    return NextResponse.json({ success: true, id: data.id }, { status: 201 });
   } catch (error) {
     console.error('POST /api/customers error:', error);
     return NextResponse.json({ success: false, error: '创建客户失败' }, { status: 500 });
