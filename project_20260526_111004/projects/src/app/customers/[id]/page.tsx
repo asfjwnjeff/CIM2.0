@@ -60,7 +60,6 @@ export default function CustomerDetailPage() {
     deleteFollowUp,
     deleteOpportunity,
     deleteRiskApproval,
-    updateCustomerProgress,
     currentUser,
     blacklistCustomer,
     requestBlacklistRemoval,
@@ -321,14 +320,8 @@ export default function CustomerDetailPage() {
 
         {/* Progress stepper — 所有主体可切换至失效，也可从失效切回成交 */}
         <ProgressStepper
-          readonly={false}
+          readonly={true}
           currentStatus={customer.progressStatus}
-          onAdvance={(status) => {
-            if (status === 'invalid') updateCustomerProgress(customer.id, 'invalid');
-          }}
-          onRollback={(status) => {
-            if (status === 'deal_closed') updateCustomerProgress(customer.id, 'deal_closed');
-          }}
         />
 
         {/* 信息补全横幅（仅CPQ来源的服务/结算主体） */}
