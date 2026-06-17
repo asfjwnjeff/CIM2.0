@@ -38,23 +38,35 @@ function ReminderBell() {
   const router = useRouter();
   const [count, setCount] = useState(0);
   const [items, setItems] = useState<Array<{customerId:string;customerName:string;level:string;overdueDays:number}>>([]);
+  const [notifications, setNotifications] = useState<Array<{id:string;type:string;title:string;summary:string;targetUrl?:string;isRead:boolean;createdAt:string}>>([]);
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
   const fetchReminders = useCallback(async () => {
     try {
-      const res = await fetch('/api/followup-reminders');
-      const data = await res.json();
-      if (Array.isArray(data)) {
-        setItems(data);
-        setCount(data.length);
+      const [remRes, notifRes] = await Promise.all([
+        fetch('/api/followup-reminders'),
+        fetch('/api/notifications'),
+      ]);
+      const remData = await remRes.json();
+      const notifData = await notifRes.json();
+      let total = 0;
+      if (Array.isArray(remData)) {
+        setItems(remData);
+        total += remData.length;
       }
+      if (notifData.success && Array.isArray(notifData.data)) {
+        const unread = notifData.data.filter((n: {isRead:boolean}) => !n.isRead);
+        setNotifications(unread);
+        total += unread.length;
+      }
+      setCount(total);
     } catch { /* ignore */ }
   }, []);
 
   useEffect(() => {
     fetchReminders();
-    const t = setInterval(fetchReminders, 60000); // 每分钟刷新
+    const t = setInterval(fetchReminders, 60000);
     return () => clearInterval(t);
   }, [fetchReminders]);
 
@@ -65,6 +77,9 @@ function ReminderBell() {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  const hasReminders = items.length > 0;
+  const hasNotifications = notifications.length > 0;
 
   return (
     <div ref={ref} className="relative">
@@ -82,12 +97,32 @@ function ReminderBell() {
 
       {open && (
         <div className="absolute right-0 top-full mt-2 w-80 bg-white rounded-xl border border-[#EBEBEB] shadow-[0_8px_32px_rgba(0,0,0,0.12)] z-50 max-h-96 overflow-y-auto">
+          {/* 审批消息 */}
+          {hasNotifications && (
+            <>
+              <div className="px-4 py-3 border-b border-[#EBEBEB]">
+                <span className="text-sm font-semibold text-[#0A0A0A]">审批消息</span>
+                <span className="ml-1 text-xs text-[#999]">({notifications.length})</span>
+              </div>
+              {notifications.map((n) => (
+                <button
+                  key={n.id}
+                  className="w-full text-left px-4 py-3 hover:bg-[#F5F5F5] transition-colors border-b border-[#F5F5F5] last:border-0"
+                  onClick={() => { if (n.targetUrl) router.push(n.targetUrl); setOpen(false); }}
+                >
+                  <div className="text-sm font-medium text-[#0A0A0A]">{n.title}</div>
+                  <div className="text-xs text-[#5A5A5A] mt-0.5">{n.summary}</div>
+                </button>
+              ))}
+            </>
+          )}
+          {/* 待跟进提醒 */}
           <div className="px-4 py-3 border-b border-[#EBEBEB]">
             <span className="text-sm font-semibold text-[#0A0A0A]">待跟进提醒</span>
-            {count > 0 && <span className="ml-1 text-xs text-[#999]">({count})</span>}
+            {items.length > 0 && <span className="ml-1 text-xs text-[#999]">({items.length})</span>}
           </div>
-          {items.length === 0 ? (
-            <div className="px-4 py-8 text-center text-sm text-[#999]">暂无待跟进提醒</div>
+          {!hasReminders && !hasNotifications ? (
+            <div className="px-4 py-8 text-center text-sm text-[#999]">暂无消息</div>
           ) : (
             items.map((item) => (
               <button

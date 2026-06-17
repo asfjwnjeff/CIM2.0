@@ -20,7 +20,6 @@ import {
 import { ArrowLeft, Edit3, UserPlus, UserCheck, UserX, Plus, Phone } from 'lucide-react';
 import { useSentiment } from '@/hooks/useSentiment';
 import { SentimentList } from '@/components/sentiment/SentimentList';
-import ContactManagementDialog from '@/components/ContactManagementDialog';
 import type { Contact } from '@/lib/types';
 import { getEntityTypeLabel, getEntityTypeColor, getEntityCompleteness, shouldShowCompleteness } from '@/lib/entity-utils';
 import type { EntityType } from '@/lib/types';
@@ -103,7 +102,6 @@ export default function CustomerDetailPage() {
   );
 
   // Contact management state
-  const [contactDialogOpen, setContactDialogOpen] = useState(false);
   const [contactList, setContactList] = useState<Contact[]>([]);
 
   const loadContacts = useCallback(async () => {
@@ -708,28 +706,19 @@ export default function CustomerDetailPage() {
               </div>
             )}
 
-            {/* 联系人卡片 */}
+            {/* 联系人卡片（只读查看） */}
             <div className="bg-white rounded-2xl border border-[#EBEBEB] shadow-[0_2px_8px_rgba(0,0,0,0.06)] p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-[16px] font-semibold text-[#0A0A0A]">联系人</h3>
-                <button
-                  onClick={() => setContactDialogOpen(true)}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs border border-[#EBEBEB] text-[#5A5A5A] rounded-xl hover:bg-[#F5F5F5] transition-colors"
-                >
-                  <Plus className="w-3.5 h-3.5" /> 添加联系人
-                </button>
-              </div>
+              <h3 className="text-[16px] font-semibold text-[#0A0A0A] mb-4">联系人</h3>
               {contactList.length === 0 ? (
                 <div className="text-center py-6 text-sm text-[#999] border border-dashed border-[#EBEBEB] rounded-xl">
-                  暂无联系人，点击上方按钮添加
+                  暂无联系人
                 </div>
               ) : (
                 <div className="space-y-2">
                   {contactList.map((ct) => (
-                    <button
+                    <div
                       key={ct.id}
-                      onClick={() => setContactDialogOpen(true)}
-                      className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-[#EBEBEB] hover:border-[#2D3BFF] hover:bg-[#E8EBFF] transition-all text-left bg-white"
+                      className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-[#EBEBEB] bg-white"
                     >
                       <div className="w-9 h-9 rounded-full bg-[#F5F5F5] flex items-center justify-center text-sm font-semibold text-[#5A5A5A] shrink-0">
                         {ct.name[0]}
@@ -752,8 +741,7 @@ export default function CustomerDetailPage() {
                           {ct.department} · {ct.position}
                         </span>
                       </div>
-                      <Phone className="w-3.5 h-3.5 text-[#999] shrink-0" />
-                    </button>
+                    </div>
                   ))}
                 </div>
               )}
@@ -945,14 +933,6 @@ export default function CustomerDetailPage() {
           currentOwnerIds={customer.responsiblePersons}
           currentCollaboratorIds={customer.collaborators}
           onConfirm={handleDialogConfirm}
-        />
-
-        {/* Contact management dialog */}
-        <ContactManagementDialog
-          open={contactDialogOpen}
-          onOpenChange={(open) => { setContactDialogOpen(open); if (!open) loadContacts(); }}
-          customerId={customer.id}
-          customerName={customer.name}
         />
 
         {/* Delete confirmation dialog */}
