@@ -62,9 +62,15 @@ export default function CustomerDetailPage() {
     deleteOpportunity,
     deleteRiskApproval,
     updateCustomerProgress,
+    currentUser,
+    blacklistCustomer,
+    requestBlacklistRemoval,
   } = useApp();
 
   const [activeTab, setActiveTab] = useState<TabType>('basic');
+  const [blacklistDialogStep, setBlacklistDialogStep] = useState<0 | 1 | 2>(0);
+  const [showRemovalInput, setShowRemovalInput] = useState(false);
+  const [removalReason, setRemovalReason] = useState('');
 
   // 支持 URL 参数 ?tab=xxx 指定初始 tab
   useEffect(() => {
@@ -233,52 +239,77 @@ export default function CustomerDetailPage() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            {customer.status === 'draft' ? (
+            {customer.status === 'blacklisted' ? (
               <>
-                <button
-                  onClick={() => { submitCustomer(customer.id); }}
-                  className="inline-flex items-center gap-2 px-4 py-2 text-sm bg-[#2D3BFF] text-white rounded-xl hover:opacity-90 active:scale-[0.98] transition-all shadow-sm"
-                >
-                  <Plus className="w-4 h-4" />
-                  提交
-                </button>
-                <button
-                  onClick={() => router.push(`/customers/${customer.id}/edit`)}
-                  className="inline-flex items-center gap-2 px-3 py-2 text-sm border border-[#EBEBEB] text-[#5A5A5A] rounded-xl hover:bg-[#F5F5F5] transition-all"
-                >
-                  <Edit3 className="w-4 h-4" />
-                  编辑
-                </button>
+                {/* 黑名单状态：仅显示发起解除审批 */}
+                {customer.blacklistInfo?.removalRequest?.status === 'pending' ? (
+                  <span className="text-sm text-[#E8850C] font-medium">⏳ 已发起解除审批，等待总经理审批</span>
+                ) : (
+                  <button
+                    onClick={() => setShowRemovalInput(true)}
+                    className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#0D8A5E] text-white rounded-lg text-sm font-medium hover:bg-[#0A7250] transition-colors"
+                  >
+                    发起解除审批
+                  </button>
+                )}
               </>
             ) : (
               <>
+                {customer.status === 'draft' ? (
+                  <>
+                    <button
+                      onClick={() => { submitCustomer(customer.id); }}
+                      className="inline-flex items-center gap-2 px-4 py-2 text-sm bg-[#2D3BFF] text-white rounded-xl hover:opacity-90 active:scale-[0.98] transition-all shadow-sm"
+                    >
+                      <Plus className="w-4 h-4" />
+                      提交
+                    </button>
+                    <button
+                      onClick={() => router.push(`/customers/${customer.id}/edit`)}
+                      className="inline-flex items-center gap-2 px-3 py-2 text-sm border border-[#EBEBEB] text-[#5A5A5A] rounded-xl hover:bg-[#F5F5F5] transition-all"
+                    >
+                      <Edit3 className="w-4 h-4" />
+                      编辑
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      onClick={() => router.push(`/customers/${customer.id}/edit`)}
+                      className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#2D3BFF] text-white rounded-lg text-sm font-medium hover:bg-[#4338CA] transition-colors"
+                    >
+                      <Edit3 className="w-4 h-4" />
+                      编辑
+                    </button>
+                    <button
+                      onClick={() => openDialog('collaborate')}
+                      className="inline-flex items-center gap-1.5 px-3 py-2 bg-[#E8EBFF] text-[#2D3BFF] border border-[#C7CCFF] rounded-lg text-sm font-medium hover:bg-[#D8DCFF] transition-colors"
+                    >
+                      <UserPlus className="w-4 h-4" />
+                      协同
+                    </button>
+                    <button
+                      onClick={() => openDialog('assign')}
+                      className="inline-flex items-center gap-1.5 px-3 py-2 bg-[#E6F7F0] text-[#0D8A5E] border border-[#B8E8D4] rounded-lg text-sm font-medium hover:bg-[#D0F0E4] transition-colors"
+                    >
+                      <UserCheck className="w-4 h-4" />
+                      分配
+                    </button>
+                    <button
+                      onClick={() => openDialog('transfer')}
+                      className="inline-flex items-center gap-1.5 px-3 py-2 bg-[#FFF4E8] text-[#E8850C] border border-[#FFE0B2] rounded-lg text-sm font-medium hover:bg-[#FFECD0] transition-colors"
+                    >
+                      <UserX className="w-4 h-4" />
+                      移交
+                    </button>
+                  </>
+                )}
+                <span className="w-px h-6 bg-[#EBEBEB] mx-1" />
                 <button
-                  onClick={() => router.push(`/customers/${customer.id}/edit`)}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#2D3BFF] text-white rounded-lg text-sm font-medium hover:bg-[#4338CA] transition-colors"
+                  onClick={() => setBlacklistDialogStep(1)}
+                  className="inline-flex items-center gap-1.5 px-3 py-2 bg-[#FFEBEE] text-[#D63031] border border-[#FFCDD2] rounded-lg text-sm font-medium hover:bg-[#FFD5D8] transition-colors"
                 >
-                  <Edit3 className="w-4 h-4" />
-                  编辑
-                </button>
-                <button
-                  onClick={() => openDialog('collaborate')}
-                  className="inline-flex items-center gap-1.5 px-3 py-2 bg-[#E8EBFF] text-[#2D3BFF] border border-[#C7CCFF] rounded-lg text-sm font-medium hover:bg-[#D8DCFF] transition-colors"
-                >
-                  <UserPlus className="w-4 h-4" />
-                  协同
-                </button>
-                <button
-                  onClick={() => openDialog('assign')}
-                  className="inline-flex items-center gap-1.5 px-3 py-2 bg-[#E6F7F0] text-[#0D8A5E] border border-[#B8E8D4] rounded-lg text-sm font-medium hover:bg-[#D0F0E4] transition-colors"
-                >
-                  <UserCheck className="w-4 h-4" />
-                  分配
-                </button>
-                <button
-                  onClick={() => openDialog('transfer')}
-                  className="inline-flex items-center gap-1.5 px-3 py-2 bg-[#FFF4E8] text-[#E8850C] border border-[#FFE0B2] rounded-lg text-sm font-medium hover:bg-[#FFECD0] transition-colors"
-                >
-                  <UserX className="w-4 h-4" />
-                  移交
+                  加入黑名单
                 </button>
               </>
             )}
@@ -325,6 +356,25 @@ export default function CustomerDetailPage() {
             </div>
           );
         })()}
+
+        {/* 黑名单横幅 */}
+        {customer.status === 'blacklisted' && (
+          <div className="bg-[#FFEBEE] border border-[#FFCDD2] rounded-xl px-4 py-3 flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <span className="text-lg">🔒</span>
+              <div>
+                <span className="text-sm font-medium text-[#D63031]">
+                  该公司已加入黑名单，无法编辑任何信息
+                </span>
+                {customer.blacklistInfo?.blacklistReason && (
+                  <span className="text-xs text-[#999999] ml-2">
+                    原因：{customer.blacklistInfo.blacklistReason}
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Tabs */}
         <div className="border-b border-[#EBEBEB] overflow-x-auto">
@@ -539,7 +589,7 @@ export default function CustomerDetailPage() {
                   <div>
                     <label className="block text-[13px] text-[#5A5A5A] mb-1">客户状态</label>
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getCustomerStatusColor(customer.status)}`}>
-                      {customer.status === 'active' ? '活跃' : customer.status === 'inactive' ? '非活跃' : customer.status === 'potential' ? '潜在' : customer.status === 'frozen' ? '冻结' : customer.status}
+                      {customer.status === 'active' ? '活跃' : customer.status === 'inactive' ? '非活跃' : customer.status === 'potential' ? '潜在' : customer.status === 'frozen' ? '冻结' : customer.status === 'blacklisted' ? '黑名单' : customer.status}
                     </span>
                   </div>
                   <div>
@@ -914,6 +964,77 @@ export default function CustomerDetailPage() {
               <div className="flex justify-end gap-3">
                 <button onClick={() => setDeleteTarget(null)} className="px-4 py-2 text-sm border border-[#D5D5D5] rounded-lg hover:bg-[#F5F5F5]">取消</button>
                 <button onClick={handleDelete} className="px-4 py-2 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700">确认删除</button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 加入黑名单确认弹窗 - 第一步 */}
+        {blacklistDialogStep === 1 && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-md w-full">
+              <h3 className="text-lg font-bold text-[#0A0A0A] mb-2">⚠️ 确认加入黑名单</h3>
+              <p className="text-sm text-[#5A5A5A] mb-1">确认将「{customer.name}」加入黑名单吗？</p>
+              <p className="text-sm text-[#D63031] mb-6">加入后所有人员将无法编辑该公司任何信息。</p>
+              <div className="flex gap-3 justify-end">
+                <button onClick={() => setBlacklistDialogStep(0)} className="px-4 py-2 text-sm border border-[#EBEBEB] rounded-lg hover:bg-[#F5F5F5]">取消</button>
+                <button onClick={() => setBlacklistDialogStep(2)} className="px-4 py-2 text-sm bg-[#D63031] text-white rounded-lg hover:bg-[#B52828]">确认加入</button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 加入黑名单确认弹窗 - 第二步（最终确认） */}
+        {blacklistDialogStep === 2 && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-md w-full">
+              <h3 className="text-lg font-bold text-[#D63031] mb-2">🔴 最终确认</h3>
+              <p className="text-sm text-[#5A5A5A] mb-1">即将将「{customer.name}」加入黑名单。</p>
+              <p className="text-sm text-[#D63031] mb-6">此操作仅总经理审批通过后方可解除。确定继续？</p>
+              <div className="flex gap-3 justify-end">
+                <button onClick={() => setBlacklistDialogStep(0)} className="px-4 py-2 text-sm border border-[#EBEBEB] rounded-lg hover:bg-[#F5F5F5]">取消</button>
+                <button
+                  onClick={() => {
+                    blacklistCustomer(customer.id, currentUser.id);
+                    addLog({ action: 'update', operator: currentUser.name, targetType: 'customer', targetId: customer.id, targetName: customer.name, details: '将客户加入黑名单' });
+                    setBlacklistDialogStep(0);
+                  }}
+                  className="px-4 py-2 text-sm bg-[#D63031] text-white rounded-lg hover:bg-[#B52828]"
+                >
+                  最终确认
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 发起解除审批输入弹窗 */}
+        {showRemovalInput && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-md w-full">
+              <h3 className="text-lg font-bold text-[#0A0A0A] mb-2">发起解除黑名单审批</h3>
+              <p className="text-sm text-[#5A5A5A] mb-4">将为「{customer.name}」发起解除黑名单审批，审批通过后恢复为正常状态。</p>
+              <label className="block text-sm text-[#5A5A5A] mb-1">申请原因（选填）</label>
+              <textarea
+                value={removalReason}
+                onChange={(e) => setRemovalReason(e.target.value)}
+                className="w-full px-3 py-2 border border-[#D5D5D5] rounded-lg text-sm resize-none mb-4"
+                rows={3}
+                placeholder="请输入申请解除黑名单的原因"
+              />
+              <div className="flex gap-3 justify-end">
+                <button onClick={() => { setShowRemovalInput(false); setRemovalReason(''); }} className="px-4 py-2 text-sm border border-[#EBEBEB] rounded-lg hover:bg-[#F5F5F5]">取消</button>
+                <button
+                  onClick={() => {
+                    requestBlacklistRemoval(customer.id, currentUser.id, removalReason || undefined);
+                    addLog({ action: 'update', operator: currentUser.name, targetType: 'customer', targetId: customer.id, targetName: customer.name, details: '发起解除黑名单审批' });
+                    setShowRemovalInput(false);
+                    setRemovalReason('');
+                  }}
+                  className="px-4 py-2 text-sm bg-[#0D8A5E] text-white rounded-lg hover:bg-[#0A7250]"
+                >
+                  确认发起
+                </button>
               </div>
             </div>
           </div>

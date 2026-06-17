@@ -137,6 +137,11 @@ export interface AppContextType {
   updateOpportunity: (id: string, updates: Partial<Opportunity>) => void;
   deleteOpportunity: (id: string) => void;
   submitCustomer: (id: string) => void;
+  // 黑名单
+  blacklistCustomer: (id: string, operatorId: string, reason?: string) => void;
+  requestBlacklistRemoval: (id: string, operatorId: string, reason?: string) => void;
+  approveBlacklistRemoval: (id: string, operatorId: string) => void;
+  rejectBlacklistRemoval: (id: string, operatorId: string) => void;
 
   // 客户协同操作
   updateCustomerProgress: (id: string, status: ProgressStatus) => void;
@@ -248,6 +253,10 @@ type Action =
   | { type: 'UPDATE_OPPORTUNITY'; payload: { id: string; updates: Partial<Opportunity> } }
   | { type: 'DELETE_OPPORTUNITY'; payload: string }
   | { type: 'SUBMIT_CUSTOMER'; payload: string }
+  | { type: 'BLACKLIST_CUSTOMER'; payload: { id: string; operatorId: string; reason?: string } }
+  | { type: 'REQUEST_BLACKLIST_REMOVAL'; payload: { id: string; operatorId: string; reason?: string } }
+  | { type: 'APPROVE_BLACKLIST_REMOVAL'; payload: { id: string; operatorId: string } }
+  | { type: 'REJECT_BLACKLIST_REMOVAL'; payload: { id: string; operatorId: string } }
   | { type: 'ADD_SIGNING_ENTITY'; payload: Omit<SigningEntity, 'id' | 'createdAt'> }
   | { type: 'UPDATE_SIGNING_ENTITY'; payload: { id: string; updates: Partial<SigningEntity> } }
   | { type: 'DELETE_SIGNING_ENTITY'; payload: string }
@@ -325,11 +334,89 @@ function reducer(state: AppState, action: Action): AppState {
           createdAt: new Date().toISOString(),
         }],
       };
-    case 'UPDATE_CUSTOMER':
+    case 'UPDATE_CUSTOMER': {
+      // 黑名单客户禁止编辑
+      const target = state.customers.find((c) => c.id === action.payload.id);
+      if (target?.status === 'blacklisted') return state;
       return {
         ...state,
         customers: state.customers.map((c) =>
           c.id === action.payload.id ? { ...c, ...action.payload.updates } : c
+        ),
+      };
+    }
+    case 'BLACKLIST_CUSTOMER':
+      return {
+        ...state,
+        customers: state.customers.map((c) =>
+          c.id === action.payload.id ? {
+            ...c,
+            status: 'blacklisted' as CustomerStatus,
+            blacklistInfo: {
+              blacklistedAt: new Date().toISOString(),
+              blacklistedBy: action.payload.operatorId,
+              blacklistReason: action.payload.reason,
+            },
+            updatedAt: new Date().toISOString(),
+          } : c
+        ),
+      };
+    case 'REQUEST_BLACKLIST_REMOVAL':
+      return {
+        ...state,
+        customers: state.customers.map((c) =>
+          c.id === action.payload.id && c.blacklistInfo ? {
+            ...c,
+            blacklistInfo: {
+              ...c.blacklistInfo,
+              removalRequest: {
+                status: 'pending',
+                requestedBy: action.payload.operatorId,
+                requestedAt: new Date().toISOString(),
+                reason: action.payload.reason,
+              },
+            },
+            updatedAt: new Date().toISOString(),
+          } : c
+        ),
+      };
+    case 'APPROVE_BLACKLIST_REMOVAL':
+      return {
+        ...state,
+        customers: state.customers.map((c) =>
+          c.id === action.payload.id && c.blacklistInfo?.removalRequest ? {
+            ...c,
+            status: 'active' as CustomerStatus,
+            blacklistInfo: {
+              ...c.blacklistInfo,
+              removalRequest: {
+                ...c.blacklistInfo.removalRequest,
+                status: 'approved',
+                approvedBy: action.payload.operatorId,
+                approvedAt: new Date().toISOString(),
+              },
+            },
+            updatedAt: new Date().toISOString(),
+          } : c
+        ),
+      };
+    case 'REJECT_BLACKLIST_REMOVAL':
+      return {
+        ...state,
+        customers: state.customers.map((c) =>
+          c.id === action.payload.id && c.blacklistInfo?.removalRequest ? {
+            ...c,
+            blacklistInfo: {
+              ...c.blacklistInfo,
+              removalRequest: {
+                ...c.blacklistInfo.removalRequest,
+                status: 'rejected',
+                approvedBy: action.payload.operatorId,
+                approvedAt: new Date().toISOString(),
+              },
+            },
+            updatedAt: new Date().toISOString(),
+          } : c
         ),
       };
     case 'DELETE_CUSTOMER':
@@ -949,6 +1036,35 @@ export function AppProvider({ children }: { children: ReactNode }) {
     dispatch({ type: 'SUBMIT_CUSTOMER', payload: id });
   }, []);
 
+  // ====== 黑名单 ======
+
+  const blacklistCustomer = useCallback((id: string, operatorId: string, reason?: string) => {
+    dispatch({ type: 'BLACKLIST_CUSTOMER', payload: { id, operatorId, reason } });
+  }, []);
+
+  const requestBlacklistRemoval = useCallback((id: string, operatorId: string, reason?: string) => {
+    dispatch({ type: 'REQUEST_BLACKLIST_REMOVAL', payload: { id, operatorId, reason } });
+    // 创建通知给总经理
+    fetch('/api/notifications', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        type: 'blacklist_removal',
+        title: '黑名单解除审批',
+        summary: `客户黑名单解除审批需要您处理（操作人：${operatorId}）`,
+        targetUrl: `/blacklist-removal/${id}`,
+      }),
+    }).catch(() => { /* ignore */ });
+  }, []);
+
+  const approveBlacklistRemoval = useCallback((id: string, operatorId: string) => {
+    dispatch({ type: 'APPROVE_BLACKLIST_REMOVAL', payload: { id, operatorId } });
+  }, []);
+
+  const rejectBlacklistRemoval = useCallback((id: string, operatorId: string) => {
+    dispatch({ type: 'REJECT_BLACKLIST_REMOVAL', payload: { id, operatorId } });
+  }, []);
+
   // 审批字段配置管理
   const addApprovalField = useCallback((field: Omit<ApprovalField, 'id' | 'createdAt'>) => {
     dispatch({ type: 'ADD_APPROVAL_FIELD', payload: field });
@@ -1066,6 +1182,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
         updateOpportunity,
         deleteOpportunity,
         submitCustomer,
+        blacklistCustomer,
+        requestBlacklistRemoval,
+        approveBlacklistRemoval,
+        rejectBlacklistRemoval,
         updateCustomerProgress,
         collaborateCustomer,
         assignCustomer,

@@ -714,7 +714,9 @@ export default function EditCustomerPage() {
           </div>
           <div className="flex items-center gap-3">
             <button onClick={handleBack} className="px-4 py-2 border border-[#D5D5D5] text-[#5A5A5A] rounded-lg text-sm font-medium hover:bg-[#F5F5F5] transition-colors">取消</button>
-            <button onClick={handleSave} disabled={isSubmitting} className="px-6 py-2 bg-[#2D3BFF] text-white rounded-lg text-sm font-medium hover:bg-[#4338CA] transition-all disabled:opacity-50">{isSubmitting ? '保存中...' : '保存'}</button>
+            {customer?.status !== 'blacklisted' && (
+              <button onClick={handleSave} disabled={isSubmitting} className="px-6 py-2 bg-[#2D3BFF] text-white rounded-lg text-sm font-medium hover:bg-[#4338CA] transition-all disabled:opacity-50">{isSubmitting ? '保存中...' : '保存'}</button>
+            )}
           </div>
         </div>
 
@@ -735,10 +737,20 @@ export default function EditCustomerPage() {
           </div>
         </div>
 
-        <div className="pb-8">
+        {/* 黑名单横幅 */}
+        {customer?.status === 'blacklisted' && (
+          <div className="bg-[#FFEBEE] border border-[#FFCDD2] rounded-xl px-4 py-3 flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <span className="text-lg">🔒</span>
+              <span className="text-sm font-medium text-[#D63031]">该公司已加入黑名单，无法编辑任何信息</span>
+            </div>
+          </div>
+        )}
+
+        <div className={`pb-8 ${customer?.status === 'blacklisted' ? 'pointer-events-none opacity-60' : ''}`}>
           {/* Tab 1: Basic */}
           {activeTab === 'basic' && (
-            <div className="space-y-6">
+            <div className={`space-y-6 ${customer?.status === 'blacklisted' ? 'pointer-events-none opacity-60' : ''}`}>
               {/* 客户核心信息 */}
               <div className="bg-white rounded-xl border border-[#EBEBEB] p-6">
                 <h3 className="text-lg font-semibold text-[#0A0A0A] mb-4">客户核心信息</h3>

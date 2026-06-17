@@ -235,6 +235,7 @@ export const getCustomerStatusColor = (status: string) => {
     case 'draft': return 'bg-[#F5F5F5] text-[#5A5A5A]';
     case 'potential': return 'bg-[#FFF4E8] text-[#E8850C]';
     case 'frozen': return 'bg-[#FFEBEE] text-[#D63031]';
+    case 'blacklisted': return 'bg-[#1A1A1A] text-[#FFFFFF]';
     default: return 'bg-[#EEEEEE] text-[#666666]';
   }
 };
@@ -2575,6 +2576,69 @@ export const initialCustomers: Customer[] = [
     boundCustomers: [
       { customerId: 'cust-002', customerName: '金鹰国际货运代理有限公司', entityType: 'signing', unifiedSocialCreditCode: '91310000MA1FL7JY3Z' },
     ],
+    auditLogs: [],
+  },
+  // ====== 黑名单示例客户 ======
+  {
+    id: 'cust-bl-001',
+    name: '竣然半导体设备（上海）有限公司',
+    customerCode: 'JRSB001',
+    signingEntityIds: ['se-6'],
+    serviceEntityIds: [],
+    settlementEntityIds: [],
+    status: 'blacklisted',
+    entityTypes: ['signing'],
+    sourceSystem: 'cim' as const,
+    createdBy: 'user-1',
+    responsiblePersons: ['user-2'],
+    collaborators: [],
+    progressStatus: 'deal_closed',
+    createdAt: '2023-06-01',
+    updatedAt: '2024-03-15',
+    basicInfo: {
+      unifiedSocialCreditCode: '91310000MA1FL9JR6M',
+      countryRegion: '中资',
+      industryCategory: '半导体',
+      shortName: '竣然半导体',
+      mainProducts: '半导体封装设备',
+      industryChainFormat: '制造业',
+      supplyChainRole: '设备供应商',
+      customerLevel: 'B',
+      serviceProducts: ['货代'],
+    },
+    businessInfo: {
+      paidInCapital: '3000万人民币',
+      organizationCode: 'MA1FL9JR6',
+      businessRegistrationNumber: '31000040030JJJJ',
+      taxpayerIdentificationNumber: '91310000MA1FL9JR6M',
+      enterpriseType: '有限责任公司',
+      businessTerm: '2010-06-15 至 2040-06-14',
+      taxpayerQualification: '一般纳税人',
+      staffSize: '100-500人',
+      insuredNumber: '180',
+      approvalDate: '2023-01-10',
+      region: '上海市浦东新区',
+      registrationAuthority: '上海市浦东新区市场监督管理局',
+      englishName: 'Junran Semiconductor Equipment (Shanghai) Co., Ltd.',
+      registeredAddress: '上海市浦东新区金桥开发区XX号',
+      correspondenceAddress: '上海市浦东新区金桥开发区XX号',
+      businessScope: '半导体封装设备的研发、生产和销售',
+      phone: '021-58887777',
+      registrationStatus: '存续',
+      legalRepresentative: '王国强',
+      email: 'info@junran-semi.com',
+      enterpriseScale: '中型',
+      registeredCapital: '3000万人民币',
+      website: 'www.junran-semi.com',
+      establishmentDate: '2010-06-15',
+      countryRegion: '中国',
+      industryTags: ['半导体', '封装设备'],
+    },
+    blacklistInfo: {
+      blacklistedAt: '2024-03-15T10:30:00.000Z',
+      blacklistedBy: 'user-1',
+      blacklistReason: '涉嫌违规转卖设备，配合内部审计调查',
+    },
     auditLogs: [],
   },
 ];

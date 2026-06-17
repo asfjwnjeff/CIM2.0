@@ -76,6 +76,7 @@ function StatusBadge({ status }: { status: string }) {
     inactive: 'bg-[#EBEBEB] text-[#5A5A5A]',
     potential: 'bg-[#FFF4E8] text-[#E8850C]',
     frozen: 'bg-[#FFEBEE] text-[#D63031]',
+    blacklisted: 'bg-[#1A1A1A] text-[#FFFFFF]',
   };
   const labelMap: Record<string, string> = {
     draft: '草稿',
@@ -83,6 +84,7 @@ function StatusBadge({ status }: { status: string }) {
     inactive: '停用',
     potential: '潜在',
     frozen: '冻结',
+    blacklisted: '黑名单',
   };
   return (
     <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${colorMap[status] || 'bg-gray-100 text-gray-600'}`}>
@@ -395,6 +397,7 @@ export default function CustomersPage() {
               <option value="inactive">停用</option>
               <option value="potential">潜在</option>
               <option value="frozen">冻结</option>
+              <option value="blacklisted">黑名单</option>
             </select>
             <select
               value={filterProgress}
@@ -605,6 +608,7 @@ export default function CustomersPage() {
                     <div className="pt-3 border-t border-[#EBEBEB] flex items-center justify-between text-xs text-[#999999]">
                       <span>{createdByUser?.name || '-'} 创建于 {customer.createdAt?.slice(0, 10)}</span>
                       {/* Actions menu (stop propagation) */}
+                      {customer.status !== 'blacklisted' && (
                       <div className="relative" onClick={(e) => e.stopPropagation()}>
                         <button
                           onClick={() => setOpenMenuId(openMenuId === customer.id ? null : customer.id)}
@@ -641,6 +645,7 @@ export default function CustomersPage() {
                           </>
                         )}
                       </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -836,6 +841,9 @@ export default function CustomersPage() {
                           {customer.createdAt?.slice(0, 10)}
                         </td>
                         <td className="px-3 py-3">
+                          {customer.status === 'blacklisted' ? (
+                            <span className="text-xs text-[#999999]">-</span>
+                          ) : (
                           <div className="relative">
                             <button
                               onClick={() => setOpenMenuId(openMenuId === customer.id ? null : customer.id)}
@@ -887,6 +895,7 @@ export default function CustomersPage() {
                               </>
                             )}
                           </div>
+                          )}
                         </td>
                       </tr>
                     );

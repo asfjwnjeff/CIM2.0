@@ -144,6 +144,7 @@ function getRequiredFields(customer: Customer): string[] {
  * 条件：草稿状态 或 CPQ 来源的服务/结算主体
  */
 export function shouldShowCompleteness(customer: Customer): boolean {
+  if (customer.status === 'blacklisted') return false;
   if (customer.status === 'draft') return true;
   if (customer.sourceSystem === 'cpq') {
     const types = customer.entityTypes ?? [];

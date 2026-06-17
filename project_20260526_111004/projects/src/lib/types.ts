@@ -261,7 +261,7 @@ export type ProgressStatus = 'newly_acquired' | 'pending_followup' | 'preliminar
 
 export type OperationAction = 'create' | 'update' | 'delete' | 'associate' | 'disassociate' | 'advance' | 'rollback' | 'collaborate' | 'assign' | 'transfer';
 
-export type CustomerStatus = 'draft' | 'active' | 'inactive' | 'potential' | 'frozen';
+export type CustomerStatus = 'draft' | 'active' | 'inactive' | 'potential' | 'frozen' | 'blacklisted';
 export type RelationshipLoyalty = 'strategic' | 'important' | 'normal' | 'tobe_developed';
 export type CustomerLevel = 'vip' | 'key' | 'normal' | 'small';
 
@@ -359,6 +359,27 @@ export interface Customer {
   settlementRelationType?: 'service_entity' | 'supplier';
   /** 关联名称（仅结算主体） */
   settlementRelationName?: string;
+
+  // ====== 黑名单 ======
+  /** 黑名单信息 */
+  blacklistInfo?: BlacklistInfo;
+}
+
+/** 黑名单信息 */
+export interface BlacklistInfo {
+  blacklistedAt: string;
+  blacklistedBy: string;
+  blacklistReason?: string;
+  removalRequest?: BlacklistRemovalRequest;
+}
+
+export interface BlacklistRemovalRequest {
+  status: 'pending' | 'approved' | 'rejected';
+  requestedBy: string;
+  requestedAt: string;
+  reason?: string;
+  approvedBy?: string;
+  approvedAt?: string;
 }
 
 // ==================== 账单主体 ====================
