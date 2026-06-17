@@ -52,7 +52,7 @@ CIM2.0/
 │   └── superpowers/specs/             # 功能设计文档
 ├── project_20260526_111004/projects/  # 主项目代码
 │   └── src/
-│       ├── app/                       # Next.js App Router 页面（48 页）
+│       ├── app/                       # Next.js App Router 页面
 │       │   ├── page.tsx               # 仪表盘首页
 │       │   ├── layout.tsx             # 根布局
 │       │   ├── globals.css            # 全局样式 + CSS 设计令牌
@@ -62,21 +62,25 @@ CIM2.0/
 │       │   ├── opportunities/         # 商机管理
 │       │   ├── approvals/             # 风控审批
 │       │   ├── rules/                 # 账单规则
-│       │   ├── entities/              # 主体管理（签约/服务/结算）
+│       │   ├── entities/              # 主体管理（签约/服务/结算，占位）
 │       │   ├── approval/              # 审批流程配置（工作流/自动规则）
 │       │   ├── settings/              # 系统设置（用户/角色/权限/字典/提醒配置等 9 页）
 │       │   ├── contracts/             # 合同管理
 │       │   ├── billing-fields/        # 结算字段配置
 │       │   ├── orders/                # 订单管理
+│       │   ├── mobile/                # 移动端 H5 微应用（底栏导航：首页/风控/消息/跟进）
+│       │   ├── blacklist-removal/     # 黑名单解除审批页
 │       │   ├── test/                  # 测试页面
-│       │   └── api/                   # API 路由（15 个端点）
+│       │   └── api/                   # API 路由（28 个端点，11 模块完整 CRUD）
 │       ├── components/
 │       │   ├── ui/                    # shadcn/ui 组件（56 个）
-│       │   ├── layout/AppLayout.tsx   # 全局布局（侧栏+顶栏+内容区+搜索）
+│       │   ├── layout/AppLayout.tsx   # 全局布局（侧栏+顶栏+内容区+搜索+提醒铃铛）
 │       │   ├── layout/GlobalSearchDialog.tsx # 全局搜索（Cmd+K）
-│       │   ├── ProgressStepper.tsx    # 5 阶段跟进步骤条（自动流转）
+│       │   ├── ProgressStepper.tsx    # 6 阶段跟进步骤条（失效态全灰）
 │       │   ├── CollaborationDialogs.tsx # 协同/分配/移交弹窗
-│       │   └── RuleGroupEditor.tsx    # 规则组编辑器
+│       │   ├── ContactManagementDialog.tsx # 联系人管理弹窗（读写/只读双模式）
+│       │   ├── RuleGroupEditor.tsx    # 规则组编辑器
+│       │   └── mobile/               # 移动端组件（12 个）
 │       ├── hooks/
 │       │   ├── useUnsavedChanges.ts   # 未保存更改保护
 │       │   ├── useKeyboardShortcuts.ts# 全局键盘快捷键
@@ -84,14 +88,16 @@ CIM2.0/
 ├── e2e/                               # Playwright E2E 测试（28 个用例）
 ├── playwright.config.ts
 │       ├── lib/
-│       │   ├── types.ts              # 全部类型定义
-│       │   ├── store.tsx             # 全局状态（useReducer + Context）
+│       │   ├── types.ts              # 全部类型定义（含 EntityType/BlacklistInfo/CPQ字段）
+│       │   ├── store.tsx             # 全局状态（useReducer + Context + 20+ API同步）
+│       │   ├── entity-utils.ts       # 主体类型标签/颜色/完整度计算
+│       │   ├── mobile-utils.ts       # 移动端共享工具函数
 │       │   ├── ui-constants.tsx      # UI 设计令牌常量
 │       │   ├── form-rules.ts         # 声明式表单验证规则
 │       │   ├── form-utils.ts         # 表单工具函数
-│       │   ├── sample-data.ts        # 示例数据 + 业务常量
+│       │   ├── sample-data.ts        # 示例数据 + 业务常量（生产数据库种子源）
 │       │   ├── navigation.tsx        # 导航配置（NAV_ITEMS + 搜索索引）
 │       │   └── utils.ts             # 通用工具（cn 等）
-│       └── db/                       # Drizzle ORM 数据库
+│       └── db/                       # Drizzle ORM + sql.js WASM（autoMigrate自动补列）
 └── 接口文件/                          # CIM 对外接口 API 文档
 ```

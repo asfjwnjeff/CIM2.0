@@ -182,3 +182,14 @@ src/app/
 | API 返回 `no such table` | seed 未运行或表被跳过 | 检查 seed 输出，确保所有表创建成功 |
 | 页面数据不更新 | store 与 API 不同步 | 检查 API 是否返回正确数据，store reducer 是否正确匹配 ID |
 | 修改 schema 后插入失败 | 未同步更新 seed.ts CREATE TABLE | schema.ts 和 seed.ts 必须同时修改 |
+
+## 新功能模块速查
+
+| 功能 | 关键文件 | 核心逻辑 |
+|------|---------|---------|
+| 黑名单 | `store.tsx` BLACKLIST_CUSTOMER action, `customers/[id]/page.tsx`, `blacklist-removal/[customerId]/page.tsx` | 仅失效状态可加入、两次确认弹窗、总经理审批解除、编辑页整页只读 |
+| 主体类型+CPQ | `types.ts` EntityType/BoundCustomer, `entity-utils.ts`, `customers/page.tsx` | 签约/服务/结算三色标签、关联主体数量列、绑定关系只读展示、信息完整度提示 |
+| 联系人权限 | `ContactManagementDialog.tsx` readonly prop, `customers/[id]/page.tsx` | 详情页只读Dialog(可查看不可编辑)、编辑页完整CRUD |
+| 进度流转 | `ProgressStepper.tsx`, `customers/[id]/edit/page.tsx` | 标记失效(二次确认)/恢复(还原原状态)、失效态全灰、编辑页步骤条可交互 |
+| Schema演进 | `db/seed.ts` autoMigrate(), `api/customers/route.ts` buildDbData() | 启动自动补列、动态字段映射、新增字段仅需改 types+schema |
+| 暗色模式 | `globals.css` .dark 规则, `components/ThemeToggle.tsx` | iOS纯黑风格、next-themes跟随系统、灰色系/Tailwind工具类全量覆盖 |
