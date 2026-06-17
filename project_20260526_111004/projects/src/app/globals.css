@@ -223,8 +223,18 @@
 
 /* Tailwind 灰色系（RuleGroupEditor/test/客户详情等） */
 .dark .border-gray-100 { border-color: #2C2C2E; }
-.dark .border-gray-200 { border-color: #38383A; }
+.dark .border-gray-200 { border-color: #3A3A3C; }
 .dark .border-gray-300 { border-color: #48484A; }
+.dark .border-gray-400 { border-color: #545458; }
+
+/* Tailwind 灰色系 dark mode — 背景/文字（ProgressStepper 失效态等） */
+.dark .bg-gray-50 { background-color: #1A1A1C; }
+.dark .bg-gray-200 { background-color: #3A3A3C; }
+.dark .bg-gray-300 { background-color: #48484A; }
+.dark .text-gray-400 { color: #8E8E93; }
+.dark .text-gray-500 { color: #636366; }
+.dark .text-gray-700 { color: #98989E; }
+.dark .ring-gray-400 { --tw-ring-color: #545458; }
 
 /* 功能状态色 */
 .dark .border-\[\#D63031\] { border-color: #FF453A; }
@@ -237,7 +247,7 @@
 /* 语义标签/按钮色 */
 .dark .border-\[\#C7CCFF\] { border-color: #2A3050; }
 .dark .border-\[\#B8E8D4\] { border-color: #1A3A2A; }
-.dark .border-\[\#FFE0B2\] { border-color: #4A3A15; }
+.dark .border-\[\#FFE0B2\] { border-color: #5A4A18; }
 .dark .border-\[\#FFCDD2\] { border-color: #4A2028; }
 .dark .border-\[\#FDE0B8\] { border-color: #4A3A15; }
 .dark .border-\[\#C8CEFF\] { border-color: #2A3050; }
@@ -270,7 +280,7 @@
 .dark .border-\[\#C7CAFF\] { border-color: #2A3050; }
 .dark .bg-\[\#FEF2F2\] { background-color: #2E1A1D; }
 .dark .border-\[\#FEE2E2\] { border-color: #4A2028; }
-.dark .bg-\[\#FFF9EB\] { background-color: #2E2A10; }
+.dark .bg-\[\#FFF9EB\] { background-color: #2C2410; }
 .dark .border-\[\#FDE68A\] { border-color: #4A3A15; }
 .dark .text-\[\#DC2626\] { color: #FF453A; }
 .dark .shadow-\[0_0_0_4px_rgba\(45\,59\,255\,0\.15\)\] { box-shadow: 0 0 0 4px rgba(10,132,255,0.25); }
