@@ -272,38 +272,15 @@ export async function seed() {
   }
   console.log(`  账单主体: ${initialBillingEntities.length} 条`);
 
-  // 插入客户
+  // 插入客户 — 自动根据值类型判断是否 JSON.stringify
+  const SCALAR_FIELDS = new Set(['id','name','customerCode','status','progressStatus','createdBy','createdAt','updatedAt','sourceSystem','domesticFlag','settlementCycle','invoiceAddress','settlementRelationType','settlementRelationName']);
   for (const c of initialCustomers) {
-    db.insert(customers).values({
-      id: c.id, name: c.name, customerCode: c.customerCode ?? null,
-      signingEntityIds: c.signingEntityIds ? JSON.stringify(c.signingEntityIds) : null, serviceEntityIds: c.serviceEntityIds ? JSON.stringify(c.serviceEntityIds) : null, settlementEntityIds: c.settlementEntityIds ? JSON.stringify(c.settlementEntityIds) : null,
-      status: c.status,
-      progressStatus: c.progressStatus ?? 'newly_acquired',
-      responsiblePersons: c.responsiblePersons ? JSON.stringify(c.responsiblePersons) : null,
-      collaborators: c.collaborators ? JSON.stringify(c.collaborators) : null,
-      createdBy: c.createdBy ?? null,
-      basicInfo: c.basicInfo ? JSON.stringify(c.basicInfo) : null,
-      businessInfo: c.businessInfo ? JSON.stringify(c.businessInfo) : null,
-      semiconductorInfo: c.semiconductorInfo ? JSON.stringify(c.semiconductorInfo) : null,
-      relatedCompanies: (c as any).relatedCompanies ? JSON.stringify((c as any).relatedCompanies) : null,
-      products: (c as any).products ? JSON.stringify((c as any).products) : null,
-      billingEntities: (c as any).billingEntities ? JSON.stringify((c as any).billingEntities) : null,
-      ruleIds: (c as any).ruleIds ? JSON.stringify((c as any).ruleIds) : null,
-      auditLogs: (c as any).auditLogs ? JSON.stringify((c as any).auditLogs) : null,
-      // 主体类型与 CPQ 集成
-      entityTypes: (c as any).entityTypes ? JSON.stringify((c as any).entityTypes) : null,
-      sourceSystem: (c as any).sourceSystem ?? null,
-      boundCustomers: (c as any).boundCustomers ? JSON.stringify((c as any).boundCustomers) : null,
-      domesticFlag: (c as any).domesticFlag ?? null,
-      settlementCycle: (c as any).settlementCycle ?? null,
-      invoiceAddress: (c as any).invoiceAddress ?? null,
-      bankAccounts: (c as any).bankAccounts ? JSON.stringify((c as any).bankAccounts) : null,
-      settlementRelationType: (c as any).settlementRelationType ?? null,
-      settlementRelationName: (c as any).settlementRelationName ?? null,
-      // 黑名单
-      blacklistInfo: (c as any).blacklistInfo ? JSON.stringify((c as any).blacklistInfo) : null,
-      createdAt: c.createdAt,
-    }).run();
+    const values: Record<string, unknown> = {};
+    for (const [key, val] of Object.entries(c)) {
+      if (val === undefined || val === null) { values[key] = null; continue; }
+      values[key] = SCALAR_FIELDS.has(key) ? val : JSON.stringify(val);
+    }
+    db.insert(customers).values(values as never).run();
   }
   console.log(`  客户: ${initialCustomers.length} 条`);
 
