@@ -2432,7 +2432,7 @@ export const initialCustomers: Customer[] = [
     createdBy: 'user-1',
     responsiblePersons: ['user-2'],
     collaborators: [],
-    progressStatus: 'pending_followup',
+    progressStatus: 'deal_closed',
     createdAt: '2024-06-01',
     updatedAt: '2024-06-01',
     basicInfo: {
@@ -2459,7 +2459,7 @@ export const initialCustomers: Customer[] = [
     createdBy: 'user-1',
     responsiblePersons: ['user-2'],
     collaborators: [],
-    progressStatus: 'pending_followup',
+    progressStatus: 'deal_closed',
     createdAt: '2024-06-01',
     updatedAt: '2024-06-01',
     basicInfo: {
@@ -2494,7 +2494,7 @@ export const initialCustomers: Customer[] = [
     createdBy: 'user-1',
     responsiblePersons: ['user-3'],
     collaborators: [],
-    progressStatus: 'preliminary_intent',
+    progressStatus: 'deal_closed',
     createdAt: '2024-06-15',
     updatedAt: '2024-06-15',
     basicInfo: {
@@ -2524,7 +2524,7 @@ export const initialCustomers: Customer[] = [
     createdBy: 'user-1',
     responsiblePersons: ['user-2'],
     collaborators: [],
-    progressStatus: 'pending_followup',
+    progressStatus: 'deal_closed',
     createdAt: '2024-07-01',
     updatedAt: '2024-07-01',
     basicInfo: {
@@ -2554,7 +2554,7 @@ export const initialCustomers: Customer[] = [
     createdBy: 'user-1',
     responsiblePersons: ['user-3'],
     collaborators: [],
-    progressStatus: 'pending_followup',
+    progressStatus: 'deal_closed',
     createdAt: '2024-08-01',
     updatedAt: '2024-08-01',
     basicInfo: {

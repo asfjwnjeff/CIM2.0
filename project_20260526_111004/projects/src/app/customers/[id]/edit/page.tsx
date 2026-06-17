@@ -900,11 +900,22 @@ export default function EditCustomerPage() {
                     <SearchableMultiSelect values={form.collaborators} onChange={(ids) => updateField('collaborators', ids)} options={USER_OPTIONS} placeholder="搜索并选择协同人..." searchPlaceholder="搜索用户..." emptyText="未找到用户" renderOption={(opt) => <UserOptionRender userId={opt.value} />} renderBadge={(opt, onRemove) => <UserBadgeRender userId={opt.value} onRemove={onRemove} />} />
                   </div>
                   <div>
-                    <label className={FIELD_STYLES.label}>跟进进度 <span className="text-xs text-[#999]">（系统自动判断）</span></label>
-                    <div className={`${FIELD_STYLES.input} bg-[#F5F5F5] text-[#5A5A5A] flex items-center gap-2 cursor-default`}>
-                      <span className={`inline-block w-2.5 h-2.5 rounded-full ${PROGRESS_STATUS_COLORS[form.progressStatus]?.dot || 'bg-gray-400'}`} />
-                      {PROGRESS_STATUS_LABELS[form.progressStatus] || form.progressStatus}
-                    </div>
+                    <label className={FIELD_STYLES.label}>跟进进度 {customer?.sourceSystem !== 'cpq' && <span className="text-xs text-[#999]">（系统自动判断）</span>}</label>
+                    {customer?.sourceSystem === 'cpq' && (customer.entityTypes?.includes('service') || customer.entityTypes?.includes('settlement')) ? (
+                      <select
+                        value={form.progressStatus}
+                        onChange={(e) => updateField('progressStatus', e.target.value as ProgressStatus)}
+                        className={FIELD_STYLES.input}
+                      >
+                        <option value="deal_closed">{PROGRESS_STATUS_LABELS.deal_closed}</option>
+                        <option value="invalid">{PROGRESS_STATUS_LABELS.invalid}</option>
+                      </select>
+                    ) : (
+                      <div className={`${FIELD_STYLES.input} bg-[#F5F5F5] text-[#5A5A5A] flex items-center gap-2 cursor-default`}>
+                        <span className={`inline-block w-2.5 h-2.5 rounded-full ${PROGRESS_STATUS_COLORS[form.progressStatus]?.dot || 'bg-gray-400'}`} />
+                        {PROGRESS_STATUS_LABELS[form.progressStatus] || form.progressStatus}
+                      </div>
+                    )}
                   </div>
                   <div>
                     <label className={FIELD_STYLES.label}>客户代码</label>

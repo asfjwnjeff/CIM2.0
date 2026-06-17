@@ -61,6 +61,7 @@ export default function CustomerDetailPage() {
     deleteFollowUp,
     deleteOpportunity,
     deleteRiskApproval,
+    updateCustomerProgress,
   } = useApp();
 
   const [activeTab, setActiveTab] = useState<TabType>('basic');
@@ -284,11 +285,22 @@ export default function CustomerDetailPage() {
           </div>
         </div>
 
-        {/* Progress stepper */}
-        <ProgressStepper
-          readonly={true}
-          currentStatus={customer.progressStatus}
-        />
+        {/* Progress stepper — CPQ主体仅允许成交↔失效 */}
+        {(() => {
+          const isCpq = customer.sourceSystem === 'cpq' && (customer.entityTypes?.includes('service') || customer.entityTypes?.includes('settlement'));
+          return (
+            <ProgressStepper
+              readonly={!isCpq}
+              currentStatus={customer.progressStatus}
+              onAdvance={isCpq ? (status) => {
+                if (status === 'invalid') updateCustomerProgress(customer.id, 'invalid');
+              } : undefined}
+              onRollback={isCpq ? (status) => {
+                if (status === 'deal_closed') updateCustomerProgress(customer.id, 'deal_closed');
+              } : undefined}
+            />
+          );
+        })()}
 
         {/* 信息补全横幅（仅CPQ来源的服务/结算主体） */}
         {(() => {
