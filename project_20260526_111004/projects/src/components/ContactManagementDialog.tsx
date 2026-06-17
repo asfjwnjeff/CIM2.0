@@ -117,20 +117,9 @@ export default function ContactManagementDialog({
           body: JSON.stringify({ ...form, id: undefined }),
         });
         const data = await res.json();
-        if (!res.ok) { alert(data.error || '保存失败'); return; }
-      } else {
-        const res = await fetch('/api/contacts', {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ ...form, id: selectedId }),
-        });
-        if (!res.ok) { alert('保存失败'); return; }
-      }
-      setDirty(false);
-      await loadContacts();
-      // 如果是新增，选中新联系人
-      if (mode === 'add') {
-        // 重新加载后找到最新的联系人
+        if (!res.ok) { alert(data.error || '保存失败'); setSaving(false); return; }
+        setDirty(false);
+        await loadContacts();
         const latest = await fetch(`/api/contacts?customerId=${encodeURIComponent(customerId)}`);
         const latestData = await latest.json();
         if (Array.isArray(latestData) && latestData.length > 0) {
@@ -139,6 +128,29 @@ export default function ContactManagementDialog({
           setMode('edit');
           setForm(newest);
         }
+        alert('联系人添加成功');
+      } else {
+        const res = await fetch('/api/contacts', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ...form, id: selectedId }),
+        });
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          alert((errData as { error?: string }).error || '保存失败');
+          setSaving(false);
+          return;
+        }
+        setDirty(false);
+        // 重新加载联系人列表并更新当前表单
+        const fresh = await fetch(`/api/contacts?customerId=${encodeURIComponent(customerId)}`);
+        const freshList = await fresh.json();
+        if (Array.isArray(freshList)) {
+          setContacts(freshList);
+          const updated = freshList.find((c: Contact) => c.id === selectedId);
+          if (updated) setForm({ ...updated });
+        }
+        alert('联系人保存成功');
       }
     } catch (e) {
       alert('保存失败: ' + String(e));
