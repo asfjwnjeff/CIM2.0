@@ -618,7 +618,7 @@ export default function CustomerDetailPage() {
 
                 {/* 绑定关系 */}
                 {customer.boundCustomers && customer.boundCustomers.length > 0 && (
-                  <div className="mb-3">
+                  <div className="mt-4 mb-3">
                     <label className="block text-[13px] text-[#5A5A5A] mb-2">绑定关系</label>
                     <div className="space-y-1.5">
                       {customer.boundCustomers.map((bc) => {
