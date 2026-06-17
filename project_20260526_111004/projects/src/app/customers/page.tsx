@@ -603,7 +603,7 @@ export default function CustomersPage() {
 
                     {/* Footer */}
                     <div className="pt-3 border-t border-[#EBEBEB] flex items-center justify-between text-xs text-[#999999]">
-                      <span>{createdByUser?.name || '-'} 创建于 {customer.createdAt?.slice(0, 10).replace(/-/g, '.')}</span>
+                      <span>{createdByUser?.name || '-'} 创建于 {customer.createdAt?.slice(0, 10)}</span>
                       {/* Actions menu (stop propagation) */}
                       <div className="relative" onClick={(e) => e.stopPropagation()}>
                         <button
@@ -833,7 +833,7 @@ export default function CustomersPage() {
                           <StatusBadge status={customer.status} />
                         </td>
                         <td className="px-3 py-3 text-[13px] text-[#5A5A5A]">
-                          {customer.createdAt?.slice(0, 10).replace(/-/g, '.')}
+                          {customer.createdAt?.slice(0, 10)}
                         </td>
                         <td className="px-3 py-3">
                           <div className="relative">

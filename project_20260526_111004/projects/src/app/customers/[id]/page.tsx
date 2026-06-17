@@ -53,9 +53,6 @@ export default function CustomerDetailPage() {
     opportunities,
     contracts,
     riskApprovals,
-    signingEntities,
-    serviceEntities,
-    settlementEntities,
     collaborateCustomer,
     assignCustomer,
     transferCustomer,
@@ -560,51 +557,6 @@ export default function CustomerDetailPage() {
                         <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-[#F5F5F5] text-[#999999]">
                           CPQ同步
                         </span>
-                      )}
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-[13px] text-[#5A5A5A] mb-1">签约主体</label>
-                    <div className="flex flex-wrap gap-1">
-                      {(customer.signingEntityIds || []).length > 0 ? (
-                        customer.signingEntityIds!.map((id) => {
-                          const entity = signingEntities.find((e) => e.id === id);
-                          return entity ? (
-                            <span key={id} className="px-2 py-0.5 rounded-full text-xs bg-[#E8EBFF] text-[#2D3BFF]">{entity.name}</span>
-                          ) : null;
-                        })
-                      ) : (
-                        <span className="text-sm text-[#999999]">-</span>
-                      )}
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-[13px] text-[#5A5A5A] mb-1">服务主体</label>
-                    <div className="flex flex-wrap gap-1">
-                      {(customer.serviceEntityIds || []).length > 0 ? (
-                        customer.serviceEntityIds!.map((id) => {
-                          const entity = serviceEntities.find((e) => e.id === id);
-                          return entity ? (
-                            <span key={id} className="px-2 py-0.5 rounded-full text-xs bg-[#E8EBFF] text-[#2D3BFF]">{entity.name}</span>
-                          ) : null;
-                        })
-                      ) : (
-                        <span className="text-sm text-[#999999]">-</span>
-                      )}
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-[13px] text-[#5A5A5A] mb-1">结算主体</label>
-                    <div className="flex flex-wrap gap-1">
-                      {(customer.settlementEntityIds || []).length > 0 ? (
-                        customer.settlementEntityIds!.map((id) => {
-                          const entity = settlementEntities.find((e) => e.id === id);
-                          return entity ? (
-                            <span key={id} className="px-2 py-0.5 rounded-full text-xs bg-[#E8EBFF] text-[#2D3BFF]">{entity.name}</span>
-                          ) : null;
-                        })
-                      ) : (
-                        <span className="text-sm text-[#999999]">-</span>
                       )}
                     </div>
                   </div>
