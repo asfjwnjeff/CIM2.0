@@ -118,7 +118,7 @@ export default function CustomersPage() {
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [filterProgress, setFilterProgress] = useState<ProgressStatus | 'all'>('all');
   const [filterEntityType, setFilterEntityType] = useState<EntityType | 'all'>('all');
-  const [viewMode, setViewMode] = useState<ViewMode>(getStoredViewMode);
+  const [viewMode, setViewMode] = useState<ViewMode>(() => getStoredViewMode());
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   // Collaboration dialog state
