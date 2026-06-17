@@ -290,6 +290,18 @@ export async function seed() {
       billingEntities: (c as any).billingEntities ? JSON.stringify((c as any).billingEntities) : null,
       ruleIds: (c as any).ruleIds ? JSON.stringify((c as any).ruleIds) : null,
       auditLogs: (c as any).auditLogs ? JSON.stringify((c as any).auditLogs) : null,
+      // 主体类型与 CPQ 集成
+      entityTypes: (c as any).entityTypes ? JSON.stringify((c as any).entityTypes) : null,
+      sourceSystem: (c as any).sourceSystem ?? null,
+      boundCustomers: (c as any).boundCustomers ? JSON.stringify((c as any).boundCustomers) : null,
+      domesticFlag: (c as any).domesticFlag ?? null,
+      settlementCycle: (c as any).settlementCycle ?? null,
+      invoiceAddress: (c as any).invoiceAddress ?? null,
+      bankAccounts: (c as any).bankAccounts ? JSON.stringify((c as any).bankAccounts) : null,
+      settlementRelationType: (c as any).settlementRelationType ?? null,
+      settlementRelationName: (c as any).settlementRelationName ?? null,
+      // 黑名单
+      blacklistInfo: (c as any).blacklistInfo ? JSON.stringify((c as any).blacklistInfo) : null,
       createdAt: c.createdAt,
     }).run();
   }
