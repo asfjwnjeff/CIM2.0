@@ -15,7 +15,6 @@ import {
   MOCK_USERS,
   getCustomerLevelIcon,
   getCustomerChainRoleLabel,
-  getCustomerStatusColor,
 } from '@/lib/sample-data';
 import { ArrowLeft, Edit3, UserPlus, UserCheck, UserX, Plus, Phone } from 'lucide-react';
 import { useSentiment } from '@/hooks/useSentiment';
@@ -304,13 +303,17 @@ export default function CustomerDetailPage() {
                     </button>
                   </>
                 )}
-                <span className="w-px h-6 bg-[#EBEBEB] mx-1" />
-                <button
-                  onClick={() => setBlacklistDialogStep(1)}
-                  className="inline-flex items-center gap-1.5 px-3 py-2 bg-[#FFEBEE] text-[#D63031] border border-[#FFCDD2] rounded-lg text-sm font-medium hover:bg-[#FFD5D8] transition-colors"
-                >
-                  加入黑名单
-                </button>
+                {customer.progressStatus === 'invalid' && (
+                  <>
+                    <span className="w-px h-6 bg-[#EBEBEB] mx-1" />
+                    <button
+                      onClick={() => setBlacklistDialogStep(1)}
+                      className="inline-flex items-center gap-1.5 px-3 py-2 bg-[#FFEBEE] text-[#D63031] border border-[#FFCDD2] rounded-lg text-sm font-medium hover:bg-[#FFD5D8] transition-colors"
+                    >
+                      加入黑名单
+                    </button>
+                  </>
+                )}
               </>
             )}
           </div>
@@ -585,12 +588,6 @@ export default function CustomerDetailPage() {
                   <div>
                     <label className="block text-[13px] text-[#5A5A5A] mb-1">客户代码</label>
                     <p className="text-[13px] text-[#0A0A0A] font-mono">{customer.customerCode || '-'}</p>
-                  </div>
-                  <div>
-                    <label className="block text-[13px] text-[#5A5A5A] mb-1">客户状态</label>
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getCustomerStatusColor(customer.status)}`}>
-                      {customer.status === 'active' ? '活跃' : customer.status === 'inactive' ? '非活跃' : customer.status === 'potential' ? '潜在' : customer.status === 'frozen' ? '冻结' : customer.status === 'blacklisted' ? '黑名单' : customer.status}
-                    </span>
                   </div>
                   <div>
                     <label className="block text-[13px] text-[#5A5A5A] mb-1">主体类型</label>
