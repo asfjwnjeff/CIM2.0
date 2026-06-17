@@ -335,16 +335,14 @@ export default function CustomersPage() {
           </div>
         </div>
 
-        {/* 分组标签栏 */}
+        {/* 分组标签栏 + 主体类型筛选 */}
         <GroupTabs
           groups={groupFilter.groups}
           activeGroupId={groupFilter.activeGroupId}
           onSelect={groupFilter.setActiveGroupId}
           onManage={groupFilter.openCreateDialog}
-        />
-
-        {/* 主体类型筛选（复用分组标签栏样式） */}
-        <div className="flex items-center gap-0 overflow-x-auto scrollbar-hide -mt-1">
+        >
+          <span className="shrink-0 w-px h-4 bg-[#EBEBEB] mx-1" />
           {(['all', 'signing', 'service', 'settlement'] as const).map((type) => (
             <button
               key={type}
@@ -361,7 +359,7 @@ export default function CustomersPage() {
               )}
             </button>
           ))}
-        </div>
+        </GroupTabs>
 
         {/* Search & Filters */}
         <div className="bg-white rounded-2xl border border-[#EBEBEB] shadow-[0_2px_8px_rgba(0,0,0,0.06)] p-4">

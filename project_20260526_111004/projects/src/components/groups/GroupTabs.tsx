@@ -9,9 +9,10 @@ interface GroupTabsProps {
   onSelect: (id: string) => void;
   onManage: () => void;
   compact?: boolean;
+  children?: React.ReactNode;
 }
 
-export default function GroupTabs({ groups, activeGroupId, onSelect, onManage, compact }: GroupTabsProps) {
+export default function GroupTabs({ groups, activeGroupId, onSelect, onManage, compact, children }: GroupTabsProps) {
   return (
     <div className="flex items-center gap-0 overflow-x-auto scrollbar-hide">
       {groups.map(group => (
@@ -30,6 +31,7 @@ export default function GroupTabs({ groups, activeGroupId, onSelect, onManage, c
           )}
         </button>
       ))}
+      {children}
       <button
         onClick={onManage}
         className="shrink-0 w-8 h-8 flex items-center justify-center rounded text-[#999999] hover:text-[#2D3BFF] hover:bg-[#E8EBFF] transition-colors ml-1"
