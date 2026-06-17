@@ -900,6 +900,7 @@ export default function EditCustomerPage() {
                         <button
                           type="button"
                           onClick={() => {
+                            if (!window.confirm('确认将该客户标记为失效吗？标记后可在详情页步骤条中恢复。')) return;
                             previousProgressRef.current = form.progressStatus;
                             updateField('progressStatus', 'invalid' as ProgressStatus);
                           }}
