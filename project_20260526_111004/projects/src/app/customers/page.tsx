@@ -899,7 +899,7 @@ export default function CustomersPage() {
 
         {/* Empty state */}
         {filteredCustomers.length === 0 && (() => {
-          const hasFilters = search || filterLevel !== 'all' || filterStatus !== 'all' || filterProgress !== 'all';
+          const hasFilters = search || filterLevel !== 'all' || filterStatus !== 'all' || filterProgress !== 'all' || filterEntityType !== 'all';
           if (hasFilters) {
             return (
               <SearchEmptyState
@@ -909,6 +909,7 @@ export default function CustomersPage() {
                   setFilterLevel('all');
                   setFilterStatus('all');
                   setFilterProgress('all');
+                  setFilterEntityType('all');
                 }}
               />
             );

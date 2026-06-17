@@ -29,7 +29,7 @@ export function ProgressStepper({ currentStatus, onAdvance, onRollback, readonly
         const completedTextClass = isInvalid ? 'text-gray-400' : 'text-gray-700';
         const currentBorderClass = isInvalid ? 'border-gray-400' : colors.dot.replace('bg-', 'border-');
         const currentTextClass = isInvalid ? 'text-gray-500' : colors.text;
-        const currentRingClass = isInvalid ? 'bg-gray-400' : colors.dot;
+        const currentRingClass = isInvalid ? 'ring-gray-400' : colors.dot.replace('bg-', 'ring-');
         const connectorDotClass = isInvalid ? 'bg-gray-300' : colors.dot;
         const connectorArrowClass = isInvalid ? 'text-gray-300' : colors.dot.replace('bg-', 'text-');
 

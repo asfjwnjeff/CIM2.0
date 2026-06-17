@@ -68,8 +68,8 @@ export default function CustomerDetailPage() {
 
   // 支持 URL 参数 ?tab=xxx 指定初始 tab
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const tab = params.get('tab');
+    const searchParams = new URLSearchParams(window.location.search);
+    const tab = searchParams.get('tab');
     const validTabs: TabType[] = ['basic', 'business', 'semiconductor', 'relations', 'products', 'sentiment', 'followup', 'opportunities', 'approvals', 'config', 'billing', 'logs'];
     if (tab && validTabs.includes(tab as TabType)) {
       setActiveTab(tab as TabType);
