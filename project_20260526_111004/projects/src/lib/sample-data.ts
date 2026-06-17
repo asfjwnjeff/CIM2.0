@@ -2592,7 +2592,7 @@ export const initialCustomers: Customer[] = [
     createdBy: 'user-1',
     responsiblePersons: ['user-2'],
     collaborators: [],
-    progressStatus: 'deal_closed',
+    progressStatus: 'invalid',
     createdAt: '2023-06-01',
     updatedAt: '2024-03-15',
     basicInfo: {

@@ -247,7 +247,7 @@ export default function ContactManagementDialog({
                 <div className="text-xs text-[#999] mt-1">或点击「新增」添加联系人</div>
               </div>
             ) : (
-              <div className={`space-y-0 ${mode === 'view' ? 'pointer-events-none opacity-60' : ''}`}>
+              <div className="space-y-0">
                 {/* 基本信息 */}
                 <div className="text-[11px] font-semibold text-[#999] uppercase tracking-wide mb-3 pb-2 border-b border-[#EBEBEB]">
                   基本信息
