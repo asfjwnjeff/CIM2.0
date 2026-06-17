@@ -15,6 +15,8 @@ import {
 } from '@/lib/sample-data';
 import { CollaborationDialogs, type CollaborationResult, type CollaborationDialogType } from '@/components/CollaborationDialogs';
 import { EmptyState, SearchEmptyState } from '@/components/ui/empty-state';
+import { getEntityTypeLabel, getEntityTypeColor, getEntityCompleteness, shouldShowCompleteness } from '@/lib/entity-utils';
+import type { EntityType } from '@/lib/types';
 import {
   Search,
   Plus,
@@ -115,6 +117,7 @@ export default function CustomersPage() {
   const [filterLevel, setFilterLevel] = useState<IndustryChainLevel | 'all'>('all');
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [filterProgress, setFilterProgress] = useState<ProgressStatus | 'all'>('all');
+  const [filterEntityType, setFilterEntityType] = useState<EntityType | 'all'>('all');
   const [viewMode, setViewMode] = useState<ViewMode>(getStoredViewMode);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
@@ -161,8 +164,12 @@ export default function CustomersPage() {
       result = result.filter((c) => c.progressStatus === filterProgress);
     }
 
+    if (filterEntityType !== 'all') {
+      result = result.filter((c) => c.entityTypes?.includes(filterEntityType));
+    }
+
     return result;
-  }, [customers, groupFilter, search, filterLevel, filterStatus, filterProgress]);
+  }, [customers, groupFilter, search, filterLevel, filterStatus, filterProgress, filterEntityType]);
 
   const toggleSelect = useCallback((id: string) => {
     setSelectedIds((prev) => {
@@ -386,6 +393,24 @@ export default function CustomersPage() {
           </div>
         </div>
 
+        {/* 主体类型快速分组 */}
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-xs text-[#999999] mr-1">主体类型：</span>
+          {(['all', 'signing', 'service', 'settlement'] as const).map((type) => (
+            <button
+              key={type}
+              onClick={() => setFilterEntityType(type)}
+              className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                filterEntityType === type
+                  ? 'bg-[#2D3BFF] text-white'
+                  : 'bg-[#F5F5F5] text-[#5A5A5A] hover:bg-[#EBEBEB]'
+              }`}
+            >
+              {type === 'all' ? '全部主体' : getEntityTypeLabel(type)}
+            </button>
+          ))}
+        </div>
+
         {/* Batch operations toolbar */}
         {selectedIds.size > 0 && (
           <div className="bg-[#E8EBFF] border border-[#2D3BFF]/20 rounded-2xl px-4 py-2.5 flex items-center justify-between">
@@ -430,13 +455,16 @@ export default function CustomersPage() {
               const createdByUser = getUserById(customer.createdBy);
               const contact = customer.businessInfo?.phone || customer.businessInfo?.email || '';
               const isSelected = selectedIds.has(customer.id);
+              const showCompletenessCard = shouldShowCompleteness(customer);
+              const completenessCard = showCompletenessCard ? getEntityCompleteness(customer) : null;
+              const isIncompleteCard = completenessCard !== null && completenessCard.percentage < 100;
 
               return (
                 <div
                   key={customer.id}
-                  className={`bg-white rounded-2xl border shadow-[0_2px_8px_rgba(0,0,0,0.06)] transition-all group cursor-pointer hover:shadow-md ${
+                  className={`rounded-2xl border shadow-[0_2px_8px_rgba(0,0,0,0.06)] transition-all group cursor-pointer hover:shadow-md ${
                     isSelected ? 'border-[#2D3BFF] ring-2 ring-[#2D3BFF]/10' : 'border-[#EBEBEB] hover:border-[#2D3BFF]/30'
-                  }`}
+                  } ${isIncompleteCard ? 'bg-[#FFF9EB]' : 'bg-white'}`}
                 >
                   <div className="p-4" onClick={() => router.push(`/customers/${customer.id}`)}>
                     {/* Top row: avatar + info + status */}
@@ -462,7 +490,23 @@ export default function CustomersPage() {
                           {customer.name.charAt(0)}
                         </div>
                         <div className="min-w-0">
-                          <h3 className="font-semibold text-[#0A0A0A] truncate">{customer.name}</h3>
+                          <div className="flex items-center gap-1">
+                            <h3 className="font-semibold text-[#0A0A0A] truncate">{customer.name}</h3>
+                            {isIncompleteCard && (
+                              <span className="text-[#E8850C] shrink-0 cursor-help" title={`必填信息不完整（完整度 ${completenessCard!.percentage}%）`}>⚠️</span>
+                            )}
+                            {showCompletenessCard && (
+                              <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium shrink-0 ${
+                                completenessCard!.percentage === 100
+                                  ? 'bg-[#E6F7F0] text-[#0D8A5E]'
+                                  : completenessCard!.percentage >= 50
+                                    ? 'bg-[#FFF4E8] text-[#E8850C]'
+                                    : 'bg-[#FFEBEE] text-[#D63031]'
+                              }`}>
+                                {completenessCard!.percentage}%
+                              </span>
+                            )}
+                          </div>
                           <p className="text-xs text-[#999999]">客户代码: {customer.customerCode || '-'}</p>
                         </div>
                       </div>
@@ -475,7 +519,54 @@ export default function CustomersPage() {
                         {INDUSTRY_CHAIN_LEVEL_LABELS[chainLevel]}
                       </span>
                       <ProgressBadge status={customer.progressStatus} />
+                      {/* 主体类型标签 */}
+                      {(customer.entityTypes && customer.entityTypes.length > 0
+                        ? customer.entityTypes
+                        : ['signing'] as EntityType[]
+                      ).map((et) => {
+                        const c = getEntityTypeColor(et);
+                        return (
+                          <span
+                            key={et}
+                            className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium"
+                            style={{ backgroundColor: c.light, color: c.text, border: `1px solid ${c.text}33` }}
+                          >
+                            {getEntityTypeLabel(et)}
+                          </span>
+                        );
+                      })}
                     </div>
+                    {/* 关联主体 */}
+                    {customer.boundCustomers && customer.boundCustomers.length > 0 && (
+                      <div className="flex flex-wrap items-center gap-1 mb-3">
+                        {(() => {
+                          const groups: { [key: string]: number } = {};
+                          customer.boundCustomers!.forEach((bc) => {
+                            groups[bc.entityType] = (groups[bc.entityType] || 0) + 1;
+                          });
+                          return (Object.entries(groups) as unknown as Array<[string, number]>).map((entry) => {
+                            const et = entry[0] as EntityType;
+                            const count = entry[1];
+                            return (
+                            <button
+                              key={et}
+                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-[#F5F5F5] text-[#5A5A5A] hover:bg-[#E8EBFF] hover:text-[#2D3BFF] transition-colors"
+                              title={`${getEntityTypeLabel(et)} ×${count} — 点击查看`}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setFilterEntityType(et);
+                              }}
+                            >
+                              <span style={{ color: getEntityTypeColor(et).text }}>
+                                {getEntityTypeLabel(et)}
+                              </span>
+                              ×{count}
+                            </button>
+                            );
+                          });
+                        })()}
+                      </div>
+                    )}
 
                     {/* Contact & owner info */}
                     <div className="space-y-1.5 mb-3 text-sm">
@@ -589,6 +680,8 @@ export default function CustomersPage() {
                       </label>
                     </th>
                     <th className="px-3 py-3 text-left text-[11px] font-semibold uppercase text-[#5A5A5A]">客户名称</th>
+                    <th className="px-3 py-3 text-left text-[11px] font-semibold uppercase text-[#5A5A5A]">主体类型</th>
+                    <th className="px-3 py-3 text-left text-[11px] font-semibold uppercase text-[#5A5A5A]">关联主体</th>
                     <th className="px-3 py-3 text-left text-[11px] font-semibold uppercase text-[#5A5A5A]">产业链层级</th>
                     <th className="px-3 py-3 text-left text-[11px] font-semibold uppercase text-[#5A5A5A]">联系人</th>
                     <th className="px-3 py-3 text-left text-[11px] font-semibold uppercase text-[#5A5A5A]">联系电话</th>
@@ -607,13 +700,16 @@ export default function CustomersPage() {
                     const ownerUsers = customer.responsiblePersons.map((id) => getUserById(id)).filter(Boolean);
                     const isSelected = selectedIds.has(customer.id);
                     const collabUsers = customer.collaborators.map(getUserById).filter(Boolean);
+                    const showCompleteness = shouldShowCompleteness(customer);
+                    const completeness = showCompleteness ? getEntityCompleteness(customer) : null;
+                    const isIncomplete = completeness !== null && completeness.percentage < 100;
 
                     return (
                       <tr
                         key={customer.id}
                         className={`border-b border-[#EBEBEB] h-[44px] hover:bg-[#F5F5F5] transition-colors ${
                           isSelected ? 'bg-[#E8EBFF]' : ''
-                        }`}
+                        } ${isIncomplete ? 'bg-[#FFF9EB]' : ''}`}
                       >
                         <td className="px-3 py-3">
                           <label className="relative flex items-center cursor-pointer">
@@ -631,13 +727,82 @@ export default function CustomersPage() {
                           </label>
                         </td>
                         <td className="px-3 py-3">
-                          <button
-                            onClick={() => router.push(`/customers/${customer.id}`)}
-                            className="text-[13px] font-medium text-[#2D3BFF] hover:underline text-left"
-                          >
-                            {customer.name}
-                          </button>
+                          <div className="flex items-center gap-1">
+                            <button
+                              onClick={() => router.push(`/customers/${customer.id}`)}
+                              className="text-[13px] font-medium text-[#2D3BFF] hover:underline text-left"
+                            >
+                              {customer.name}
+                            </button>
+                            {isIncomplete && (
+                              <span className="text-[#E8850C] cursor-help" title={`必填信息不完整（完整度 ${completeness!.percentage}%）`}>⚠️</span>
+                            )}
+                            {showCompleteness && (
+                              <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
+                                completeness!.percentage === 100
+                                  ? 'bg-[#E6F7F0] text-[#0D8A5E]'
+                                  : completeness!.percentage >= 50
+                                    ? 'bg-[#FFF4E8] text-[#E8850C]'
+                                    : 'bg-[#FFEBEE] text-[#D63031]'
+                              }`}>
+                                {completeness!.percentage}%
+                              </span>
+                            )}
+                          </div>
                           <p className="text-xs text-[#999999]">{customer.customerCode || '-'}</p>
+                        </td>
+                        <td className="px-3 py-3">
+                          <div className="flex flex-wrap gap-1">
+                            {(customer.entityTypes && customer.entityTypes.length > 0
+                              ? customer.entityTypes
+                              : ['signing'] as EntityType[]
+                            ).map((et) => {
+                              const c = getEntityTypeColor(et);
+                              return (
+                                <span
+                                  key={et}
+                                  className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium"
+                                  style={{ backgroundColor: c.light, color: c.text, border: `1px solid ${c.text}33` }}
+                                >
+                                  {getEntityTypeLabel(et)}
+                                </span>
+                              );
+                            })}
+                          </div>
+                        </td>
+                        <td className="px-3 py-3">
+                          {customer.boundCustomers && customer.boundCustomers.length > 0 ? (
+                            <div className="flex flex-wrap gap-1">
+                              {(() => {
+                                const groups: { [key: string]: number } = {};
+                                customer.boundCustomers!.forEach((bc) => {
+                                  groups[bc.entityType] = (groups[bc.entityType] || 0) + 1;
+                                });
+                                const entries = Object.entries(groups) as unknown as Array<[string, number]>;
+                                return entries.map((entry) => {
+                                  const et = entry[0] as EntityType;
+                                  const count = entry[1];
+                                  return (
+                                  <button
+                                    key={et}
+                                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-[#F5F5F5] text-[#5A5A5A] hover:bg-[#E8EBFF] hover:text-[#2D3BFF] transition-colors"
+                                    title={`${getEntityTypeLabel(et)} ×${count} — 点击查看`}
+                                    onClick={() => {
+                                      setFilterEntityType(et);
+                                    }}
+                                  >
+                                    <span style={{ color: getEntityTypeColor(et).text }}>
+                                      {getEntityTypeLabel(et)}
+                                    </span>
+                                    ×{count}
+                                  </button>
+                                  );
+                                });
+                              })()}
+                            </div>
+                          ) : (
+                            <span className="text-xs text-[#B5B5B5]">-</span>
+                          )}
                         </td>
                         <td className="px-3 py-3">
                           <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${levelColors.bg} ${levelColors.text}`}>

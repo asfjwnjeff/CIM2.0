@@ -265,6 +265,23 @@ export type CustomerStatus = 'draft' | 'active' | 'inactive' | 'potential' | 'fr
 export type RelationshipLoyalty = 'strategic' | 'important' | 'normal' | 'tobe_developed';
 export type CustomerLevel = 'vip' | 'key' | 'normal' | 'small';
 
+// ==================== 主体类型与 CPQ 集成 ====================
+
+export type EntityType = 'signing' | 'service' | 'settlement';
+
+export interface BoundCustomer {
+  customerId: string;
+  customerName: string;
+  entityType: EntityType;
+  unifiedSocialCreditCode?: string;
+}
+
+export interface BankAccount {
+  currency: string;
+  bankName: string;
+  accountNumber: string;
+}
+
 export interface Contact {
   id: string;
   customerId: string;
@@ -320,6 +337,28 @@ export interface Customer {
   products?: CustomerProduct[];
   auditLogs?: CustomerAuditLog[];
   ruleIds?: string[];
+
+  // ====== 主体类型与 CPQ 集成 ======
+  /** 主体类型标签（CPQ 回传后确定，可多选） */
+  entityTypes?: EntityType[];
+  /** 数据来源系统 */
+  sourceSystem?: 'cim' | 'cpq';
+  /** 绑定的关联客户 */
+  boundCustomers?: BoundCustomer[];
+
+  // -- CPQ 专属字段（仅 sourceSystem='cpq' + 服务/结算主体时显示） --
+  /** 境内外标志 */
+  domesticFlag?: 'domestic' | 'overseas';
+  /** 结算周期 */
+  settlementCycle?: string;
+  /** 开票地址 */
+  invoiceAddress?: string;
+  /** 银行结算信息（多组） */
+  bankAccounts?: BankAccount[];
+  /** 关联类型（仅结算主体） */
+  settlementRelationType?: 'service_entity' | 'supplier';
+  /** 关联名称（仅结算主体） */
+  settlementRelationName?: string;
 }
 
 // ==================== 账单主体 ====================

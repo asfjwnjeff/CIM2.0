@@ -4,7 +4,8 @@ import { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useApp } from '@/lib/store';
 import { MOCK_USERS, PROGRESS_STATUS_LABELS, PROGRESS_STATUS_COLORS, RELATION_LABELS, INDUSTRY_CHAIN_LEVEL_LABELS } from '@/lib/sample-data';
-import type { ProgressStatus, IndustryChainLevel, IndustryChainRole, CustomerStatus, Contact } from '@/lib/types';
+import type { ProgressStatus, IndustryChainLevel, IndustryChainRole, CustomerStatus, Contact, EntityType } from '@/lib/types';
+import { getEntityTypeLabel, getEntityTypeColor } from '@/lib/entity-utils';
 import ContactManagementDialog from '@/components/ContactManagementDialog';
 import { ProgressStepper } from '@/components/ProgressStepper';
 import { ArrowLeft, X, Plus, Trash2, Building2, Upload, Phone } from 'lucide-react';
@@ -105,6 +106,13 @@ interface EditFormData {
   relatedCompanies: Array<{ id: string; relatedCompanyName: string; relation: string; relatedCompanyLevel: string; validFrom: string; validTo: string }>;
   // 经营商品档案
   products: Array<{ id: string; productName: string; productCode: string; customsDeclarationElements: string; origin: string; industryChainCategory: string; relatedBillingEntityId: string }>;
+  // CPQ 专属字段
+  domesticFlag: string;
+  settlementCycle: string;
+  invoiceAddress: string;
+  bankAccounts: Array<{ currency: string; bankName: string; accountNumber: string }>;
+  settlementRelationType: string;
+  settlementRelationName: string;
 }
 
 function buildFormData(customer: ReturnType<typeof useApp>['customers'][number]): EditFormData {
@@ -190,6 +198,13 @@ function buildFormData(customer: ReturnType<typeof useApp>['customers'][number])
       industryChainCategory: p.industryChainCategory || '',
       relatedBillingEntityId: p.relatedBillingEntityId || '',
     })),
+    // CPQ 专属字段
+    domesticFlag: customer.domesticFlag || '',
+    settlementCycle: customer.settlementCycle || '',
+    invoiceAddress: customer.invoiceAddress || '',
+    bankAccounts: customer.bankAccounts || [],
+    settlementRelationType: customer.settlementRelationType || '',
+    settlementRelationName: customer.settlementRelationName || '',
   };
 }
 
@@ -669,6 +684,13 @@ export default function EditCustomerPage() {
         industryChainCategory: p.industryChainCategory || undefined,
         relatedBillingEntityId: p.relatedBillingEntityId || undefined,
       })) : undefined,
+      // CPQ 专属字段
+      domesticFlag: customer.sourceSystem === 'cpq' ? (form.domesticFlag as 'domestic' | 'overseas' | undefined) : undefined,
+      settlementCycle: customer.sourceSystem === 'cpq' ? (form.settlementCycle.trim() || undefined) : undefined,
+      invoiceAddress: customer.sourceSystem === 'cpq' ? (form.invoiceAddress.trim() || undefined) : undefined,
+      bankAccounts: customer.sourceSystem === 'cpq' ? (form.bankAccounts.length > 0 ? form.bankAccounts : undefined) : undefined,
+      settlementRelationType: customer.sourceSystem === 'cpq' ? (form.settlementRelationType as 'service_entity' | 'supplier' | undefined) : undefined,
+      settlementRelationName: customer.sourceSystem === 'cpq' ? (form.settlementRelationName.trim() || undefined) : undefined,
     });
 
     addLog({ action: 'update', operator: '系统管理员', targetType: 'customer', targetId: customer.id, targetName: customer.name, details: `编辑客户信息: ${form.name.trim()}` });
@@ -910,6 +932,137 @@ export default function EditCustomerPage() {
                   </div>
                 </div>
               </div>
+
+              {/* CPQ 专属字段（仅 sourceSystem='cpq' + 服务/结算主体时显示） */}
+              {customer?.sourceSystem === 'cpq' && (customer.entityTypes?.includes('service') || customer.entityTypes?.includes('settlement')) && (
+                <div className="bg-white rounded-2xl border border-[#EBEBEB] shadow-[0_2px_8px_rgba(0,0,0,0.06)] p-6">
+                  <h3 className="text-[16px] font-semibold text-[#0A0A0A] mb-4">CPQ 同步信息</h3>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
+                    <div>
+                      <label className={FIELD_STYLES.label}>境内外标志</label>
+                      <select
+                        value={form.domesticFlag}
+                        onChange={(e) => updateField('domesticFlag', e.target.value)}
+                        className={FIELD_STYLES.input}
+                      >
+                        <option value="">请选择</option>
+                        <option value="domestic">境内</option>
+                        <option value="overseas">境外</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className={FIELD_STYLES.label}>结算周期</label>
+                      <input
+                        type="text"
+                        value={form.settlementCycle}
+                        onChange={(e) => updateField('settlementCycle', e.target.value)}
+                        className={FIELD_STYLES.input}
+                        placeholder="请输入结算周期"
+                      />
+                    </div>
+                    <div>
+                      <label className={FIELD_STYLES.label}>开票地址</label>
+                      <input
+                        type="text"
+                        value={form.invoiceAddress}
+                        onChange={(e) => updateField('invoiceAddress', e.target.value)}
+                        className={FIELD_STYLES.input}
+                        placeholder="请输入开票地址"
+                      />
+                    </div>
+                    {customer.entityTypes?.includes('settlement') && (
+                      <>
+                        <div>
+                          <label className={FIELD_STYLES.label}>关联类型</label>
+                          <select
+                            value={form.settlementRelationType}
+                            onChange={(e) => updateField('settlementRelationType', e.target.value)}
+                            className={FIELD_STYLES.input}
+                          >
+                            <option value="">请选择</option>
+                            <option value="service_entity">服务主体</option>
+                            <option value="supplier">供应商</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className={FIELD_STYLES.label}>关联名称</label>
+                          <input
+                            type="text"
+                            value={form.settlementRelationName}
+                            onChange={(e) => updateField('settlementRelationName', e.target.value)}
+                            className={FIELD_STYLES.input}
+                            placeholder="请输入关联名称"
+                          />
+                        </div>
+                      </>
+                    )}
+                  </div>
+
+                  {/* 银行结算信息（多组） */}
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <label className={FIELD_STYLES.label}>银行结算信息</label>
+                      <button
+                        type="button"
+                        onClick={() => updateField('bankAccounts', [...form.bankAccounts, { currency: '', bankName: '', accountNumber: '' }])}
+                        className="inline-flex items-center gap-1 px-2 py-1 text-xs text-[#2D3BFF] hover:bg-[#E8EBFF] rounded transition-colors"
+                      >
+                        <Plus className="w-3 h-3" /> 添加银行
+                      </button>
+                    </div>
+                    {form.bankAccounts.length === 0 ? (
+                      <p className="text-sm text-[#999999] py-2">暂无银行信息</p>
+                    ) : (
+                      <div className="space-y-2">
+                        {form.bankAccounts.map((ba, idx) => (
+                          <div key={idx} className="flex items-center gap-3">
+                            <input
+                              type="text"
+                              value={ba.currency}
+                              onChange={(e) => {
+                                const updated = form.bankAccounts.map((b, i) => i === idx ? { ...b, currency: e.target.value } : b);
+                                updateField('bankAccounts', updated);
+                              }}
+                              className={`${FIELD_STYLES.input} w-20`}
+                              placeholder="币种"
+                            />
+                            <input
+                              type="text"
+                              value={ba.bankName}
+                              onChange={(e) => {
+                                const updated = form.bankAccounts.map((b, i) => i === idx ? { ...b, bankName: e.target.value } : b);
+                                updateField('bankAccounts', updated);
+                              }}
+                              className={`${FIELD_STYLES.input} flex-1`}
+                              placeholder="开户行"
+                            />
+                            <input
+                              type="text"
+                              value={ba.accountNumber}
+                              onChange={(e) => {
+                                const updated = form.bankAccounts.map((b, i) => i === idx ? { ...b, accountNumber: e.target.value } : b);
+                                updateField('bankAccounts', updated);
+                              }}
+                              className={`${FIELD_STYLES.input} flex-1`}
+                              placeholder="银行账号"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const updated = form.bankAccounts.filter((_, i) => i !== idx);
+                                updateField('bankAccounts', updated);
+                              }}
+                              className="p-1 text-[#D63031] hover:bg-[#FFEBEE] rounded transition-colors shrink-0"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
 
               {/* 联系人卡片 */}
               <div className="bg-white rounded-2xl border border-[#EBEBEB] shadow-[0_2px_8px_rgba(0,0,0,0.06)] p-6">

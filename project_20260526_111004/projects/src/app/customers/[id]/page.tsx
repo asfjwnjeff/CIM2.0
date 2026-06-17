@@ -22,6 +22,8 @@ import { useSentiment } from '@/hooks/useSentiment';
 import { SentimentList } from '@/components/sentiment/SentimentList';
 import ContactManagementDialog from '@/components/ContactManagementDialog';
 import type { Contact } from '@/lib/types';
+import { getEntityTypeLabel, getEntityTypeColor, getEntityCompleteness, shouldShowCompleteness } from '@/lib/entity-utils';
+import type { EntityType } from '@/lib/types';
 
 type TabType = 'basic' | 'business' | 'semiconductor' | 'relations' | 'products' | 'sentiment' | 'followup' | 'opportunities' | 'approvals' | 'config' | 'billing' | 'logs';
 
@@ -291,6 +293,35 @@ export default function CustomerDetailPage() {
           currentStatus={customer.progressStatus}
         />
 
+        {/* 信息补全横幅（仅CPQ来源的服务/结算主体） */}
+        {(() => {
+          const showBanner = shouldShowCompleteness(customer);
+          const comp = showBanner ? getEntityCompleteness(customer) : null;
+          if (!comp || comp.percentage >= 100) return null;
+          const labels = (customer.entityTypes || []).map(getEntityTypeLabel).join('、') || '该主体';
+          return (
+            <div className="bg-[#FFF9EB] border border-[#FFE0B2] rounded-xl px-4 py-3 flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <span className="text-lg">⚠️</span>
+                <div>
+                  <span className="text-sm font-medium text-[#E8850C]">
+                    {labels}信息不完整（完整度 {comp.percentage}%）
+                  </span>
+                  <span className="text-xs text-[#999999] ml-2">
+                    该主体由CPQ系统同步，仅包含核心字段。请补全必填信息。
+                  </span>
+                </div>
+              </div>
+              <button
+                onClick={() => router.push(`/customers/${customer.id}/edit`)}
+                className="shrink-0 px-4 py-1.5 text-sm font-medium bg-[#E8850C] text-white rounded-lg hover:bg-[#C8770A] transition-colors"
+              >
+                去补全信息 →
+              </button>
+            </div>
+          );
+        })()}
+
         {/* Tabs */}
         <div className="border-b border-[#EBEBEB] overflow-x-auto">
           <div className="flex space-x-1">
@@ -508,6 +539,31 @@ export default function CustomerDetailPage() {
                     </span>
                   </div>
                   <div>
+                    <label className="block text-[13px] text-[#5A5A5A] mb-1">主体类型</label>
+                    <div className="flex flex-wrap gap-1">
+                      {(customer.entityTypes && customer.entityTypes.length > 0
+                        ? customer.entityTypes
+                        : ['signing'] as EntityType[]
+                      ).map((et) => {
+                        const c = getEntityTypeColor(et);
+                        return (
+                          <span
+                            key={et}
+                            className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium"
+                            style={{ backgroundColor: c.light, color: c.text, border: `1px solid ${c.text}33` }}
+                          >
+                            {getEntityTypeLabel(et)}
+                          </span>
+                        );
+                      })}
+                      {customer.sourceSystem === 'cpq' && (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-[#F5F5F5] text-[#999999]">
+                          CPQ同步
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <div>
                     <label className="block text-[13px] text-[#5A5A5A] mb-1">签约主体</label>
                     <div className="flex flex-wrap gap-1">
                       {(customer.signingEntityIds || []).length > 0 ? (
@@ -553,7 +609,95 @@ export default function CustomerDetailPage() {
                     </div>
                   </div>
                 </div>
+
+                {/* 绑定关系 */}
+                {customer.boundCustomers && customer.boundCustomers.length > 0 && (
+                  <div className="mb-3">
+                    <label className="block text-[13px] text-[#5A5A5A] mb-2">绑定关系</label>
+                    <div className="space-y-1.5">
+                      {customer.boundCustomers.map((bc) => {
+                        const bcColor = getEntityTypeColor(bc.entityType);
+                        return (
+                          <button
+                            key={bc.customerId}
+                            onClick={() => router.push(`/customers/${bc.customerId}`)}
+                            className="w-full flex items-center justify-between px-3 py-2 rounded-lg border border-[#EBEBEB] hover:bg-[#F5F5F5] transition-colors text-left"
+                          >
+                            <div className="flex items-center gap-2">
+                              <span
+                                className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium"
+                                style={{ backgroundColor: bcColor.light, color: bcColor.text }}
+                              >
+                                {getEntityTypeLabel(bc.entityType)}
+                              </span>
+                              <span className="text-sm text-[#0A0A0A]">{bc.customerName}</span>
+                            </div>
+                            <svg className="w-4 h-4 text-[#B5B5B5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5l7 7-7 7" />
+                            </svg>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
               </div>
+
+            {/* CPQ 专属字段（仅 sourceSystem='cpq' + 服务/结算主体） */}
+            {customer.sourceSystem === 'cpq' && (customer.entityTypes?.includes('service') || customer.entityTypes?.includes('settlement')) && (
+              <div className="bg-white rounded-2xl border border-[#EBEBEB] shadow-[0_2px_8px_rgba(0,0,0,0.06)] p-6">
+                <h3 className="text-[16px] font-semibold text-[#0A0A0A] mb-4">CPQ 同步信息</h3>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  {customer.domesticFlag && (
+                    <div>
+                      <label className="block text-[13px] text-[#5A5A5A] mb-1">境内外标志</label>
+                      <p className="text-[13px] text-[#0A0A0A]">{customer.domesticFlag === 'domestic' ? '境内' : '境外'}</p>
+                    </div>
+                  )}
+                  {customer.settlementCycle && (
+                    <div>
+                      <label className="block text-[13px] text-[#5A5A5A] mb-1">结算周期</label>
+                      <p className="text-[13px] text-[#0A0A0A]">{customer.settlementCycle}</p>
+                    </div>
+                  )}
+                  {customer.invoiceAddress && (
+                    <div>
+                      <label className="block text-[13px] text-[#5A5A5A] mb-1">开票地址</label>
+                      <p className="text-[13px] text-[#0A0A0A]">{customer.invoiceAddress}</p>
+                    </div>
+                  )}
+                  {customer.settlementRelationType && (
+                    <div>
+                      <label className="block text-[13px] text-[#5A5A5A] mb-1">关联类型</label>
+                      <p className="text-[13px] text-[#0A0A0A]">{customer.settlementRelationType === 'service_entity' ? '服务主体' : '供应商'}</p>
+                    </div>
+                  )}
+                  {customer.settlementRelationName && (
+                    <div>
+                      <label className="block text-[13px] text-[#5A5A5A] mb-1">关联名称</label>
+                      <p className="text-[13px] text-[#0A0A0A]">{customer.settlementRelationName}</p>
+                    </div>
+                  )}
+                </div>
+                {/* 银行结算信息 */}
+                {customer.bankAccounts && customer.bankAccounts.length > 0 && (
+                  <div className="mt-4">
+                    <label className="block text-[13px] text-[#5A5A5A] mb-2">银行结算信息</label>
+                    <div className="space-y-2">
+                      {customer.bankAccounts.map((ba, idx) => (
+                        <div key={idx} className="flex items-center gap-3 px-3 py-2 bg-[#F5F5F5] rounded-lg text-sm">
+                          <span className="text-[#5A5A5A]">币种：<span className="text-[#0A0A0A] font-medium">{ba.currency}</span></span>
+                          <span className="text-[#B5B5B5]">|</span>
+                          <span className="text-[#5A5A5A]">开户行：<span className="text-[#0A0A0A] font-medium">{ba.bankName}</span></span>
+                          <span className="text-[#B5B5B5]">|</span>
+                          <span className="text-[#5A5A5A]">账号：<span className="text-[#0A0A0A] font-medium">{ba.accountNumber}</span></span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* 联系人卡片 */}
             <div className="bg-white rounded-2xl border border-[#EBEBEB] shadow-[0_2px_8px_rgba(0,0,0,0.06)] p-6">
