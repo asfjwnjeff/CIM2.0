@@ -36,6 +36,7 @@ const HeaderIcons = {
 // 跟进提醒 Bell 组件
 function ReminderBell() {
   const router = useRouter();
+  const { currentUser } = useApp();
   const [count, setCount] = useState(0);
   const [items, setItems] = useState<Array<{customerId:string;customerName:string;level:string;overdueDays:number}>>([]);
   const [notifications, setNotifications] = useState<Array<{id:string;type:string;title:string;summary:string;targetUrl?:string;isRead:boolean;createdAt:string}>>([]);
@@ -46,7 +47,7 @@ function ReminderBell() {
     try {
       const [remRes, notifRes] = await Promise.all([
         fetch('/api/followup-reminders'),
-        fetch('/api/notifications'),
+        fetch(`/api/notifications?userId=${encodeURIComponent(currentUser.id)}`),
       ]);
       const remData = await remRes.json();
       const notifData = await notifRes.json();

@@ -11,10 +11,11 @@ interface Props {
   onOpenChange: (open: boolean) => void;
   customerId: string;
   customerName: string;
+  readonly?: boolean;
 }
 
 export default function ContactManagementDialog({
-  open, onOpenChange, customerId, customerName,
+  open, onOpenChange, customerId, customerName, readonly,
 }: Props) {
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -49,7 +50,7 @@ export default function ContactManagementDialog({
   const selectContact = (ct: Contact) => {
     if (dirty && !confirm('有未保存的更改，是否放弃？')) return;
     setSelectedId(ct.id);
-    setMode('edit');
+    setMode(readonly ? 'view' : 'edit');
     setForm({ ...ct });
     setErrors({});
     setDirty(false);
@@ -164,7 +165,7 @@ export default function ContactManagementDialog({
   };
 
   const selectedContact = contacts.find(c => c.id === selectedId);
-  const showForm = mode === 'add' || mode === 'edit';
+  const showForm = mode === 'add' || mode === 'edit' || (mode === 'view' && !!selectedId);
 
   return (
     <Dialog open={open} onOpenChange={(v) => {
@@ -196,12 +197,14 @@ export default function ContactManagementDialog({
           <div className="w-[260px] shrink-0 border-r border-[#EBEBEB] bg-[#FAFAFA] flex flex-col">
             <div className="px-4 py-3 border-b border-[#EBEBEB] flex items-center justify-between">
               <span className="text-xs text-[#999]">共 {contacts.length} 位联系人</span>
+              {!readonly && (
               <button
                 onClick={startAdd}
                 className="text-xs px-2.5 py-1 rounded-md border border-[#EBEBEB] bg-white text-[#5A5A5A] hover:bg-[#F5F5F5] transition-colors"
               >
                 ＋ 新增
               </button>
+              )}
             </div>
             <div className="flex-1 overflow-y-auto p-2">
               {contacts.length === 0 ? (
@@ -244,7 +247,7 @@ export default function ContactManagementDialog({
                 <div className="text-xs text-[#999] mt-1">或点击「新增」添加联系人</div>
               </div>
             ) : (
-              <div className="space-y-0">
+              <div className={`space-y-0 ${mode === 'view' ? 'pointer-events-none opacity-60' : ''}`}>
                 {/* 基本信息 */}
                 <div className="text-[11px] font-semibold text-[#999] uppercase tracking-wide mb-3 pb-2 border-b border-[#EBEBEB]">
                   基本信息
@@ -429,7 +432,7 @@ export default function ContactManagementDialog({
             >
               取消
             </button>
-            {showForm && (
+            {mode !== 'view' && showForm && (
               <button
                 onClick={handleSave}
                 disabled={saving}

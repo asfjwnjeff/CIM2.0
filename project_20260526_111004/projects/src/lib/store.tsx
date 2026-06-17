@@ -1049,9 +1049,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
+        userId: 'user-1', // 总经理用户ID
         type: 'blacklist_removal',
         title: '黑名单解除审批',
-        summary: `客户黑名单解除审批需要您处理（操作人：${operatorId}）`,
+        summary: `客户黑名单解除审批需要您处理`,
         targetUrl: `/blacklist-removal/${id}`,
       }),
     }).catch(() => { /* ignore */ });
