@@ -891,7 +891,10 @@ export default function EditCustomerPage() {
                       {form.progressStatus === 'invalid' ? (
                         <button
                           type="button"
-                          onClick={() => updateField('progressStatus', previousProgressRef.current)}
+                          onClick={() => {
+                            if (!window.confirm('确认恢复该客户进度吗？将还原为标记失效前的状态。')) return;
+                            updateField('progressStatus', previousProgressRef.current);
+                          }}
                           className="shrink-0 px-3 py-2 text-xs font-medium text-[#0D8A5E] border border-[#B8E8D4] rounded-lg hover:bg-[#E6F7F0] transition-colors whitespace-nowrap"
                         >
                           恢复
