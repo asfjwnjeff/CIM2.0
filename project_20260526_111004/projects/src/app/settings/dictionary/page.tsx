@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import { useApp } from '@/lib/store';
+import { useConfirm } from '@/hooks/useConfirm';
+import { toast } from 'sonner';
 import { SearchableSelect } from '@/components/ui/searchable-select';
 import { FIELD_STYLES } from '@/lib/ui-constants';
 
@@ -104,6 +106,7 @@ const initialDictionaryFields: DictionaryField[] = [
   { id: "d-506", name: "关联账单主体", fieldKey: "relatedBillingEntity", type: "text", category: "products", options: [], required: false },];
 
 export default function DictionaryPage() {
+  const { confirm, ConfirmDialog } = useConfirm();
   const { addLog } = useApp();
   const [fields, setFields] = useState<DictionaryField[]>(initialDictionaryFields);
   const [activeCategory, setActiveCategory] = useState<FieldCategory | 'all'>('all');
@@ -196,11 +199,11 @@ export default function DictionaryPage() {
   // 保存
   const handleSave = () => {
     if (!formData.name.trim()) {
-      alert('请输入字段名称');
+      toast.error('请输入字段名称');
       return;
     }
     if (!formData.fieldKey.trim()) {
-      alert('请输入字段标识');
+      toast.error('请输入字段标识');
       return;
     }
 
@@ -243,10 +246,12 @@ export default function DictionaryPage() {
   };
 
   // 删除字段
-  const handleDelete = (field: DictionaryField) => {
-    if (confirm(`确定要删除字段「${field.name}」吗？`)) {
+  const handleDelete = async (field: DictionaryField) => {
+    const ok = await confirm('删除字段', `确定要删除字段「${field.name}」吗？`, '删除', '取消', true);
+    if (ok) {
       setFields(prev => prev.filter(f => f.id !== field.id));
-      
+      toast.success('字典字段已删除');
+
       addLog({
         operator: '系统管理员',
         action: 'delete',
@@ -609,6 +614,7 @@ export default function DictionaryPage() {
           </div>
         </div>
       )}
+      {ConfirmDialog}
     </div>
   );
 }

@@ -5,6 +5,7 @@ import React, { useState, Suspense } from 'react';
 export const dynamic = 'force-dynamic';
 import { useSearchParams } from 'next/navigation';
 import { useApp } from '@/lib/store';
+import { toast } from 'sonner';
 
 const PlusIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -83,7 +84,7 @@ function SettingsPageContent() {
   const actionTypes = Array.from(new Set(operationLogs.map(log => log.action)));
 
   const handleExportLogs = () => {
-    alert('导出功能开发中...');
+    toast.info('导出功能开发中');
   };
 
   const tabs: { key: TabType; label: string }[] = [

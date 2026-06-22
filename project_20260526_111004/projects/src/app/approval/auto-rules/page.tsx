@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useApp } from '@/lib/store';
+import { toast } from 'sonner';
+import { useConfirm } from '@/hooks/useConfirm';
 
 const serviceProductColors: Record<string, string> = {
   '货代': 'bg-[#E8F4FF] text-[#2D3BFF]',
@@ -17,6 +19,7 @@ const serviceProductColors: Record<string, string> = {
 
 export default function AutoRulesPage() {
   const { autoApprovalRules, deleteAutoApprovalRule } = useApp();
+  const { confirm, ConfirmDialog } = useConfirm();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterProduct, setFilterProduct] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
@@ -132,7 +135,7 @@ export default function AutoRulesPage() {
               </div>
             </Link>
             <button
-              onClick={(e) => { e.preventDefault(); e.stopPropagation(); if (confirm(`确定要删除规则「${rule.name}」吗？`)) deleteAutoApprovalRule(rule.id); }}
+              onClick={async (e) => { e.preventDefault(); e.stopPropagation(); const ok = await confirm('删除规则', `确定要删除规则「${rule.name}」吗？`, '删除', '取消', true); if (ok) { deleteAutoApprovalRule(rule.id); toast.success('规则已删除'); } }}
               className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity px-3 py-1 text-xs text-[#D63031] hover:bg-[#FFEBEE] rounded-lg"
             >
               删除
@@ -143,6 +146,7 @@ export default function AutoRulesPage() {
             <div className="text-center py-12 text-[#999999]">暂无匹配的规则</div>
           )}
         </div>
+        {ConfirmDialog}
       </div>
   );
 }

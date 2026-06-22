@@ -1,10 +1,12 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useApp } from '@/lib/store';
+import { toast } from 'sonner';
 import { formatShortDateTime, getFollowupTypeLabel, getFollowupStatusColor, getFollowupMethodLabel, FOLLOWUP_STATUS_LABELS } from '@/lib/mobile-utils';
 import { Section, InfoRow } from '@/components/mobile/SharedComponents';
+import ConfirmDialog from '@/components/mobile/ConfirmDialog';
 
 export default function MobileFollowupDetailPage() {
   const router = useRouter();
@@ -19,7 +21,8 @@ export default function MobileFollowupDetailPage() {
       </div>
     );
   }
-  const { followUps, customers } = useApp();
+  const { followUps, customers, deleteFollowUp } = useApp();
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   const followup = useMemo(() => followUps.find((f) => f.id === id), [followUps, id]);
   const customer = useMemo(() => customers.find((c) => c.id === followup?.customerId), [customers, followup]);
@@ -45,7 +48,7 @@ export default function MobileFollowupDetailPage() {
   const fType = followup.type || followup.followUpType || 'other_customer';
 
   return (
-    <div className="flex flex-col gap-4 pb-8">
+    <div className="flex flex-col gap-4 pb-[calc(80px+var(--mobile-tab-height))]">
       <div className="flex items-center gap-3">
         <button className="w-10 h-10 flex items-center justify-center rounded-lg bg-white border border-[#EBEBEB] text-[#5A5A5A] active:bg-[#F5F5F5]" onClick={() => router.back()}>
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
@@ -102,6 +105,30 @@ export default function MobileFollowupDetailPage() {
           )}
         </Section>
       )}
+
+      <ConfirmDialog
+        open={confirmDelete}
+        title="删除跟进"
+        message={`确定删除「${followup.customerName || customer?.name || ''}」的跟进记录吗？删除后不可恢复。`}
+        confirmLabel="删除"
+        danger
+        onConfirm={async () => {
+          try {
+            deleteFollowUp(followup.id);
+            toast.success('跟进已删除');
+            router.push('/mobile/followups');
+          } catch { toast.error('删除失败'); }
+          setConfirmDelete(false);
+        }}
+        onCancel={() => setConfirmDelete(false)}
+      />
+
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-[#EBEBEB] px-4 py-3 z-40" style={{ paddingBottom: 'calc(12px + env(safe-area-inset-bottom, 0px) + 56px)' }}>
+        <div className="flex gap-3">
+          <button className="flex-1 h-11 bg-[#2D3BFF] text-white rounded-xl text-sm font-semibold active:bg-[#4338CA]" onClick={() => router.push(`/mobile/followups/${id}/edit`)}>编辑</button>
+          <button className="flex-1 h-11 bg-white border border-[#D63031] text-[#D63031] rounded-xl text-sm font-semibold active:bg-[#FFEBEE]" onClick={() => setConfirmDelete(true)}>删除</button>
+        </div>
+      </div>
     </div>
   );
 }

@@ -4,6 +4,7 @@ import React, { useState, Suspense } from 'react';
 
 export const dynamic = 'force-dynamic';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { toast } from 'sonner';
 import { useApp } from '@/lib/store';
 import { SearchableSelect } from '@/components/ui/searchable-select';
 import type { SelectOption } from '@/components/ui/searchable-select';
@@ -277,9 +278,9 @@ function FollowupFormContent() {
   };
 
   const handleSubmit = () => {
-    if (!selectedCustomerId) { alert('请选择关联客户'); return; }
-    if (!selectedType) { alert('请选择跟进类型'); return; }
-    if (!followupTime) { alert('请选择跟进时间'); return; }
+    if (!selectedCustomerId) { toast.error('请选择关联客户'); return; }
+    if (!selectedType) { toast.error('请选择跟进类型'); return; }
+    if (!followupTime) { toast.error('请选择跟进时间'); return; }
     setSaving(true);
     addFollowUp(buildFollowUpData(selectedStatus || 'new') as Parameters<typeof addFollowUp>[0]);
     setSaving(false);

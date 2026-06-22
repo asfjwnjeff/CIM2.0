@@ -7,6 +7,7 @@ import { MOCK_USERS, PROGRESS_STATUS_LABELS, PROGRESS_STATUS_COLORS, RELATION_LA
 import type { ProgressStatus, IndustryChainLevel, IndustryChainRole, CustomerStatus, Contact, EntityType } from '@/lib/types';
 import { getEntityTypeLabel, getEntityTypeColor } from '@/lib/entity-utils';
 import ContactManagementDialog from '@/components/ContactManagementDialog';
+import { useConfirm } from '@/hooks/useConfirm';
 import { ProgressStepper } from '@/components/ProgressStepper';
 import { ArrowLeft, X, Plus, Trash2, Building2, Upload, Phone } from 'lucide-react';
 import { SearchableSelect } from '@/components/ui/searchable-select';
@@ -411,7 +412,7 @@ function UserBadgeRender({ userId, onRemove }: { userId: string; onRemove: () =>
     <Badge key={userId} variant="secondary" className="gap-1 pr-1">
       <UserAvatar userId={userId} size="sm" />
       <span className="text-xs">{user?.name ?? userId}</span>
-      <button type="button" onClick={onRemove} className="ml-0.5 rounded-full hover:bg-gray-300 p-0.5"><X className="w-3 h-3" /></button>
+      <span role="button" tabIndex={0} onClick={onRemove} onKeyDown={(e) => { if (e.key === 'Enter') onRemove(); }} className="ml-0.5 rounded-full hover:bg-gray-300 p-0.5 cursor-pointer"><X className="w-3 h-3" /></span>
     </Badge>
   );
 }
@@ -420,6 +421,7 @@ export default function EditCustomerPage() {
   const params = useParams();
   const router = useRouter();
   const { customers, updateCustomer, addLog, signingEntities, serviceEntities, settlementEntities } = useApp();
+  const { confirm, ConfirmDialog } = useConfirm();
 
   const customer = useMemo(() => customers.find((c) => c.id === params.id), [params.id, customers]);
 
@@ -679,12 +681,13 @@ export default function EditCustomerPage() {
     router.push(`/customers/${customer.id}`);
   }, [form, customer, updateCustomer, addLog, router]);
 
-  const handleBack = useCallback(() => {
+  const handleBack = useCallback(async () => {
     if (isDirty) {
-      if (!window.confirm('您有未保存的更改，确定要离开吗？')) return;
+      const ok = await confirm('未保存的更改', '您有未保存的更改，确定要离开吗？', '离开', '取消', true);
+      if (!ok) return;
     }
     router.push(`/customers/${customer?.id}`);
-  }, [isDirty, customer, router]);
+  }, [isDirty, customer, router, confirm]);
 
   if (!customer || !form) {
     return (
@@ -903,8 +906,9 @@ export default function EditCustomerPage() {
                       {form.progressStatus === 'invalid' ? (
                         <button
                           type="button"
-                          onClick={() => {
-                            if (!window.confirm('确认恢复该客户进度吗？将还原为标记失效前的状态。')) return;
+                          onClick={async () => {
+                            const ok = await confirm('恢复进度', '确认恢复该客户进度吗？将还原为标记失效前的状态。', '恢复', '取消');
+                            if (!ok) return;
                             updateField('progressStatus', previousProgressRef.current);
                           }}
                           className="shrink-0 px-3 py-2 text-xs font-medium text-[#0D8A5E] border border-[#B8E8D4] rounded-lg hover:bg-[#E6F7F0] transition-colors whitespace-nowrap"
@@ -914,8 +918,9 @@ export default function EditCustomerPage() {
                       ) : (
                         <button
                           type="button"
-                          onClick={() => {
-                            if (!window.confirm('确认将该客户标记为失效吗？标记后可在详情页步骤条中恢复。')) return;
+                          onClick={async () => {
+                            const ok = await confirm('标记为失效', '确认将该客户标记为失效吗？标记后可在详情页步骤条中恢复。', '标记为失效', '取消', true);
+                            if (!ok) return;
                             previousProgressRef.current = form.progressStatus;
                             updateField('progressStatus', 'invalid' as ProgressStatus);
                           }}
@@ -1105,7 +1110,7 @@ export default function EditCustomerPage() {
                   <button
                     type="button"
                     onClick={() => setContactDialogOpen(true)}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs border border-[#EBEBEB] text-[#5A5A5A] rounded-xl hover:bg-[#F5F5F5] transition-colors"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs border border-[#EBEBEB] dark:border-[#48484A] text-[#5A5A5A] dark:text-[#98989E] rounded-xl hover:bg-[#F5F5F5] dark:hover:bg-[#3A3A3C] transition-colors"
                   >
                     <Plus className="w-3.5 h-3.5" /> 添加联系人
                   </button>
@@ -1121,14 +1126,14 @@ export default function EditCustomerPage() {
                         key={ct.id}
                         type="button"
                         onClick={() => setContactDialogOpen(true)}
-                        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-[#EBEBEB] hover:border-[#2D3BFF] hover:bg-[#E8EBFF] transition-all text-left bg-white"
+                        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-[#EBEBEB] dark:border-[#38383A] hover:border-[#2D3BFF] dark:hover:border-[#0A84FF] hover:bg-[#E8EBFF] dark:hover:bg-[#3A3A3C] transition-all text-left bg-white dark:bg-[#1C1C1E]"
                       >
-                        <div className="w-9 h-9 rounded-full bg-[#F5F5F5] flex items-center justify-center text-sm font-semibold text-[#5A5A5A] shrink-0">
+                        <div className="w-9 h-9 rounded-full bg-[#F5F5F5] dark:bg-[#3A3A3C] flex items-center justify-center text-sm font-semibold text-[#5A5A5A] dark:text-[#CECED0] shrink-0">
                           {ct.name[0]}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <div className="text-sm font-semibold text-[#0A0A0A]">{ct.name}</div>
-                          <div className="text-xs text-[#5A5A5A] mt-0.5">
+                          <div className="text-sm font-semibold text-[#0A0A0A] dark:text-white">{ct.name}</div>
+                          <div className="text-xs text-[#5A5A5A] dark:text-[#98989E] mt-0.5">
                             {ct.phone || '—'}
                             {' · '}
                             <span className="text-[#999]">{ct.gender === 'male' ? '男' : ct.gender === 'female' ? '女' : ''}</span>
@@ -1439,6 +1444,7 @@ export default function EditCustomerPage() {
           customerId={customer.id}
           customerName={customer.name}
         />
+        {ConfirmDialog}
       </div>
   );
 }

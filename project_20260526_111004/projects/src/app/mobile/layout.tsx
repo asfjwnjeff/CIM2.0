@@ -3,6 +3,7 @@
 import React from 'react';
 import BottomTabBar from '@/components/mobile/BottomTabBar';
 import ThemeToggle from '@/components/ThemeToggle';
+import { Toaster } from '@/components/ui/sonner';
 
 export default function MobileLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -28,6 +29,7 @@ export default function MobileLayout({ children }: { children: React.ReactNode }
 
       {/* 底部导航栏 */}
       <BottomTabBar />
+      <Toaster position="top-center" />
     </div>
   );
 }

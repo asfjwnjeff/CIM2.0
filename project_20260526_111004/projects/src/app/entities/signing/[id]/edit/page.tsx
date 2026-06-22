@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/select";
 import { ArrowLeft, Save, X } from "lucide-react";
 import { useApp } from "@/lib/store";
+import { toast } from "sonner";
 
 export default function EditSigningEntityPage() {
   const params = useParams();
@@ -75,14 +76,14 @@ export default function EditSigningEntityPage() {
 
   // 暂存
   const handleSaveDraft = () => {
-    alert("暂存成功！");
+    toast.success("已暂存");
   };
 
   // 提交
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name?.trim()) {
-      alert("签约主体名称不能为空");
+      toast.error("签约主体名称不能为空");
       return;
     }
     updateSigningEntity(params.id as string, {

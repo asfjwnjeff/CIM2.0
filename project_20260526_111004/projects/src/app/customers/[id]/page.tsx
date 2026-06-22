@@ -611,8 +611,8 @@ export default function CustomerDetailPage() {
 
                 {/* 绑定关系 */}
                 {customer.boundCustomers && customer.boundCustomers.length > 0 && (
-                  <div className="mt-4 mb-3">
-                    <label className="block text-[13px] text-[#5A5A5A] mb-2">绑定关系</label>
+                  <div className="mt-6 mb-3 pt-4 border-t border-[#EBEBEB] dark:border-[#38383A]">
+                    <label className="block text-[13px] text-[#5A5A5A] dark:text-[#98989E] mb-2">绑定关系</label>
                     <div className="space-y-1.5">
                       {customer.boundCustomers.map((bc) => {
                         const bcColor = getEntityTypeColor(bc.entityType);
@@ -711,14 +711,14 @@ export default function CustomerDetailPage() {
                     <button
                       key={ct.id}
                       onClick={() => setContactDialogOpen(true)}
-                      className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-[#EBEBEB] hover:border-[#2D3BFF] hover:bg-[#E8EBFF] transition-all text-left bg-white"
+                      className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-[#EBEBEB] dark:border-[#38383A] hover:border-[#2D3BFF] dark:hover:border-[#0A84FF] hover:bg-[#E8EBFF] dark:hover:bg-[#3A3A3C] transition-all text-left bg-white dark:bg-[#1C1C1E]"
                     >
-                      <div className="w-9 h-9 rounded-full bg-[#F5F5F5] flex items-center justify-center text-sm font-semibold text-[#5A5A5A] shrink-0">
+                      <div className="w-9 h-9 rounded-full bg-[#F5F5F5] dark:bg-[#3A3A3C] flex items-center justify-center text-sm font-semibold text-[#5A5A5A] dark:text-[#CECED0] shrink-0">
                         {ct.name[0]}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="text-sm font-semibold text-[#0A0A0A]">{ct.name}</div>
-                        <div className="text-xs text-[#5A5A5A] mt-0.5">
+                        <div className="text-sm font-semibold text-[#0A0A0A] dark:text-white">{ct.name}</div>
+                        <div className="text-xs text-[#5A5A5A] dark:text-[#98989E] mt-0.5">
                           {ct.phone || '—'}
                           {' · '}
                           <span className="text-[#999]">{ct.gender === 'male' ? '男' : ct.gender === 'female' ? '女' : ''}</span>

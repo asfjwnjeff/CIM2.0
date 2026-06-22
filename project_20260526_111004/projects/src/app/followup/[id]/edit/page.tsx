@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { SearchableSelect } from '@/components/ui/searchable-select';
+import { toast } from 'sonner';
 
 // 内联SVG图标
 const PlusIcon = ({ className = '' }: { className?: string }) => (
@@ -301,7 +302,7 @@ export default function FollowUpEditPage() {
 
   const handleSave = () => {
     if (!customerId) {
-      alert('请选择关联客户');
+      toast.error('请选择关联客户');
       return;
     }
     router.push('/followup');

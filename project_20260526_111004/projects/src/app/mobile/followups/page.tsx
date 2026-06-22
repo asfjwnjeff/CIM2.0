@@ -9,7 +9,7 @@ import { formatShortDateTime, getFollowupTypeLabel, getFollowupMethodLabel, getF
 const TYPE_LABELS: Record<string, string> = {
   'kpi_not_met': 'KPI未达标', 'contract_mgmt': '合同管理', 'biz_meeting': '业务会议', 'other_customer': '其他客户事项',
 };
-type FilterType = 'all' | FollowUpType;
+type FilterType = 'all' | FollowUpType | 'draft';
 
 export default function MobileFollowupsPage() {
   const router = useRouter();
@@ -28,7 +28,11 @@ export default function MobileFollowupsPage() {
       const kw = search.trim().toLowerCase();
       list = list.filter((f) => f.displayCustomerName?.toLowerCase().includes(kw) || f.content?.toLowerCase().includes(kw));
     }
-    if (typeFilter !== 'all') list = list.filter((f) => f.displayType === typeFilter);
+    if (typeFilter === 'draft') {
+      list = list.filter((f) => f.status === 'draft');
+    } else if (typeFilter !== 'all') {
+      list = list.filter((f) => f.displayType === typeFilter && f.status !== 'draft');
+    }
     return list.sort((a, b) => (b.displayDate || '').localeCompare(a.displayDate || ''));
   }, [followUps, customerMap, search, typeFilter]);
 
@@ -50,6 +54,7 @@ export default function MobileFollowupsPage() {
       <div className="flex gap-2 overflow-x-auto pb-1">
         <FilterChip label="全部" active={typeFilter === 'all'} onClick={() => setTypeFilter('all')} />
         {Object.entries(TYPE_LABELS).map(([val, label]) => <FilterChip key={val} label={label} active={typeFilter === val} onClick={() => setTypeFilter(val as FollowUpType)} />)}
+        <FilterChip label="草稿" active={typeFilter === 'draft'} onClick={() => setTypeFilter('draft')} />
       </div>
 
       {enriched.length === 0 ? (
@@ -60,11 +65,17 @@ export default function MobileFollowupsPage() {
         </div>
       ) : (
         <div className="space-y-2">
-          {enriched.map((f) => (
-            <button key={f.id} className="w-full bg-white rounded-xl border border-[#EBEBEB] px-4 py-3.5 active:bg-[#F5F5F5] text-left" onClick={() => router.push(`/mobile/followups/${f.id}`)}>
+          {enriched.map((f) => {
+            const isDraft = f.status === 'draft';
+            return (
+            <button key={f.id} className="w-full bg-white rounded-xl border border-[#EBEBEB] px-4 py-3.5 active:bg-[#F5F5F5] text-left" onClick={() => router.push(isDraft ? `/mobile/followups/${f.id}/edit` : `/mobile/followups/${f.id}`)}>
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-[#0A0A0A] truncate flex-1 mr-2">{f.displayCustomerName}</span>
-                {f.status && <span className={`text-xs px-2 py-0.5 rounded-full font-medium whitespace-nowrap ${getFollowupStatusColor(f.status)}`}>{FOLLOWUP_STATUS_LABELS[f.status] || f.status}</span>}
+                {isDraft ? (
+                  <span className="text-xs px-2 py-0.5 rounded-full font-medium whitespace-nowrap bg-[#F5F5F5] text-[#999999]">草稿</span>
+                ) : (
+                  f.status && <span className={`text-xs px-2 py-0.5 rounded-full font-medium whitespace-nowrap ${getFollowupStatusColor(f.status)}`}>{FOLLOWUP_STATUS_LABELS[f.status] || f.status}</span>
+                )}
               </div>
               {f.content && <p className="text-xs text-[#5A5A5A] mt-1.5 line-clamp-2">{f.content}</p>}
               <div className="flex items-center gap-2 mt-2 text-xs text-[#999999] flex-wrap">
@@ -75,7 +86,8 @@ export default function MobileFollowupsPage() {
                 {f.contactName && <><span className="w-1 h-1 rounded-full bg-[#D5D5D5]" /><span>{f.contactName}</span></>}
               </div>
             </button>
-          ))}
+            );
+          })}
         </div>
       )}
       <div className="h-4" />

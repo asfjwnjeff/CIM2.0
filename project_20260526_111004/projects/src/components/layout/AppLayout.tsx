@@ -7,6 +7,9 @@ import { useApp } from '@/lib/store';
 import { NAV_ITEMS, type NavItem } from '@/lib/navigation';
 import { GlobalSearchDialog } from './GlobalSearchDialog';
 import ThemeToggle from '@/components/ThemeToggle';
+import { useConfirm } from '@/hooks/useConfirm';
+import { toast } from 'sonner';
+import { Toaster } from '@/components/ui/sonner';
 
 /* ====== Header 专用图标 ====== */
 
@@ -37,6 +40,7 @@ const HeaderIcons = {
 function ReminderBell() {
   const router = useRouter();
   const { currentUser } = useApp();
+  const { confirm: confirmMarkAll, ConfirmDialog: ConfirmMarkAllDialog } = useConfirm();
   const [count, setCount] = useState(0);
   const [items, setItems] = useState<Array<{customerId:string;customerName:string;level:string;overdueDays:number}>>([]);
   const [notifications, setNotifications] = useState<Array<{id:string;type:string;title:string;summary:string;targetUrl?:string;isRead:boolean;createdAt:string}>>([]);
@@ -57,7 +61,8 @@ function ReminderBell() {
         total += remData.length;
       }
       if (notifData.success && Array.isArray(notifData.data)) {
-        const unread = notifData.data.filter((n: {isRead:boolean}) => !n.isRead);
+        const approvalTypes = ['approval_pending', 'approval_result'];
+        const unread = notifData.data.filter((n: {type:string;isRead:boolean}) => approvalTypes.includes(n.type) && !n.isRead);
         setNotifications(unread);
         total += unread.length;
       }
@@ -101,9 +106,28 @@ function ReminderBell() {
           {/* 审批消息 */}
           {hasNotifications && (
             <>
-              <div className="px-4 py-3 border-b border-[#EBEBEB]">
-                <span className="text-sm font-semibold text-[#0A0A0A]">审批消息</span>
-                <span className="ml-1 text-xs text-[#999]">({notifications.length})</span>
+              <div className="px-4 py-3 border-b border-[#EBEBEB] flex items-center justify-between">
+                <div>
+                  <span className="text-sm font-semibold text-[#0A0A0A]">审批消息</span>
+                  <span className="ml-1 text-xs text-[#999]">({notifications.length})</span>
+                </div>
+                <button
+                  className="text-xs text-[#2D3BFF] font-medium hover:underline"
+                  onClick={async (e) => {
+                    e.stopPropagation();
+                    const ok = await confirmMarkAll('全部已读', '确定将所有审批消息标记为已读吗？', '全部已读', '取消');
+                    if (ok) {
+                      try {
+                        await fetch('/api/notifications', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ markAllRead: true, userId: currentUser.id }) });
+                        setCount((c) => c - notifications.length);
+                        setNotifications([]);
+                        toast.success('已全部标记为已读');
+                      } catch { toast.error('操作失败'); }
+                    }
+                  }}
+                >
+                  全部已读
+                </button>
               </div>
               {notifications.map((n) => (
                 <button
@@ -141,6 +165,7 @@ function ReminderBell() {
           )}
         </div>
       )}
+      {ConfirmMarkAllDialog}
     </div>
   );
 }
@@ -448,6 +473,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       </main>
 
       <GlobalSearchDialog open={searchOpen} onOpenChange={setSearchOpen} />
+      <Toaster position="top-center" />
     </div>
   );
 }

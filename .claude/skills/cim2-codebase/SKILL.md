@@ -171,7 +171,31 @@ src/app/
 - **禁止 RuleGroupEditor 和 rules/page.tsx 各自维护一份 OPERATORS**。
   操作符列表必须在两处保持完全一致（名称、数量、value）。任何增删必须两处同步改。
 
+### 深色模式
+
+- **禁止新增浅色 hover 背景（如 `hover:bg-[#FFEBEE]`）而不在 `globals.css` 加对应的深色覆盖规则**。
+  本项目的深色模式不是靠 Tailwind 的 `dark:hover:bg-xxx`，而是通过 `globals.css` 中的手工规则
+  `.dark .hover\:bg-\[\#xxx\]:hover { background-color: #yyy; }` 实现。
+
+  根因：当 `dark:bg-[暗色]` 和 `hover:bg-[亮色]` 同时挂在一个元素上时，
+  两者 CSS 优先级相同（都是 0,2,0），源顺序靠后的 `dark:bg` 会覆盖 `hover:bg` → **悬浮交互完全失效**。
+
+  修复流程：定位冲突元素 → 在 globals.css 中已有规则附近加覆盖 → 颜色值参考已有静态覆盖色。
+
+  现有深色悬浮覆盖规则（`globals.css` §深色模式）：
+  | 浅色 hover | 深色覆盖 |
+  |-----------|---------|
+  | `hover:bg-[#F5F5F5]` | `#2C2C2E` |
+  | `hover:bg-[#E8EBFF]` | `#3A3A3C` |
+  | `hover:bg-[#FFEBEE]` | `#2E1A1D` |
+  | `hover:bg-[#E6F7F0]` | `#1A2A1D` |
+  | `hover:bg-[#FFF4E8]` | `#2E2A10` |
+
 ## 故障排查
+
+| 症状 | 可能原因 | 解决 |
+|------|---------|------|
+| 深色模式悬浮交互不生效 | `dark:bg-` 覆盖了 `hover:bg-`（CSS 同级冲突） | 在 globals.css 加 `.dark .hover\:bg-[#xxx]:hover` 覆盖规则 |
 
 | 症状 | 可能原因 | 解决 |
 |------|---------|------|

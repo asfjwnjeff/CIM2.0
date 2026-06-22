@@ -10,6 +10,8 @@ interface UseUnsavedChangesOptions {
   message?: string;
   /** 路由切换时的自定义确认回调，返回 true 表示允许离开 */
   onBeforeLeave?: () => boolean;
+  /** 自定义确认函数（如 useConfirm().confirm），替代 window.confirm。不传则使用原生 confirm 作为兜底 */
+  confirmFn?: (title: string, message: string) => Promise<boolean>;
 }
 
 /**
@@ -21,6 +23,7 @@ export function useUnsavedChanges({
   isDirty,
   message = '你有未保存的更改，确定离开吗？',
   onBeforeLeave,
+  confirmFn,
 }: UseUnsavedChangesOptions) {
   const router = useRouter();
   const isDirtyRef = useRef(isDirty);
@@ -28,6 +31,9 @@ export function useUnsavedChanges({
 
   const onBeforeLeaveRef = useRef(onBeforeLeave);
   onBeforeLeaveRef.current = onBeforeLeave;
+
+  const confirmFnRef = useRef(confirmFn);
+  confirmFnRef.current = confirmFn;
 
   // 浏览器刷新/关闭拦截
   useEffect(() => {
@@ -48,6 +54,11 @@ export function useUnsavedChanges({
     if (!isDirtyRef.current) return true;
     if (onBeforeLeaveRef.current) {
       return onBeforeLeaveRef.current();
+    }
+    if (confirmFnRef.current) {
+      // 异步确认：通过同步抛出的方式无法拦截，此处返回 false 由调用方通过 Promise 处理
+      // 实际使用中调用方应先 await confirmFn 再决定是否离开
+      return false;
     }
     return window.confirm(message);
   }, [message]);

@@ -4,6 +4,8 @@ import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useApp } from '@/lib/store';
+import { toast } from 'sonner';
+import { useConfirm } from '@/hooks/useConfirm';
 import { useGroupFilter, GroupTabs, GroupManageDialog } from '@/components/groups';
 import { FIELD_META_MAP } from '@/lib/group-utils';
 import { SearchableSelect } from '@/components/ui/searchable-select';
@@ -118,6 +120,7 @@ const ChevronRightIcon = ({ className }: { className?: string }) => (
 export default function ApprovalsPage() {
   const router = useRouter();
   const { currentUser, riskApprovals, deleteRiskApproval, updateRiskApproval, customers } = useApp();
+  const { confirm, ConfirmDialog } = useConfirm();
 
   // 从 Store 读取风控审批数据，映射为列表显示格式
   const mockRiskControls = useMemo(() => riskApprovals.map((ra: any) => ({
@@ -522,7 +525,7 @@ export default function ApprovalsPage() {
                                 编辑
                               </button>
                               <button
-                                onClick={() => { if (confirm('确定要删除该审批记录吗？')) deleteRiskApproval(rc.id); }}
+                                onClick={async () => { const ok = await confirm('删除审批', '确定要删除该审批记录吗？', '删除', '取消', true); if (ok) { deleteRiskApproval(rc.id); toast.success('审批已删除'); } }}
                                 className="px-3 py-1.5 text-sm whitespace-nowrap text-[#D63031] hover:bg-[#FFEBEE] rounded-lg transition-all font-medium"
                               >
                                 删除
@@ -533,7 +536,7 @@ export default function ApprovalsPage() {
                           )}
                           {rc.approvalStatus === '审批中' && (
                             <button
-                              onClick={() => { if (confirm('确定要撤回该审批吗？')) handleWithdraw(rc.id); }}
+                              onClick={async () => { const ok = await confirm('撤回审批', '确定要撤回该审批吗？', '撤回', '取消', true); if (ok) { handleWithdraw(rc.id); toast.success('审批已撤回'); } }}
                               className="px-3 py-1.5 text-sm whitespace-nowrap text-[#E8850C] hover:bg-[#FFF7ED] rounded-lg transition-all font-medium"
                             >
                               撤回
@@ -597,6 +600,7 @@ export default function ApprovalsPage() {
           onUpdate={groupFilter.updateGroup}
           onDelete={groupFilter.deleteGroup}
         />
+        {ConfirmDialog}
       </div>
   );
 }

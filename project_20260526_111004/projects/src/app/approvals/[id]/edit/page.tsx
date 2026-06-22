@@ -7,6 +7,7 @@ import { useApp, evaluateApprovalRules } from '@/lib/store';
 import { RuleTriggeredApprover, ServiceProduct } from '@/lib/types';
 import ApprovalFlowVisual from '@/components/ApprovalFlowVisual';
 import ApprovalReport from '@/components/ApprovalReport';
+import { toast } from 'sonner';
 
 const SERVICE_PRODUCTS = ['货代', '关务', '仓库', '运输', '进出口', '维修', '合同物流', '一体化供应链', '其他'];
 const BUSINESS_TYPES = ['保税', '口岸完税', '免税', '试单', '其他'];
@@ -246,7 +247,7 @@ export default function ApprovalEditPage() {
 
   const handleSave = () => {
     if (currentApproverConfig?.isPickOne && !pickedApprover) {
-      alert('合同物流必须选择一位职能审批人');
+      toast.error('合同物流必须选择一位职能审批人');
       return;
     }
     const { id: _fid, ...rest } = formData as any;

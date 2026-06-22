@@ -6,6 +6,7 @@ import { useApp } from '@/lib/store';
 import { MOCK_USERS, PROGRESS_STATUS_LABELS, PROGRESS_STATUS_COLORS } from '@/lib/sample-data';
 import type { ProgressStatus, IndustryChainLevel, IndustryChainRole, CustomerStatus, Contact } from '@/lib/types';
 import ContactManagementDialog from '@/components/ContactManagementDialog';
+import { useConfirm } from '@/hooks/useConfirm';
 import { ArrowLeft, Plus, X, Search as SearchIcon, Building2, Upload, Check, Save, Phone } from 'lucide-react';
 import { SearchableSelect } from '@/components/ui/searchable-select';
 import type { SelectOption } from '@/components/ui/searchable-select';
@@ -444,6 +445,7 @@ function UserBadgeRender({ userId, onRemove }: { userId: string; onRemove: () =>
 export default function NewCustomerPage() {
   const router = useRouter();
   const { addCustomer, addLog, signingEntities, serviceEntities, settlementEntities } = useApp();
+  const { confirm, ConfirmDialog } = useConfirm();
   const [activeTab, setActiveTab] = useState<TabType>('basic');
   const [form, setForm] = useState<FormData>({ ...EMPTY_FORM });
   const [isDirty, setIsDirty] = useState(false);
@@ -736,13 +738,14 @@ export default function NewCustomerPage() {
     setTimeout(() => setDraftMessage(''), 3000);
   }, [form, addCustomer, addLog, pendingCustomerId]);
 
-  const handleBack = useCallback(() => {
+  const handleBack = useCallback(async () => {
     if (isDirty && !hasShownWarning.current) {
       hasShownWarning.current = true;
-      if (!window.confirm('您有未保存的更改，确定要离开吗？')) return;
+      const ok = await confirm('未保存的更改', '您有未保存的更改，确定要离开吗？', '离开', '取消', true);
+      if (!ok) return;
     }
     router.push('/customers');
-  }, [isDirty, router]);
+  }, [isDirty, router, confirm]);
 
   const requiredStar = FIELD_STYLES.requiredStar;
   const hasBizInfo = verifiedCompany !== null;
@@ -1194,6 +1197,7 @@ export default function NewCustomerPage() {
             customerName={form.name || '新客户'}
           />
         )}
+        {ConfirmDialog}
       </div>
   );
 }

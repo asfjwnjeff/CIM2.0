@@ -489,8 +489,8 @@ export default function CustomersPage() {
                           {customer.name.charAt(0)}
                         </div>
                         <div className="min-w-0">
-                          <div className="flex items-center gap-1">
-                            <h3 className="font-semibold text-[#0A0A0A] truncate">{customer.name}</h3>
+                          <div className="flex items-center gap-1 overflow-hidden">
+                            <h3 className="font-semibold text-[#0A0A0A] truncate flex-1 min-w-0">{customer.name}</h3>
                             {isIncompleteCard && (
                               <span className="text-[#E8850C] shrink-0 cursor-help" title={`必填信息不完整（完整度 ${completenessCard!.percentage}%）`}>⚠️</span>
                             )}
@@ -724,10 +724,10 @@ export default function CustomersPage() {
                           </label>
                         </td>
                         <td className="px-3 py-3">
-                          <div className="flex items-center gap-1">
+                          <div className="flex items-center gap-1 overflow-hidden">
                             <button
                               onClick={() => router.push(`/customers/${customer.id}`)}
-                              className="text-[13px] font-medium text-[#2D3BFF] hover:underline text-left"
+                              className="text-[13px] font-medium text-[#2D3BFF] hover:underline text-left truncate flex-1 min-w-0"
                             >
                               {customer.name}
                             </button>

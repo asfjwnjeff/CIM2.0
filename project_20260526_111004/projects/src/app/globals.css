@@ -216,6 +216,10 @@
 
 .dark .hover\:bg-\[\#F5F5F5\]:hover { background-color: #2C2C2E; }
 .dark .active\:bg-\[\#F5F5F5\]:active { background-color: #2C2C2E; }
+.dark .hover\:bg-\[\#E8EBFF\]:hover { background-color: #3A3A3C; }
+.dark .hover\:bg-\[\#FFEBEE\]:hover { background-color: #2E1A1D; }
+.dark .hover\:bg-\[\#E6F7F0\]:hover { background-color: #1A2A1D; }
+.dark .hover\:bg-\[\#FFF4E8\]:hover { background-color: #2E2A10; }
 
 .dark .text-\[\#2D3BFF\] { color: #0A84FF; }
 .dark .border-\[\#2D3BFF\] { border-color: #0A84FF; }

@@ -9,6 +9,7 @@ import { useApp, evaluateApprovalRules } from '@/lib/store';
 import { RuleTriggeredApprover, ServiceProduct } from '@/lib/types';
 import ApprovalFlowVisual from '@/components/ApprovalFlowVisual';
 import ApprovalReport from '@/components/ApprovalReport';
+import { toast } from 'sonner';
 
 // 图标
 const SaveIcon = () => (
@@ -208,11 +209,11 @@ function RiskControlFormContent() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.companyName.trim()) { alert('请填写公司全称'); return; }
-    if (!formData.serviceProduct) { alert('请选择服务产品'); return; }
-    if (!formData.businessType) { alert('请选择业务类型'); return; }
+    if (!formData.companyName.trim()) { toast.error('请填写公司全称'); return; }
+    if (!formData.serviceProduct) { toast.error('请选择服务产品'); return; }
+    if (!formData.businessType) { toast.error('请选择业务类型'); return; }
     if (currentApproverConfig?.isPickOne && !pickedApprover) {
-      alert("合同物流必须选择一位职能审批人");
+      toast.error("合同物流必须选择一位职能审批人");
       return;
     }
     const newId = `ra-${Date.now()}`;

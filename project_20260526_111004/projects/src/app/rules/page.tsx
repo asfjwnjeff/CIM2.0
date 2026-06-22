@@ -2,6 +2,7 @@
 
 import React, { useState, useCallback, useMemo } from 'react';
 import { useApp } from '@/lib/store';
+import { toast } from 'sonner';
 import { BillingRule, RuleGroup, RuleCondition } from '@/lib/types';
 import { initialCustomerBillingFields } from '@/lib/sample-data';
 import RuleGroupEditor from '@/components/RuleGroupEditor';
@@ -132,12 +133,12 @@ export default function RulesPage() {
   // 保存规则
   const handleSave = useCallback(() => {
     if (!formData.name.trim() || !formData.targetBillingEntity || !formData.customerId) {
-      alert('请填写规则名称、所属客户和目标账单主体');
+      toast.error('请填写规则名称、所属客户和目标账单主体');
       return;
     }
 
     if ((formData.conditionGroup.items || []).length === 0) {
-      alert('请至少添加一个条件');
+      toast.error('请至少添加一个条件');
       return;
     }
 
@@ -169,6 +170,7 @@ export default function RulesPage() {
   const handleDelete = useCallback((id: string) => {
     deleteBillingRule(id);
     setShowDeleteConfirm(null);
+    toast.success('规则已删除');
   }, [deleteBillingRule]);
 
   // 切换规则展开

@@ -68,10 +68,10 @@ export function getFollowupStatusColor(status: string): string {
  */
 export function getFollowupMethodLabel(method: string): string {
   const map: Record<string, string> = {
-    phone_visit: '📞 电话',
-    onsite_visit: '🚗 上门',
-    online_visit: '💻 网络',
-    hmg_meeting: '🏢 HMG会议',
+    phone_visit: '电话拜访',
+    onsite_visit: '上门拜访',
+    online_visit: '网络拜访',
+    hmg_meeting: 'HMG现场会议',
   };
   return map[method] || method;
 }

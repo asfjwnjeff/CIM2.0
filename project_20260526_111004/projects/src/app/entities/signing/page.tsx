@@ -3,6 +3,8 @@
 import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useApp } from '@/lib/store';
+import { toast } from 'sonner';
+import { useConfirm } from '@/hooks/useConfirm';
 import { Search, Plus, Pencil, Trash2 } from 'lucide-react';
 
 function StatusBadge({ status }: { status: string }) {
@@ -19,6 +21,7 @@ function StatusBadge({ status }: { status: string }) {
 export default function SigningEntitiesPage() {
   const router = useRouter();
   const { signingEntities, deleteSigningEntity } = useApp();
+  const { confirm, ConfirmDialog } = useConfirm();
   const [searchKeyword, setSearchKeyword] = useState('');
   const [filterStatus, setFilterStatus] = useState<string>('all');
 
@@ -33,9 +36,11 @@ export default function SigningEntitiesPage() {
     });
   }, [signingEntities, searchKeyword, filterStatus]);
 
-  const handleDelete = (id: string, name: string) => {
-    if (!confirm(`确定要删除签约主体"${name}"吗？`)) return;
+  const handleDelete = async (id: string, name: string) => {
+    const ok = await confirm('删除签约主体', `确定要删除签约主体"${name}"吗？`, '删除', '取消', true);
+    if (!ok) return;
     deleteSigningEntity(id);
+    toast.success('签约主体已删除');
   };
 
   return (
@@ -141,6 +146,7 @@ export default function SigningEntitiesPage() {
             </table>
           </div>
         </div>
+        {ConfirmDialog}
       </div>
   );
 }

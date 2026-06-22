@@ -4,7 +4,9 @@ import React, { useState, useEffect, useCallback } from 'react';
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
 } from '@/components/ui/dialog';
+import { useConfirm } from '@/hooks/useConfirm';
 import type { Contact } from '@/lib/types';
+import { toast } from 'sonner';
 
 interface Props {
   open: boolean;
@@ -17,6 +19,7 @@ interface Props {
 export default function ContactManagementDialog({
   open, onOpenChange, customerId, customerName, readonly,
 }: Props) {
+  const { confirm, ConfirmDialog } = useConfirm();
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [mode, setMode] = useState<'view' | 'add' | 'edit'>('view');
@@ -47,8 +50,11 @@ export default function ContactManagementDialog({
   }, [open, loadContacts]);
 
   // 选中联系人
-  const selectContact = (ct: Contact) => {
-    if (dirty && !confirm('有未保存的更改，是否放弃？')) return;
+  const selectContact = async (ct: Contact) => {
+    if (dirty) {
+      const ok = await confirm('未保存的更改', '有未保存的更改，是否放弃？', '放弃', '取消', true);
+      if (!ok) return;
+    }
     setSelectedId(ct.id);
     setMode(readonly ? 'view' : 'edit');
     setForm({ ...ct });
@@ -57,8 +63,11 @@ export default function ContactManagementDialog({
   };
 
   // 新增联系人
-  const startAdd = () => {
-    if (dirty && !confirm('有未保存的更改，是否放弃？')) return;
+  const startAdd = async () => {
+    if (dirty) {
+      const ok = await confirm('未保存的更改', '有未保存的更改，是否放弃？', '放弃', '取消', true);
+      if (!ok) return;
+    }
     setSelectedId(null);
     setMode('add');
     setForm({
@@ -117,7 +126,7 @@ export default function ContactManagementDialog({
           body: JSON.stringify({ ...form, id: undefined }),
         });
         const data = await res.json();
-        if (!res.ok) { alert(data.error || '保存失败'); setSaving(false); return; }
+        if (!res.ok) { toast.error(data.error || '保存失败'); setSaving(false); return; }
         setDirty(false);
         await loadContacts();
         const latest = await fetch(`/api/contacts?customerId=${encodeURIComponent(customerId)}`);
@@ -128,7 +137,7 @@ export default function ContactManagementDialog({
           setMode('edit');
           setForm(newest);
         }
-        alert('联系人添加成功');
+        toast.success('联系人已添加');
       } else {
         const res = await fetch('/api/contacts', {
           method: 'PUT',
@@ -137,7 +146,7 @@ export default function ContactManagementDialog({
         });
         if (!res.ok) {
           const errData = await res.json().catch(() => ({}));
-          alert((errData as { error?: string }).error || '保存失败');
+          toast.error((errData as { error?: string }).error || '保存失败');
           setSaving(false);
           return;
         }
@@ -150,10 +159,10 @@ export default function ContactManagementDialog({
           const updated = freshList.find((c: Contact) => c.id === selectedId);
           if (updated) setForm({ ...updated });
         }
-        alert('联系人保存成功');
+        toast.success('联系人已保存');
       }
     } catch (e) {
-      alert('保存失败: ' + String(e));
+      toast.error('保存失败: ' + String(e));
     }
     setSaving(false);
   };
@@ -161,7 +170,8 @@ export default function ContactManagementDialog({
   // 删除
   const handleDelete = async () => {
     if (!selectedId) return;
-    if (!confirm(`确定要删除联系人「${form.name || ''}」吗？此操作不可撤销。`)) return;
+    const ok = await confirm('删除联系人', `确定要删除联系人「${form.name || ''}」吗？此操作不可撤销。`, '删除', '取消', true);
+    if (!ok) return;
     setDeleting(true);
     try {
       await fetch(`/api/contacts?id=${encodeURIComponent(selectedId)}`, { method: 'DELETE' });
@@ -170,8 +180,9 @@ export default function ContactManagementDialog({
       setForm({});
       setDirty(false);
       await loadContacts();
+      toast.success('联系人已删除');
     } catch (e) {
-      alert('删除失败: ' + String(e));
+      toast.error('删除失败: ' + String(e));
     }
     setDeleting(false);
   };
@@ -180,25 +191,29 @@ export default function ContactManagementDialog({
   const showForm = mode === 'add' || mode === 'edit' || (mode === 'view' && !!selectedId);
 
   return (
-    <Dialog open={open} onOpenChange={(v) => {
+    <Dialog open={open} onOpenChange={async (v) => {
       if (!v && dirty) {
-        if (!confirm('有未保存的更改，确定关闭吗？')) return;
+        const ok = await confirm('未保存的更改', '有未保存的更改，确定关闭吗？', '关闭', '取消', true);
+        if (!ok) return;
       }
       onOpenChange(v);
     }}>
       <DialogContent className="sm:max-w-[900px] max-h-[85vh] p-0 gap-0 flex flex-col [&>button:last-of-type]:hidden">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[#EBEBEB] shrink-0">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[#EBEBEB] dark:border-[#38383A] shrink-0">
           <div>
-            <DialogTitle className="text-[18px] font-semibold text-[#0A0A0A]">联系人管理</DialogTitle>
-            <DialogDescription className="text-sm text-[#5A5A5A] mt-0.5">{customerName}</DialogDescription>
+            <DialogTitle className="text-[18px] font-semibold text-[#0A0A0A] dark:text-white">联系人管理</DialogTitle>
+            <DialogDescription className="text-sm text-[#5A5A5A] dark:text-[#98989E] mt-0.5">{customerName}</DialogDescription>
           </div>
           <button
-            onClick={() => {
-              if (dirty && !confirm('有未保存的更改，确定关闭吗？')) return;
+            onClick={async () => {
+              if (dirty) {
+                const ok = await confirm('未保存的更改', '有未保存的更改，确定关闭吗？', '关闭', '取消', true);
+                if (!ok) return;
+              }
               onOpenChange(false);
             }}
-            className="w-8 h-8 flex items-center justify-center rounded-md hover:bg-[#F5F5F5] transition-colors text-[#999] text-lg"
+            className="w-8 h-8 flex items-center justify-center rounded-md hover:bg-[#F5F5F5] dark:hover:bg-[#3A3A3C] transition-colors text-[#999] text-lg"
             aria-label="关闭"
           >✕</button>
         </div>
@@ -206,13 +221,13 @@ export default function ContactManagementDialog({
         {/* Body */}
         <div className="flex flex-1 overflow-hidden min-h-0">
           {/* Left Panel: Contact List */}
-          <div className="w-[260px] shrink-0 border-r border-[#EBEBEB] bg-[#FAFAFA] flex flex-col">
-            <div className="px-4 py-3 border-b border-[#EBEBEB] flex items-center justify-between">
+          <div className="w-[260px] shrink-0 border-r border-[#EBEBEB] dark:border-[#38383A] bg-[#FAFAFA] dark:bg-[#0D0D0D] flex flex-col">
+            <div className="px-4 py-3 border-b border-[#EBEBEB] dark:border-[#38383A] flex items-center justify-between">
               <span className="text-xs text-[#999]">共 {contacts.length} 位联系人</span>
               {!readonly && (
               <button
                 onClick={startAdd}
-                className="text-xs px-2.5 py-1 rounded-md border border-[#EBEBEB] bg-white text-[#5A5A5A] hover:bg-[#F5F5F5] transition-colors"
+                className="text-xs px-2.5 py-1 rounded-md border border-[#EBEBEB] dark:border-[#48484A] bg-white dark:bg-[#2C2C2E] text-[#5A5A5A] dark:text-[#98989E] hover:bg-[#F5F5F5] dark:hover:bg-[#3A3A3C] transition-colors"
               >
                 ＋ 新增
               </button>
@@ -228,19 +243,19 @@ export default function ContactManagementDialog({
                     onClick={() => selectContact(ct)}
                     className={`w-full text-left px-3 py-2.5 rounded-xl mb-1 transition-all border ${
                       ct.id === selectedId
-                        ? 'bg-white border-[#2D3BFF] shadow-[0_0_0_1px_#2D3BFF]'
-                        : 'bg-transparent border-transparent hover:bg-white hover:border-[#EBEBEB]'
+                        ? 'bg-white dark:bg-[#2C2C2E] border-[#2D3BFF] shadow-[0_0_0_1px_#2D3BFF]'
+                        : 'bg-transparent border-transparent hover:bg-[#F5F5F5] dark:hover:bg-[#2C2C2E] hover:border-[#EBEBEB] dark:hover:border-[#48484A]'
                     }`}
                   >
-                    <div className="text-sm font-semibold text-[#0A0A0A]">{ct.name}</div>
-                    <div className="text-xs text-[#5A5A5A] mt-0.5">{ct.phone || '未填写手机号'}</div>
+                    <div className="text-sm font-semibold text-[#0A0A0A] dark:text-white">{ct.name}</div>
+                    <div className="text-xs text-[#5A5A5A] dark:text-[#98989E] mt-0.5">{ct.phone || '未填写手机号'}</div>
                     <div className="flex gap-1 mt-1.5">
                       {ct.isKeyDecisionMaker && (
-                        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-[#E8EBFF] text-[#2D3BFF]">
+                        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-[#E8EBFF] dark:bg-[#1A2233] text-[#2D3BFF] dark:text-[#0A84FF]">
                           关键决策人
                         </span>
                       )}
-                      <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] text-[#999] bg-[#F5F5F5]">
+                      <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] text-[#999] bg-[#F5F5F5] dark:bg-[#2C2C2E]">
                         {ct.department} · {ct.position}
                       </span>
                     </div>
@@ -255,13 +270,13 @@ export default function ContactManagementDialog({
             {!showForm ? (
               <div className="flex flex-col items-center justify-center h-full text-center py-20">
                 <div className="text-5xl mb-4">👤</div>
-                <div className="text-sm font-medium text-[#5A5A5A]">选择左侧联系人查看详情</div>
+                <div className="text-sm font-medium text-[#5A5A5A] dark:text-[#98989E]">选择左侧联系人查看详情</div>
                 <div className="text-xs text-[#999] mt-1">或点击「新增」添加联系人</div>
               </div>
             ) : (
               <fieldset disabled={readonly} className="space-y-0 border-none p-0">
                 {/* 基本信息 */}
-                <div className="text-[11px] font-semibold text-[#999] uppercase tracking-wide mb-3 pb-2 border-b border-[#EBEBEB]">
+                <div className="text-[11px] font-semibold text-[#999] uppercase tracking-wide mb-3 pb-2 border-b border-[#EBEBEB] dark:border-[#38383A]">
                   基本信息
                 </div>
                 <div className="grid grid-cols-2 gap-x-5 gap-y-3 mb-2">
@@ -318,10 +333,10 @@ export default function ContactManagementDialog({
                   </FormField>
                 </div>
 
-                <hr className="my-4 border-[#EBEBEB]" />
+                <hr className="my-4 border-[#EBEBEB] dark:border-[#38383A]" />
 
                 {/* 工作信息 */}
-                <div className="text-[11px] font-semibold text-[#999] uppercase tracking-wide mb-3 pb-2 border-b border-[#EBEBEB]">
+                <div className="text-[11px] font-semibold text-[#999] uppercase tracking-wide mb-3 pb-2 border-b border-[#EBEBEB] dark:border-[#38383A]">
                   工作信息
                 </div>
                 <div className="grid grid-cols-2 gap-x-5 gap-y-3 mb-2">
@@ -355,10 +370,10 @@ export default function ContactManagementDialog({
                   </FormField>
                 </div>
 
-                <hr className="my-4 border-[#EBEBEB]" />
+                <hr className="my-4 border-[#EBEBEB] dark:border-[#38383A]" />
 
                 {/* 个人信息 */}
-                <div className="text-[11px] font-semibold text-[#999] uppercase tracking-wide mb-3 pb-2 border-b border-[#EBEBEB]">
+                <div className="text-[11px] font-semibold text-[#999] uppercase tracking-wide mb-3 pb-2 border-b border-[#EBEBEB] dark:border-[#38383A]">
                   个人信息
                 </div>
                 <div className="grid grid-cols-3 gap-x-5 gap-y-3 mb-2">
@@ -422,13 +437,13 @@ export default function ContactManagementDialog({
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between px-6 py-4 border-t border-[#EBEBEB] shrink-0">
+        <div className="flex items-center justify-between px-6 py-4 border-t border-[#EBEBEB] dark:border-[#38383A] shrink-0">
           <div>
             {mode === 'edit' && (
               <button
                 onClick={handleDelete}
                 disabled={deleting}
-                className="px-4 py-2 text-sm border border-[#D63031] text-[#D63031] rounded-xl hover:bg-[#FFF0F0] transition-colors disabled:opacity-50"
+                className="px-4 py-2 text-sm border border-[#D63031] dark:border-[#FF453A] text-[#D63031] dark:text-[#FF453A] rounded-xl hover:bg-[#FFF0F0] dark:hover:bg-[#2E1A1D] transition-colors disabled:opacity-50"
               >
                 {deleting ? '删除中...' : '删除联系人'}
               </button>
@@ -436,11 +451,14 @@ export default function ContactManagementDialog({
           </div>
           <div className="flex gap-2">
             <button
-              onClick={() => {
-                if (dirty && !confirm('有未保存的更改，确定关闭吗？')) return;
+              onClick={async () => {
+                if (dirty) {
+                  const ok = await confirm('未保存的更改', '有未保存的更改，确定关闭吗？', '关闭', '取消', true);
+                  if (!ok) return;
+                }
                 onOpenChange(false);
               }}
-              className="px-4 py-2 text-sm border border-[#EBEBEB] text-[#5A5A5A] rounded-xl hover:bg-[#F5F5F5] transition-colors"
+              className="px-4 py-2 text-sm border border-[#EBEBEB] dark:border-[#48484A] text-[#5A5A5A] dark:text-[#98989E] rounded-xl hover:bg-[#F5F5F5] dark:hover:bg-[#3A3A3C] transition-colors"
             >
               取消
             </button>
@@ -456,6 +474,7 @@ export default function ContactManagementDialog({
           </div>
         </div>
       </DialogContent>
+      {ConfirmDialog}
     </Dialog>
   );
 }
@@ -468,7 +487,7 @@ function FormField({
 }) {
   return (
     <div className="flex flex-col gap-1">
-      <label className="text-[13px] font-medium text-[#5A5A5A]">
+      <label className="text-[13px] font-medium text-[#5A5A5A] dark:text-[#98989E]">
         {required && <span className="text-[#D63031] mr-0.5">*</span>}
         {label}
       </label>

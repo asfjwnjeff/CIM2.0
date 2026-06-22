@@ -8,6 +8,7 @@ import { useApp } from '@/lib/store';
 import { SearchableSelect } from '@/components/ui/searchable-select';
 import type { SelectOption } from '@/components/ui/searchable-select';
 import { FIELD_STYLES } from '@/lib/ui-constants';
+import { toast } from 'sonner';
 
 // 内联SVG图标
 const ArrowLeftIcon = () => (
@@ -220,9 +221,9 @@ function OpportunityFormContent() {
 
   const handleSubmit = () => {
     // 校验必填项
-    if (!formData.customer) { alert('请选择关联客户'); return; }
-    if (!formData.opportunityTitle.trim()) { alert('请填写商机标题'); return; }
-    if (!formData.responsiblePerson) { alert('请选择负责人'); return; }
+    if (!formData.customer) { toast.error('请选择关联客户'); return; }
+    if (!formData.opportunityTitle.trim()) { toast.error('请填写商机标题'); return; }
+    if (!formData.responsiblePerson) { toast.error('请选择负责人'); return; }
     setSaving(true);
     addOpportunity(buildOppData('active') as Parameters<typeof addOpportunity>[0]);
     addLog({ action: 'create', operator: '系统管理员', targetType: 'opportunity', targetName: formData.opportunityTitle, details: `创建新商机` });

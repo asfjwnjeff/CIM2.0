@@ -3,6 +3,8 @@
 import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useApp } from '@/lib/store';
+import { useConfirm } from '@/hooks/useConfirm';
+import { toast } from 'sonner';
 import { Search, Plus, Pencil, Trash2 } from 'lucide-react';
 
 function StatusBadge({ status }: { status: string }) {
@@ -19,6 +21,7 @@ function StatusBadge({ status }: { status: string }) {
 export default function ServiceEntitiesPage() {
   const router = useRouter();
   const { serviceEntities, deleteServiceEntity } = useApp();
+  const { confirm, ConfirmDialog } = useConfirm();
   const [searchKeyword, setSearchKeyword] = useState('');
   const [filterStatus, setFilterStatus] = useState<string>('all');
 
@@ -33,9 +36,11 @@ export default function ServiceEntitiesPage() {
     });
   }, [serviceEntities, searchKeyword, filterStatus]);
 
-  const handleDelete = (id: string, name: string) => {
-    if (!confirm(`确定要删除服务主体"${name}"吗？`)) return;
+  const handleDelete = async (id: string, name: string) => {
+    const ok = await confirm('删除服务主体', `确定要删除服务主体"${name}"吗？`, '删除', '取消', true);
+    if (!ok) return;
     deleteServiceEntity(id);
+    toast.success('服务主体已删除');
   };
 
   return (
@@ -141,6 +146,7 @@ export default function ServiceEntitiesPage() {
             </table>
           </div>
         </div>
+        {ConfirmDialog}
       </div>
   );
 }

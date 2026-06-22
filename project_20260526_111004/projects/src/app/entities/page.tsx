@@ -3,6 +3,8 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useApp } from '@/lib/store';
+import { useConfirm } from '@/hooks/useConfirm';
+import { toast } from 'sonner';
 import { Search, Plus, FileSignature, Building2, Landmark, Trash2, Pencil } from 'lucide-react';
 
 function StatusBadge({ status }: { status: string }) {
@@ -19,6 +21,7 @@ function StatusBadge({ status }: { status: string }) {
 export default function EntitiesPage() {
   const router = useRouter();
   const { signingEntities, serviceEntities, settlementEntities, deleteSigningEntity, deleteServiceEntity, deleteSettlementEntity } = useApp();
+  const { confirm, ConfirmDialog } = useConfirm();
   const [activeTab, setActiveTab] = useState('signing');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -41,11 +44,13 @@ export default function EntitiesPage() {
     else router.push(`/entities/settlement/${id}/edit`);
   };
 
-  const handleDelete = (id: string, name: string) => {
-    if (!confirm(`确定要删除主体"${name}"吗？`)) return;
+  const handleDelete = async (id: string, name: string) => {
+    const ok = await confirm('删除主体', `确定要删除主体"${name}"吗？`, '删除', '取消', true);
+    if (!ok) return;
     if (activeTab === 'signing') deleteSigningEntity(id);
     else if (activeTab === 'service') deleteServiceEntity(id);
     else deleteSettlementEntity(id);
+    toast.success('主体已删除');
   };
 
   const filterBySearch = <T extends { name: string; code?: string; unifiedSocialCreditCode?: string }>(list: T[]): T[] => {
@@ -275,6 +280,7 @@ export default function EntitiesPage() {
           {activeTab === 'service' && renderTable(filteredService, serviceColumns, '暂无服务主体数据')}
           {activeTab === 'settlement' && renderTable(filteredSettlement, settlementColumns, '暂无结算主体数据')}
         </div>
+        {ConfirmDialog}
       </div>
     </div>
   );

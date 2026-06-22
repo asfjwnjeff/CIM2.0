@@ -10,6 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { SearchableSelect } from '@/components/ui/searchable-select';
 import { useApp } from '@/lib/store';
 import type { Customer } from '@/lib/types';
+import { toast } from 'sonner';
 
 export default function NewQuotePage() {
   const router = useRouter();
@@ -27,7 +28,7 @@ export default function NewQuotePage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // 这里添加保存逻辑
-    alert('报价单已创建');
+    toast.success('报价单已创建');
     router.push('/quotes');
   };
 

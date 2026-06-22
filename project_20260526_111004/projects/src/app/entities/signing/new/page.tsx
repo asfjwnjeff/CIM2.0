@@ -14,11 +14,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ArrowLeft, Save, X } from "lucide-react";
+import { useConfirm } from "@/hooks/useConfirm";
 import { useApp } from "@/lib/store";
+import { toast } from "sonner";
 
 export default function NewSigningEntityPage() {
   const router = useRouter();
   const { addSigningEntity } = useApp();
+  const { confirm, ConfirmDialog } = useConfirm();
   const [formData, setFormData] = useState({
     name: "",
     code: "",
@@ -51,12 +54,13 @@ export default function NewSigningEntityPage() {
 
   // 暂存
   const handleSaveDraft = () => {
-    alert("暂存成功！");
+    toast.success("已暂存");
   };
 
   // 清空
-  const handleClear = () => {
-    if (confirm("确定要清空所有内容吗？")) {
+  const handleClear = async () => {
+    const ok = await confirm("清空内容", "确定要清空所有内容吗？", "清空", "取消", true);
+    if (ok) {
       setFormData({
         name: "",
         code: "",
@@ -81,7 +85,7 @@ export default function NewSigningEntityPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name?.trim()) {
-      alert("签约主体名称不能为空");
+      toast.error("签约主体名称不能为空");
       return;
     }
     addSigningEntity({
@@ -409,6 +413,7 @@ export default function NewSigningEntityPage() {
               </div>
             </div>
           </form>
+        {ConfirmDialog}
       </div>
   );
 }

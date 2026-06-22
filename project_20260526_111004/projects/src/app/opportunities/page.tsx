@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import { useApp } from '@/lib/store';
 import { useGroupFilter, GroupTabs, GroupManageDialog } from '@/components/groups';
 import { FIELD_META_MAP } from '@/lib/group-utils';
+import { useConfirm } from '@/hooks/useConfirm';
+import { toast } from 'sonner';
 
 // 内联SVG图标
 const PlusIcon = ({ className = '' }: { className?: string }) => (
@@ -161,6 +163,9 @@ const customers = [
 export default function OpportunitiesPage() {
   const router = useRouter();
   const { currentUser } = useApp();
+  const { confirm, ConfirmDialog } = useConfirm();
+
+  const [opportunitiesData, setOpportunitiesData] = useState(mockOpportunities);
 
   // ====== 分组功能 ======
   const groupFilter = useGroupFilter<Opportunity>({
@@ -178,7 +183,7 @@ export default function OpportunitiesPage() {
   // 筛选数据
   const filteredOpportunities = useMemo(() => {
     // 第一步：应用分组筛选
-    let data = groupFilter.applyFilter(mockOpportunities);
+    let data = groupFilter.applyFilter(opportunitiesData);
     return data.filter(opportunity => {
       // 关键词搜索
       const matchesKeyword = 
@@ -199,6 +204,14 @@ export default function OpportunitiesPage() {
       return matchesKeyword && matchesCustomer && matchesServiceProduct && matchesSalesStage;
     }).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }, [groupFilter, searchKeyword, filterCustomer, filterServiceProduct, filterSalesStage]);
+
+  const handleDelete = async (id: string) => {
+    const ok = await confirm('删除商机', '确定要删除该商机吗？', '删除', '取消', true);
+    if (ok) {
+      setOpportunitiesData((prev) => prev.filter((o) => o.id !== id));
+      toast.success('商机已删除');
+    }
+  };
 
   // 获取状态徽章颜色（与看板视图颜色一致）
   const getStatusBadgeClass = (stage: string) => {
@@ -313,7 +326,7 @@ export default function OpportunitiesPage() {
                 <input
                   id="search-input"
                   type="text"
-                  placeholder="搜索商机名称、编号、客户..."
+                  placeholder="搜索商机标题、编号、客户..."
                   value={searchKeyword}
                   onChange={(e) => setSearchKeyword(e.target.value)}
                   className="pl-9 pr-4 py-2.5 bg-white border border-[#D5D5D5] rounded-lg text-sm text-[#0A0A0A] placeholder:text-[#999999] focus:outline-none focus:border-[#2D3BFF] focus:ring-2 focus:ring-[#2D3BFF]/10 transition-all w-64"
@@ -416,7 +429,7 @@ export default function OpportunitiesPage() {
           <div id="list-view" className="bg-white rounded-xl shadow-sm border border-[#EBEBEB] overflow-hidden">
             <div className="grid grid-cols-[1.4fr_1.8fr_1.8fr_0.8fr_1fr_1fr_0.8fr_0.6fr_1fr_0.8fr] px-4 py-3 bg-[#F5F5F5] text-xs font-semibold text-[#5A5A5A] uppercase tracking-wide">
               <span>商机编号</span>
-              <span>商机名称</span>
+              <span>商机标题</span>
               <span>关联客户</span>
               <span>服务产品</span>
               <span>预估月度金额</span>
@@ -465,7 +478,7 @@ export default function OpportunitiesPage() {
                       >
                         编辑
                       </button>
-                      <button className="text-[#DC3545] text-sm font-medium hover:underline w-fit">
+                      <button onClick={() => handleDelete(opportunity.id)} className="text-[#DC3545] text-sm font-medium hover:underline w-fit">
                         删除
                       </button>
                     </div>
@@ -539,6 +552,7 @@ export default function OpportunitiesPage() {
           onUpdate={groupFilter.updateGroup}
           onDelete={groupFilter.deleteGroup}
         />
+        {ConfirmDialog}
       </div>
   );
 }

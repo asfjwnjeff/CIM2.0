@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import { useApp } from '@/lib/store';
+import { useConfirm } from '@/hooks/useConfirm';
+import { toast } from 'sonner';
 import { initialCustomerBillingFields } from '@/lib/sample-data';
 import type { CustomerBillingField } from '@/lib/types';
 
@@ -17,6 +19,7 @@ const ALL_FIELD_NAMES = [
 
 export default function BillingFieldsPage() {
   const { customers, addLog } = useApp();
+  const { confirm, ConfirmDialog } = useConfirm();
   const [fields, setFields] = useState<CustomerBillingField[]>(initialCustomerBillingFields);
   const [selectedCustomerId, setSelectedCustomerId] = useState<string>('all');
   const [showModal, setShowModal] = useState(false);
@@ -102,11 +105,11 @@ export default function BillingFieldsPage() {
   // 保存
   const handleSave = () => {
     if (!formData.customerId) {
-      alert('请选择客户');
+      toast.error('请选择客户');
       return;
     }
     if (!formData.name.trim()) {
-      alert('请选择字段名称');
+      toast.error('请选择字段名称');
       return;
     }
 
@@ -163,10 +166,12 @@ export default function BillingFieldsPage() {
   };
 
   // 删除字段
-  const handleDelete = (field: CustomerBillingField) => {
-    if (confirm(`确定要删除客户「${field.customerName}」的字段「${field.name}」吗？`)) {
+  const handleDelete = async (field: CustomerBillingField) => {
+    const ok = await confirm('删除字段', `确定要删除客户「${field.customerName}」的字段「${field.name}」吗？`, '删除', '取消', true);
+    if (ok) {
       setFields(prev => prev.filter(f => f.id !== field.id));
-      
+      toast.success('账单字段已删除');
+
       addLog({
         operator: '系统管理员',
         action: 'delete',
@@ -456,6 +461,7 @@ export default function BillingFieldsPage() {
           </div>
         </div>
       )}
+      {ConfirmDialog}
     </div>
   );
 }

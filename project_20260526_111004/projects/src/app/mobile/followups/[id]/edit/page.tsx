@@ -1,10 +1,10 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState, useMemo } from 'react';
+import { useRouter, useParams } from 'next/navigation';
 import { toast } from 'sonner';
 import { useApp } from '@/lib/store';
-import type { FollowUpRecord, FollowUpType, FollowUpMethod, FollowUpStatus } from '@/lib/types';
+import type { FollowUpType, FollowUpMethod, FollowUpStatus } from '@/lib/types';
 import MobileFormSection from '@/components/mobile/MobileFormSection';
 import CheckInCard from '@/components/mobile/CheckInCard';
 import AIRecordingCard from '@/components/mobile/AIRecordingCard';
@@ -27,38 +27,61 @@ const FOLLOWUP_STATUSES: { value: FollowUpStatus; label: string }[] = [
 
 interface CheckInRecord { lat: number; lng: number; address: string; timestamp: string; photos: string[]; }
 
-export default function MobileNewFollowupPage() {
+export default function MobileEditFollowupPage() {
   const router = useRouter();
-  const { addFollowUp, customers, currentUser } = useApp();
+  const params = useParams();
+  const id = params.id as string;
+  const { followUps, customers, currentUser, updateFollowUp } = useApp();
+
+  const followup = useMemo(() => followUps.find((f) => f.id === id), [followUps, id]);
+
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({
-    customerId: '', type: 'biz_meeting' as FollowUpType, method: 'phone_visit' as FollowUpMethod,
-    followUpDate: new Date().toISOString().slice(0, 16), status: 'new' as FollowUpStatus,
-    contactName: '', owner: currentUser.name, collaborators: '', nextFollowUpDate: '', content: '',
+    customerId: followup?.customerId || '',
+    type: (followup?.type || followup?.followUpType || 'biz_meeting') as FollowUpType,
+    method: ((followup?.method || (followup as any)?.followUpMethod) || 'phone_visit') as FollowUpMethod,
+    followUpDate: (followup?.followUpDate || followup?.date || '').slice(0, 16),
+    status: (followup?.status || 'new') as FollowUpStatus,
+    contactName: followup?.contactName || followup?.contactPerson || '',
+    owner: followup?.owner || currentUser.name,
+    collaborators: followup?.collaborators || '',
+    nextFollowUpDate: (followup?.nextFollowUpDate || '').slice(0, 16),
+    content: followup?.content || '',
   });
 
-  const [checkInRecords, setCheckInRecords] = useState<CheckInRecord[]>([]);
-  const [aiData, setAiData] = useState<{ transcript?: string; meetingSummary?: string; keyPoints?: string[]; actionItems?: string[]; decisions?: string[] }>({});
+  const [checkInRecords, setCheckInRecords] = useState<CheckInRecord[]>(followup?.checkInRecords || []);
+  const [aiData, setAiData] = useState<{ transcript?: string; meetingSummary?: string; keyPoints?: string[]; actionItems?: string[]; decisions?: string[] }>({
+    transcript: followup?.transcript,
+    meetingSummary: followup?.meetingSummary,
+    keyPoints: followup?.keyPoints || [],
+    actionItems: followup?.actionItems || [],
+    decisions: followup?.decisions || [],
+  });
 
   const updateField = (f: string, v: string) => setForm((p) => ({ ...p, [f]: v }));
   const selectedCustomer = customers.find((c) => c.id === form.customerId);
   const customerContacts = selectedCustomer?.contacts || [];
 
-  const buildPayload = (status: FollowUpStatus) => {
-    const now = new Date().toISOString();
-    return {
-      customerId: form.customerId, customerName: selectedCustomer?.name || '',
-      type: form.type, followUpType: form.type, method: form.method,
-      followUpDate: form.followUpDate, date: form.followUpDate, status,
-      owner: form.owner || currentUser.name, collaborators: form.collaborators || undefined,
-      contactName: form.contactName || undefined, contactPerson: form.contactName || undefined,
-      nextFollowUpDate: form.nextFollowUpDate || undefined, content: form.content,
-      checkInRecords: checkInRecords.length > 0 ? checkInRecords : undefined,
-      transcript: aiData.transcript, meetingSummary: aiData.meetingSummary,
-      keyPoints: aiData.keyPoints, actionItems: aiData.actionItems, decisions: aiData.decisions,
-      updatedAt: now,
-    };
-  };
+  if (!id || Array.isArray(id)) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20">
+        <h2 className="text-base font-semibold text-[#0A0A0A]">无效的跟进 ID</h2>
+        <button className="mt-4 text-sm text-[#2D3BFF] font-medium" onClick={() => router.push('/mobile/followups')}>返回列表</button>
+      </div>
+    );
+  }
+
+  if (!followup) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20">
+        <div className="w-16 h-16 rounded-2xl bg-[#F5F5F5] flex items-center justify-center mb-4">
+          <svg className="w-8 h-8 text-[#D5D5D5]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+        </div>
+        <h2 className="text-base font-semibold text-[#0A0A0A]">跟进未找到</h2>
+        <button className="mt-4 text-sm text-[#2D3BFF] font-medium" onClick={() => router.back()}>返回</button>
+      </div>
+    );
+  }
 
   const handleSubmit = async () => {
     const errors: string[] = [];
@@ -69,19 +92,23 @@ export default function MobileNewFollowupPage() {
 
     setSaving(true);
     try {
-      addFollowUp(buildPayload(form.status));
-      toast.success('跟进已保存');
-      router.push('/mobile/followups');
-    } catch (e) { console.error('[新建跟进] 保存失败:', e); toast.error('保存失败'); }
+      const now = new Date().toISOString();
+      updateFollowUp(id, {
+        customerId: form.customerId, customerName: selectedCustomer?.name || '',
+        type: form.type, followUpType: form.type, method: form.method,
+        followUpDate: form.followUpDate, date: form.followUpDate, status: form.status,
+        owner: form.owner || currentUser.name, collaborators: form.collaborators || undefined,
+        contactName: form.contactName || undefined, contactPerson: form.contactName || undefined,
+        nextFollowUpDate: form.nextFollowUpDate || undefined, content: form.content,
+        checkInRecords: checkInRecords.length > 0 ? checkInRecords : undefined,
+        transcript: aiData.transcript, meetingSummary: aiData.meetingSummary,
+        keyPoints: aiData.keyPoints, actionItems: aiData.actionItems, decisions: aiData.decisions,
+        updatedAt: now,
+      });
+      toast.success('跟进已更新');
+      router.push(`/mobile/followups/${id}`);
+    } catch (e) { console.error('[编辑跟进] 保存失败:', e); toast.error('保存失败'); }
     finally { setSaving(false); }
-  };
-
-  const handleDraft = () => {
-    try {
-      addFollowUp(buildPayload('draft'));
-      toast.success('已保存为草稿');
-      router.push('/mobile/followups');
-    } catch (e) { console.error('[新建跟进] 暂存失败:', e); toast.error('暂存失败'); }
   };
 
   return (
@@ -90,7 +117,7 @@ export default function MobileNewFollowupPage() {
         <button className="w-10 h-10 flex items-center justify-center rounded-lg bg-white border border-[#EBEBEB] text-[#5A5A5A] active:bg-[#F5F5F5]" onClick={() => router.back()}>
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
         </button>
-        <h1 className="text-lg font-bold text-[#0A0A0A]">新增跟进</h1>
+        <h1 className="text-lg font-bold text-[#0A0A0A]">编辑跟进</h1>
       </div>
 
       <MobileFormSection title="基本信息" defaultExpanded>
@@ -129,12 +156,8 @@ export default function MobileNewFollowupPage() {
       </div>
 
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-[#EBEBEB] px-4 py-3 z-40" style={{ paddingBottom: 'calc(12px + env(safe-area-inset-bottom, 0px) + 56px)' }}>
-        <div className="flex gap-3">
-          <button className="flex-1 h-11 bg-white border border-[#D5D5D5] text-[#5A5A5A] rounded-xl text-sm font-medium active:bg-[#F5F5F5] disabled:opacity-50" onClick={handleDraft} disabled={saving}>暂存</button>
-          <button className="flex-1 h-11 bg-[#2D3BFF] text-white rounded-xl text-sm font-semibold active:bg-[#4338CA] disabled:opacity-50" onClick={handleSubmit} disabled={saving}>{saving ? '保存中...' : '保存跟进'}</button>
-        </div>
+        <button className="w-full h-11 bg-[#2D3BFF] text-white rounded-xl text-sm font-semibold active:bg-[#4338CA] disabled:opacity-50" onClick={handleSubmit} disabled={saving}>{saving ? '保存中...' : '保存修改'}</button>
       </div>
     </div>
   );
 }
-

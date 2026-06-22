@@ -6,6 +6,8 @@ import { useApp } from '@/lib/store';
 import type { FollowUpRecord } from '@/lib/types';
 import { useGroupFilter, GroupTabs, GroupManageDialog } from '@/components/groups';
 import { FIELD_META_MAP } from '@/lib/group-utils';
+import { useConfirm } from '@/hooks/useConfirm';
+import { toast } from 'sonner';
 
 // 内联SVG图标
 const PlusIcon = ({ className = '' }: { className?: string }) => (
@@ -196,6 +198,9 @@ const mockFollowUps = [
 export default function FollowUpPage() {
   const router = useRouter();
   const { currentUser } = useApp();
+  const { confirm, ConfirmDialog } = useConfirm();
+
+  const [followUpData, setFollowUpData] = useState(mockFollowUps);
 
   // ====== 分组功能 ======
   const groupFilter = useGroupFilter<FollowUpRecord>({
@@ -214,7 +219,7 @@ export default function FollowUpPage() {
   // 筛选数据
   const filteredFollowUps = useMemo(() => {
     // 第一步：应用分组筛选
-    let data = groupFilter.applyFilter(mockFollowUps as FollowUpRecord[]);
+    let data = groupFilter.applyFilter(followUpData as FollowUpRecord[]);
     return data.filter(followUp => {
       // 关键词搜索
       const matchesKeyword = 
@@ -311,6 +316,14 @@ export default function FollowUpPage() {
   const getContactName = (contactId?: string) => {
     if (!contactId) return '-';
     return mockContacts.find(ct => ct.id === contactId)?.name || '-';
+  };
+
+  const handleDelete = async (id: string) => {
+    const ok = await confirm('删除跟进', '确定要删除该跟进记录吗？', '删除', '取消', true);
+    if (ok) {
+      setFollowUpData((prev) => prev.filter((f) => f.id !== id));
+      toast.success('跟进已删除');
+    }
   };
 
   return (
@@ -550,7 +563,7 @@ export default function FollowUpPage() {
                               >
                                 编辑
                               </button>
-                              <button className="text-[#DC3545] text-sm font-medium whitespace-nowrap hover:underline">
+                              <button onClick={() => handleDelete(followUp.id)} className="text-[#DC3545] text-sm font-medium whitespace-nowrap hover:underline">
                                 删除
                               </button>
                             </div>
@@ -616,7 +629,7 @@ export default function FollowUpPage() {
                                 编辑
                               </button>
                               <span className="text-[#CCCCCC]">·</span>
-                              <button className="text-[#DC3545] text-sm whitespace-nowrap hover:underline">
+                              <button onClick={() => handleDelete(followUp.id)} className="text-[#DC3545] text-sm whitespace-nowrap hover:underline">
                                 删除
                               </button>
                             </div>
@@ -669,6 +682,7 @@ export default function FollowUpPage() {
           onUpdate={groupFilter.updateGroup}
           onDelete={groupFilter.deleteGroup}
         />
+        {ConfirmDialog}
       </div>
   );
 }

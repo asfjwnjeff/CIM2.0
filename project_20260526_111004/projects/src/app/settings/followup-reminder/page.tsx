@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 
 const LEVEL_LABELS: Record<string, string> = {
   K: 'K — 核心客户',
@@ -44,7 +45,7 @@ export default function FollowupReminderSettings() {
       setEditingCfg(null);
       setMessage('保存成功');
       setTimeout(() => setMessage(''), 2000);
-    } catch { alert('保存失败'); }
+    } catch { toast.error('保存失败'); }
     setSaving(false);
   };
 
