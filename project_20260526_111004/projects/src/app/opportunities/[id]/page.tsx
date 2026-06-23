@@ -367,10 +367,12 @@ export default function OpportunityDetailPage() {
                     );
                   })()}
                 </div>
+                {opportunity.serviceProduct === '其他' && (
                 <div>
                   <label className={labelClass}>其他服务产品</label>
                   <div className={displayClass}>{opportunity.otherServiceProducts || '-'}</div>
                 </div>
+                )}
                 <div>
                   <label className={labelClass}>关系与忠诚度</label>
                   <div className={displayClass}>{opportunity.relationshipLoyalty}</div>

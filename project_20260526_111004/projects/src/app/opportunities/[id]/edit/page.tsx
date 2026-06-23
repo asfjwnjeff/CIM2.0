@@ -497,10 +497,19 @@ export default function EditOpportunityPage() {
                   <label className={labelClass}>服务产品 <span className="text-red-500">*</span></label>
                   <SearchableSelect
                     value={formData.serviceProduct}
-                    onChange={(value) => handleInputChange('serviceProduct', value)}
+                    onChange={(value) => {
+                      handleInputChange('serviceProduct', value);
+                      if (value !== '其他') handleInputChange('otherServiceProducts', '');
+                    }}
                     options={serviceProducts.map(p => ({ value: p, label: p }))}
                     placeholder="请选择"
                   />
+                  {formData.serviceProduct === '其他' && (
+                    <div className="mt-3">
+                      <label className={labelClass}>其他服务产品</label>
+                      <input type="text" value={formData.otherServiceProducts} onChange={(e) => handleInputChange('otherServiceProducts', e.target.value)} className={inputClass} placeholder="请输入服务产品名称" />
+                    </div>
+                  )}
                 </div>
                 <div>
                   <label className={labelClass}>服务要求 <span className="text-red-500">*</span></label>
@@ -563,10 +572,6 @@ export default function EditOpportunityPage() {
                       ) : null;
                     })()}
                   </div>
-                </div>
-                <div>
-                  <label className={labelClass}>其他服务产品</label>
-                  <input type="text" value={formData.otherServiceProducts} onChange={(e) => handleInputChange('otherServiceProducts', e.target.value)} className={inputClass} />
                 </div>
                 <div>
                   <label className={labelClass}>关系与忠诚度 <span className="text-red-500">*</span></label>
