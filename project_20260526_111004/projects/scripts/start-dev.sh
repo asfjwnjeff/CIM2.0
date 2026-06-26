@@ -15,7 +15,7 @@ if [[ -f "$PID_FILE" ]]; then
   OLD_PID=$(cat "$PID_FILE")
   if kill -0 "$OLD_PID" 2>/dev/null; then
     echo "开发服务器已在运行 (PID: $OLD_PID)"
-    echo "访问: http://localhost:5000"
+    echo "访问: http://localhost:5001"
     exit 0
   fi
 fi
@@ -29,7 +29,7 @@ echo $PID > "$PID_FILE"
 sleep 2
 if kill -0 "$PID" 2>/dev/null; then
   echo "✓ 开发服务器已启动 (PID: $PID)"
-  echo "  访问: http://localhost:5000"
+  echo "  访问: http://localhost:5001"
   echo "  日志: tail -f $LOG_FILE"
   echo "  停止: pnpm stop-dev"
 else

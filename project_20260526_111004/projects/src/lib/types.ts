@@ -947,6 +947,137 @@ export interface SettlementEntity {
   updatedAt?: string;
 }
 
+// ==================== 地址主数据升级 — 收发货方与地址站点 ====================
+
+/** 收发货方类型 */
+export type ShipperConsigneeType = 'shipper' | 'consignee' | 'both';
+
+/** 地址用途类型 */
+export type AddressUsageType =
+  | 'receiving'    // 收货地址
+  | 'shipping'     // 发货地址
+  | 'pickup'       // 提货地址
+  | 'delivery'     // 送货地址
+  | 'return'       // 退货地址
+  | 'customs'      // 报关地址
+  | 'warehousing'; // 仓储地址
+
+/** 地址用途中文标签 */
+export const ADDRESS_USAGE_LABELS: Record<AddressUsageType, string> = {
+  receiving: '收货地址',
+  shipping: '发货地址',
+  pickup: '提货地址',
+  delivery: '送货地址',
+  return: '退货地址',
+  customs: '报关地址',
+  warehousing: '仓储地址',
+};
+
+/** 地址解析精度 */
+export type GeoAccuracy = 'precise' | 'approximate' | 'manual' | 'unresolved';
+
+/** 收发货方 */
+export interface ShipperConsignee {
+  id: string;
+  serviceEntityId: string;
+  name: string;
+  code?: string;
+  type: ShipperConsigneeType;
+  unifiedSocialCreditCode?: string;
+  contactPerson?: string;
+  phone?: string;
+  email?: string;
+  status: Status;
+  remark?: string;
+  createdAt: string;
+  updatedAt?: string;
+  // 聚合字段（查询时填充）
+  addressSites?: AddressSite[];
+}
+
+/** 地址站点 */
+export interface AddressSite {
+  id: string;
+  shipperConsigneeId: string;
+  serviceEntityId: string;
+  code?: string;
+  name?: string;
+  province?: string;
+  city?: string;
+  district?: string;
+  detailAddress: string;
+  doorplate?: string;
+  postalCode?: string;
+  longitude?: number;
+  latitude?: number;
+  geoAccuracy?: GeoAccuracy;
+  specialCustomsZone: boolean;
+  specialRequirements?: string;
+  status: Status;
+  version: number;
+  createdAt: string;
+  updatedAt?: string;
+  // 聚合字段
+  usages?: AddressUsage[];
+  contacts?: AddressContact[];
+  versions?: AddressVersion[];
+}
+
+/** 地址用途 */
+export interface AddressUsage {
+  id: string;
+  addressSiteId: string;
+  usageType: AddressUsageType;
+  createdAt: string;
+}
+
+/** 地址联系人 */
+export interface AddressContact {
+  id: string;
+  addressSiteId: string;
+  name: string;
+  phone?: string;
+  email?: string;
+  isPrimary: boolean;
+  remark?: string;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+/** 地址版本 */
+export interface AddressVersion {
+  id: string;
+  addressSiteId: string;
+  version: number;
+  snapshot: string; // JSON string of full AddressSite snapshot
+  changedBy?: string;
+  changedAt: string;
+  changeSummary?: string;
+}
+
+/** 编码序列 */
+export interface CodeSequence {
+  id: string; // 'SVC' | 'SHC' | 'ADS'
+  currentSeq: number;
+  updatedAt: string;
+}
+
+/** 地址解析请求/响应 */
+export interface AddressResolveRequest {
+  address: string;
+  city?: string; // 可选城市名，提高解析精度
+}
+
+export interface AddressResolveResult {
+  province: string;
+  city: string;
+  district: string;
+  longitude: number;
+  latitude: number;
+  accuracy: GeoAccuracy;
+  formattedAddress: string;
+}
+
 // ==================== 账单规则（兼容 store） ====================
 
 export interface RuleCondition {

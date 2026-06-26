@@ -9,7 +9,7 @@ export default defineConfig({
   reporter: 'html',
   timeout: 30000,
   use: {
-    baseURL: 'http://localhost:5000',
+    baseURL: 'http://localhost:5001',
     trace: 'on-first-retry',
   },
   projects: [
@@ -28,7 +28,7 @@ export default defineConfig({
   ],
   webServer: {
     command: 'pnpm dev',
-    url: 'http://localhost:5000',
+    url: 'http://localhost:5001',
     reuseExistingServer: !process.env.CI,
     cwd: '.',
     timeout: 30000,

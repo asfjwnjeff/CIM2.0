@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>CIM2.0 架构设计图</title>
+<style>
+:root{--bg:#F7F8FA;--card:#fff;--t:#1A1C20;--s:#6B7280;--b:#E5E7EB;--bl:#2D3BFF;--bll:#E8EBFF;--g:#0D8A5E;--gl:#E6F7F0;--o:#E8850C;--ol:#FFF4E8;--p:#7C3AED;--pl:#F3E8FF;--r:#D63031;--rl:#FFEBEE;--te:#0891B2;--tel:#E6F5F9}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--t)}
+.bar{background:#fff;border-bottom:1px solid var(--b);padding:14px 36px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.bar h1{font-size:18px;font-weight:700}.bar .sub{font-size:12px;color:var(--s);margin-left:10px}
+.tabs{display:flex;gap:6px}.tabs button{padding:7px 18px;border-radius:8px;border:1px solid var(--b);background:#fff;cursor:pointer;font-size:13px;font-weight:500;transition:all .15s}
+.tabs button.on{background:var(--bl);color:#fff;border-color:var(--bl)}
+.vtabs{display:flex;gap:0;margin:14px 36px 0}
+.vtabs button{padding:6px 20px;border-radius:8px 8px 0 0;border:none;background:transparent;cursor:pointer;font-size:12px;color:var(--s);font-weight:500;transition:all .15s}
+.vtabs button.on{color:var(--bl);border-bottom:2px solid var(--bl);font-weight:700}
+.wrap{padding:20px 36px}.d{display:none}.d.on{display:block}
+.card{background:var(--card);border-radius:14px;border:1px solid var(--b);padding:24px 28px;margin-bottom:16px}
+.ct{font-size:16px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.badge{font-size:10px;padding:2px 8px;border-radius:4px;font-weight:700}.bv1{background:var(--pl);color:var(--p)}.bv3{background:var(--gl);color:var(--g)}
+svg{max-width:100%;display:block}svg text{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif}
+</style></head><body>
+
+<div class="bar">
+<div><h1>CIM 2.0 客户主数据平台<span class="sub">架构设计图 · 2026-06-24</span></h1></div>
+<div class="tabs">
+<button id="tv1" class="on" onclick="sv('V1')">V1 · 产业链平台视角</button>
+<button id="tv3" onclick="sv('V3')">V3 · 务实主数据平台（推荐）</button>
+</div></div>
+
+<div class="vtabs">
+<button id="vsys" class="on" onclick="sw('system')">系统架构图</button>
+<button id="vdata" onclick="sw('data')">数据架构图</button>
+</div>
+
+<div class="wrap">
+
+<!-- ═══════════ V1 SYSTEM ═══════════ -->
+<div id="dV1-system" class="d on">
+<div class="card">
+<div class="ct"><span class="badge bv1">V1</span> 系统架构 — CIM 作为产业链主数据中心，统一治理后分发各业务系统</div>
+<svg viewBox="0 0 1240 560" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<filter id="fs"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.06"/></filter>
+<marker id="aB" refX="9" refY="4" markerWidth="10" markerHeight="8" orient="auto"><path d="M0,0 L10,4 L0,8 L2,4 Z" fill="#2D3BFF"/></marker>
+<marker id="aP" refX="9" refY="4" markerWidth="10" markerHeight="8" orient="auto"><path d="M0,0 L10,4 L0,8 L2,4 Z" fill="#7C3AED"/></marker>
+<marker id="aO" refX="9" refY="4" markerWidth="10" markerHeight="8" orient="auto"><path d="M0,0 L10,4 L0,8 L2,4 Z" fill="#E8850C"/></marker>
+<marker id="aG" refX="9" refY="4" markerWidth="10" markerHeight="8" orient="auto"><path d="M0,0 L10,4 L0,8 L2,4 Z" fill="#0D8A5E"/></marker>
+<marker id="aT" refX="9" refY="4" markerWidth="10" markerHeight="8" orient="auto"><path d="M0,0 L10,4 L0,8 L2,4 Z" fill="#0891B2"/></marker>
+<marker id="aD" refX="9" refY="4" markerWidth="10" markerHeight="8" orient="auto"><path d="M0,0 L10,4 L0,8 L2,4 Z" fill="#9CA3AF"/></marker>
+</defs>
+
+<!-- === LEFT: Sidebar Menu === -->
+<rect x="15" y="10" width="175" height="540" rx="12" fill="#1A1C1E"/>
+<text x="102" y="38" text-anchor="middle" font-size="14" font-weight="700" fill="#fff">菜单结构</text>
+<line x1="35" y1="48" x2="170" y2="48" stroke="#333" stroke-width="1"/>
+
+<text x="35" y="74" font-size="11" fill="#9CA3AF">工作台</text>
+
+<rect x="30" y="88" width="145" height="28" rx="5" fill="rgba(124,58,237,0.22)"/>
+<text x="102" y="107" text-anchor="middle" font-size="11" fill="#C4B5FD" font-weight="700">✦ 产业链全景</text>
+<text x="42" y="130" font-size="10" fill="#9CA3AF">产业链视图 · 链条分析</text>
+
+<text x="35" y="158" font-size="11" fill="#fff" font-weight="600">主数据管理</text>
+<text x="48" y="178" font-size="10" fill="#9CA3AF">参与方档案（统一入口）</text>
+<text x="48" y="196" font-size="10" fill="#9CA3AF">产业链关系</text>
+<text x="48" y="214" font-size="10" fill="#9CA3AF">地址主数据</text>
+
+<text x="35" y="246" font-size="11" fill="#fff" font-weight="600">业务管理</text>
+<text x="48" y="266" font-size="10" fill="#9CA3AF">跟进 · 商机 · 报价 · 审批</text>
+
+<text x="35" y="298" font-size="11" fill="#fff" font-weight="600">结算管理</text>
+<text x="35" y="330" font-size="11" fill="#fff" font-weight="600">数据治理</text>
+<text x="35" y="362" font-size="11" fill="#fff" font-weight="600">系统管理</text>
+
+<!-- === CENTER: CIM Hub === -->
+<rect x="230" y="40" width="350" height="455" rx="14" fill="#2D3BFF" filter="url(#fs)"/>
+<text x="405" y="72" text-anchor="middle" font-size="16" font-weight="700" fill="#fff">CIM 客户主数据中心</text>
+<text x="405" y="92" text-anchor="middle" font-size="10" fill="rgba(255,255,255,0.6)">统一治理 · 源头维护 · 分发下游</text>
+
+<!-- Modules inside CIM -->
+<rect x="250" y="112" width="310" height="36" rx="8" fill="rgba(255,255,255,0.14)"/>
+<text x="405" y="135" text-anchor="middle" font-size="12" fill="#fff" font-weight="600">Party 参与方档案（法律实体统一模型）</text>
+
+<rect x="250" y="160" width="150" height="34" rx="8" fill="rgba(255,255,255,0.08)"/>
+<text x="325" y="182" text-anchor="middle" font-size="10" fill="#E8EBFF">角色标签 · 组织关系</text>
+
+<rect x="410" y="160" width="150" height="34" rx="8" fill="rgba(124,58,237,0.35)"/>
+<text x="485" y="182" text-anchor="middle" font-size="10" fill="#E8EBFF" font-weight="600">✦ 产业链关系</text>
+
+<rect x="250" y="206" width="310" height="34" rx="8" fill="rgba(255,255,255,0.08)"/>
+<text x="405" y="228" text-anchor="middle" font-size="10" fill="#E8EBFF">收发货方 → 地址站点 → 地址用途</text>
+
+<rect x="250" y="252" width="150" height="34" rx="8" fill="rgba(255,255,255,0.08)"/>
+<text x="325" y="274" text-anchor="middle" font-size="10" fill="#E8EBFF">联系人管理</text>
+
+<rect x="410" y="252" width="150" height="34" rx="8" fill="rgba(255,255,255,0.08)"/>
+<text x="485" y="274" text-anchor="middle" font-size="10" fill="#E8EBFF">合同 · 资质</text>
+
+<!-- DB layer -->
+<rect x="250" y="302" width="310" height="80" rx="8" fill="rgba(255,255,255,0.06)"/>
+<text x="405" y="322" text-anchor="middle" font-size="10" fill="rgba(255,255,255,0.55)">数据底座</text>
+<text x="405" y="342" text-anchor="middle" font-size="9" fill="rgba(255,255,255,0.45)">party · party_role · chain_relationship</text>
+<text x="405" y="358" text-anchor="middle" font-size="9" fill="rgba(255,255,255,0.45)">shipper_consignee · address_site · address_usage</text>
+<text x="405" y="374" text-anchor="middle" font-size="9" fill="rgba(255,255,255,0.45)">address_contact · address_version · contacts</text>
+
+<!-- Governance -->
+<rect x="250" y="398" width="310" height="34" rx="8" fill="rgba(255,255,255,0.18)"/>
+<text x="405" y="419" text-anchor="middle" font-size="11" fill="#fff" font-weight="600">治理层：编码 · 版本追溯 · 权限 · 同步</text>
+
+<text x="405" y="470" text-anchor="middle" font-size="9" fill="rgba(255,255,255,0.5)">维护者：客服 ｜ 治理者：Data Owner + 数据管家</text>
+
+<!-- === RIGHT: Business Systems === -->
+<text x="730" y="35" font-size="11" font-weight="600" fill="#6B7280">下游业务系统（主数据消费者）</text>
+
+<!-- COS -->
+<rect x="640" y="55" width="240" height="62" rx="10" fill="#fff" stroke="#2D3BFF" stroke-width="2" filter="url(#fs)"/>
+<text x="760" y="78" text-anchor="middle" font-size="13" font-weight="700" fill="#1A1C20">COS 中央订单系统</text>
+<text x="760" y="96" text-anchor="middle" font-size="10" fill="#6B7280">下单时引用 CIM 已生效地址</text>
+<text x="760" y="112" text-anchor="middle" font-size="9" fill="#9CA3AF">保留订单地址快照</text>
+
+<!-- CPQ -->
+<rect x="640" y="135" width="240" height="55" rx="10" fill="#fff" stroke="#7C3AED" stroke-width="2" filter="url(#fs)"/>
+<text x="760" y="157" text-anchor="middle" font-size="13" font-weight="700" fill="#1A1C20">CPQ 报价计费结算</text>
+<text x="760" y="175" text-anchor="middle" font-size="10" fill="#6B7280">引用客户 · 签约主体 · 结算主体</text>
+
+<!-- TMS -->
+<rect x="640" y="208" width="240" height="55" rx="10" fill="#fff" stroke="#E8850C" stroke-width="2" filter="url(#fs)"/>
+<text x="760" y="230" text-anchor="middle" font-size="13" font-weight="700" fill="#1A1C20">TMS 运输系统</text>
+<text x="760" y="248" text-anchor="middle" font-size="10" fill="#6B7280">使用地址定位 · 联系人 · 运输要求</text>
+
+<!-- WMS -->
+<rect x="640" y="281" width="240" height="55" rx="10" fill="#fff" stroke="#0D8A5E" stroke-width="2" filter="url(#fs)"/>
+<text x="760" y="303" text-anchor="middle" font-size="13" font-weight="700" fill="#1A1C20">WMS 仓储系统</text>
+<text x="760" y="321" text-anchor="middle" font-size="10" fill="#6B7280">使用作业地址 · 预约要求</text>
+
+<!-- DMS -->
+<rect x="640" y="354" width="240" height="55" rx="10" fill="#fff" stroke="#0891B2" stroke-width="2" filter="url(#fs)"/>
+<text x="760" y="376" text-anchor="middle" font-size="13" font-weight="700" fill="#1A1C20">DMS 关务系统</text>
+<text x="760" y="394" text-anchor="middle" font-size="10" fill="#6B7280">使用监管区域 · 关务属性</text>
+
+<!-- 数据中台 -->
+<rect x="920" y="160" width="170" height="72" rx="10" fill="#F5F5F5" stroke="#D1D5DB" stroke-width="1.5" stroke-dasharray="6 3"/>
+<text x="1005" y="186" text-anchor="middle" font-size="12" font-weight="600" fill="#6B7280">数据中台</text>
+<text x="1005" y="206" text-anchor="middle" font-size="10" fill="#9CA3AF">分析报表 · 数据资产</text>
+<text x="1005" y="224" text-anchor="middle" font-size="9" fill="#D1D5DB">不参与业务主链路</text>
+
+<!-- === SYNC LINES === -->
+<!-- CIM → COS -->
+<path d="M580,86 L640,86" stroke="#2D3BFF" stroke-width="2.5" fill="none" marker-end="url(#aB)"/>
+<text x="610" y="78" font-size="8" fill="#2D3BFF" font-weight="600">地址同步</text>
+
+<!-- CIM → CPQ -->
+<path d="M580,162 L640,162" stroke="#7C3AED" stroke-width="2.5" fill="none" marker-end="url(#aP)"/>
+<text x="610" y="154" font-size="8" fill="#7C3AED">客户/主体</text>
+
+<!-- CIM → TMS -->
+<path d="M580,235 L640,235" stroke="#E8850C" stroke-width="2.5" fill="none" marker-end="url(#aO)"/>
+<text x="610" y="227" font-size="8" fill="#E8850C">地址定位/运输要求</text>
+
+<!-- CIM → WMS -->
+<path d="M580,308 L640,308" stroke="#0D8A5E" stroke-width="2.5" fill="none" marker-end="url(#aG)"/>
+<text x="610" y="300" font-size="8" fill="#0D8A5E">仓储地址</text>
+
+<!-- CIM → DMS -->
+<path d="M580,381 L640,381" stroke="#0891B2" stroke-width="2.5" fill="none" marker-end="url(#aT)"/>
+<text x="610" y="373" font-size="8" fill="#0891B2">关务属性</text>
+
+<!-- CIM → 数据中台 (dashed) -->
+<path d="M580,280 L920,196" stroke="#D1D5DB" stroke-width="1.5" stroke-dasharray="6 3" fill="none" marker-end="url(#aD)"/>
+<text x="700" y="240" font-size="8" fill="#9CA3AF">可选订阅</text>
+
+<!-- Role footer -->
+<text x="620" y="460" font-size="10" fill="#6B7280">数据流：客服在 CIM 维护 → CIM 治理后 → 各业务系统按需消费 → 不反向修改 CIM</text>
+<text x="620" y="480" font-size="10" fill="#6B7280">核心原则：主数据先治理再使用 · 业务系统只消费自己需要的部分 · 不下游反向修改源头</text>
+</svg>
+</div></div>
+
+<!-- ═══════════ V1 DATA ═══════════ -->
+<div id="dV1-data" class="d">
+<div class="card">
+<div class="ct"><span class="badge bv1">V1</span> 数据架构 — Party 为中心，chain_relationship 作为核心实体</div>
+<svg viewBox="0 0 1100 520" xmlns="http://www.w3.org/2000/svg">
+<defs><filter id="f2"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.06"/></filter></defs>
+
+<text x="550" y="22" text-anchor="middle" font-size="14" font-weight="700">一条法律实体 = 一条 Party 记录 · 角色可多选 · 产业链关系结构化</text>
+
+<!-- CENTER: Party -->
+<rect x="320" y="42" width="460" height="85" rx="12" fill="#2D3BFF" filter="url(#f2)"/>
+<text x="550" y="70" text-anchor="middle" font-size="16" font-weight="700" fill="#fff">Party · 参与方（统一主表）</text>
+<text x="550" y="92" text-anchor="middle" font-size="10" fill="rgba(255,255,255,0.78)">party_id · party_code · uscc · legal_name_cn · legal_name_en · short_name_cn</text>
+<text x="550" y="108" text-anchor="middle" font-size="10" fill="rgba(255,255,255,0.65)">domestic_overseas_flag · legal_representative · established_date · status · source_system</text>
+<text x="550" y="122" text-anchor="middle" font-size="9" fill="rgba(255,255,255,0.5)">统一社会信用代码全局唯一 · 一条法律实体一条记录 · 不可重复建档</text>
+
+<!-- 4 branches -->
+<line x1="450" y1="127" x2="180" y2="160" stroke="#2D3BFF" stroke-width="2" fill="none" marker-end="url(#aB)"/>
+<line x1="530" y1="127" x2="530" y2="160" stroke="#7C3AED" stroke-width="2.5" fill="none" marker-end="url(#aP)"/>
+<line x1="640" y1="127" x2="750" y2="160" stroke="#E8850C" stroke-width="2" fill="none" marker-end="url(#aO)"/>
+<line x1="700" y1="127" x2="990" y2="160" stroke="#0D8A5E" stroke-width="2" fill="none" marker-end="url(#aG)"/>
+
+<!-- 1. party_role -->
+<rect x="25" y="165" width="230" height="65" rx="10" fill="#fff" stroke="#2D3BFF" stroke-width="2" filter="url(#f2)"/>
+<text x="140" y="190" text-anchor="middle" font-size="13" font-weight="700" fill="#1A1C20">Party Role · 角色标签</text>
+<text x="140" y="210" text-anchor="middle" font-size="10" fill="#6B7280">签约主体 ｜ 服务主体 ｜ 结算主体</text>
+<text x="140" y="226" text-anchor="middle" font-size="9" fill="#9CA3AF">同一 Party 可多选 · role_effective_date</text>
+
+<!-- 2. chain_relationship (prominent) -->
+<rect x="300" y="165" width="460" height="65" rx="10" fill="#fff" stroke="#7C3AED" stroke-width="2.5" filter="url(#f2)"/>
+<rect x="300" y="165" width="460" height="24" rx="10" fill="#7C3AED"/>
+<rect x="300" y="179" width="460" height="10" fill="#7C3AED"/>
+<text x="530" y="183" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">✦ Chain Relationship · 产业链关系（核心实体）</text>
+<text x="530" y="208" text-anchor="middle" font-size="10" fill="#6B7280">from_party_id → to_party_id ｜ relation_type: supply / manufacturing / distribution / service</text>
+<text x="530" y="224" text-anchor="middle" font-size="9" fill="#9CA3AF">chain_level_from · chain_level_to · effective_date · is_direct · status</text>
+
+<!-- 3. business_profile -->
+<rect x="25" y="255" width="230" height="58" rx="10" fill="#fff" stroke="#E8850C" stroke-width="2" filter="url(#f2)"/>
+<text x="140" y="278" text-anchor="middle" font-size="13" font-weight="700" fill="#1A1C20">Business Profile · 经营档案</text>
+<text x="140" y="296" text-anchor="middle" font-size="10" fill="#6B7280">industry · level · service_products</text>
+<text x="140" y="310" text-anchor="middle" font-size="9" fill="#9CA3AF">chain_level · chain_role（产业链定位）</text>
+
+<line x1="140" y1="230" x2="140" y2="255" stroke="#E8850C" stroke-width="1.5" fill="none" marker-end="url(#aO)"/>
+
+<!-- 4. party_relationship -->
+<rect x="825" y="165" width="240" height="58" rx="10" fill="#fff" stroke="#0D8A5E" stroke-width="2" filter="url(#f2)"/>
+<text x="945" y="188" text-anchor="middle" font-size="13" font-weight="700" fill="#1A1C20">Party Relationship</text>
+<text x="945" y="206" text-anchor="middle" font-size="10" fill="#6B7280">组织关系（自引用层级）</text>
+<text x="945" y="222" text-anchor="middle" font-size="9" fill="#9CA3AF">parent_party_id · 母子公司 · 集团</text>
+
+<!-- shipper → address -->
+<rect x="300" y="255" width="240" height="58" rx="10" fill="#fff" stroke="#0891B2" stroke-width="2" filter="url(#f2)"/>
+<text x="420" y="278" text-anchor="middle" font-size="13" font-weight="700" fill="#1A1C20">Shipper / Consignee 收发货方</text>
+<text x="420" y="296" text-anchor="middle" font-size="10" fill="#6B7280">仅服务主体下 · name · code · type</text>
+<text x="420" y="310" text-anchor="middle" font-size="9" fill="#9CA3AF">关联地址站点</text>
+
+<rect x="570" y="255" width="230" height="58" rx="10" fill="#fff" stroke="#0891B2" stroke-width="2" filter="url(#f2)"/>
+<text x="685" y="278" text-anchor="middle" font-size="13" font-weight="700" fill="#1A1C20">Address Site · 地址站点</text>
+<text x="685" y="296" text-anchor="middle" font-size="10" fill="#6B7280">detail_address · 省市区 · 经纬度</text>
+<text x="685" y="310" text-anchor="middle" font-size="9" fill="#9CA3AF">address_usage · address_contact · version</text>
+
+<line x1="420" y1="230" x2="420" y2="255" stroke="#0891B2" stroke-width="1.5" fill="none" marker-end="url(#aT)"/>
+<path d="M540,230 L685,255" stroke="#0891B2" stroke-width="1.5" fill="none" marker-end="url(#aT)"/>
+
+<!-- contacts -->
+<rect x="825" y="255" width="240" height="58" rx="10" fill="#fff" stroke="#D1D5DB" stroke-width="2" filter="url(#f2)"/>
+<text x="945" y="278" text-anchor="middle" font-size="13" font-weight="700" fill="#1A1C20">Contacts · 联系人</text>
+<text x="945" y="296" text-anchor="middle" font-size="10" fill="#6B7280">按类型：客户 / 商务 / 财务 / 关务 / 现场</text>
+<text x="945" y="310" text-anchor="middle" font-size="9" fill="#9CA3AF">关联 party_id · contact_type</text>
+
+<!-- Future -->
+<rect x="25" y="340" width="230" height="48" rx="8" fill="#F5F5F5" stroke="#D1D5DB" stroke-width="1.5" stroke-dasharray="5 3"/>
+<text x="140" y="362" text-anchor="middle" font-size="11" font-weight="600" fill="#6B7280">合同 · 资质 · 财务结算</text>
+<text x="140" y="380" text-anchor="middle" font-size="9" fill="#9CA3AF">后续建设</text>
+
+<!-- Governance bar bottom -->
+<rect x="25" y="415" width="1040" height="44" rx="10" fill="#E8EBFF" stroke="#2D3BFF" stroke-width="1.5"/>
+<text x="545" y="436" text-anchor="middle" font-size="11" font-weight="700" fill="#2D3BFF">数据治理层</text>
+<text x="545" y="452" text-anchor="middle" font-size="9" fill="#6B7280">code_sequences(编码规则) · address_versions(版本快照) · 字典管理 · 同步状态 · 审计日志 · 数据质量</text>
+</svg>
+</div></div>
+
+<!-- ═══════════ V3 SYSTEM ═══════════ -->
+<div id="dV3-system" class="d">
+<div class="card">
+<div class="ct"><span class="badge bv3">V3</span> 系统架构 — 务实主数据平台，客商管理为核心，产业链独立但低调</div>
+<svg viewBox="0 0 1240 580" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<filter id="f3"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.06"/></filter>
+<marker id="bB" refX="9" refY="4" markerWidth="10" markerHeight="8" orient="auto"><path d="M0,0 L10,4 L0,8 L2,4 Z" fill="#2D3BFF"/></marker>
+<marker id="bG" refX="9" refY="4" markerWidth="10" markerHeight="8" orient="auto"><path d="M0,0 L10,4 L0,8 L2,4 Z" fill="#0D8A5E"/></marker>
+</defs>
+
+<text x="620" y="20" text-anchor="middle" font-size="13" font-weight="700">CIM 客户主数据平台 · 8 个一级菜单 · 客商管理为核心入口</text>
+
+<!-- === Menu === -->
+<rect x="15" y="40" width="175" height="525" rx="12" fill="#1A1C1E"/>
+<text x="102" y="68" text-anchor="middle" font-size="14" font-weight="700" fill="#fff">菜单（8项）</text>
+<line x1="35" y1="78" x2="170" y2="78" stroke="#333"/>
+
+<text x="35" y="104" font-size="11" fill="#9CA3AF">工作台</text>
+
+<rect x="30" y="116" width="145" height="58" rx="6" fill="#1E2340" stroke="#2D3BFF" stroke-width="1.5"/>
+<text x="102" y="136" text-anchor="middle" font-size="11" fill="#fff" font-weight="700">客商管理</text>
+<text x="102" y="154" text-anchor="middle" font-size="9" fill="#6B7280">含组织架构 · 联系人 · 产业链定位</text>
+
+<text x="35" y="200" font-size="11" fill="#fff" font-weight="600">主体管理</text>
+<text x="48" y="218" font-size="9" fill="#0D8A5E">⇄ 双向关联客商</text>
+
+<text x="35" y="248" font-size="11" fill="#fff" font-weight="600">地址主数据</text>
+<text x="48" y="266" font-size="9" fill="#9CA3AF">全局地址视图</text>
+
+<text x="35" y="294" font-size="11" fill="#fff" font-weight="600">产业链主数据</text>
+<text x="48" y="312" font-size="9" fill="#9CA3AF">供应链关系表</text>
+
+<text x="35" y="342" font-size="11" fill="#fff" font-weight="600">业务管理</text>
+<text x="48" y="360" font-size="9" fill="#9CA3AF">跟进 · 商机 · 报价 · 审批</text>
+
+<text x="35" y="390" font-size="11" fill="#fff" font-weight="600">结算管理</text>
+<text x="35" y="422" font-size="11" fill="#fff" font-weight="600">数据治理</text>
+<text x="35" y="454" font-size="11" fill="#fff" font-weight="600">系统管理</text>
+
+<!-- === CENTER: 客商管理 Detail Page === -->
+<rect x="220" y="40" width="490" height="210" rx="12" fill="#fff" stroke="#2D3BFF" stroke-width="2.5" filter="url(#f3)"/>
+<rect x="220" y="40" width="490" height="34" rx="12" fill="#2D3BFF"/>
+<rect x="220" y="58" width="490" height="16" fill="#2D3BFF"/>
+<text x="465" y="63" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">客商管理 — 详情页（原"客户管理"改名升级）</text>
+
+<!-- Tabs -->
+<text x="240" y="98" font-size="10" font-weight="700" fill="#2D3BFF">基本信息</text>
+<text x="320" y="98" font-size="10" fill="#9CA3AF">业务档案</text>
+<text x="400" y="98" font-size="10" fill="#9CA3AF">产业链定位</text>
+<text x="488" y="98" font-size="10" fill="#9CA3AF">组织架构</text>
+<text x="568" y="98" font-size="10" fill="#9CA3AF">关联主体</text>
+<text x="645" y="98" font-size="10" fill="#9CA3AF">联系人</text>
+<line x1="240" y1="106" x2="240" y2="112" stroke="#2D3BFF" stroke-width="2"/>
+
+<!-- Content area -->
+<rect x="240" y="118" width="215" height="118" rx="8" fill="#FAFAFA" stroke="#EBEBEB"/>
+<text x="347" y="142" text-anchor="middle" font-size="11" font-weight="600" fill="#1A1C20">客商基础信息</text>
+<text x="347" y="162" text-anchor="middle" font-size="9" fill="#6B7280">name · customer_code · uscc</text>
+<text x="347" y="180" text-anchor="middle" font-size="9" fill="#6B7280">level · industry · service_products</text>
+<text x="347" y="198" text-anchor="middle" font-size="9" fill="#6B7280">★ chain_level · chain_role</text>
+<text x="347" y="216" text-anchor="middle" font-size="9" fill="#6B7280">responsible_persons · progress_status</text>
+<text x="347" y="232" text-anchor="middle" font-size="8" fill="#9CA3AF">面向业务关系 · 为供应商角色预留</text>
+
+<rect x="470" y="118" width="220" height="118" rx="8" fill="#FAFAFA" stroke="#EBEBEB"/>
+<text x="580" y="142" text-anchor="middle" font-size="11" font-weight="600" fill="#1A1C20">组织架构 & 联系人（Tab 内）</text>
+<text x="580" y="162" text-anchor="middle" font-size="9" fill="#6B7280">org_structure 树：集团→子公司→部门</text>
+<text x="580" y="180" text-anchor="middle" font-size="9" fill="#6B7280">contacts：按 contact_type 分类</text>
+<text x="580" y="198" text-anchor="middle" font-size="9" fill="#6B7280">关联主体 Tab → ⇄ 跳转至主体管理</text>
+<text x="580" y="216" text-anchor="middle" font-size="9" fill="#6B7280">地址 Tab → 关联收发货方+地址站点</text>
+<text x="580" y="232" text-anchor="middle" font-size="8" fill="#9CA3AF">不独立设菜单 · 详情页内管理</text>
+
+<!-- === 主体管理 === -->
+<rect x="740" y="40" width="235" height="210" rx="10" fill="#fff" stroke="#0D8A5E" stroke-width="2.5" filter="url(#f3)"/>
+<rect x="740" y="40" width="235" height="32" rx="10" fill="#0D8A5E"/>
+<rect x="740" y="58" width="235" height="14" fill="#0D8A5E"/>
+<text x="857" y="62" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">主体管理</text>
+<text x="857" y="100" text-anchor="middle" font-size="10" fill="#6B7280">签约主体 · 服务主体 · 结算主体</text>
+<text x="857" y="118" text-anchor="middle" font-size="10" fill="#6B7280">entity_types: [signing/service/settlement]</text>
+<line x1="760" y1="130" x2="955" y2="130" stroke="#E5E7EB"/>
+<text x="857" y="148" text-anchor="middle" font-size="9" fill="#6B7280">服务主体 → 下挂收发货方 + 地址</text>
+<text x="857" y="166" text-anchor="middle" font-size="9" fill="#6B7280">详情页 [关联客商] Tab → 跳转</text>
+<text x="857" y="184" text-anchor="middle" font-size="9" fill="#6B7280">⇄ 通过 USCC 与客商双向关联</text>
+<text x="857" y="210" text-anchor="middle" font-size="9" fill="#9CA3AF">法律实体视角 · 保持不变</text>
+
+<!-- Bidirectional arrow -->
+<path d="M710,145 L740,145" stroke="#2D3BFF" stroke-width="2" fill="none" marker-end="url(#bB)"/>
+<path d="M740,130 L710,130" stroke="#0D8A5E" stroke-width="2" fill="none" marker-end="url(#bG)"/>
+<text x="725" y="121" text-anchor="middle" font-size="7" fill="#2D3BFF" font-weight="600">⇄</text>
+<text x="725" y="158" text-anchor="middle" font-size="7" fill="#0D8A5E" font-weight="600">USCC</text>
+
+<!-- === Second Row: 3 independent menus === -->
+<!-- 地址主数据 -->
+<rect x="220" y="272" width="240" height="130" rx="10" fill="#fff" stroke="#E8850C" stroke-width="2.5" filter="url(#f3)"/>
+<rect x="220" y="272" width="240" height="32" rx="10" fill="#E8850C"/>
+<rect x="220" y="290" width="240" height="14" fill="#E8850C"/>
+<text x="340" y="294" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">地址主数据</text>
+<text x="340" y="326" text-anchor="middle" font-size="10" fill="#6B7280">收发货方 → 地址站点</text>
+<text x="340" y="344" text-anchor="middle" font-size="10" fill="#6B7280">地址用途 · 联系人 · 版本历史</text>
+<text x="340" y="362" text-anchor="middle" font-size="10" fill="#6B7280">★ 全局地址列表（跨客商/主体）</text>
+<text x="340" y="386" text-anchor="middle" font-size="9" fill="#9CA3AF">从服务主体深处独立 · 地址解析</text>
+
+<!-- 产业链主数据 -->
+<rect x="485" y="272" width="240" height="130" rx="10" fill="#fff" stroke="#7C3AED" stroke-width="2.5" filter="url(#f3)"/>
+<rect x="485" y="272" width="240" height="32" rx="10" fill="#7C3AED"/>
+<rect x="485" y="290" width="240" height="14" fill="#7C3AED"/>
+<text x="605" y="294" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">产业链主数据</text>
+<text x="605" y="326" text-anchor="middle" font-size="10" fill="#6B7280">from → to：供需/代工/经销</text>
+<text x="605" y="344" text-anchor="middle" font-size="10" fill="#6B7280">chain_relationship 结构化表</text>
+<text x="605" y="362" text-anchor="middle" font-size="10" fill="#6B7280">和地址一样 · 普通列表页</text>
+<text x="605" y="386" text-anchor="middle" font-size="9" fill="#9CA3AF">数据结构先行 · 以后可升级图谱</text>
+
+<!-- 数据治理 -->
+<rect x="750" y="272" width="225" height="130" rx="10" fill="#E8EBFF" stroke="#2D3BFF" stroke-width="1.5" filter="url(#f3)"/>
+<text x="862" y="302" text-anchor="middle" font-size="13" font-weight="700" fill="#2D3BFF">数据治理</text>
+<text x="862" y="326" text-anchor="middle" font-size="10" fill="#6B7280">编码规则 · 字典管理</text>
+<text x="862" y="344" text-anchor="middle" font-size="10" fill="#6B7280">版本追溯 · 同步监控</text>
+<text x="862" y="362" text-anchor="middle" font-size="10" fill="#6B7280">审计日志 · 数据质量</text>
+<text x="862" y="386" text-anchor="middle" font-size="9" fill="#9CA3AF">贯穿所有主数据域</text>
+
+<!-- === Third Row: Business Systems === -->
+<text x="230" y="430" font-size="10" font-weight="600" fill="#6B7280">下游业务系统（主数据消费者）</text>
+
+<rect x="220" y="442" width="175" height="52" rx="10" fill="#fff" stroke="#2D3BFF" stroke-width="2" filter="url(#f3)"/>
+<text x="307" y="464" text-anchor="middle" font-size="12" font-weight="700">COS 订单系统</text>
+<text x="307" y="484" text-anchor="middle" font-size="9" fill="#6B7280">下单时引用 CIM 地址</text>
+
+<rect x="410" y="442" width="175" height="52" rx="10" fill="#fff" stroke="#7C3AED" stroke-width="2" filter="url(#f3)"/>
+<text x="497" y="464" text-anchor="middle" font-size="12" font-weight="700">CPQ 报价结算</text>
+<text x="497" y="484" text-anchor="middle" font-size="9" fill="#6B7280">引用客户 · 主体</text>
+
+<rect x="600" y="442" width="175" height="52" rx="10" fill="#fff" stroke="#E8850C" stroke-width="2" filter="url(#f3)"/>
+<text x="687" y="464" text-anchor="middle" font-size="12" font-weight="700">TMS 运输</text>
+<text x="687" y="484" text-anchor="middle" font-size="9" fill="#6B7280">地址定位 · 联系人</text>
+
+<rect x="790" y="442" width="175" height="52" rx="10" fill="#fff" stroke="#0D8A5E" stroke-width="2" filter="url(#f3)"/>
+<text x="877" y="464" text-anchor="middle" font-size="12" font-weight="700">WMS 仓储</text>
+<text x="877" y="484" text-anchor="middle" font-size="9" fill="#6B7280">作业地址 · 预约</text>
+
+<rect x="980" y="442" width="160" height="52" rx="10" fill="#fff" stroke="#0891B2" stroke-width="2" filter="url(#f3)"/>
+<text x="1060" y="464" text-anchor="middle" font-size="12" font-weight="700">DMS 关务</text>
+<text x="1060" y="484" text-anchor="middle" font-size="9" fill="#6B7280">监管区 · 关务属性</text>
+
+<!-- Sync arrows -->
+<path d="M340,402 L340,442" stroke="#E8850C" stroke-width="2" fill="none" marker-end="url(#bB)"/>
+<path d="M605,402 L605,442" stroke="#7C3AED" stroke-width="2" fill="none" marker-end="url(#bB)"/>
+
+<text x="320" y="436" font-size="7" fill="#2D3BFF" font-weight="600">按需同步主数据</text>
+
+<text x="620" y="530" font-size="10" fill="#6B7280">核心原则：CIM 为唯一源头 → 各业务系统按需消费 → 不下游反向修改 CIM 主数据</text>
+</svg>
+</div></div>
+
+<!-- ═══════════ V3 DATA ═══════════ -->
+<div id="dV3-data" class="d">
+<div class="card">
+<div class="ct"><span class="badge bv3">V3</span> 数据架构 — 客商 ⇄ 主体双向关联，产业链关系独立表，组织架构+联系人归属客商</div>
+<svg viewBox="0 0 1200 560" xmlns="http://www.w3.org/2000/svg">
+<defs><filter id="f4"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.06"/></filter></defs>
+
+<text x="600" y="22" text-anchor="middle" font-size="14" font-weight="700">两个视角管理同一批法律实体 · USCC 自动关联 · 产业链关系独立存储</text>
+
+<!-- === TOP: Customer ⇄ Entity === -->
+<rect x="30" y="48" width="400" height="105" rx="12" fill="#fff" stroke="#2D3BFF" stroke-width="2.5" filter="url(#f4)"/>
+<rect x="30" y="48" width="400" height="34" rx="12" fill="#2D3BFF"/>
+<rect x="30" y="68" width="400" height="14" fill="#2D3BFF"/>
+<text x="230" y="71" text-anchor="middle" font-size="14" font-weight="700" fill="#fff">客商档案 Customer（业务关系视角）</text>
+<text x="230" y="98" text-anchor="middle" font-size="10" fill="#6B7280">id · name · customer_code · uscc · status</text>
+<text x="230" y="114" text-anchor="middle" font-size="10" fill="#6B7280">level · industry · service_products · chain_level · chain_role</text>
+<text x="230" y="130" text-anchor="middle" font-size="10" fill="#6B7280">signing / service / settlement_entity_ids（关联主体ID）</text>
+<text x="230" y="148" text-anchor="middle" font-size="9" fill="#9CA3AF">原"客户管理"改名"客商管理" · 为供应商角色预留</text>
+
+<rect x="490" y="48" width="400" height="105" rx="12" fill="#fff" stroke="#0D8A5E" stroke-width="2.5" filter="url(#f4)"/>
+<rect x="490" y="48" width="400" height="34" rx="12" fill="#0D8A5E"/>
+<rect x="490" y="68" width="400" height="14" fill="#0D8A5E"/>
+<text x="690" y="71" text-anchor="middle" font-size="14" font-weight="700" fill="#fff">主体档案 Entity（法律实体视角）</text>
+<text x="690" y="98" text-anchor="middle" font-size="10" fill="#6B7280">id · name · code · uscc（与客商共用）· entity_types[]</text>
+<text x="690" y="114" text-anchor="middle" font-size="10" fill="#6B7280">legal_representative · tax_id · establishment_date</text>
+<text x="690" y="130" text-anchor="middle" font-size="10" fill="#6B7280">签约主体 / 服务主体 / 结算主体（多选标签）</text>
+<text x="690" y="148" text-anchor="middle" font-size="9" fill="#9CA3AF">服务主体 → 下挂收发货方 + 地址站点</text>
+
+<!-- Bidirectional arrows -->
+<path d="M430,88 L490,88" stroke="#2D3BFF" stroke-width="2.5" fill="none" marker-end="url(#bB)"/>
+<path d="M490,103 L430,103" stroke="#0D8A5E" stroke-width="2.5" fill="none" marker-end="url(#bG)"/>
+<text x="460" y="80" text-anchor="middle" font-size="8" fill="#2D3BFF" font-weight="600">客商→查看关联主体</text>
+<text x="460" y="118" text-anchor="middle" font-size="8" fill="#0D8A5E" font-weight="600">主体→查看关联客商</text>
+<text x="460" y="133" text-anchor="middle" font-size="7" fill="#9CA3AF">USCC 自动关联</text>
+
+<!-- === SECOND ROW: 4 entities below === -->
+<!-- 1. org_structure (under customer) -->
+<rect x="30" y="185" width="250" height="72" rx="10" fill="#fff" stroke="#D63031" stroke-width="2" filter="url(#f4)"/>
+<text x="155" y="210" text-anchor="middle" font-size="12" font-weight="700" fill="#1A1C20">组织架构 Org Structure</text>
+<text x="155" y="230" text-anchor="middle" font-size="9" fill="#6B7280">customer_id · parent_id（自引用）</text>
+<text x="155" y="248" text-anchor="middle" font-size="9" fill="#6B7280">org_name · org_type · level</text>
+<text x="155" y="256" text-anchor="middle" font-size="8" fill="#9CA3AF">客商详情页 Tab 内管理</text>
+
+<line x1="155" y1="153" x2="155" y2="185" stroke="#D63031" stroke-width="1.5" fill="none" marker-end="url(#bB)"/>
+
+<!-- 2. contacts (under customer) -->
+<rect x="310" y="185" width="250" height="72" rx="10" fill="#fff" stroke="#0891B2" stroke-width="2" filter="url(#f4)"/>
+<text x="435" y="210" text-anchor="middle" font-size="12" font-weight="700" fill="#1A1C20">联系人 Contacts</text>
+<text x="435" y="230" text-anchor="middle" font-size="9" fill="#6B7280">customer_id · entity_id · contact_type</text>
+<text x="435" y="248" text-anchor="middle" font-size="9" fill="#6B7280">客户 / 商务 / 财务 / 关务 / 现场</text>
+<text x="435" y="256" text-anchor="middle" font-size="8" fill="#9CA3AF">客商详情页 Tab 内管理</text>
+
+<line x1="435" y1="153" x2="435" y2="185" stroke="#0891B2" stroke-width="1.5" fill="none" marker-end="url(#bB)"/>
+
+<!-- 3. chain_relationship (independent) -->
+<rect x="590" y="185" width="300" height="72" rx="10" fill="#fff" stroke="#7C3AED" stroke-width="2.5" filter="url(#f4)"/>
+<rect x="590" y="185" width="300" height="24" rx="10" fill="#7C3AED"/>
+<rect x="590" y="199" width="300" height="10" fill="#7C3AED"/>
+<text x="740" y="203" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">产业链关系 Chain Relationship（独立菜单）</text>
+<text x="740" y="230" text-anchor="middle" font-size="9" fill="#6B7280">from_customer_id → to_customer_id</text>
+<text x="740" y="248" text-anchor="middle" font-size="9" fill="#6B7280">relation_type · chain_level_from/to · effective_date</text>
+<text x="740" y="256" text-anchor="middle" font-size="8" fill="#9CA3AF">独立一级菜单 · 普通列表页 · 和地址一样</text>
+
+<line x1="740" y1="153" x2="740" y2="185" stroke="#7C3AED" stroke-width="1.5" fill="none" marker-end="url(#bB)"/>
+
+<!-- 4. shipper + address (under entity) -->
+<rect x="920" y="185" width="250" height="72" rx="10" fill="#fff" stroke="#E8850C" stroke-width="2" filter="url(#f4)"/>
+<text x="1045" y="210" text-anchor="middle" font-size="12" font-weight="700" fill="#1A1C20">收发货方 + 地址站点</text>
+<text x="1045" y="230" text-anchor="middle" font-size="9" fill="#6B7280">shipper_consignee → address_site</text>
+<text x="1045" y="248" text-anchor="middle" font-size="9" fill="#6B7280">服务主体下 · 私域地址库 · 全局视图</text>
+<text x="1045" y="256" text-anchor="middle" font-size="8" fill="#9CA3AF">已实现 + 独立一级菜单</text>
+
+<line x1="690" y1="153" x2="1045" y2="185" stroke="#E8850C" stroke-width="1.5" fill="none" marker-end="url(#bB)"/>
+
+<!-- === THIRD ROW: address detail === -->
+<rect x="920" y="285" width="120" height="50" rx="8" fill="#FAFAFA" stroke="#E5E7EB" stroke-width="1"/>
+<text x="980" y="308" text-anchor="middle" font-size="10" font-weight="600" fill="#6B7280">Address Usage</text>
+<text x="980" y="324" text-anchor="middle" font-size="8" fill="#9CA3AF">收货/发货/提货/...</text>
+
+<rect x="1050" y="285" width="120" height="50" rx="8" fill="#FAFAFA" stroke="#E5E7EB" stroke-width="1"/>
+<text x="1110" y="308" text-anchor="middle" font-size="10" font-weight="600" fill="#6B7280">Contact+Version</text>
+<text x="1110" y="324" text-anchor="middle" font-size="8" fill="#9CA3AF">地址级联系人·版本</text>
+
+<line x1="980" y1="257" x2="980" y2="285" stroke="#E5E7EB" stroke-width="1" fill="none"/>
+<line x1="1110" y1="257" x2="1110" y2="285" stroke="#E5E7EB" stroke-width="1" fill="none"/>
+
+<!-- === Future domains === -->
+<rect x="30" y="285" width="250" height="50" rx="8" fill="#F5F5F5" stroke="#D1D5DB" stroke-width="1.5" stroke-dasharray="5 3"/>
+<text x="155" y="308" text-anchor="middle" font-size="11" font-weight="600" fill="#6B7280">合同与资质</text>
+<text x="155" y="324" text-anchor="middle" font-size="9" fill="#9CA3AF">后续建设</text>
+
+<rect x="310" y="285" width="250" height="50" rx="8" fill="#F5F5F5" stroke="#D1D5DB" stroke-width="1.5" stroke-dasharray="5 3"/>
+<text x="435" y="308" text-anchor="middle" font-size="11" font-weight="600" fill="#6B7280">财务与结算</text>
+<text x="435" y="324" text-anchor="middle" font-size="9" fill="#9CA3AF">后续建设</text>
+
+<rect x="590" y="285" width="300" height="50" rx="8" fill="#F5F5F5" stroke="#D1D5DB" stroke-width="1.5" stroke-dasharray="5 3"/>
+<text x="740" y="308" text-anchor="middle" font-size="11" font-weight="600" fill="#6B7280">地址作业属性扩展（运输/仓储/关务/半导体要求）</text>
+<text x="740" y="324" text-anchor="middle" font-size="9" fill="#9CA3AF">后续建设</text>
+
+<!-- Governance bar -->
+<rect x="30" y="365" width="1140" height="48" rx="10" fill="#E8EBFF" stroke="#2D3BFF" stroke-width="1.5"/>
+<text x="600" y="386" text-anchor="middle" font-size="12" font-weight="700" fill="#2D3BFF">数据治理层 — 编码规则(code_sequences) · 版本追溯(address_versions) · 字典 · 同步 · 审计 · 质量</text>
+<text x="600" y="404" text-anchor="middle" font-size="9" fill="#6B7280">所有主数据表：created_at / updated_at · 地址修改自动 version++ + change_summary · 编码跨日重置 · USCC 去重</text>
+</svg>
+</div></div>
+
+</div>
+
+<script>
+let cv='V1',cw='system';
+function show(){document.querySelectorAll('.d').forEach(e=>e.classList.remove('on'));const el=document.getElementById('d'+cv+'-'+cw);if(el)el.classList.add('on')}
+function sv(v){cv=v;document.getElementById('tv1').classList.toggle('on',v==='V1');document.getElementById('tv3').classList.toggle('on',v==='V3');show()}
+function sw(w){cw=w;document.getElementById('vsys').classList.toggle('on',w==='system');document.getElementById('vdata').classList.toggle('on',w==='data');show()}
+</script>
+</body>
+</html>

@@ -273,6 +273,107 @@ export const followupReminderConfig = sqliteTable('followup_reminder_config', {
   updatedAt: text('updated_at'),
 });
 
+// ==================== 地址主数据升级 ====================
+
+// 服务主体表
+export const serviceEntities = sqliteTable('service_entities', {
+  id: text('id').primaryKey(),
+  name: text('name').notNull(),
+  code: text('code'),
+  unifiedSocialCreditCode: text('unified_social_credit_code'),
+  legalRepresentative: text('legal_representative'),
+  status: text('status').default('active'),
+  establishmentDate: text('establishment_date'),
+  taxId: text('tax_id'),
+  address: text('address'),
+  contactPerson: text('contact_person'),
+  phone: text('phone'),
+  email: text('email'),
+  remark: text('remark'),
+  createdAt: text('created_at'),
+  updatedAt: text('updated_at'),
+});
+
+// 收发货方表
+export const shipperConsignees = sqliteTable('shipper_consignees', {
+  id: text('id').primaryKey(),
+  serviceEntityId: text('service_entity_id').notNull(),
+  name: text('name').notNull(),
+  code: text('code'),
+  type: text('type').notNull().default('both'),
+  unifiedSocialCreditCode: text('unified_social_credit_code'),
+  contactPerson: text('contact_person'),
+  phone: text('phone'),
+  email: text('email'),
+  status: text('status').default('active'),
+  remark: text('remark'),
+  createdAt: text('created_at'),
+  updatedAt: text('updated_at'),
+});
+
+// 地址站点表
+export const addressSites = sqliteTable('address_sites', {
+  id: text('id').primaryKey(),
+  shipperConsigneeId: text('shipper_consignee_id').notNull(),
+  serviceEntityId: text('service_entity_id').notNull(),
+  code: text('code'),
+  name: text('name'),
+  province: text('province'),
+  city: text('city'),
+  district: text('district'),
+  detailAddress: text('detail_address').notNull(),
+  doorplate: text('doorplate'),
+  postalCode: text('postal_code'),
+  longitude: real('longitude'),
+  latitude: real('latitude'),
+  geoAccuracy: text('geo_accuracy').default('unresolved'),
+  specialCustomsZone: integer('special_customs_zone', { mode: 'boolean' }).default(false),
+  specialRequirements: text('special_requirements'),
+  status: text('status').default('active'),
+  version: integer('version').default(1),
+  createdAt: text('created_at'),
+  updatedAt: text('updated_at'),
+});
+
+// 地址用途标签表
+export const addressUsages = sqliteTable('address_usages', {
+  id: text('id').primaryKey(),
+  addressSiteId: text('address_site_id').notNull(),
+  usageType: text('usage_type').notNull(),
+  createdAt: text('created_at'),
+});
+
+// 地址联系人表
+export const addressContacts = sqliteTable('address_contacts', {
+  id: text('id').primaryKey(),
+  addressSiteId: text('address_site_id').notNull(),
+  name: text('name').notNull(),
+  phone: text('phone'),
+  email: text('email'),
+  isPrimary: integer('is_primary', { mode: 'boolean' }).default(false),
+  remark: text('remark'),
+  createdAt: text('created_at'),
+  updatedAt: text('updated_at'),
+});
+
+// 地址版本历史表
+export const addressVersions = sqliteTable('address_versions', {
+  id: text('id').primaryKey(),
+  addressSiteId: text('address_site_id').notNull(),
+  version: integer('version').notNull(),
+  snapshot: text('snapshot').notNull(), // JSON: 完整地址站点快照
+  changedBy: text('changed_by'),
+  changedAt: text('changed_at'),
+  changeSummary: text('change_summary'),
+});
+
+// 编码序列号表
+export const codeSequences = sqliteTable('code_sequences', {
+  id: text('id').primaryKey(), // 'SVC' | 'SHC' | 'ADS'
+  currentSeq: integer('current_seq').default(0),
+  updatedAt: text('updated_at'),
+});
+
 // 联系人
 export const contacts = sqliteTable('contacts', {
   id: text('id').primaryKey(),

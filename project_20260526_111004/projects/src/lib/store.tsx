@@ -256,6 +256,7 @@ type Action =
   | { type: 'RESET_AUTO_APPROVAL_RULES' }
   | { type: 'RESET_APPROVAL_FIELDS' }
   | { type: 'RESET_CONTACTS' }
+  | { type: 'RESET_SERVICE_ENTITIES' }
   | { type: 'ADD_CONTACT'; payload: Contact }
   | { type: 'ADD_FOLLOWUP'; payload: Omit<FollowUpRecord, 'id' | 'createdAt'> }
   | { type: 'UPDATE_FOLLOWUP'; payload: { id: string; updates: Partial<FollowUpRecord> } }
@@ -606,6 +607,8 @@ function reducer(state: AppState, action: Action): AppState {
       return { ...state, autoApprovalRules: [] };
     case 'RESET_APPROVAL_FIELDS':
       return { ...state, approvalFields: [] };
+    case 'RESET_SERVICE_ENTITIES':
+      return { ...state, serviceEntities: [] };
     case 'RESET_CONTACTS':
       return { ...state, contacts: [] };
     case 'ADD_CONTACT':
@@ -809,6 +812,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         { url: '/api/auto-approval-rules', resetType: 'RESET_AUTO_APPROVAL_RULES', addType: 'ADD_AUTO_APPROVAL_RULE' },
         { url: '/api/approval-fields', resetType: 'RESET_APPROVAL_FIELDS', addType: 'ADD_APPROVAL_FIELD' },
         { url: '/api/contacts', resetType: 'RESET_CONTACTS', addType: 'ADD_CONTACT' },
+        { url: '/api/service-entities', resetType: 'RESET_SERVICE_ENTITIES', addType: 'ADD_SERVICE_ENTITY' },
       ];
       for (const api of apis) {
         try {
@@ -977,14 +981,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
   // 服务主体管理
   const addServiceEntity = useCallback((entity: Omit<ServiceEntity, 'id' | 'createdAt'>) => {
     dispatch({ type: 'ADD_SERVICE_ENTITY', payload: entity });
+    fetch('/api/service-entities', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(entity) }).catch(() => {});
   }, []);
 
   const updateServiceEntity = useCallback((id: string, updates: Partial<ServiceEntity>) => {
     dispatch({ type: 'UPDATE_SERVICE_ENTITY', payload: { id, updates } });
+    fetch('/api/service-entities', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, ...updates }) }).catch(() => {});
   }, []);
 
   const deleteServiceEntity = useCallback((id: string) => {
     dispatch({ type: 'DELETE_SERVICE_ENTITY', payload: id });
+    fetch(`/api/service-entities?id=${encodeURIComponent(id)}`, { method: 'DELETE' }).catch(() => {});
   }, []);
 
   // 结算主体管理

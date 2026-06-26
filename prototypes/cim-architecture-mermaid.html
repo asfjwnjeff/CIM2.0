@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>CIM2.0 架构设计图</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<style>
+:root{--bg:#F7F8FA;--card:#fff;--t:#1A1C20;--s:#6B7280;--b:#E5E7EB;--bl:#2D3BFF;--bll:#E8EBFF;--g:#0D8A5E;--gl:#E6F7F0;--o:#E8850C;--ol:#FFF4E8;--p:#7C3AED;--pl:#F3E8FF;--r:#D63031;--te:#0891B2}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--t)}
+.bar{background:#fff;border-bottom:1px solid var(--b);padding:14px 36px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.bar h1{font-size:18px;font-weight:700}.bar .sub{font-size:12px;color:var(--s);margin-left:10px}
+.tabs{display:flex;gap:6px}.tabs button{padding:7px 18px;border-radius:8px;border:1px solid var(--b);background:#fff;cursor:pointer;font-size:13px;font-weight:500;transition:.15s}
+.tabs button.on{background:var(--bl);color:#fff;border-color:var(--bl)}
+.vtabs{display:flex;gap:0;margin:14px 36px 0}
+.vtabs button{padding:6px 20px;border-radius:8px 8px 0 0;border:none;background:transparent;cursor:pointer;font-size:12px;color:var(--s);font-weight:500}
+.vtabs button.on{color:var(--bl);border-bottom:2px solid var(--bl);font-weight:700}
+.wrap{padding:20px 36px}.d{display:none}.d.on{display:block}
+.card{background:var(--card);border-radius:14px;border:1px solid var(--b);padding:24px 28px;margin-bottom:16px}
+.ct{font-size:16px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.badge{font-size:10px;padding:2px 8px;border-radius:4px;font-weight:700}
+.bv1{background:var(--pl);color:var(--p)}.bv3{background:var(--gl);color:var(--g)}
+.layout{display:flex;gap:20px}.diagram{flex:1;min-width:0;overflow-x:auto}
+.notes{width:260px;flex-shrink:0;display:flex;flex-direction:column;gap:10px;font-size:12px}
+.note-block{background:#FAFAFA;border-radius:10px;padding:12px;border:1px solid var(--b)}
+.note-block h4{font-size:12px;font-weight:700;margin-bottom:4px}
+.note-block p,.note-block ul{margin:0;font-size:11px;color:var(--s);line-height:1.6}
+.note-block ul{padding-left:16px}
+.tag{display:inline-block;font-size:9px;padding:1px 6px;border-radius:3px;margin-right:4px;font-weight:600}
+.tag-bl{background:var(--bll);color:var(--bl)}.tag-g{background:var(--gl);color:var(--g)}
+.tag-o{background:var(--ol);color:var(--o)}.tag-p{background:var(--pl);color:var(--p)}
+.tag-te{background:#E6F5F9;color:var(--te)}.tag-r{background:#FFEBEE;color:var(--r)}
+.mermaid{display:flex;justify-content:center;background:#fff}
+</style></head><body>
+<div class="bar">
+<div><h1>CIM 2.0 客户主数据平台<span class="sub">架构设计图 · 2026-06-24</span></h1></div>
+<div class="tabs">
+<button id="tv1" class="on" onclick="sv('V1')">V1 · 产业链平台视角</button>
+<button id="tv3" onclick="sv('V3')">V3 · 务实主数据平台（推荐）</button>
+</div></div>
+<div class="vtabs">
+<button id="vsys" class="on" onclick="sw('sys')">系统架构图</button>
+<button id="vdata" onclick="sw('data')">数据架构图</button>
+</div>
+<div class="wrap">
+
+<!-- ====== V1 SYS ====== -->
+<div id="dV1-sys" class="d on"><div class="card">
+<div class="ct"><span class="badge bv1">V1</span> 系统架构 — CIM 作为产业链主数据中心，统一治理后分发各业务系统</div>
+<div class="layout"><div class="diagram"><pre class="mermaid">
+graph TB
+    subgraph LEFT[" 菜 单 结 构 "]
+        M0["工作台 仪表盘 待办"]
+        M1["产业链全景 独立菜单"]
+        M1a["产业链可视化视图<br/>展示上游 中游 下游关系"]
+        M1b["链条分析<br/>覆盖度 集中度 风险传导"]
+        M2["主数据管理"]
+        M2a["参与方档案<br/>法律实体统一入口<br/>一条记录 角色多标签"]
+        M2b["产业链关系 独立菜单<br/>谁供应谁 谁代工谁<br/>供应 代工 经销 服务"]
+        M2c["地址主数据 独立菜单<br/>收发货方 地址站点 用途"]
+        M3["业务管理 跟进 商机 报价 审批"]
+        M4["结算管理 规则 拆分字段"]
+        M5["数据治理 编码 字典 同步"]
+        M6["系统管理 用户 权限 审计"]
+        M1 --> M1a
+        M1 --> M1b
+        M2 --> M2a
+        M2 --> M2b
+        M2 --> M2c
+    end
+    subgraph CENTER[" C I M  客 户 主 数 据 中 心 "]
+        H1["参与方档案 统一主表<br/>统一社会信用代码全局唯一<br/>一条法律实体一条记录<br/>签约主体 服务主体 结算主体 可多选"]
+        H2["产业链关系 核心实体<br/>来源参与方 去往 目标参与方<br/>关系类型 供应 代工 经销 服务<br/>来源层级 目标层级 上游 中游 下游<br/>独立表 支持双向查询 and 递归追溯"]
+        H3["收发货方 to 地址站点 to 地址用途<br/>省市区 经纬度 门牌号 邮编<br/>收货 发货 提货 送货 退货 报关 仓储<br/>仅服务主体下挂 私域地址库"]
+        H4["联系人 按类型分类<br/>组织架构 自引用树 集团 子公司<br/>合同资质 财务结算 后续建设"]
+        H5["治理层<br/>编码规则 跨日重置<br/>版本快照 变更摘要<br/>字典管理 同步状态 审计日志"]
+        H1 --> H2
+        H1 --> H3
+        H3 --> H4
+    end
+    subgraph RIGHT[" 下 游 业 务 系 统 "]
+        COS["COS 中央订单系统<br/>下单引用已生效地址<br/>保留订单地址快照"]
+        CPQ["CPQ 报价计费结算<br/>引用客户 签约主体<br/>开票信息 银行账户"]
+        TMS["TMS 运输系统<br/>地址定位 联系人<br/>装卸要求 车辆限制"]
+        WMS["WMS 仓储系统<br/>作业地址 预约要求<br/>仓储联系人"]
+        DMS["DMS 关务系统<br/>监管区域 关务属性<br/>境内外主体 报关资料"]
+        DT["数据中台<br/>分析报表 客户画像<br/>不参与业务主链路"]
+    end
+    CENTER -->|地址数据同步| COS
+    CENTER -->|客户主体同步| CPQ
+    CENTER -->|定位 运输要求| TMS
+    CENTER -->|仓储地址 预约要求| WMS
+    CENTER -->|监管区域 关务属性| DMS
+    CENTER -.->|可选订阅| DT
+    style H2 fill:#7C3AED,color:#fff,stroke:#7C3AED,stroke-width:3px
+    style H1 fill:#2D3BFF,color:#fff,stroke:#2D3BFF
+    style H3 fill:#4F5EF7,color:#fff,stroke:#2D3BFF
+    style H4 fill:#6F7CF7,color:#fff,stroke:#2D3BFF
+    style H5 fill:#E8EBFF,stroke:#2D3BFF,stroke-dasharray:5
+    style COS fill:#fff,stroke:#2D3BFF,stroke-width:2px
+    style CPQ fill:#fff,stroke:#7C3AED,stroke-width:2px
+    style TMS fill:#fff,stroke:#E8850C,stroke-width:2px
+    style WMS fill:#fff,stroke:#0D8A5E,stroke-width:2px
+    style DMS fill:#fff,stroke:#0891B2,stroke-width:2px
+    style DT fill:#f5f5f5,stroke:#d1d5db,stroke-dasharray:5
+    style M1 fill:#F3E8FF,stroke:#7C3AED,stroke-width:2px
+</pre></div>
+<div class="notes">
+<div class="note-block"><h4>设计理念</h4><p>参与方统一模型——客户和主体合并为一个参与方档案。角色是标签而非独立记录。</p></div>
+<div class="note-block"><h4>产业链全景</h4><p>独立一级菜单。可视化上下游关系图谱。老板视角的产业链覆盖度和风险分析。</p></div>
+<div class="note-block"><h4>数据流向</h4><ul><li>CIM 是唯一源头</li><li>主数据先治理再分发</li><li>下游只消费不反向修改</li><li>数据中台只做分析</li></ul></div>
+<div class="note-block"><h4>与V3差异</h4><p>改动较大。客户+主体合并、产业链突出为平台核心卖点。</p></div>
+</div>
+</div></div></div>
+
+<!-- ====== V1 DATA ====== -->
+<div id="dV1-data" class="d"><div class="card">
+<div class="ct"><span class="badge bv1">V1</span> 数据架构 — 参与方统一模型为中心，产业链关系为独立核心实体</div>
+<div class="layout"><div class="diagram"><pre class="mermaid">
+graph TB
+    subgraph CORE[" 核 心 数 据 模 型 "]
+        PARTY["参与方 统一主表<br/>参与方编号 参与方编码<br/>统一社会信用代码 全局唯一<br/>法定全称 英文全称 中文简称<br/>境内外标志 法定代表人 成立日期<br/>状态 来源系统 原系统编码<br/>一条法律实体一条记录 不可重复"]
+        ROLE["参与方角色 标签<br/>签约主体 服务主体 结算主体<br/>同一参与方可多选<br/>角色生效日期 角色失效日期"]
+        CHAIN["产业链关系 核心实体<br/>来源参与方 去往 目标参与方<br/>关系类型 供应 代工 经销 服务<br/>来源层级 目标层级 上游 中游 下游<br/>是否直接关系 生效日期 失效日期<br/>独立表 双向查询 递归追溯链条"]
+        PROFILE["经营档案<br/>行业分类 客户等级 K A B C D<br/>服务产品需求 货代 关务 仓储 运输<br/>产业链层级 产业链角色 产业链定位<br/>归属销售 归属客服 跟进进度"]
+        REL["参与方组织关系<br/>上级参与方编号 自引用外键<br/>关系类型 母子公司 集团 关联<br/>生效日期 失效日期"]
+        SC["收发货方<br/>所属服务主体编号<br/>名称 编码 类型 发货方 收货方<br/>联系人 电话 邮箱<br/>仅服务主体下挂 私域地址库"]
+        ADDR["地址站点<br/>所属收发货方编号<br/>详细地址 必填 解析输入<br/>省 市 区 解析自动填充<br/>经度 纬度 解析自动填充<br/>门牌号 邮编 手工录入<br/>解析精度 版本号 状态"]
+        USG["地址用途<br/>7种用途多选<br/>收货 发货 提货 送货<br/>退货 报关 仓储<br/>同一地址可多用途"]
+        VER["地址版本快照<br/>版本号 完整快照<br/>变更摘要 变更人 变更时间<br/>每次修改自动生成"]
+        CTCT["联系人<br/>关联参与方编号 联系人类型<br/>客户 商务 财务 关务<br/>仓储 运输 现场<br/>按类型分类 独立管理"]
+    end
+    PARTY --> ROLE
+    PARTY --> CHAIN
+    PARTY --> PROFILE
+    PARTY --> REL
+    PARTY --> CTCT
+    ROLE -->|仅服务主体| SC
+    SC --> ADDR
+    ADDR --> USG
+    ADDR --> VER
+    style PARTY fill:#2D3BFF,color:#fff,stroke:#2D3BFF,stroke-width:3px
+    style CHAIN fill:#7C3AED,color:#fff,stroke:#7C3AED,stroke-width:3px
+    style ROLE fill:#fff,stroke:#2D3BFF,stroke-width:2px
+    style PROFILE fill:#fff,stroke:#E8850C,stroke-width:2px
+    style REL fill:#fff,stroke:#0D8A5E,stroke-width:2px
+    style SC fill:#fff,stroke:#0891B2,stroke-width:2px
+    style ADDR fill:#fff,stroke:#0891B2,stroke-width:2px
+    style USG fill:#fafafa,stroke:#d1d5db
+    style VER fill:#fafafa,stroke:#d1d5db
+    style CTCT fill:#fff,stroke:#d1d5db
+</pre></div>
+<div class="notes">
+<div class="note-block"><h4>参与方中心化</h4><p>所有主数据围绕参与方展开。角色标签表达业务身份，产业链关系表达产业链位置。</p></div>
+<div class="note-block"><h4>产业链关系是核心实体</h4><p>不是JSON字段是独立表。支持双向查询：谁供应A？A供应谁？可递归追溯整条供应链。</p></div>
+<div class="note-block"><h4>地址层级</h4><p>仅服务主体下挂收发货方和地址站点。私域地址库不跨主体共享。地址解析自动填充省市区经纬度。</p></div>
+<div class="note-block"><h4>治理层</h4><p>编码规则跨日重置。地址修改自动生成版本快照和变更摘要。字典管理统一枚举值。</p></div>
+</div>
+</div></div></div>
+
+<!-- ====== V3 SYS ====== -->
+<div id="dV3-sys" class="d"><div class="card">
+<div class="ct"><span class="badge bv3">V3</span> 系统架构 — 务实主数据平台，8个一级菜单，客商管理为核心入口</div>
+<div class="layout"><div class="diagram"><pre class="mermaid">
+graph TB
+    subgraph MENU[" 菜 单  8 项 "]
+        N1["客商管理 核心入口<br/>原客户管理改名升级<br/>为未来供应商角色预留"]
+        N2["主体管理<br/>统一社会信用代码双向关联<br/>签约 服务 结算"]
+        N3["地址主数据<br/>全局地址视图<br/>跨客商 跨主体搜索"]
+        N4["产业链主数据<br/>供应链关系表<br/>和地址一样 普通列表页"]
+        N5["业务管理<br/>跟进 商机 报价 审批"]
+        N6["结算管理<br/>规则 拆分字段"]
+        N7["数据治理<br/>编码 字典 同步监控"]
+        N8["系统管理<br/>用户 角色 权限 审计"]
+    end
+    subgraph DETAIL["客商详情页 7个标签页"]
+        D1["基本信息<br/>名称 编码 信用代码 状态"]
+        D2["业务档案<br/>等级 行业 服务产品"]
+        D3["产业链定位<br/>产业链层级 产业链角色"]
+        D4["组织架构<br/>集团 子公司 部门 树形"]
+        D5["关联主体<br/>点击跳转主体管理<br/>信用代码自动匹配"]
+        D6["联系人<br/>客户 商务 财务 关务 现场"]
+        D7["地址与收发货<br/>关联地址快捷查看"]
+    end
+    subgraph ENTITY["主体管理 双向关联"]
+        E1["签约主体"]
+        E2["服务主体<br/>下挂收发货方 地址"]
+        E3["结算主体"]
+        E4["详情页 关联客商 标签页<br/>点击跳转客商管理"]
+    end
+    subgraph INDEP["独立主数据菜单"]
+        I1["地址主数据<br/>全局地址列表 跨客商搜索<br/>收发货方管理 增删改查<br/>地址站点 新建 编辑 详情<br/>地址解析 高德地图接口<br/>联系人 用途 版本历史"]
+        I2["产业链主数据<br/>关系列表 搜索筛选<br/>来源客商 去往 目标客商<br/>关系类型 供应 代工 经销<br/>增删改查 普通列表页<br/>远期可升级为图谱可视化"]
+    end
+    subgraph SYS2["下游业务系统 主数据消费者"]
+        S1["COS 订单系统<br/>下单引用地址"]
+        S2["CPQ 报价结算<br/>引用客户主体"]
+        S3["TMS 运输系统<br/>地址定位 联系人"]
+        S4["WMS 仓储系统<br/>作业地址 预约"]
+        S5["DMS 关务系统<br/>监管区域 关务属性"]
+    end
+    N1 --> DETAIL
+    N2 --> ENTITY
+    DETAIL -.->|信用代码自动关联<br/>双向跳转| ENTITY
+    N3 --> I1
+    N4 --> I2
+    INDEP -->|按需同步| SYS2
+    style N1 fill:#2D3BFF,color:#fff,stroke:#2D3BFF,stroke-width:3px
+    style N2 fill:#0D8A5E,color:#fff,stroke:#0D8A5E
+    style N3 fill:#E8850C,color:#fff,stroke:#E8850C
+    style N4 fill:#7C3AED,color:#fff,stroke:#7C3AED
+    style I1 fill:#E8850C,color:#fff
+    style I2 fill:#7C3AED,color:#fff
+    style D3 fill:#F3E8FF,stroke:#7C3AED,stroke-width:2px
+    style D4 fill:#FFEBEE,stroke:#D63031,stroke-width:2px
+    style D5 fill:#E6F7F0,stroke:#0D8A5E,stroke-width:2px
+    style D6 fill:#E6F5F9,stroke:#0891B2,stroke-width:2px
+    style D7 fill:#FFF4E8,stroke:#E8850C,stroke-width:2px
+</pre></div>
+<div class="notes">
+<div class="note-block"><h4>核心变化</h4><p>客户管理改名客商管理，为供应商角色预留。组织架构和联系人收入客商详情标签页，不独立设菜单。</p></div>
+<div class="note-block"><h4>双向关联</h4><p>客商和主体通过统一社会信用代码自动关联。详情页互有跳转标签页，无需手动维护关联关系。</p></div>
+<div class="note-block"><h4>菜单精简</h4><p>从原来的客户+主体+地址深层嵌套，精简为8个一级菜单。地址和产业链独立为平级菜单。</p></div>
+<div class="note-block"><h4>与V1对比</h4><p>改动更小更务实。保留现有命名和数据结构。产业链作为普通主数据域而非平台核心卖点。</p></div>
+</div>
+</div></div></div>
+
+<!-- ====== V3 DATA ====== -->
+<div id="dV3-data" class="d"><div class="card">
+<div class="ct"><span class="badge bv3">V3</span> 数据架构 — 客商与主体双向关联，产业链关系独立表，组织架构和联系人归属客商</div>
+<div class="layout"><div class="diagram"><pre class="mermaid">
+graph TB
+    subgraph TOP[" 核 心 关 系 "]
+        CUST["客商档案 业务关系视角<br/>编号 名称 客商编码<br/>统一社会信用代码<br/>客户等级 K A B C D<br/>行业分类 服务产品需求<br/>产业链层级 产业链角色<br/>关联签约主体编号列表<br/>关联服务主体编号列表<br/>关联结算主体编号列表<br/>归属人员 跟进进度<br/>原客户管理改名 为供应商预留"]
+        ENT["主体档案 法律实体视角<br/>编号 名称 主体编码<br/>统一社会信用代码 共用<br/>主体类型 签约 服务 结算 多选<br/>法定代表人 纳税人识别号<br/>成立日期 状态<br/>服务主体下挂收发货方和地址"]
+        CUST -.->|统一社会信用代码自动关联<br/>客商查看关联主体<br/>主体查看关联客商| ENT
+    end
+    subgraph BELOW[" 归 属 关 系 "]
+        ORG["组织架构<br/>所属客商编号 上级编号 自引用<br/>组织名称 组织类型 层级深度<br/>集团 子公司 事业部 部门 工厂<br/>树形组件 客商详情标签页内管理"]
+        CT["联系人 扩展<br/>关联客商编号 联系人类型<br/>客户联系人 商务联系人<br/>财务联系人 关务联系人<br/>仓储联系人 运输联系人<br/>现场联系人 地址级<br/>客商详情标签页内管理"]
+        CH2["产业链关系 独立菜单<br/>来源客商编号 目标客商编号<br/>关系类型 供应 代工 经销 服务<br/>来源产业链层级 目标产业链层级<br/>来源产业链角色 目标产业链角色<br/>生效日期 是否直接关系 状态<br/>独立一级菜单 普通列表页<br/>和地址主数据同样的设计模式"]
+        SC2["收发货方<br/>所属服务主体编号<br/>名称 编码 类型<br/>联系人 电话 邮箱<br/>仅服务主体下挂"]
+        AD2["地址站点<br/>所属收发货方编号<br/>详细地址 必填<br/>省 市 区 解析填充<br/>经度 纬度 解析填充<br/>门牌号 邮编 手工录入<br/>解析精度 版本号 状态"]
+        US2["地址用途<br/>7种用途多选<br/>收货 发货 提货<br/>送货 退货 报关<br/>仓储作业"]
+        VC2["地址级联系人<br/>姓名 电话 邮箱<br/>是否主要负责人<br/>加<br/>地址版本快照<br/>版本号 变更摘要"]
+        CUST --> ORG
+        CUST --> CT
+        CUST --> CH2
+        ENT --> SC2
+        SC2 --> AD2
+        AD2 --> US2
+        AD2 --> VC2
+    end
+    style CUST fill:#2D3BFF,color:#fff,stroke:#2D3BFF,stroke-width:3px
+    style ENT fill:#0D8A5E,color:#fff,stroke:#0D8A5E,stroke-width:3px
+    style CH2 fill:#7C3AED,color:#fff,stroke:#7C3AED,stroke-width:3px
+    style ORG fill:#fff,stroke:#D63031,stroke-width:2px
+    style CT fill:#fff,stroke:#0891B2,stroke-width:2px
+    style SC2 fill:#fff,stroke:#E8850C,stroke-width:2px
+    style AD2 fill:#fff,stroke:#E8850C,stroke-width:2px
+    style US2 fill:#fafafa,stroke:#d1d5db
+    style VC2 fill:#fafafa,stroke:#d1d5db
+</pre></div></div></div>
+
+</div>
+<script>
+mermaid.initialize({startOnLoad:false,theme:'default',securityLevel:'loose',
+  flowchart:{useMaxWidth:true,htmlLabels:true,curve:'basis',padding:12},
+  themeVariables:{fontFamily:'-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif'}});
+let cv='V1',cw='sys',rendered={};
+async function renderDiagram(id){
+  if(rendered[id]) return;
+  rendered[id]=true;
+  var el=document.getElementById(id);
+  if(!el) return;
+  el.classList.add('on');
+  try{await mermaid.run({querySelector:'#'+id+' .mermaid'})}catch(e){console.error(id,e)}
+}
+async function initAll(){
+  var ids=['dV1-sys','dV1-data','dV3-sys','dV3-data'];
+  for(var i=0;i<ids.length;i++){await renderDiagram(ids[i])}
+  for(var i=0;i<ids.length;i++){document.getElementById(ids[i]).classList.remove('on')}
+  document.getElementById('dV1-sys').classList.add('on');
+}
+function show(){
+  document.querySelectorAll('.d').forEach(function(e){e.classList.remove('on')});
+  var el=document.getElementById('d'+cv+'-'+cw);
+  if(el) el.classList.add('on');
+}
+function sv(v){cv=v;document.getElementById('tv1').classList.toggle('on',v==='V1');document.getElementById('tv3').classList.toggle('on',v==='V3');show()}
+function sw(w){cw=w;document.getElementById('vsys').classList.toggle('on',w==='sys');document.getElementById('vdata').classList.toggle('on',w==='data');show()}
+window.addEventListener('load',initAll);
+</script>
+</body>
+</html>

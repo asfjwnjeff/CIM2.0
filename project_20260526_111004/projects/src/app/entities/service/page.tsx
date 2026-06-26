@@ -1,11 +1,15 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { useApp } from '@/lib/store';
 import { useConfirm } from '@/hooks/useConfirm';
 import { toast } from 'sonner';
-import { Search, Plus, Pencil, Trash2 } from 'lucide-react';
+import { Search, Plus, Pencil, Trash2, Eye } from 'lucide-react';
+
+interface ServiceEntityRow {
+  id: string; name: string; code?: string; unifiedSocialCreditCode?: string;
+  contactPerson?: string; phone?: string; status: string; createdAt: string;
+}
 
 function StatusBadge({ status }: { status: string }) {
   const isActive = status === 'active';
@@ -20,13 +24,25 @@ function StatusBadge({ status }: { status: string }) {
 
 export default function ServiceEntitiesPage() {
   const router = useRouter();
-  const { serviceEntities, deleteServiceEntity } = useApp();
   const { confirm, ConfirmDialog } = useConfirm();
+  const [entities, setEntities] = useState<ServiceEntityRow[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchKeyword, setSearchKeyword] = useState('');
   const [filterStatus, setFilterStatus] = useState<string>('all');
 
+  const loadData = useCallback(async () => {
+    try {
+      const resp = await fetch('/api/service-entities');
+      const data = await resp.json();
+      if (data.success) setEntities(data.data);
+    } catch { toast.error('加载失败'); }
+    finally { setLoading(false); }
+  }, []);
+
+  useEffect(() => { loadData(); }, [loadData]);
+
   const filteredEntities = useMemo(() => {
-    return serviceEntities.filter(entity => {
+    return entities.filter(entity => {
       const matchesKeyword = !searchKeyword ||
         entity.name.includes(searchKeyword) ||
         (entity.code || '').includes(searchKeyword) ||
@@ -34,13 +50,17 @@ export default function ServiceEntitiesPage() {
       const matchesStatus = filterStatus === 'all' || entity.status === filterStatus;
       return matchesKeyword && matchesStatus;
     });
-  }, [serviceEntities, searchKeyword, filterStatus]);
+  }, [entities, searchKeyword, filterStatus]);
 
   const handleDelete = async (id: string, name: string) => {
-    const ok = await confirm('删除服务主体', `确定要删除服务主体"${name}"吗？`, '删除', '取消', true);
+    const ok = await confirm('删除服务主体', `确定要删除服务主体"${name}"吗？此操作将同时删除其下所有收发货方和地址站点。`, '删除', '取消', true);
     if (!ok) return;
-    deleteServiceEntity(id);
-    toast.success('服务主体已删除');
+    try {
+      const resp = await fetch(`/api/service-entities?id=${id}`, { method: 'DELETE' });
+      const data = await resp.json();
+      if (data.success) { toast.success('服务主体已删除'); loadData(); }
+      else { toast.error(data.error || '删除失败'); }
+    } catch { toast.error('网络错误'); }
   };
 
   return (
@@ -103,7 +123,7 @@ export default function ServiceEntitiesPage() {
                   <th className="px-3 py-3 text-left text-[11px] font-semibold uppercase text-[#5A5A5A]">联系电话</th>
                   <th className="px-3 py-3 text-left text-[11px] font-semibold uppercase text-[#5A5A5A]">状态</th>
                   <th className="px-3 py-3 text-left text-[11px] font-semibold uppercase text-[#5A5A5A]">创建时间</th>
-                  <th className="px-3 py-3 text-left text-[11px] font-semibold uppercase text-[#5A5A5A] w-[120px]">操作</th>
+                  <th className="px-3 py-3 text-left text-[11px] font-semibold uppercase text-[#5A5A5A] w-[160px]">操作</th>
                 </tr>
               </thead>
               <tbody>
@@ -114,7 +134,9 @@ export default function ServiceEntitiesPage() {
                 ) : (
                   filteredEntities.map((entity) => (
                     <tr key={entity.id} className="border-b border-[#EBEBEB] h-[44px] hover:bg-[#F5F5F5] transition-colors">
-                      <td className="px-3 py-3 text-[13px] font-medium text-[#0A0A0A]">{entity.name}</td>
+                      <td className="px-3 py-3 text-[13px] font-medium text-[#0A0A0A]">
+                        <button onClick={() => router.push(`/entities/service/${entity.id}`)} className="hover:text-[#2D3BFF] transition-colors">{entity.name}</button>
+                      </td>
                       <td className="px-3 py-3 text-[13px] text-[#5A5A5A] font-mono text-xs">{entity.code || '-'}</td>
                       <td className="px-3 py-3 text-[13px] text-[#5A5A5A] font-mono text-xs">{entity.unifiedSocialCreditCode || '-'}</td>
                       <td className="px-3 py-3 text-[13px] text-[#0A0A0A]">{entity.contactPerson || '-'}</td>
@@ -124,18 +146,22 @@ export default function ServiceEntitiesPage() {
                       <td className="px-3 py-3">
                         <div className="flex items-center gap-2">
                           <button
-                            onClick={() => router.push(`/entities/service/${entity.id}/edit`)}
+                            onClick={() => router.push(`/entities/service/${entity.id}`)}
                             className="text-[#2D3BFF] text-[13px] font-medium hover:underline"
                           >
-                            <Pencil className="w-3.5 h-3.5 inline mr-0.5" />
-                            编辑
+                            <Eye className="w-3.5 h-3.5 inline mr-0.5" />查看
+                          </button>
+                          <button
+                            onClick={() => router.push(`/entities/service/${entity.id}/edit`)}
+                            className="text-[#5A5A5A] text-[13px] font-medium hover:text-[#2D3BFF]"
+                          >
+                            <Pencil className="w-3.5 h-3.5 inline mr-0.5" />编辑
                           </button>
                           <button
                             onClick={() => handleDelete(entity.id, entity.name)}
                             className="text-[#D63031] text-[13px] font-medium hover:underline"
                           >
-                            <Trash2 className="w-3.5 h-3.5 inline mr-0.5" />
-                            删除
+                            <Trash2 className="w-3.5 h-3.5 inline mr-0.5" />删除
                           </button>
                         </div>
                       </td>

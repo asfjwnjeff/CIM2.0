@@ -14,6 +14,13 @@ import {
   followups,
   followupReminderConfig,
   contacts,
+  serviceEntities,
+  shipperConsignees,
+  addressSites,
+  addressUsages,
+  addressContacts,
+  addressVersions,
+  codeSequences,
 } from './schema';
 import {
   users,
@@ -156,6 +163,52 @@ const CREATE_TABLES = [
     approval_point TEXT, status TEXT DEFAULT 'active',
     remark TEXT, created_by TEXT, created_at TEXT NOT NULL, updated_at TEXT
   )`,
+  // ====== 地址主数据升级 ======
+  `CREATE TABLE IF NOT EXISTS service_entities (
+    id TEXT PRIMARY KEY, name TEXT NOT NULL, code TEXT,
+    unified_social_credit_code TEXT, legal_representative TEXT,
+    status TEXT DEFAULT 'active', establishment_date TEXT,
+    tax_id TEXT, address TEXT, contact_person TEXT, phone TEXT,
+    email TEXT, remark TEXT, created_at TEXT, updated_at TEXT
+  )`,
+  `CREATE TABLE IF NOT EXISTS shipper_consignees (
+    id TEXT PRIMARY KEY, service_entity_id TEXT NOT NULL,
+    name TEXT NOT NULL, code TEXT, type TEXT DEFAULT 'both',
+    unified_social_credit_code TEXT, contact_person TEXT,
+    phone TEXT, email TEXT, status TEXT DEFAULT 'active',
+    remark TEXT, created_at TEXT, updated_at TEXT
+  )`,
+  `CREATE TABLE IF NOT EXISTS address_sites (
+    id TEXT PRIMARY KEY, shipper_consignee_id TEXT NOT NULL,
+    service_entity_id TEXT NOT NULL, code TEXT, name TEXT,
+    province TEXT, city TEXT, district TEXT,
+    detail_address TEXT NOT NULL, doorplate TEXT,
+    postal_code TEXT, longitude REAL, latitude REAL,
+    geo_accuracy TEXT DEFAULT 'unresolved',
+    special_customs_zone INTEGER DEFAULT 0,
+    special_requirements TEXT,
+    status TEXT DEFAULT 'active', version INTEGER DEFAULT 1,
+    created_at TEXT, updated_at TEXT
+  )`,
+  `CREATE TABLE IF NOT EXISTS address_usages (
+    id TEXT PRIMARY KEY, address_site_id TEXT NOT NULL,
+    usage_type TEXT NOT NULL, created_at TEXT
+  )`,
+  `CREATE TABLE IF NOT EXISTS address_contacts (
+    id TEXT PRIMARY KEY, address_site_id TEXT NOT NULL,
+    name TEXT NOT NULL, phone TEXT, email TEXT,
+    is_primary INTEGER DEFAULT 0, remark TEXT,
+    created_at TEXT, updated_at TEXT
+  )`,
+  `CREATE TABLE IF NOT EXISTS address_versions (
+    id TEXT PRIMARY KEY, address_site_id TEXT NOT NULL,
+    version INTEGER NOT NULL, snapshot TEXT NOT NULL,
+    changed_by TEXT, changed_at TEXT, change_summary TEXT
+  )`,
+  `CREATE TABLE IF NOT EXISTS code_sequences (
+    id TEXT PRIMARY KEY, current_seq INTEGER DEFAULT 0,
+    updated_at TEXT
+  )`,
   // IAM 表
   `CREATE TABLE IF NOT EXISTS users (
     id TEXT PRIMARY KEY, username TEXT NOT NULL UNIQUE, real_name TEXT NOT NULL,
@@ -233,6 +286,29 @@ export async function seed() {
     updated_at: 'TEXT',
   });
 
+  // 自动补列: 地址主数据升级新表
+  autoMigrate(db, 'service_entities', {
+    code: 'TEXT', unified_social_credit_code: 'TEXT', legal_representative: 'TEXT',
+    establishment_date: 'TEXT', tax_id: 'TEXT', address: 'TEXT',
+    contact_person: 'TEXT', phone: 'TEXT', email: 'TEXT', remark: 'TEXT',
+    updated_at: 'TEXT',
+  });
+  autoMigrate(db, 'shipper_consignees', {
+    code: 'TEXT', type: "TEXT DEFAULT 'both'", unified_social_credit_code: 'TEXT',
+    contact_person: 'TEXT', phone: 'TEXT', email: 'TEXT', remark: 'TEXT',
+    updated_at: 'TEXT',
+  });
+  autoMigrate(db, 'address_sites', {
+    code: 'TEXT', name: 'TEXT', province: 'TEXT', city: 'TEXT', district: 'TEXT',
+    doorplate: 'TEXT', postal_code: 'TEXT', longitude: 'REAL', latitude: 'REAL',
+    geo_accuracy: "TEXT DEFAULT 'unresolved'", special_customs_zone: 'INTEGER DEFAULT 0',
+    special_requirements: 'TEXT', version: 'INTEGER DEFAULT 1', updated_at: 'TEXT',
+  });
+  autoMigrate(db, 'address_contacts', {
+    phone: 'TEXT', email: 'TEXT', is_primary: 'INTEGER DEFAULT 0', remark: 'TEXT',
+    updated_at: 'TEXT',
+  });
+
   // 清空已有数据
   db.delete(customers).run();
   db.delete(billingEntities).run();
@@ -247,6 +323,13 @@ export async function seed() {
   try { db.delete(followups).run(); } catch { /* 表可能尚不存在 */ }
   try { db.delete(followupReminderConfig).run(); } catch { /* 表可能尚不存在 */ }
   try { db.delete(contacts).run(); } catch { /* 表可能尚不存在 */ }
+  try { db.delete(serviceEntities).run(); } catch { /* 表可能尚不存在 */ }
+  try { db.delete(shipperConsignees).run(); } catch { /* 表可能尚不存在 */ }
+  try { db.delete(addressSites).run(); } catch { /* 表可能尚不存在 */ }
+  try { db.delete(addressUsages).run(); } catch { /* 表可能尚不存在 */ }
+  try { db.delete(addressContacts).run(); } catch { /* 表可能尚不存在 */ }
+  try { db.delete(addressVersions).run(); } catch { /* 表可能尚不存在 */ }
+  try { db.delete(codeSequences).run(); } catch { /* 表可能尚不存在 */ }
 
   // 插入跟进提醒配置种子数据
   const reminderConfigs = [
@@ -544,6 +627,38 @@ export async function seed() {
     }).run();
   }
   console.log(`  联系人: ${seedContacts.length} 条`);
+
+  // ====== 服务主体种子数据 ======
+  const seedServiceEntities = [
+    { id: 'svc-1', name: '应用材料（中国）有限公司', code: 'SVC-20260624-001', unifiedSocialCreditCode: '91310000607336477R', legalRepresentative: '张伟', status: 'active', contactPerson: '赵志远', phone: '138****6789', email: 'david.zhao@huali.com', createdAt: new Date().toISOString() },
+    { id: 'svc-2', name: '金鹰国际货运代理有限公司', code: 'SVC-20260624-002', unifiedSocialCreditCode: '91310115607311236A', legalRepresentative: '陈刚', status: 'active', contactPerson: '陈丽华', phone: '136****2345', email: 'lisa.chen@jinying.com', createdAt: new Date().toISOString() },
+    { id: 'svc-3', name: '苏斯贸易（上海）有限公司', code: 'SVC-20260624-003', unifiedSocialCreditCode: '91310000607372270P', legalRepresentative: '李明', status: 'active', contactPerson: '周明辉', phone: '159****4321', email: 'martin.zhou@sus.com', createdAt: new Date().toISOString() },
+    { id: 'svc-4', name: '昇先创科技（深圳）有限公司', code: 'SVC-20260624-004', unifiedSocialCreditCode: '91440300671985413N', legalRepresentative: '黄伟杰', status: 'active', contactPerson: '郑文静', phone: '186****3456', email: 'wendy.zheng@sxs.com', createdAt: new Date().toISOString() },
+  ];
+  for (const e of seedServiceEntities) {
+    db.insert(serviceEntities).values({
+      id: e.id, name: e.name, code: e.code,
+      unifiedSocialCreditCode: e.unifiedSocialCreditCode,
+      legalRepresentative: e.legalRepresentative, status: e.status,
+      contactPerson: e.contactPerson, phone: e.phone, email: e.email,
+      createdAt: e.createdAt,
+    }).run();
+  }
+  console.log(`  服务主体: ${seedServiceEntities.length} 条`);
+
+  // ====== 编码序列初始化 ======
+  const seedCodes = [
+    { id: 'SVC', currentSeq: 4 },
+    { id: 'SHC', currentSeq: 0 },
+    { id: 'ADS', currentSeq: 0 },
+  ];
+  for (const c of seedCodes) {
+    db.insert(codeSequences).values({
+      id: c.id, currentSeq: c.currentSeq,
+      updatedAt: new Date().toISOString(),
+    }).run();
+  }
+  console.log(`  编码序列: ${seedCodes.length} 条`);
 
   // ==================== IAM 种子数据 ====================
 
